@@ -1,0 +1,97 @@
+Clarifications, Assumptions, or Additions
+===
+It is assumed that the project requirement was to create a Parser in the sense
+that it recognizes invalid syntax in Decaf files. Specifically, this
+implementation of DecafParser _does not_ yet produce a structured abstract
+syntax tree, only a flat tree with all AST objects as sibilngs.
+
+For Decaf operators at the same precedence level, the Parser assumes the proper
+order of evaluations is from left to right.
+
+Design Overview
+===
+ANTLR was chosen for this project because it was suggested by the spec and for
+its ability to output Java code. Parsec was considered as an alternative due to
+its use of a functional language, but due to unfamiliarity with Haskell (and
+the future need to work with teammates using Java) it was not chosen.
+
+The parser itself uses a lookahead of k=3, which avoids the majority of
+potential grammar ambiguities given the grammar outlined in the project specs.
+
+A design choice to classifying tokens with as much specificity as possible was
+made in the lexer. Certain tokens like arithmetic operators are treated the
+same by the grammar. For example, one can write a lexer rule matching all
+arithmetic operators (with one exception to be explained), e.g. ARITH_OP. It
+would be a valid design choice to work with ARITH_OP in the parser rules - the
+actual token text would be parsed at a later stage.
+
+However, this has a few downsides:
+  1) The parser will later need to parse the text anyways to determine the
+  specific arithmetic operator to use.
+  2) The MINUS operator is actually treated differently because of its role in
+  negating an expression. It must be placed in its own rule, or two rules that
+  refer to the minus sign will create ambiguity.
+
+Because of the exception of the MINUS operator, the decision was made to
+separate all the operators into their own token types, e.g. write rules for
+MINUS, PLUS, TIMES, DIVIDE, and MOD all exist. At the cost of verbosity, the
+implementation for each operator is consistent and the final parser doesn't
+need to read the original text to finish parsing the token.
+
+Otherwise, there was limited room for design flexibility, given the ANTLR
+framework generates most of the code for you. Some ANTLR-specific features were
+used to make defining the scanner easier. Specifically, to define the operators
+"-" and "-=" in an unambiguous manner both "-" and "-=" are recognized by the
+same rule and the "-=" alternative manually sets a different token type. The
+same is done for "+" and "+=".
+
+Also, tokens are defined in the format "TOKEN ASSIGN STRING", i.e.
+BREAK="break" rather than just "STRING".  They're then referred to by TOKEN
+instead of "TK_" + STRING to allow for more flexible editing of STRING without
+having to update references.
+
+
+Implementation Issues of Interest
+===
+Some instances of "hacking the grammar" were noted (although some potentially
+difficult hacks were avoided by relying on ANTLR's tokens to match certain
+keywords without ambiguity).
+
+The grammar definition of "expr -> expr bin_op expr" creates a lot of ambiguity
+as well as left recursion. The order of operations resolves any ambiguity in
+parsing order - a separate rule is defined for each precedence level and
+references the rule in the next lowest level. Within precedence levels, binary
+operators have rules defined in the form "[bin_rule] :[lower_rule] ([operators]
+[bin_rule])?" to avoid left recursion.
+
+ANTLR2 was interesting to work with, although its quirks sometimes presented
+obstacles. Notably, it remains to be seen how tokens can be referenced in Lexer
+rules:
+
+The literals "true" and "false" have no distinction from identifiers outside of
+their designation as keywords in Decaf, creating potential ambiguity.  The
+literals needed to be defined as tokens when used with ANTLR - ANTLR gives
+priority to tokens and always match "true" as a TRUE token before matching it
+as an ID.  However, tokens are limited to simple strings and cannot be refered
+from lexer rules. As a result, the _parser_ grammar defines a literal to be
+INT_LITERAL | CHAR_LITERAL | TRUE | FALSE instead of a BOOL_LITERAL class.
+While not an incredible complexity, it does require that booleans are treated
+slightly differently than other literals in the parser.
+
+
+Relevant Source Code
+===
+- /src/edu/mit/compilers/grammar/scanner.g
+- /src/edu/mit/compilers/grammar/parser.g
+- /src/edu/mit/compilers/Main.java (modified to exit(1) if error)
+
+
+Known Problems
+===
+The scanner will scan an invalid hex number like "0xABCZ00" as HEX("0xABC")
+ID("Z00"). This is intuitively misleading, but technically allowed by the spec.
+The spec only states "Keywords and identifiers must be separated by white
+space, or a token that is neither a keyword nor an identifier." Assuming the
+interpretation is correct, then "0xABCZ00" is a non-keyword/non-identifier
+INT_LITERAL followed by an identifier. Also, the parser would catch the mistake
+since it is not expecting the identifier immediately after the literal.

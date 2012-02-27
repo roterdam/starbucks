@@ -1,0 +1,7 @@
+class Program {
+  void run() {
+    a += 0b0101;
+    b -= a - 0x8EFA;
+    c = b;
+  }
+}

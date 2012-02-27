@@ -1,0 +1,22 @@
+class Program {
+  void myfunc() {
+    while (a + b <= 4 % e*2 == true) {
+      a = a + 5;
+      if (b == c) {
+        return 5;
+      } else {
+        if (b == ( c- 0x56E)) {
+          break;
+        } else {
+          continue;
+        }
+        {
+          int a;
+          boolean d;
+          a -= 5;
+        }
+      }
+    }
+    return;
+  }
+}

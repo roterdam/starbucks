@@ -1,0 +1,4 @@
+class Program {
+  int a, b[5];
+  boolean c, d[123012], e;
+}

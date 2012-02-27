@@ -1,0 +1,4 @@
+class Program {
+  void run(boolean[] a) {
+  }
+}

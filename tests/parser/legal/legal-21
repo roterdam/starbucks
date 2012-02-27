@@ -1,0 +1,20 @@
+class Program {
+  int a, b, c[4];
+  boolean a, b[500], e, d, f, g[340];
+  void an_identifer_string(boolean c, int i, int d, boolean a) {
+    int a;
+    boolean d,e,f,g;
+    boolean h;
+    int e,f,g;
+    a = 1 + 2;
+    if (a == true || c == false || d == true && 5 > 6) {
+      a = 34 * 2 % d / 23;
+    }
+    if (c <= 5) {
+      c = 23;
+    } else {
+      d = c;
+    }
+    funcd(d);
+  }
+}

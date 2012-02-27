@@ -1,0 +1,5 @@
+class Program {
+  void run() {
+    a +== 6;
+  }
+}

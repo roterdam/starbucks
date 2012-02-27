@@ -1,0 +1,6 @@
+class Program {
+  void run() {
+    a = b;
+    int a;
+  }
+}

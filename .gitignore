@@ -1,0 +1,14 @@
+.DS_STORE
+classes
+dist
+autogen
+.classpath
+.project
+.metadata
+*.dot
+*.png
+*.tar
+*.tar.gz
+*.s
+*.o
+*.test

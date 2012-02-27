@@ -1,0 +1,15 @@
+class Program {
+  void run() {
+    a = '\'';
+    b = '\"';
+    c = '\\';
+    d = '\t';
+    e = '\n';
+    callout("\"");
+  }
+  void y12312(int a) {
+    if (1 >= -500232 && true) {
+      break;
+    }
+  }
+}

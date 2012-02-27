@@ -1,0 +1,12 @@
+class Program {
+  int funcd(int b) {
+    for(d = (4 + fund(4)) - 5 % d; d < 0xFEAAA) {
+      alert(true);
+      alert(0b010101011);
+      alert('f');
+      alert('\n');
+      callout("external");
+    }
+    callout("external", 4, 5, 6, 'd');
+  }
+}

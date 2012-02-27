@@ -1,0 +1,6 @@
+class Program {
+  void run() {
+    int a;
+    a = 0x9Z;
+  }
+}

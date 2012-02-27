@@ -1,0 +1,7 @@
+class Program {
+  void run() {
+    a = !true;
+    a = !!!!!true;
+    b = !!!!(---5 == 5 || !!!(!(!false)));
+  }
+}
