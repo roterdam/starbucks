@@ -6,4 +6,4 @@ in.) Start a new Java project but point it to the existing folder. From the lib
 folder, add the jar files to the build path (right click, Build Path, Add to
 Build Path).
 
-ant to build.
+`ant` to build.
