@@ -14,7 +14,7 @@ options
   // k=3 is required to fix ambiguities
   k = 3;
   buildAST = true;
-  ASTLabelType = "DecafAST";
+//  ASTLabelType = "DecafAST";
 }
 
 // Java glue code that makes error reporting easier.
@@ -69,20 +69,36 @@ options
   }
 }
 
-program
-	: CLASS PROGRAM! LCURLY! (field_decl)* (method_decl)* RCURLY! EOF!
+program!
+	:
+	{
+	  AST fields = #([FIELDS, "fields"]);
+	  AST methods = #([METHODS, "methods"]);
+	}
+	CLASS PROGRAM! LCURLY!
+  	(f:field_decl { fields.addChild(#f); })*
+  	(m:method_decl { methods.addChild(#m); })*
+	RCURLY! EOF!
+	{
+	  #program = #(CLASS, fields, methods);
+	}
 	;
 
 field_decl
-	: type field_decl_id (COMMA! field_decl_id)* SEMICOLON!
+	: (INT_TYPE^ | BOOLEAN_TYPE^) field_decl_id (COMMA! field_decl_id)* SEMICOLON!
 	;
 
 field_decl_id
-  : ID (LBRACKET! INT_LITERAL RBRACKET!)?
+  : ID^ (LBRACKET! INT_LITERAL RBRACKET!)?
   ;
 
-method_decl
-	: (type | VOID) ID LPAREN! (method_decl_params)? RPAREN! block
+method_decl!
+	: (t:type | v:VOID) ID LPAREN! (p:method_decl_params)? RPAREN! b:block
+	{ #method_decl = #(ID,
+	    #([METHOD_RETURN, "return"], t, v),
+	    #([METHOD_PARAMS, "params"], p),
+	    #([METHOD_BLOCK, "block"], b)
+	  );}
 	;
 
 method_decl_params
@@ -94,7 +110,7 @@ block
 	;
 
 var_decl
-	: type ID (COMMA! ID)* SEMICOLON!
+	: (INT_TYPE^ | BOOLEAN_TYPE^) ID (COMMA! ID)* SEMICOLON!
 	;
 
 type

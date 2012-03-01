@@ -13,6 +13,15 @@ options {
 }
 
 tokens {
+  // Imaginary tokens for tree nodes.
+  FIELD;
+  FIELDS;
+  METHODS;
+  METHOD_RETURN;
+  METHOD_PARAMS;
+  METHOD_BLOCK;
+  VAR_DECL;
+  
   BOOLEAN_TYPE="boolean";
   BREAK="break";
   CALLOUT="callout";

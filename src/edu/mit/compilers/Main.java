@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import antlr.ASTFactory;
 import antlr.Token;
+import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;
@@ -66,17 +67,19 @@ class Main {
 						inputStream));
 				DecafParser parser = new DecafParser(scanner);
 				parser.setTrace(CLI.debug);
-				
-				ASTFactory factory = new ASTFactory();
-			    factory.setASTNodeClass(DecafAST.class);
-			    parser.setASTFactory(factory);
+
+//				ASTFactory factory = new ASTFactory();
+//				factory.setASTNodeClass(DecafAST.class);
+//				parser.setASTFactory(factory);
 				parser.program();
-				DecafAST x = (DecafAST)parser.getAST();
-				abc(x);
-				abc((DecafAST)x.getNextSibling());
 				
-        // Return a non-zero code if an error has occurred.
-        if (parser.hasError()) {
+				System.out.println(parser.getAST().toStringTree());
+				
+				ASTFrame frame = new ASTFrame("6.035", parser.getAST());
+				frame.setVisible(true);
+				
+				// Return a non-zero code if an error has occurred.
+				if (parser.hasError()) {
 					System.exit(1);
 				}
 			}
@@ -85,8 +88,5 @@ class Main {
 			System.out.println(CLI.infile);
 			e.printStackTrace();
 		}
-	}
-	public static void abc(DecafAST y){
-		System.out.println(y.getText()+y.getLine()+":"+y.getColumn());
 	}
 }
