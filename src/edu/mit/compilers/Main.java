@@ -65,9 +65,9 @@ class Main {
 				DecafParser parser = new DecafParser(scanner);
 				parser.setTrace(CLI.debug);
 				parser.program();
-				
-        // Return a non-zero code if an error has occurred.
-        if (parser.hasError()) {
+
+				// Return a non-zero code if an error has occurred.
+				if (parser.hasError()) {
 					System.exit(1);
 				}
 			}

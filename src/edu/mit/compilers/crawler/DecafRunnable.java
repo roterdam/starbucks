@@ -1,8 +1,9 @@
 package edu.mit.compilers.crawler;
 
-import antlr.collections.AST;
+import edu.mit.compilers.grammar.DecafAST;
 
-public abstract class ASTRunnable {
+
+public abstract class DecafRunnable {
 
 	/**
 	 * Runs a given action on the AST.
@@ -12,6 +13,6 @@ public abstract class ASTRunnable {
 	 * @return Object storing extra information about the node, null if none
 	 *         available.
 	 */
-	abstract public Object run(AST root);
+	abstract public Object run(DecafAST root);
 
 }
