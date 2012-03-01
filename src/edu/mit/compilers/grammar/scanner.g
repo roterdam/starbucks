@@ -21,6 +21,8 @@ tokens {
   METHOD_PARAMS;
   METHOD_BLOCK;
   VAR_DECL;
+  METHOD_CALL;
+  CALLOUT;
   
   BOOLEAN_TYPE="boolean";
   BREAK="break";

@@ -131,7 +131,8 @@ statement
 	;
 
 method_call
-	: ID LPAREN! (expr (COMMA! expr)*)? RPAREN!
+	: ID^ LPAREN! (expr (COMMA! expr)*)? RPAREN!
+	{ #method_call = #([METHOD_CALL, "method_call"], method_call); }
 	| CALLOUT LPAREN! STRING_LITERAL (COMMA! callout_arg)* RPAREN!
 	;
 
