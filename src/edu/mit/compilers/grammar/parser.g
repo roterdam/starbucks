@@ -119,7 +119,7 @@ var_decl
 	;
 
 statement
-	: location (ASSIGN | MINUS_ASSIGN | PLUS_ASSIGN) expr SEMICOLON!
+	: location (ASSIGN^ | MINUS_ASSIGN^ | PLUS_ASSIGN^) expr SEMICOLON!
 	| method_call SEMICOLON!
 	| IF LPAREN! expr RPAREN! block (ELSE block)?
 	| FOR LPAREN! ID ASSIGN expr SEMICOLON! expr RPAREN! block
@@ -140,36 +140,36 @@ location
 	;
 
 expr
-  : and_expr (OR expr)?
+  : and_expr (OR^ expr)?
   ;
 
 and_expr
-  : eq_expr (AND and_expr)?
+  : eq_expr (AND^ and_expr)?
   ;
 
 eq_expr
-  : rel_expr ((EQ | NEQ) eq_expr)?
+  : rel_expr ((EQ^ | NEQ^) eq_expr)?
   ;
 
 rel_expr
-  : arith_expr_2 ((GT | LT | GTE | LTE) arith_expr_2)?
+  : arith_expr_2 ((GT^ | LT^ | GTE^ | LTE^) arith_expr_2)?
   ;
 
 arith_expr_2
-  : arith_expr_1 ((PLUS | MINUS) arith_expr_2)?
+  : arith_expr_1 ((PLUS^ | MINUS^) arith_expr_2)?
   ;
 
 arith_expr_1
-  : not_expr ((TIMES | DIVIDE | MOD) arith_expr_1)?
+  : not_expr ((TIMES^ | DIVIDE^ | MOD^) arith_expr_1)?
   ;
 
 not_expr
-  : BANG not_expr
+  : BANG^ not_expr
   | unary_minus_expr
   ;
 
 unary_minus_expr
-  : MINUS unary_minus_expr
+  : MINUS^ unary_minus_expr
   | sub_expr
   ;
 
