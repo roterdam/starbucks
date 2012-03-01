@@ -93,16 +93,21 @@ field_decl_id
   ;
 
 method_decl!
-	: (t:type | v:VOID) ID LPAREN! (p:method_decl_params)? RPAREN! b:block
+	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) ID LPAREN! (p:method_decl_params)? RPAREN! bl:block
 	{ #method_decl = #(ID,
-	    #([METHOD_RETURN, "return"], t, v),
-	    #([METHOD_PARAMS, "params"], p),
-	    #([METHOD_BLOCK, "block"], b)
+	    #([METHOD_RETURN, "return"], i, b, v),
+	    p,
+	    #([METHOD_BLOCK, "block"], bl)
 	  );}
 	;
 
 method_decl_params
-  : type ID (COMMA! type ID)*
+  : method_decl_param (COMMA! method_decl_param)*
+  { #method_decl_params = #([METHOD_PARAMS, "params"], #method_decl_params); }
+  ;
+
+method_decl_param
+  : (INT_TYPE^ | BOOLEAN_TYPE^) ID
   ;
 
 block
@@ -111,11 +116,6 @@ block
 
 var_decl
 	: (INT_TYPE^ | BOOLEAN_TYPE^) ID (COMMA! ID)* SEMICOLON!
-	;
-
-type
-	: INT_TYPE
-	| BOOLEAN_TYPE
 	;
 
 statement
