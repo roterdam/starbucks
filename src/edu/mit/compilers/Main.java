@@ -3,11 +3,13 @@ package edu.mit.compilers;
 import java.io.DataInputStream;
 import java.io.InputStream;
 
+import antlr.ASTFactory;
 import antlr.Token;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
+import edu.mit.compilers.grammar.DecafAST;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -64,7 +66,14 @@ class Main {
 						inputStream));
 				DecafParser parser = new DecafParser(scanner);
 				parser.setTrace(CLI.debug);
+				
+				ASTFactory factory = new ASTFactory();
+			    factory.setASTNodeClass(DecafAST.class);
+			    parser.setASTFactory(factory);
 				parser.program();
+				DecafAST x = (DecafAST)parser.getAST();
+				abc(x);
+				abc((DecafAST)x.getNextSibling());
 				
         // Return a non-zero code if an error has occurred.
         if (parser.hasError()) {
@@ -76,5 +85,8 @@ class Main {
 			System.out.println(CLI.infile);
 			e.printStackTrace();
 		}
+	}
+	public static void abc(DecafAST y){
+		System.out.println(y.getText()+y.getLine()+":"+y.getColumn());
 	}
 }
