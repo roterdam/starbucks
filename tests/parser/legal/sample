@@ -1,0 +1,16 @@
+class Program {
+  int a,b;
+  int c;
+  boolean d,f[5];
+  void main(int e, boolean g) {
+    int m;
+    boolean e;
+    test(e);
+    test(5%4 + (2/3), 4, d);
+    a = (3+3)/5;
+    e = !false;
+  }
+  boolean test(int e, int f, boolean g) {
+  
+  }
+}
