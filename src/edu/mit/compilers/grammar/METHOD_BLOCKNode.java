@@ -1,5 +1,6 @@
 package edu.mit.compilers.grammar;
 
+<<<<<<< HEAD
 import edu.mit.compilers.crawler.Scope;
 
 
@@ -11,4 +12,9 @@ public class PROGRAMNode extends DecafNode {
 		
 	}
 	
+=======
+@SuppressWarnings("serial")
+public class METHOD_BLOCKNode extends DecafNode {
+
+>>>>>>> de50fe146a35e6a34f9172c3e03828ed8754b62d
 }

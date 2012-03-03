@@ -113,8 +113,11 @@ method_decl!
 	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) ID
     LPAREN! (p:method_decl_params)? RPAREN! bl:block
     {
+      // Splice out the BLOCK bl with a METHOD_BLOCK
+      DecafNode replace = #bl;
       #method_decl = #(ID,
-        #([METHOD_RETURN, "return"], i, b, v), p, bl
+        #([METHOD_RETURN, "return"], i, b, v), p,
+        #([METHOD_BLOCK, "method block"], replace.getFirstChild())
       );
     }
 	;
@@ -252,7 +255,7 @@ bin_op
 
 literal
 	: INT_LITERAL
-  | CHAR_LITERAL
+    | CHAR_LITERAL
 	| TRUE
 	| FALSE
 	;

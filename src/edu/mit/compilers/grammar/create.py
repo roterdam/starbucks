@@ -12,9 +12,9 @@ public class """
 
 }"""
     
-    @f = open(cl + ".java", "w")
-    @f.write(o)
-    @f.close()
+    f = open(cl + ".java", "w")
+    f.write(o)
+    f.close()
 
 classes = sys.argv[1].split(",")
 for n in classes:
