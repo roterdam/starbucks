@@ -1,6 +1,6 @@
-package edu.mit.compilers.grammar.nodes;
+package edu.mit.compilers.grammar;
 
-
+@SuppressWarnings("serial")
 public class WHILENode extends DecafNode {
 
 }

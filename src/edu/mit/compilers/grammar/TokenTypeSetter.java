@@ -16,6 +16,7 @@ public class TokenTypeSetter {
 			put(DecafParserTokenTypes.METHODS, METHODSNode.class);
 			put(DecafParserTokenTypes.METHOD_RETURN, METHOD_RETURNNode.class);
 			put(DecafParserTokenTypes.METHOD_PARAMS, METHOD_PARAMSNode.class);
+			put(DecafParserTokenTypes.METHOD_DECL, METHOD_DECLNode.class);
 			put(DecafParserTokenTypes.BLOCK, BLOCKNode.class);
 			put(DecafParserTokenTypes.VAR_DECL, VAR_DECLNode.class);
 			put(DecafParserTokenTypes.METHOD_CALL, METHOD_CALLNode.class);

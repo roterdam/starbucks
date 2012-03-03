@@ -74,6 +74,7 @@ class Main {
 				
 				// Return a non-zero code if an error has occurred.
 				if (parser.hasError()) {
+					System.out.println("ERROR. PEACE OUT.");
 					System.exit(1);
 				}
 			}
