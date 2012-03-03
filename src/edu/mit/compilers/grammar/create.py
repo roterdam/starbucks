@@ -4,7 +4,10 @@ import os
 def src(name):
     cl = name + "Node"
 #    os.unlink(cl + ".java")
-#    os.unlink(cl.upper() + ".java")
+    try:
+        os.unlink(cl.upper() + ".java")
+    except:
+        pass
     cl = name.upper() + "Node"
     o = """package edu.mit.compilers.grammar;
 
