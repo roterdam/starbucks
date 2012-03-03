@@ -6,15 +6,16 @@ import java.util.Stack;
 
 import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.rule.DecafRule;
 
 public class DecafTraveler {
 
 	Stack<DecafNode> parents;
-	DecafRunnable action;
+	DecafRule action;
 	private Map<DecafNode, Object> propertyMap;
 	boolean debug;
 
-	public DecafTraveler(DecafNode root, DecafRunnable action) {
+	public DecafTraveler(DecafNode root, DecafRule action) {
 		parents = new Stack<DecafNode>();
 		parents.push(root);
 		this.action = action;
@@ -24,7 +25,7 @@ public class DecafTraveler {
 	}
 
 	// Set debug to false to disable JFrame.
-	public DecafTraveler(DecafNode root, DecafRunnable action, boolean debug) {
+	public DecafTraveler(DecafNode root, DecafRule action, boolean debug) {
 		this.debug = debug;
 	}
 
@@ -45,7 +46,7 @@ public class DecafTraveler {
 				propertyMap.put(node, out);
 			}
 
-			child = node.getFirstChild();
+			child = node.getFirstChild(); 
 			if (child == null) {
 				continue;
 			}
