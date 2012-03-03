@@ -87,8 +87,19 @@ program!
 	;
 
 field_decl !
-    : t:type id1:field_decl_id {DecafNode field = #(t, id1); DecafNode next = field;  } 
-    (COMMA! id2:field_decl_id {next.setNextSibling(#(astFactory.create(t), id2)); next = next.getNextSibling(); })* SEMICOLON!
+    : t:type id1:field_decl_id 
+    {
+        DecafNode id1_array = id1_AST.getNextSibling();
+        id1_AST.setNextSibling(null);
+        DecafNode field = #([FIELD_DECL, "field decl"], #(t, id1_array), id1); 
+        DecafNode next = field;  
+    } 
+    (COMMA! id2:field_decl_id 
+    {
+        next.setNextSibling(#([FIELD_DECL, "field decl"], astFactory.create(t), id2)); 
+        next = next.getNextSibling(); 
+    }
+    )* SEMICOLON!
 	{
 	   #field_decl = field;
 	}
@@ -97,7 +108,7 @@ field_decl !
 type: INT_TYPE | BOOLEAN_TYPE;
 
 field_decl_id
-  : ID^ (LBRACKET! INT_LITERAL RBRACKET!)?
+  : ID (LBRACKET! INT_LITERAL RBRACKET!)?
   ;
 
 method_decl!
@@ -115,8 +126,9 @@ method_decl_params
   { #method_decl_params = #([METHOD_PARAMS, "params"], #method_decl_params); }
   ;
 
-method_decl_param
-  : (INT_TYPE^ | BOOLEAN_TYPE^) ID
+method_decl_param !
+  : t:type i:ID
+  { #method_decl_param = #([PARAM_DECL, "Param Decl"], t, i); }
   ;
 
 block
@@ -124,8 +136,21 @@ block
     { #block = #([BLOCK, "block"], #block); }
 	;
 
-var_decl
-	: (INT_TYPE^ | BOOLEAN_TYPE^) ID (COMMA! ID)* SEMICOLON!
+var_decl !
+	: t:type id1:ID 
+	{
+	   DecafNode decl = #([METHOD_DECL, "Method decl"], t, id1);
+	   DecafNode next = decl;  
+	} 
+	(COMMA! id2:ID 
+	{
+	   next.setNextSibling(#([METHOD_DECL, "Method decl"], astFactory.create(t), id2)); 
+	   next = next.getNextSibling(); 
+	}
+	)* SEMICOLON!
+	{
+       #var_decl = decl;
+    }
 	;
 
 statement
