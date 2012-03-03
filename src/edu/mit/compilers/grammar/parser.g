@@ -14,7 +14,7 @@ options
   // k=3 is required to fix ambiguities
   k = 3;
   buildAST = true;
-//  ASTLabelType = "DecafAST";
+  ASTLabelType = "DecafAST";
 }
 
 // Java glue code that makes error reporting easier.

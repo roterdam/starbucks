@@ -32,6 +32,6 @@ public class DecafAST extends CommonAST {
 	
 	@Override
 	public DecafAST getNextSibling() {
-		return (DecafAST) super.getFirstChild();
+		return (DecafAST) super.getNextSibling();
 	}
 }
