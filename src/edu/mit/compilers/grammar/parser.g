@@ -74,8 +74,8 @@ program!
 	  ASTFactory factory = new ASTFactory();
 	  factory.setASTNodeClass(DecafNode.class);
 	  setASTFactory(factory);
-      AST fields = #([FIELDS, "fields"]);
-      AST methods = #([METHODS, "methods"]);
+      DecafNode fields = #([FIELDS, "fields"]);
+      DecafNode methods = #([METHODS, "methods"]);
     }
     CLASS PROGRAM! LCURLY!
   	(f:field_decl { fields.addChild(#f); })*
@@ -87,10 +87,10 @@ program!
 	;
 
 field_decl !
-    : t:type id1:field_decl_id {FIELD_DECLNode field = #(t, id1); FIELD_DECLNode next = field;  } 
+    : t:type id1:field_decl_id {DecafNode field = #(t, id1); DecafNode next = field;  } 
     (COMMA! id2:field_decl_id {next.setNextSibling(#(astFactory.create(t), id2)); next = next.getNextSibling(); })* SEMICOLON!
 	{
-	   #field_decl = (FIELD_DECLNode)field;
+	   #field_decl = field;
 	}
 	;
 
@@ -161,7 +161,7 @@ method_call
 	{ #method_call = #([METHOD_CALL, "method_call"], method_call); }
 	|! CALLOUT LPAREN! name:STRING_LITERAL
     {
-      AST cargs = #([CALLOUT_ARGS, "args"]);
+      DecafNode cargs = #([CALLOUT_ARGS, "args"]);
       #method_call = #(CALLOUT,
         #([CALLOUT_NAME, "name"], name), cargs
       );
