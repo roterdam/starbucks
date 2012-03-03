@@ -55,7 +55,6 @@ public class TokenTypeSetter {
 			put(DecafParserTokenTypes.OR, ORNode.class);
 			put(DecafParserTokenTypes.PLUS, PLUSNode.class);
 			put(DecafParserTokenTypes.PLUS_ASSIGN, PLUS_ASSIGNNode.class);
-			put(DecafParserTokenTypes.PROGRAM, PROGRAMNode.class);
 			put(DecafParserTokenTypes.RETURN, RETURNNode.class);
 			put(DecafParserTokenTypes.STRING_LITERAL, STRING_LITERALNode.class);
 			put(DecafParserTokenTypes.TIMES, TIMESNode.class);
