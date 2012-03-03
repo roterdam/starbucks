@@ -1,6 +1,8 @@
 class Program {
   int c[4];
-  boolean a,b,c;
+  int a, b, c;
+  boolean aa, bb, cc;
+  boolean s;
 
   void main(int e, boolean g) {
     int a,b;
