@@ -5,37 +5,37 @@ import java.util.Map;
 import java.util.Stack;
 
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.grammar.DecafAST;
+import edu.mit.compilers.grammar.DecafNode;
 
 public class DecafTraveler {
 
-	Stack<DecafAST> parents;
+	Stack<DecafNode> parents;
 	DecafRunnable action;
-	private Map<DecafAST, Object> propertyMap;
+	private Map<DecafNode, Object> propertyMap;
 	boolean debug;
 
-	public DecafTraveler(DecafAST root, DecafRunnable action) {
-		parents = new Stack<DecafAST>();
+	public DecafTraveler(DecafNode root, DecafRunnable action) {
+		parents = new Stack<DecafNode>();
 		parents.push(root);
 		this.action = action;
 		// Store extra information about nodes.
-		propertyMap = new HashMap<DecafAST, Object>();
+		propertyMap = new HashMap<DecafNode, Object>();
 		debug = false;
 	}
 
 	// Set debug to false to disable JFrame.
-	public DecafTraveler(DecafAST root, DecafRunnable action, boolean debug) {
+	public DecafTraveler(DecafNode root, DecafRunnable action, boolean debug) {
 		this.debug = debug;
 	}
 
 	public void crawl() {
-		DecafAST node;
-		DecafAST child;
+		DecafNode node;
+		DecafNode child;
 		if (debug) {
 			ASTFrame frame = new ASTFrame("6.035", parents.peek());
 			frame.setVisible(true);
 		}
-		Stack<DecafAST> tempStack = new Stack<DecafAST>();
+		Stack<DecafNode> tempStack = new Stack<DecafNode>();
 
 		System.out.println("Starting crawl.");
 		while (parents.size() > 0) {
@@ -60,7 +60,7 @@ public class DecafTraveler {
 		}
 	}
 	
-	public Map<DecafAST, Object> getPropertyMap() {
+	public Map<DecafNode, Object> getPropertyMap() {
 		return propertyMap;
 	}
 	
