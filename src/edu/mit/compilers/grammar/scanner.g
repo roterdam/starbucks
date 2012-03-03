@@ -15,8 +15,8 @@ options {
 tokens {
   // Imaginary tokens for tree nodes.
   FIELD;
-  FIELDS;
-  METHODS;
+  FIELDS<AST=FIELDNode>;
+  METHODS<AST=METHODSNode>;
   METHOD_RETURN;
   METHOD_PARAMS;
   BLOCK;
@@ -164,7 +164,7 @@ LTE : "<=";
 EQ : "==";
 NEQ : "!=";
 AND : "&&";
-OR : "||";
+OR : "||" <AST=ORNode>;
 
 protected
 ESC

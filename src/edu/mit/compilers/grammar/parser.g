@@ -74,7 +74,7 @@ program!
       AST fields = #([FIELDS, "fields"]);
       AST methods = #([METHODS, "methods"]);
     }
-    CLASS<AST=CLASSNode> PROGRAM! LCURLY!
+    CLASS PROGRAM! LCURLY!
   	(f:field_decl { fields.addChild(#f); })*
   	(m:method_decl { methods.addChild(#m); })*
     RCURLY! EOF!
@@ -166,7 +166,7 @@ location
 	;
 
 expr
-  : and_expr (OR^<AST=ORNode> expr)?
+  : and_expr (OR^ expr)?
   ;
 
 and_expr

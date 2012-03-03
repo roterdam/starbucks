@@ -9,7 +9,10 @@ public class """
     o += cl + """ extends DecafNode {
 
 }"""
-    f = open(c + ".java", "w")
+    f = open(cl + ".java", "w")
     f.write(o)
     f.close()
-src(sys.argv[1])
+
+classes = sys.argv[1].split(",")
+for n in classes:
+    src(n)
