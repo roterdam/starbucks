@@ -1,14 +1,20 @@
 import sys
+import os
+
 def src(name):
     cl = name + "Node"
+#    os.unlink(cl + ".java")
+#    os.unlink(cl.upper() + ".java")
+    cl = name.upper() + "Node"
     o = """package edu.mit.compilers.grammar;
 
-
+@SuppressWarnings("serial")
 public class """
 
     o += cl + """ extends DecafNode {
 
 }"""
+    
     f = open(cl + ".java", "w")
     f.write(o)
     f.close()

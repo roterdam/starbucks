@@ -1,6 +1,6 @@
 package edu.mit.compilers.grammar;
 
 @SuppressWarnings("serial")
-public class ORNode extends DecafNode {
+public class CHAR_LITERALNode extends DecafNode {
 
 }
