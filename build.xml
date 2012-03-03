@@ -76,17 +76,6 @@
     </antlr>
   </target>
 
-  <target name="tree" depends="parser">
-    <antlr
-      target="${src}/${base_package_dir}/grammar/tree.g"
-      outputdirectory="${autogen}/${base_package_dir}/grammar"
-      trace="yes">
-      <classpath>
-        <pathelement location="${lib}/antlr.jar" />
-      </classpath>
-    </antlr>
-  </target>
-
   <target name="compile" depends="clean,parser">
     <javac srcdir="${autogen}:${src}" destdir="${classes}"
            debug="on" includeantruntime="false">

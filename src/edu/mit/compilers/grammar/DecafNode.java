@@ -37,7 +37,7 @@ public class DecafNode extends CommonAST {
 	}
 	
 	public void validate(Scope scope) {
-		checkRules(scope);
+		checkRule(scope);
 		validateChildren(scope);
 	}
 	
@@ -49,8 +49,9 @@ public class DecafNode extends CommonAST {
 		}
 	}
 	
-	public void checkRules(Scope scope) {
-		
+	// TODO: make this abstract eventually.
+	public void checkRule(Scope scope) {
+		assert false;
 	}
 	
 }

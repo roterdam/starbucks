@@ -6,8 +6,8 @@ import edu.mit.compilers.crawler.Scope;
 public class METHOD_BLOCKNode extends DecafNode {
 
 	@Override
-	public void checkRules(Scope scope) {
-
+	public void checkRule(Scope scope) {
+		// TODO: implement.
 	}
 
 }
