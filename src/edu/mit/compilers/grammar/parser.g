@@ -84,10 +84,10 @@ program!
 	;
 
 field_decl !
-    : t:type id1:field_decl_id {AST field = #(t, id1); AST next = field;  } 
+    : t:type id1:field_decl_id {FIELD_DECLNode field = #(t, id1); FIELD_DECLNode next = field;  } 
     (COMMA! id2:field_decl_id {next.setNextSibling(#(astFactory.create(t), id2)); next = next.getNextSibling(); })* SEMICOLON!
 	{
-	   #field_decl = field;
+	   #field_decl = (FIELD_DECLNode)field;
 	}
 	;
 	
