@@ -14,7 +14,7 @@ options
   // k=3 is required to fix ambiguities
   k = 3;
   buildAST = true;
-//  ASTLabelType = "DecafAST";
+  ASTLabelType = "DecafNode";
 }
 
 // Java glue code that makes error reporting easier.
@@ -74,7 +74,7 @@ program!
       AST fields = #([FIELDS, "fields"]);
       AST methods = #([METHODS, "methods"]);
     }
-    CLASS PROGRAM! LCURLY!
+    CLASS<AST=CLASSNode> PROGRAM! LCURLY!
   	(f:field_decl { fields.addChild(#f); })*
   	(m:method_decl { methods.addChild(#m); })*
     RCURLY! EOF!
@@ -172,7 +172,7 @@ location
 	;
 
 expr
-  : and_expr (OR^ expr)?
+  : and_expr (OR^<AST=ORNode> expr)?
   ;
 
 and_expr

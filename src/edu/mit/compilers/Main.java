@@ -3,14 +3,12 @@ package edu.mit.compilers;
 import java.io.DataInputStream;
 import java.io.InputStream;
 
-import antlr.ASTFactory;
 import antlr.Token;
 import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
-import edu.mit.compilers.grammar.DecafAST;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -68,9 +66,6 @@ class Main {
 				DecafParser parser = new DecafParser(scanner);
 				parser.setTrace(CLI.debug);
 
-//				ASTFactory factory = new ASTFactory();
-//				factory.setASTNodeClass(DecafAST.class);
-//				parser.setASTFactory(factory);
 				parser.program();
 				
 				System.out.println(parser.getAST().toStringTree());

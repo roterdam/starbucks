@@ -1,6 +1,6 @@
 package edu.mit.compilers.crawler;
 
-import edu.mit.compilers.grammar.DecafAST;
+import edu.mit.compilers.grammar.DecafNode;
 
 
 public abstract class DecafRunnable {
@@ -13,6 +13,6 @@ public abstract class DecafRunnable {
 	 * @return Object storing extra information about the node, null if none
 	 *         available.
 	 */
-	abstract public Object run(DecafAST root);
+	abstract public Object run(DecafNode root);
 
 }

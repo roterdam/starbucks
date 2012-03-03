@@ -4,7 +4,7 @@ import antlr.CommonAST;
 import antlr.Token;
 
 @SuppressWarnings("serial")
-public class DecafAST extends CommonAST {
+public class DecafNode extends CommonAST {
 	private int line = 0;
 	private int col = 0;
 
@@ -26,12 +26,12 @@ public class DecafAST extends CommonAST {
 	}
 
 	@Override
-	public DecafAST getFirstChild() {
-		return (DecafAST) super.getFirstChild();
+	public DecafNode getFirstChild() {
+		return (DecafNode) super.getFirstChild();
 	}
 	
 	@Override
-	public DecafAST getNextSibling() {
-		return (DecafAST) super.getFirstChild();
+	public DecafNode getNextSibling() {
+		return (DecafNode) super.getNextSibling();
 	}
 }
