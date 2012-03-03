@@ -5,6 +5,7 @@ autogen
 .classpath
 .project
 .metadata
+*.swp
 *.dot
 *.png
 *.tar

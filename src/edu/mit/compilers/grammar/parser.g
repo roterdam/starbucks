@@ -70,18 +70,17 @@ options
 }
 
 program!
-	:
-	{
-	  AST fields = #([FIELDS, "fields"]);
-	  AST methods = #([METHODS, "methods"]);
-	}
-	CLASS PROGRAM! LCURLY!
+	: {
+      AST fields = #([FIELDS, "fields"]);
+      AST methods = #([METHODS, "methods"]);
+    }
+    CLASS PROGRAM! LCURLY!
   	(f:field_decl { fields.addChild(#f); })*
   	(m:method_decl { methods.addChild(#m); })*
-	RCURLY! EOF!
-	{
-	  #program = #(CLASS, fields, methods);
-	}
+    RCURLY! EOF!
+    {
+      #program = #(CLASS, fields, methods);
+    }
 	;
 
 field_decl
@@ -93,12 +92,13 @@ field_decl_id
   ;
 
 method_decl!
-	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) ID LPAREN! (p:method_decl_params)? RPAREN! bl:block
-	{ #method_decl = #(ID,
-	    #([METHOD_RETURN, "return"], i, b, v),
-	    p,
-	    #([METHOD_BLOCK, "block"], bl)
-	  );}
+	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) ID
+    LPAREN! (p:method_decl_params)? RPAREN! bl:block
+    {
+      #method_decl = #(ID,
+        #([METHOD_RETURN, "return"], i, b, v), p, bl
+      );
+    }
 	;
 
 method_decl_params
@@ -112,6 +112,7 @@ method_decl_param
 
 block
 	: LCURLY! (var_decl)* (statement)* RCURLY!
+    { #block = #([BLOCK, "block"], #block); }
 	;
 
 var_decl
@@ -121,10 +122,26 @@ var_decl
 statement
 	: location (ASSIGN^ | MINUS_ASSIGN^ | PLUS_ASSIGN^) expr SEMICOLON!
 	| method_call SEMICOLON!
-	| IF LPAREN! expr RPAREN! block (ELSE block)?
-	| FOR LPAREN! ID ASSIGN expr SEMICOLON! expr RPAREN! block
-	| WHILE LPAREN! expr RPAREN! block
-	| RETURN (expr)? SEMICOLON!
+	|! IF LPAREN! e:expr RPAREN! if_block:block
+    {
+      #statement = #(IF,
+        #([IF_CLAUSE, "clause"], e), if_block
+      );
+    }
+    (ELSE else:block { #statement.addChild(#([ELSE_BLOCK, "else"], else)); })?
+	|! FOR LPAREN! ID ASSIGN init:expr SEMICOLON! for_term:expr RPAREN! for_block:block
+    {
+      // Nest ASSIGN, ID, init into a statement
+      #statement = #(FOR,
+        #([FOR_INITIALIZE, "init"], #(ASSIGN, ID, init)),
+        #([FOR_TERMINATE, "term"], for_term), for_block
+      );
+    }
+	|! WHILE LPAREN! while_term:expr RPAREN! while_block:block
+    {
+      #statement = #(WHILE, #([WHILE_TERMINATE, "term"], while_term), while_block);
+    }
+	| RETURN^ (expr)? SEMICOLON!
 	| BREAK SEMICOLON!
 	| CONTINUE SEMICOLON!
 	| block
@@ -133,11 +150,19 @@ statement
 method_call
 	: ID^ LPAREN! (expr (COMMA! expr)*)? RPAREN!
 	{ #method_call = #([METHOD_CALL, "method_call"], method_call); }
-	| CALLOUT LPAREN! STRING_LITERAL (COMMA! callout_arg)* RPAREN!
+	|! CALLOUT LPAREN! name:STRING_LITERAL
+    {
+      AST cargs = #([CALLOUT_ARGS, "args"]);
+      #method_call = #(CALLOUT,
+        #([CALLOUT_NAME, "name"], name), cargs
+      );
+    }
+    (COMMA! arg:callout_arg { cargs.addChild(#arg); })*
+    RPAREN!
 	;
 
 location
-	: ID (LBRACKET! expr RBRACKET!)?
+	: ID^ (LBRACKET! expr RBRACKET!)?
 	;
 
 expr
