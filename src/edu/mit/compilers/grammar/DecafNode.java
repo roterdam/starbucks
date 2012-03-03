@@ -37,15 +37,20 @@ public class DecafNode extends CommonAST {
 	}
 	
 	public void validate(Scope scope) {
+		checkRules(scope);
+		validateChildren(scope);
+	}
+	
+	public void validateChildren(Scope scope) {
+		DecafNode child = this.getFirstChild(); 	
+		while (child != null) {
+			child.validate(scope);
+			child = child.getNextSibling();
+		}
+	}
+	
+	public void checkRules(Scope scope) {
 		
-	}
-	
-	public boolean enterScope() {
-		return false;
-	}
-	
-	public boolean exitScope() {
-		return false;
 	}
 	
 }

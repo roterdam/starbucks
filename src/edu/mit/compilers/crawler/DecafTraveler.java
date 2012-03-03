@@ -39,36 +39,11 @@ public class DecafTraveler {
 			ASTFrame frame = new ASTFrame("6.035", parents.peek());
 			frame.setVisible(true);
 		}
-		Stack<DecafNode> tempStack = new Stack<DecafNode>();
 
 		System.out.println("Starting crawl.");
-		while (parents.size() > 0) {
-			node = parents.pop();
-			if (node.enterScope()) {
-				scope = new Scope(scope);
-			} else if (node.exitScope()) {
-				scope = scope.getParent();
-			}
-			node.validate(scope);
-			// Add the children to the stack in the correct order.
-			child = node.getFirstChild(); 
-			if (child == null) {
-				continue;
-			}
-			tempStack.push(child);
-			
-			while ((child = child.getNextSibling()) != null) {
-				tempStack.push(child);
-			}
-			while (tempStack.size() > 0) {
-				parents.push(tempStack.pop());
-			}
-			tempStack.clear();
-		}
-	}
-	
-	public Map<DecafNode, Object> getPropertyMap() {
-		return propertyMap;
+		node = parents.pop();
+		node.validate(scope);
+		// Add the children to the stack in the correct order.
 	}
 	
 }
