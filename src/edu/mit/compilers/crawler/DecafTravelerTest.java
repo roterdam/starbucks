@@ -37,7 +37,7 @@ public class DecafTravelerTest {
 		
 		DecafTraveler crawler = new DecafTraveler(root);
 		crawler.crawl();
-		System.out.println(crawler.getPropertyMap().toString());
+		
 		
 	}
 	

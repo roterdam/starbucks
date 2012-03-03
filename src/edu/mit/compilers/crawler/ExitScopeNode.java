@@ -8,8 +8,4 @@ public class ExitScopeNode extends DecafNode {
 		
 	}
 	
-	@Override
-	public boolean exitScope() {
-		return true;
-	}
 }
