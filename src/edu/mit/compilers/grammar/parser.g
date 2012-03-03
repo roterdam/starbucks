@@ -71,9 +71,7 @@ options
 
 program!
 	: {
-	  ASTFactory factory = new ASTFactory();
-	  factory.setASTNodeClass(DecafNode.class);
-	  setASTFactory(factory);
+	  TokenTypeSetter.setTokenTypeMap(this);
       DecafNode fields = #([FIELDS, "fields"]);
       DecafNode methods = #([METHODS, "methods"]);
     }

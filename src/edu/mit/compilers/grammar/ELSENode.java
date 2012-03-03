@@ -2,6 +2,6 @@ package edu.mit.compilers.grammar;
 
 
 @SuppressWarnings("serial")
-public class METHOD_RETURNNode extends DecafNode {
+public class ELSENode extends DecafNode {
 
 }

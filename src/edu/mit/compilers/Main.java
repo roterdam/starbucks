@@ -3,10 +3,8 @@ package edu.mit.compilers;
 import java.io.DataInputStream;
 import java.io.InputStream;
 
-import antlr.ASTFactory;
 import antlr.Token;
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;

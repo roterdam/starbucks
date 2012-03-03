@@ -1,7 +1,7 @@
 import sys
 def src(name):
     cl = name + "Node"
-    o = """package edu.mit.compilers.grammar;
+    o = """package edu.mit.compilers.grammar.nodes;
 
 
 public class """
