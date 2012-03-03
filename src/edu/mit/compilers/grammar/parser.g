@@ -86,9 +86,15 @@ program!
     }
 	;
 
-field_decl
-	: (INT_TYPE^ | BOOLEAN_TYPE^) field_decl_id (COMMA! field_decl_id)* SEMICOLON!
+field_decl !
+    : t:type id1:field_decl_id {FIELD_DECLNode field = #(t, id1); FIELD_DECLNode next = field;  } 
+    (COMMA! id2:field_decl_id {next.setNextSibling(#(astFactory.create(t), id2)); next = next.getNextSibling(); })* SEMICOLON!
+	{
+	   #field_decl = (FIELD_DECLNode)field;
+	}
 	;
+
+type: INT_TYPE | BOOLEAN_TYPE;
 
 field_decl_id
   : ID^ (LBRACKET! INT_LITERAL RBRACKET!)?
