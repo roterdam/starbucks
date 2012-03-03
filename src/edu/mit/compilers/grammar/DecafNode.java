@@ -1,5 +1,6 @@
 package edu.mit.compilers.grammar;
 
+import edu.mit.compilers.crawler.Scope;
 import antlr.CommonAST;
 import antlr.Token;
 
@@ -34,4 +35,17 @@ public class DecafNode extends CommonAST {
 	public DecafNode getNextSibling() {
 		return (DecafNode) super.getNextSibling();
 	}
+	
+	public void validate(Scope scope) {
+		
+	}
+	
+	public boolean enterScope() {
+		return false;
+	}
+	
+	public boolean exitScope() {
+		return false;
+	}
+	
 }

@@ -19,7 +19,19 @@ public class Scope {
 	}
 
 	public boolean hasVar(String v) {
-		return localVars.contains(v) || parent != null && parent.hasVar(v);
+		if (this.localVars.contains(v)) {
+			return true;
+		}
+		Scope upScope = this.getParent();
+		while (upScope != null) {
+			if (upScope.hasVar(v)) {
+				return true;
+			}
+			else {
+				upScope = upScope.getParent();
+			}
+		}
+		return false;
 	}
 
 	public Scope getParent() {
