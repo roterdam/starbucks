@@ -44,8 +44,12 @@ public class DecafTraveler {
 		System.out.println("Starting crawl.");
 		while (parents.size() > 0) {
 			node = parents.pop();
-			checkScope(node);
-			//node.validate();
+			if (node.enterScope()) {
+				scope = new Scope(scope);
+			} else if (node.exitScope()) {
+				scope = scope.getParent();
+			}
+			node.validate(scope);
 			// Add the children to the stack in the correct order.
 			child = node.getFirstChild(); 
 			if (child == null) {
@@ -61,25 +65,6 @@ public class DecafTraveler {
 			}
 			tempStack.clear();
 		}
-	}
-	
-	private void checkScope(ExitScopeNode node) {
-		if (debug) System.out.println("Exiting current scope");
-		this.scope = this.scope.getParent();
-	}
-	
-	private void checkScope(METHODSNode node) {
-		if (debug) System.out.println("Entering method scope");
-		this.scope = new Scope(this.scope);
-	}
-	
-	private void checkScope(BLOCKNode node) {
-		if (debug) System.out.println("Entering block scope");
-		this.scope = new Scope(this.scope);
-	}
-	
-	private void checkScope(DecafNode Node) {
-	
 	}
 	
 	public Map<DecafNode, Object> getPropertyMap() {

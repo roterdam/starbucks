@@ -7,4 +7,9 @@ public class ExitScopeNode extends DecafNode {
 	public ExitScopeNode() {
 		
 	}
+	
+	@Override
+	public boolean exitScope() {
+		return true;
+	}
 }
