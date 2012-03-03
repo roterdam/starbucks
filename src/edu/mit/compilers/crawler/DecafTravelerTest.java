@@ -3,7 +3,6 @@ package edu.mit.compilers.crawler;
 import org.junit.Test;
 
 import edu.mit.compilers.grammar.DecafNode;
-import edu.mit.compilers.rule.DecafRule;
 
 public class DecafTravelerTest {
 	
@@ -36,17 +35,7 @@ public class DecafTravelerTest {
 		B_A.addChild(B_A_C);
 		B_A.addChild(B_A_D);
 		
-		DecafTraveler crawler = new DecafTraveler(root, new DecafRule() {
-			
-			int i;
-			@Override
-			public Object run(DecafNode root) {
-				System.out.println("Crawled " + root.getText());
-				i++;
-				return i-1;
-			}
-			
-		});
+		DecafTraveler crawler = new DecafTraveler(root);
 		crawler.crawl();
 		System.out.println(crawler.getPropertyMap().toString());
 		
