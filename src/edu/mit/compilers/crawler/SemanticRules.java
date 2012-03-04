@@ -126,7 +126,7 @@ public class SemanticRules {
 					.getReturnType(scope);
 			if (indexType != VarType.INT) {
 				ErrorCenter
-						.reportError(node.getLine(), node.getColumn(), String
+						.reportError(indexNode.getLine(), indexNode.getColumn(), String
 								.format(ARRAY_INDEX_TYPE_ERROR, indexType
 										.name()));
 			}
