@@ -20,7 +20,7 @@ class Main {
 			InputStream inputStream = args.length == 0 ? System.in
 					: new java.io.FileInputStream(CLI.infile);
 
-			ErrorCenter.loadFile(CLI.infile);
+			ErrorCenter.setFilename(CLI.infile);
 
 			if (CLI.target == Action.SCAN) {
 				DecafScanner scanner = new DecafScanner(new DataInputStream(

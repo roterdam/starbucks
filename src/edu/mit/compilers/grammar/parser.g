@@ -119,8 +119,8 @@ method_decl!
         replace.setFirstChild(#p);
         #p.setNextSibling(first);
       }
-      DecafNode methodDecl = #[METHOD_DECL, #id.getText()];
-	  methodDecl.copyFromNode(#id);
+      DecafNode methodDecl = #[METHOD_DECL];
+      methodDecl.initialize(#id);
       #method_decl = #(methodDecl,
         #([METHOD_RETURN, "return"], i, b, v), replace
       );
