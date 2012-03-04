@@ -4,7 +4,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
 
 @SuppressWarnings("serial")
-public class BANGNode extends ExpressionNode {
+public class BooleanNode extends ExpressionNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {

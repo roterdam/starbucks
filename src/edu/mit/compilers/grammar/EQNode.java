@@ -1,6 +1,15 @@
 package edu.mit.compilers.grammar;
 
+import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.VarType;
+
 @SuppressWarnings("serial")
-public class EQNode extends DecafNode {
+public class EQNode extends ExpressionNode {
+
+	@Override
+	public VarType getReturnType(Scope scope) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

@@ -1,15 +1,15 @@
-package edu.mit.compilers.grammar;
+package edu.mit.compilers.grammar.expressions;
 
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
+import edu.mit.compilers.grammar.ExpressionNode;
 
 @SuppressWarnings("serial")
-public class BANGNode extends ExpressionNode {
+public class OpInt2IntNode extends ExpressionNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {
-		// TODO Auto-generated method stub
-		return null;
+		return VarType.INT;
 	}
 
 }

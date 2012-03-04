@@ -9,13 +9,19 @@ import edu.mit.compilers.grammar.CLASSNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.IDNode;
+import edu.mit.compilers.grammar.METHOD_CALLNode;
 import edu.mit.compilers.grammar.METHOD_DECLNode;
+import edu.mit.compilers.grammar.METHOD_IDNode;
 
 public class SemanticRules {
 
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
+			return;
+		}
+		if (node instanceof METHOD_CALLNode) {
+			apply((METHOD_CALLNode) node, scope);
 			return;
 		}
 		if (node instanceof DeclNode) {
@@ -49,7 +55,8 @@ public class SemanticRules {
 			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
 					"Cannot redeclare identifier " + id + ".");
 		} else {
-			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
+			scope.addVar(id,
+					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
 		}
 
 		// Rule 4
@@ -103,14 +110,16 @@ public class SemanticRules {
 			// Treat main differently.
 			if (id.equals("main")) {
 				MethodDecl mainDecl = scope.getMethods().get(id);
-				
+
 			}
 			// TODO: Also store where the original ID was declared.
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
 					"Cannot redeclare method " + id + ".");
 		} else {
-			scope.getMethods().put(id,
-					new MethodDecl(returnType, id, params, node.getLine(), node.getColumn()));
+			scope.getMethods().put(
+					id,
+					new MethodDecl(returnType, id, params, node.getLine(), node
+							.getColumn()));
 		}
 	}
 
@@ -118,8 +127,27 @@ public class SemanticRules {
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")
 				|| scope.getMethods().get("main").getParams().size() != 0) {
-			ErrorCenter.reportError(1, 1,
+			ErrorCenter
+					.reportError(1, 1,
 							"Program must contain definition for `main` with no parameters.");
+		}
+	}
+
+	static public void apply(METHOD_CALLNode node, Scope scope) {
+		// Rule 2b
+		assert node.getNumberOfChildren() > 0;
+		assert node.getChild(0) instanceof METHOD_IDNode;
+
+		String methodName = node.getChild(0).getText();
+
+		if (scope.getMethods().containsKey(methodName)) {
+			MethodDecl method = scope.getMethods().get(methodName);
+			// TODO: finish compare lists.
+		} else {
+			ErrorCenter
+					.reportError(node.getLine(), node.getColumn(),
+							"Cannot call method " + methodName
+									+ " before declaration.");
 		}
 	}
 }

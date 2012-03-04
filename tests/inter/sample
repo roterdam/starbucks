@@ -8,7 +8,9 @@ class Program {
   void nope() {
     int c;
   }
-
+  int aloha(int a, int b){
+     return a+b;
+  }
   void main(int e, boolean g) {
     int a,b;
     int b;
@@ -33,6 +35,7 @@ class Program {
       continue;
       c = (5+6)/(3%2 + 4);
     }
+    a = nope(nope(1,2),3);
     for (a = 4; a < 10) {
       b = 3;
       callout("method", "1", "2", "3");
