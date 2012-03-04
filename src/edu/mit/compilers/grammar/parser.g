@@ -111,27 +111,31 @@ field_decl_id
 
 method_decl!
 	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) id:ID
-    LPAREN! (p:method_decl_params)? RPAREN! bl:block
-    {
-      DecafNode replace = #bl;
-      if (#p != null) {
-        DecafNode first = replace.getFirstChild();
-        replace.setFirstChild(#p);
-        #p.setNextSibling(first);
-      }
+	  {
       DecafNode methodDecl = #[METHOD_DECL, #id.getText()];
-	  methodDecl.copyFromNode(#id);
-      #method_decl = #(methodDecl,
-        #([METHOD_RETURN, "return"], i, b, v), replace
-      );
-    }
+		  methodDecl.copyFromNode(#id);
+			#method_decl = #(methodDecl, #([METHOD_RETURN, "return"], i, b, v));
+			DecafNode first = null;
+			DecafNode last = null;
+	  }
+    LPAREN! (p1:method_decl_param { first = #p1; last = #p1; }
+				(COMMA! p2:method_decl_param { last.setNextSibling(#p2); last = #p2; })*
+		)? RPAREN! bl:block
+		{
+			#method_decl.addChild(#bl);
+			if (first != null) {
+				DecafNode oldFirstChild = #bl.getFirstChild();
+				#bl.setFirstChild(first);
+				last.setNextSibling(oldFirstChild);
+			}
+		}
 	;
 
 method_decl_params
   : method_decl_param (COMMA! method_decl_param)*
   ;
 
-method_decl_param !
+method_decl_param!
   : t:type i:ID
   { #method_decl_param = #([PARAM_DECL, "param decl"], t, i); }
   ;
