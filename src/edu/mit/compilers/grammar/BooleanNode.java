@@ -8,8 +8,7 @@ public class BooleanNode extends ExpressionNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {
-		// TODO Auto-generated method stub
-		return null;
+		return VarType.BOOLEAN;
 	}
 
 }

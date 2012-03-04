@@ -5,13 +5,13 @@ import java.util.List;
 import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.BranchNode;
-import edu.mit.compilers.grammar.CLASSNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
-import edu.mit.compilers.grammar.IDNode;
-import edu.mit.compilers.grammar.METHOD_CALLNode;
-import edu.mit.compilers.grammar.METHOD_DECLNode;
-import edu.mit.compilers.grammar.METHOD_IDNode;
+import edu.mit.compilers.grammar.tokens.CLASSNode;
+import edu.mit.compilers.grammar.tokens.IDNode;
+import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
+import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
+import edu.mit.compilers.grammar.tokens.METHOD_IDNode;
 
 public class SemanticRules {
 

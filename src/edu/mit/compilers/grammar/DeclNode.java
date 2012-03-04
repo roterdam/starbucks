@@ -1,28 +1,46 @@
 package edu.mit.compilers.grammar;
 
 import edu.mit.compilers.crawler.VarType;
+import edu.mit.compilers.grammar.tokens.IDNode;
+import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 
 @SuppressWarnings("serial")
 public class DeclNode extends DecafNode {
 
 	public IDNode getIDNode() {
-		assert this.getNumberOfChildren() == 2;
-		assert this.getFirstChild().getNextSibling() instanceof IDNode;
+		assert getNumberOfChildren() == 2;
+		assert getFirstChild().getNextSibling() instanceof IDNode;
 
 		return (IDNode) this.getFirstChild().getNextSibling();
 	}
 
 	public VarTypeNode getVarTypeNode() {
-		assert this.getNumberOfChildren() == 2;
-		assert this.getFirstChild() instanceof VarTypeNode;
+		assert getNumberOfChildren() == 2;
+		assert getFirstChild() instanceof VarTypeNode;
 		return (VarTypeNode) this.getFirstChild();
 	}
 
 	public VarType getVarType() {
-		assert this.getNumberOfChildren() == 2;
-		assert this.getFirstChild() instanceof VarTypeNode;
-
-		return ((VarTypeNode) this.getFirstChild()).getVarType();
+		assert getNumberOfChildren() == 2;
+		assert getFirstChild() instanceof VarTypeNode;
+		
+		VarTypeNode childVarTypeNode = ((VarTypeNode) getFirstChild());
+		VarType childVarType = childVarTypeNode.getVarType();
+		assert childVarType == VarType.BOOLEAN || childVarType == VarType.INT;
+		
+		// Indicate if it's an array.
+		assert childVarTypeNode.getNumberOfChildren() <= 1;
+		if (childVarTypeNode.getNumberOfChildren() == 1) {
+			assert childVarTypeNode.getFirstChild() instanceof INT_LITERALNode;
+			switch (childVarType) {
+			case INT:
+				return VarType.INT_ARRAY;
+			case BOOLEAN:
+				return VarType.BOOLEAN_ARRAY;
+			}
+		}
+		
+		return childVarType;
 	}
 
 }

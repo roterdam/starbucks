@@ -5,11 +5,11 @@ import java.io.InputStream;
 
 import antlr.Token;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
-import edu.mit.compilers.grammar.CLASSNode;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
+import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 

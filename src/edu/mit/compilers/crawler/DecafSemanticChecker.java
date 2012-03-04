@@ -2,7 +2,7 @@ package edu.mit.compilers.crawler;
 
 import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.crawler.Scope.BlockType;
-import edu.mit.compilers.grammar.CLASSNode;
+import edu.mit.compilers.grammar.tokens.CLASSNode;
 
 public class DecafSemanticChecker {
 	Scope scope;
