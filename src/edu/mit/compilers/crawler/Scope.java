@@ -11,7 +11,7 @@ public class Scope {
 	private BlockType blockType;
 
 	public enum BlockType {
-		FOR, CLASS, IF, WHILE, ANON;
+		FOR, CLASS, IF, WHILE, ANON, ELSE;
 	}
 
 	public Scope(BlockType blockType) {

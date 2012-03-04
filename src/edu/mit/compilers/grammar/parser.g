@@ -167,7 +167,7 @@ statement
         #([IF_CLAUSE, "clause"], e), if_block
       );
     }
-    (ELSE else:block { #statement.addChild(#([ELSE_BLOCK, "else"], else)); })?
+    (ELSE else:block { #statement.addChild(#(ELSE, else)); })?
 	|! FOR LPAREN! ID ASSIGN init:expr SEMICOLON! for_term:expr RPAREN! for_block:block
     {
       // Nest ASSIGN, ID, init into a statement

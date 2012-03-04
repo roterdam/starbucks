@@ -25,7 +25,6 @@ public class TokenTypeSetter {
 			put(DecafParserTokenTypes.CONTINUE, CONTINUENode.class);
 			put(DecafParserTokenTypes.DIVIDE, DIVIDENode.class);
 			put(DecafParserTokenTypes.ELSE, ELSENode.class);
-			put(DecafParserTokenTypes.ELSE_BLOCK, ELSE_BLOCKNode.class);
 			put(DecafParserTokenTypes.EQ, EQNode.class);
 			put(DecafParserTokenTypes.FALSE, FALSENode.class);
 			put(DecafParserTokenTypes.FIELDS, FIELDSNode.class);

@@ -1,17 +1,13 @@
 package edu.mit.compilers.grammar;
 
 import edu.mit.compilers.crawler.Scope;
-import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.Scope.BlockType;
-
 
 @SuppressWarnings("serial")
 public class FORNode extends DecafNode {
-	
+
 	@Override
-	public void validate(Scope scope) {
-		SemanticRules.apply(this, scope);
-		
+	public void validateChildren(Scope scope) {
 		assert getNumberOfChildren() == 3;
 		assert getChild(0) instanceof FOR_INITIALIZENode;
 		assert getChild(1) instanceof FOR_TERMINATENode;
@@ -20,14 +16,5 @@ public class FORNode extends DecafNode {
 		getChild(1).validate(scope);
 		((BLOCKNode) getChild(2)).validate(scope, BlockType.FOR);
 	}
-	
-	public void validateChildren(Scope scope) {
-		DecafNode child = this.getFirstChild(); 	
-		while (child != null) {
-			child.validate(scope);
-			child = child.getNextSibling();
-		}
-	}
-	
-	
+
 }
