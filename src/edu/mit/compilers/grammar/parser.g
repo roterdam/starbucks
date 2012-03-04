@@ -199,7 +199,7 @@ statement
 method_call!
 	: i:ID
 		{
-      DecafNode methodId = #[METHOD_ID];
+      DecafNode methodId = #[METHOD_ID, #i.getText()];
 		  methodId.copyFromNode(#i);
 			#method_call = #([METHOD_CALL, "method call"], methodId);
 		}

@@ -96,29 +96,6 @@ public class ErrorCenter {
 		}
 	}
 
-	/**
-	 * Calculates the length of a string, assuming a tab size.
-	 * 
-	 * @param in
-	 * @param tabsize
-	 * @return
-	 */
-	private static int sizeWithTabs(String in, int col) {
-		System.out.println("col is " + col);
-		System.out
-				.println("WORKING WITH `" + in + "` of length " + in.length());
-		int size = 0;
-		for (int i = 0; i < col; i++) {
-			char c = in.charAt(i);
-			if (c == '\t') {
-				size += TAB_SIZE;
-			} else {
-				size += 1;
-			}
-		}
-		return size;
-	}
-
 	public static boolean hasError() {
 		return hasError;
 	}
