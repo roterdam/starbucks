@@ -12,6 +12,7 @@ public class ErrorCenter {
 	static RandomAccessFile file;
 	static List<Long> lineOffsets;
 	static int maxLineNumberWidth;
+	static boolean hasError = false;
 
 	/**
 	 * Reads entire file into memory for error reporting.
@@ -38,6 +39,7 @@ public class ErrorCenter {
 	}
 
 	public static void reportError(int line, int col, String message) {
+		hasError = true;
 		try {
 			System.out.println("Error at " + filename + ":" + line + "," + col
 					+ ": " + message);
@@ -60,6 +62,10 @@ public class ErrorCenter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static boolean hasError(){
+		return hasError;
 	}
 
 }

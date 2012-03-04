@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 
 import antlr.Token;
+import antlr.collections.AST;
+import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
@@ -80,6 +82,20 @@ class Main {
 				if (CLI.target == Action.INTER) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
+					
+					if (CLI.visual){
+						// For debugging.
+						System.out.println("--------------------      String Tree      -----------------------");
+						AST root = parser.getAST();
+						System.out.println(root.toStringTree());
+						System.out.println("--------------------  Error Checking Done  -----------------------");
+						ASTFrame frame = new ASTFrame("6.035", root);
+						frame.setVisible(true);
+					}
+					
+					if (ErrorCenter.hasError()) {
+						System.exit(1);
+					}
 				}
 			}
 		} catch (Exception e) {
