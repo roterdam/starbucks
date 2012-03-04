@@ -15,6 +15,13 @@ import edu.mit.compilers.grammar.METHOD_IDNode;
 
 public class SemanticRules {
 
+	static String REDECLARE_IDENTIFIER_ERROR = "Cannot redeclare identifier %1$s.";
+	static String ID_BEFORE_DECLARATION_ERROR = "Cannot access identifier %1$s before declaration.";
+	static String UNALLOWED_JUMP_ERROR = "Cannot call %1$s from outside a while/for loop.";
+	static String REDECLARE_METHOD_ERROR = "Cannot redeclare method %1$s.";
+	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
+	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
+
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -36,6 +43,11 @@ public class SemanticRules {
 			apply((BranchNode) node, scope);
 			return;
 		}
+		
+		if (node instanceof CLASSNode) {
+			apply((CLASSNode) node, scope);
+			return;
+		}
 
 		// TODO: enable this when all rules are done.
 		// assert false :
@@ -53,7 +65,7 @@ public class SemanticRules {
 		if (scope.hasVar(id)) {
 			// TODO: Also store where the original ID was declared.
 			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
-					"Cannot redeclare identifier " + id + ".");
+					String.format(REDECLARE_IDENTIFIER_ERROR, id));
 		} else {
 			scope.addVar(id,
 					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
@@ -75,12 +87,10 @@ public class SemanticRules {
 
 	static public void apply(IDNode node, Scope scope) {
 		// Rule 2
-		// FIXME: This shouldn't apply to IDNode's of method declarations.
-		// TODO: Handle IDNode's that correspond to method calls correctly.
 		String id = node.getText();
 		if (!scope.seesVar(node.getText())) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					"Cannot access identifier " + id + " before declaration.");
+					String.format(ID_BEFORE_DECLARATION_ERROR, id));
 		}
 	}
 
@@ -97,8 +107,7 @@ public class SemanticRules {
 		}
 		if (currentScope == null) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					"Cannot call " + node.getText()
-							+ " from outside a while/for loop.");
+					String.format(UNALLOWED_JUMP_ERROR, node.getText()));
 		}
 	}
 
@@ -107,14 +116,8 @@ public class SemanticRules {
 		String id = node.getId();
 		List<VarType> params = node.getParams();
 		if (scope.getMethods().containsKey(id)) {
-			// Treat main differently.
-			if (id.equals("main")) {
-				MethodDecl mainDecl = scope.getMethods().get(id);
-
-			}
-			// TODO: Also store where the original ID was declared.
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					"Cannot redeclare method " + id + ".");
+					String.format(REDECLARE_METHOD_ERROR, id));
 		} else {
 			scope.getMethods().put(
 					id,
@@ -124,12 +127,34 @@ public class SemanticRules {
 	}
 
 	static public void apply(CLASSNode node, Scope scope) {
+		DecafNode child = node.getFirstChild();
+		if (!child.getText().equals("Program")){
+			ErrorCenter.reportError(child.getLine(), child.getColumn(), "The class must be named `Program`. It is currently `"+child.getText()+"`");
+		}
+	}
+	
+	static public void finalApply(CLASSNode node, Scope scope){
 		// Rule 3.
-		if (!scope.getMethods().containsKey("main")
-				|| scope.getMethods().get("main").getParams().size() != 0) {
-			ErrorCenter
-					.reportError(1, 1,
-							"Program must contain definition for `main` with no parameters.");
+		if (!scope.getMethods().containsKey("main")) {
+			ErrorCenter.reportError(1, 1, MISSING_MAIN_ERROR);
+		} else {
+			MethodDecl mainDecl = scope.getMethods().get("main");
+			if (mainDecl.getParams().size() != 0) {
+				StringBuilder paramsStringBuilder = new StringBuilder();
+				paramsStringBuilder.append("<");
+				for (int i = 0; i < mainDecl.getParams().size(); i++) {
+					paramsStringBuilder.append(mainDecl.getParams().get(i));
+					if (i != mainDecl.getParams().size() - 1) {
+						paramsStringBuilder.append(", ");
+					}
+				}
+				paramsStringBuilder.append(">");
+				ErrorCenter.reportError(
+						mainDecl.getLine(),
+						mainDecl.getColumn(),
+						String.format(INCORRECT_MAIN_ERROR,
+								paramsStringBuilder.toString()));
+			}
 		}
 	}
 

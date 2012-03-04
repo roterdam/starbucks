@@ -1,9 +1,10 @@
 class Program {
-  int Program;
   int a() {
   }
-  boolean main(int a) {
+  boolean main(int a, boolean b) {
+    a = 3;
   }
   void main() {
   }
 }
+
