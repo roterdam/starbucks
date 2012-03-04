@@ -38,7 +38,9 @@ class Program {
     while (c < 200 + 4 / 2 && a == true) {
       main(5, true);
       recurse(c);
+      continue;
     }
+    continue;
   }
   boolean recurse(int n) {
     recurse(n - 1);

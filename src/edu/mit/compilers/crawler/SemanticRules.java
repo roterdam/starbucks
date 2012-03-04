@@ -1,6 +1,8 @@
 package edu.mit.compilers.crawler;
 
 import edu.mit.compilers.ErrorCenter;
+import edu.mit.compilers.crawler.Scope.BlockType;
+import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.IDNode;
@@ -56,6 +58,23 @@ public class SemanticRules {
 		if (!scope.seesVar(node.getText())) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
 					"Cannot access identifier " + id + " before declaration.");
+		}
+	}
+	static public void apply(BranchNode node, Scope scope){
+		System.out.println("Rule 18.");
+		//Rule 18.
+		Scope currentScope = scope;
+		while(currentScope != null){
+			switch(currentScope.getBlockType()){
+			case WHILE: case FOR:
+				break;
+			default:
+				currentScope = currentScope.getParent();
+			}
+		}
+		if(currentScope == null){
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					"Cannot call " + node.getText() + " from outside a while/for loop.");
 		}
 	}
 }
