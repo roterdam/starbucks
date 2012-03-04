@@ -10,6 +10,7 @@ import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
+import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_IDNode;
@@ -29,6 +30,7 @@ public class SemanticRules {
 	static String INVALID_CLASS_NAME_ERROR = "The class must be named `Program`. It is currently `%1$s`";
 	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method `%1$s` before declaration.";
 	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
+	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
 
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
@@ -56,7 +58,7 @@ public class SemanticRules {
 			apply((CLASSNode) node, scope);
 			return;
 		}
-		
+
 		if (node instanceof RETURNNode) {
 			apply((RETURNNode) node, scope);
 			return;
@@ -86,16 +88,17 @@ public class SemanticRules {
 		}
 
 		// Rule 4
-		// TODO: This gets caught by the parser... need better error messages at
-		// parser level or let it get handled here.
-		/*
-		 * if (node.getVarTypeNode().getNumberOfChildren() == 1) { assert
-		 * node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
-		 * INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
-		 * .getFirstChild(); if (intNode.getValue() < 1) {
-		 * ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
-		 * "The dimension of array " + id + " must be greater than 0."); } }
-		 */
+		// If the node's VarTypeNode has children, check the array size.
+		if (node.getVarTypeNode().getNumberOfChildren() == 1) {
+			assert node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
+			INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
+					.getFirstChild();
+			if (!intNode.isPositive()) {
+				ErrorCenter.reportError(intNode.getLine(), intNode
+						.getColumn(), String
+						.format(ARRAY_INDEX_NEGATIVE_ERROR, id));
+			}
+		}
 
 	}
 
@@ -125,10 +128,9 @@ public class SemanticRules {
 			VarType indexType = ((ExpressionNode) indexNode)
 					.getReturnType(scope);
 			if (indexType != VarType.INT) {
-				ErrorCenter
-						.reportError(indexNode.getLine(), indexNode.getColumn(), String
-								.format(ARRAY_INDEX_TYPE_ERROR, indexType
-										.name()));
+				ErrorCenter.reportError(indexNode.getLine(), indexNode
+						.getColumn(), String
+						.format(ARRAY_INDEX_TYPE_ERROR, indexType.name()));
 			}
 		}
 	}
@@ -164,12 +166,13 @@ public class SemanticRules {
 	}
 
 	static public void apply(RETURNNode node, Scope scope) {
-		if (node.getReturnType(scope) != scope.getReturnType()){
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), 
-					String.format(RETURN_TYPE_ERROR, scope.getReturnType(), node.getReturnType(scope)));
+		if (node.getReturnType(scope) != scope.getReturnType()) {
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(RETURN_TYPE_ERROR, scope.getReturnType(), node
+							.getReturnType(scope)));
 		}
 	}
-	
+
 	static public void apply(CLASSNode node, Scope scope) {
 		DecafNode child = node.getFirstChild();
 		if (!child.getText().equals("Program")) {

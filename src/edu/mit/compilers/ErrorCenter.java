@@ -50,6 +50,7 @@ public class ErrorCenter {
 			prefixSb.append(line);
 			prefixSb.append(":");
 			String prefix = prefixSb.toString();
+			// TODO: REPLACE TABS WITH SPACES FOR PRINTING.
 			System.out.println(prefix + file.readLine());
 			StringBuilder caretSb = new StringBuilder();
 			for (int i = 0; i < prefix.length() + col - 1; i++) {

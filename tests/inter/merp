@@ -1,13 +1,8 @@
 class Program {
-  int c[5];
-  int a[10];
+  int c[-55];
   void main() {
-    int b,c;
-    boolean d;
-    c = b[4];
-    c = a[1];
-    c = a[b];
-    c = a[d];
+    int a,b;
+    a = c[5];
   }
   void main(int a) {
   }
