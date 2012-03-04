@@ -265,7 +265,7 @@ bin_op
 
 literal
 	: INT_LITERAL
-    | CHAR_LITERAL
+  | CHAR_LITERAL
 	| TRUE
 	| FALSE
 	;

@@ -8,6 +8,9 @@ public class DecafSemanticChecker {
 	Scope scope;
 
 	public void crawl(CLASSNode root) {
+		// Clean tree, manipulating nodes as necessary.
+		root.clean();
+		
 		// For debugging.
 		System.out.println(root.toStringTree());
 		ASTFrame frame = new ASTFrame("6.035", root);
