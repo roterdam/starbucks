@@ -8,14 +8,13 @@ import antlr.Token;
 @SuppressWarnings("serial")
 abstract public class DecafNode extends CommonAST {
 	private int line = 0;
-	private int col = 0;
+	private int column = 0;
 
 	@Override
 	public void initialize(Token t) {
 		super.initialize(t);
 		line = t.getLine();
-		col = t.getColumn();
-		System.out.println("INITIALIZING " + t.getText() + " AT " + t.getLine());
+		column = t.getColumn();
 	}
 
 	@Override
@@ -25,7 +24,12 @@ abstract public class DecafNode extends CommonAST {
 
 	@Override
 	public int getColumn() {
-		return col;
+		return column;
+	}
+	
+	public void copyFromNode(DecafNode n) {
+		this.line = n.getLine();
+		this.column = n.getColumn();
 	}
 	
 	@Override
