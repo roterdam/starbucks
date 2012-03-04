@@ -5,7 +5,7 @@ import antlr.CommonAST;
 import antlr.Token;
 
 @SuppressWarnings("serial")
-public class DecafNode extends CommonAST {
+abstract public class DecafNode extends CommonAST {
 	private int line = 0;
 	private int col = 0;
 
@@ -49,9 +49,8 @@ public class DecafNode extends CommonAST {
 		}
 	}
 	
-	// TODO: make this abstract eventually.
 	public void checkRule(Scope scope) {
-		assert false;
+		
 	}
 	
 }
