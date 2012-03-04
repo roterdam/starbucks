@@ -2,6 +2,6 @@ package edu.mit.compilers.grammar;
 
 
 @SuppressWarnings("serial")
-public class BREAKNode extends DecafNode {
+public class BREAKNode extends BranchNode {
 	
 }

@@ -3,6 +3,8 @@ package edu.mit.compilers.crawler;
 import java.util.List;
 
 import edu.mit.compilers.ErrorCenter;
+import edu.mit.compilers.crawler.Scope.BlockType;
+import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.IDNode;
@@ -19,8 +21,18 @@ public class SemanticRules {
 			apply((DeclNode) node, scope);
 			return;
 		}
+		if (node instanceof IDNode) {
+			apply((IDNode) node, scope);
+			return;
+		}
+		if (node instanceof BranchNode) {
+			apply((BranchNode) node, scope);
+			return;
+		}
+
 		// TODO: enable this when all rules are done.
-		// assert false : "apply on DecafNode should not be called, only its children.";
+		// assert false :
+		// "apply on DecafNode should not be called, only its children.";
 		return;
 	}
 
@@ -40,18 +52,16 @@ public class SemanticRules {
 		}
 
 		// Rule 4
-		//TODO: This gets caught by the parser... need better error messages at parser level or let it get handled here.
+		// TODO: This gets caught by the parser... need better error messages at
+		// parser level or let it get handled here.
 		/*
-		if (node.getVarTypeNode().getNumberOfChildren() == 1) {
-			assert node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
-			INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
-					.getFirstChild();
-			if (intNode.getValue() < 1) {
-				ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
-						"The dimension of array " + id
-								+ " must be greater than 0.");
-			}
-		}*/
+		 * if (node.getVarTypeNode().getNumberOfChildren() == 1) { assert
+		 * node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
+		 * INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
+		 * .getFirstChild(); if (intNode.getValue() < 1) {
+		 * ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
+		 * "The dimension of array " + id + " must be greater than 0."); } }
+		 */
 
 	}
 
@@ -66,6 +76,24 @@ public class SemanticRules {
 		}
 	}
 
+	static public void apply(BranchNode node, Scope scope) {
+		// Rule 18.
+		Scope currentScope = scope;
+		while (currentScope != null) {
+			if (currentScope.getBlockType() == BlockType.WHILE
+					|| currentScope.getBlockType() == BlockType.FOR) {
+				break;
+			} else {
+				currentScope = currentScope.getParent();
+			}
+		}
+		if (currentScope == null) {
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					"Cannot call " + node.getText()
+							+ " from outside a while/for loop.");
+		}
+	}
+
 	static public void apply(METHOD_DECLNode node, Scope scope) {
 		VarType returnType = node.getReturnType();
 		String id = node.getId();
@@ -75,7 +103,8 @@ public class SemanticRules {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
 					"Cannot redeclare method " + id + ".");
 		} else {
-			scope.getMethods().put(id, new MethodSignature(returnType, id, params));
+			scope.getMethods().put(id,
+					new MethodSignature(returnType, id, params));
 		}
 	}
 
