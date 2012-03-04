@@ -110,7 +110,7 @@ field_decl_id
   ;
 
 method_decl!
-	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) ID
+	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) id:ID
     LPAREN! (p:method_decl_params)? RPAREN! bl:block
     {
       DecafNode replace = #bl;
@@ -119,7 +119,9 @@ method_decl!
         replace.setFirstChild(#p);
         #p.setNextSibling(first);
       }
-      #method_decl = #(ID,
+      DecafNode methodDecl = #[METHOD_DECL];
+      methodDecl.initialize(#id);
+      #method_decl = #(methodDecl,
         #([METHOD_RETURN, "return"], i, b, v), replace
       );
     }

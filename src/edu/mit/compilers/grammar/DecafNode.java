@@ -15,6 +15,7 @@ abstract public class DecafNode extends CommonAST {
 		super.initialize(t);
 		line = t.getLine();
 		col = t.getColumn();
+		System.out.println("INITIALIZING " + t.getText() + " AT " + t.getLine());
 	}
 
 	@Override
@@ -26,7 +27,7 @@ abstract public class DecafNode extends CommonAST {
 	public int getColumn() {
 		return col;
 	}
-
+	
 	@Override
 	public DecafNode getFirstChild() {
 		return (DecafNode) super.getFirstChild();

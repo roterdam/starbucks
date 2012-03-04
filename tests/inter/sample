@@ -29,17 +29,25 @@ class Program {
       test(e);
       a = 4;
     } else {
+      continue;
       c = (5+6)/(3%2 + 4);
     }
     for (a = 4; a < 10) {
       b = 3;
       callout("method", "1", "2", "3");
     }
+    continue;
+    fuckme = 2;
     while (c < 200 + 4 / 2 && a == true) {
+      {
       main(5, true);
-      recurse(c);
-      continue;
+      if(a + a){
+         recurse(c);
+         continue;
+      }
+      }
     }
+    fuckme = 2;
     continue;
   }
   boolean recurse(int n) {

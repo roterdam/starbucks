@@ -17,6 +17,6 @@ public class BLOCKNode extends DecafNode {
 		scope = new Scope(scope, BlockType.ANON);
 		super.validate(scope);
 		scope = scope.getParent();
-	}
+	}	
 
 }
