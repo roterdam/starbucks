@@ -19,8 +19,11 @@ class Program {
       boolean e,a;
     }
     a = 5 - 6;
+    a = fuckyou - 2;
+    a = -1;
+    a = -a;
     freaky = false;
-    c[4] = 0x45AEE;
+    c[5] = 0x45AEE;
 
     if (a == 3) {
       test(e);
