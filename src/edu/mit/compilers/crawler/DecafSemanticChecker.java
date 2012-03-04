@@ -9,12 +9,14 @@ public class DecafSemanticChecker {
 	
 	public void crawl(CLASSNode root) {
 		// For debugging.
+    System.out.println("CRAWLING");
 		System.out.println(root.toStringTree());
 		ASTFrame frame = new ASTFrame("6.035", root);
 		frame.setVisible(true);
 		
 		scope = new Scope(BlockType.CLASS);
 		root.validate(scope);
+    SemanticRules.apply(root, scope);
 	}
 	
 }

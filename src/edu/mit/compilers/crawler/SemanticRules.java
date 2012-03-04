@@ -1,10 +1,12 @@
 package edu.mit.compilers.crawler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.BranchNode;
+import edu.mit.compilers.grammar.CLASSNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.IDNode;
@@ -108,4 +110,12 @@ public class SemanticRules {
 		}
 	}
 
+	static public void apply(CLASSNode node, Scope scope) {
+		// Rule 3.
+		if (!scope.getMethods().containsKey("main")
+				|| scope.getMethods().get("main").getParams().size() != 0) {
+			ErrorCenter.reportError(1, 1,
+							"Program must contain definition for `main` with no parameters.");
+		}
+	}
 }
