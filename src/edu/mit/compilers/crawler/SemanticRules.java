@@ -12,6 +12,7 @@ import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_IDNode;
+import edu.mit.compilers.grammar.tokens.RETURNNode;
 
 public class SemanticRules {
 
@@ -21,7 +22,8 @@ public class SemanticRules {
 	static String REDECLARE_METHOD_ERROR = "Cannot redeclare method %1$s.";
 	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
 	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
-
+	static String RETURN_TYPE_ERROR = "Return type mismatch. Expected `%1$s` but got `%2$s` instead.";
+	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -46,6 +48,11 @@ public class SemanticRules {
 		
 		if (node instanceof CLASSNode) {
 			apply((CLASSNode) node, scope);
+			return;
+		}
+		
+		if (node instanceof RETURNNode) {
+			apply((RETURNNode) node, scope);
 			return;
 		}
 
@@ -126,6 +133,13 @@ public class SemanticRules {
 		}
 	}
 
+	static public void apply(RETURNNode node, Scope scope) {
+		if (node.getReturnType(scope) != scope.getReturnType()){
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), 
+					String.format(RETURN_TYPE_ERROR, scope.getReturnType(), node.getReturnType(scope)));
+		}
+	}
+	
 	static public void apply(CLASSNode node, Scope scope) {
 		DecafNode child = node.getFirstChild();
 		if (!child.getText().equals("Program")){

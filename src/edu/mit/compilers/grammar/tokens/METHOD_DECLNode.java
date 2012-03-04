@@ -3,7 +3,9 @@ package edu.mit.compilers.grammar.tokens;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
+import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
 
 @SuppressWarnings("serial")
@@ -31,6 +33,17 @@ public class METHOD_DECLNode extends DecafNode {
 			o.add(((PARAM_DECLNode) n).getVarType());
 		}
 		return o;
+	}
+	
+	@Override
+	public void validateChildren(Scope scope) {
+		assert getNumberOfChildren() == 2; //Must have return and block
+		assert getChild(0) instanceof METHOD_RETURNNode;
+			
+		assert getChild(1) instanceof BLOCKNode;
+		getChild(0).validate(scope);
+		((BLOCKNode) getChild(1)).validate(scope, BlockType.METHOD, this.getReturnType());		
+		
 	}
 
 }

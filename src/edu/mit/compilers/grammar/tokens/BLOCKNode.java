@@ -1,12 +1,19 @@
 package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
 
 @SuppressWarnings("serial")
 public class BLOCKNode extends DecafNode {
 
+	
+	public void validate(Scope scope, BlockType blockType, VarType returnType) {
+		scope = new Scope(scope, blockType, returnType);
+		super.validate(scope);
+		scope = scope.getParent();
+	}
 	
 	public void validate(Scope scope, BlockType blockType) {
 		scope = new Scope(scope, blockType);
