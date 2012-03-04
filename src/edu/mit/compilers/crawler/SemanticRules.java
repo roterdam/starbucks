@@ -75,7 +75,6 @@ public class SemanticRules {
 					"Cannot access identifier " + id + " before declaration.");
 		}
 	}
-<<<<<<< HEAD
 
 	static public void apply(BranchNode node, Scope scope) {
 		// Rule 18.
@@ -109,23 +108,4 @@ public class SemanticRules {
 		}
 	}
 
-=======
-	static public void apply(BranchNode node, Scope scope){
-		System.out.println("Rule 18.");
-		//Rule 18.
-		Scope currentScope = scope;
-		while(currentScope != null){
-			switch(currentScope.getBlockType()){
-			case WHILE: case FOR:
-				break;
-			default:
-				currentScope = currentScope.getParent();
-			}
-		}
-		if(currentScope == null){
-			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					"Cannot call " + node.getText() + " from outside a while/for loop.");
-		}
-	}
->>>>>>> e34c819... implemented rule 18
 }

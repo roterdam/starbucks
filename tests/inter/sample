@@ -42,7 +42,6 @@ class Program {
     while (c < 200 + 4 / 2 && a == true) {
       {
       main(5, true);
-<<<<<<< HEAD
       if(a + a){
          recurse(c);
          continue;
@@ -50,11 +49,6 @@ class Program {
       }
     }
     fuckme = 2;
-=======
-      recurse(c);
-      continue;
-    }
->>>>>>> e34c819... implemented rule 18
     continue;
   }
   boolean recurse(int n) {
