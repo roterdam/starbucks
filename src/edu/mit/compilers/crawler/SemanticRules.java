@@ -1,6 +1,5 @@
 package edu.mit.compilers.crawler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.ErrorCenter;
@@ -50,7 +49,7 @@ public class SemanticRules {
 			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
 					"Cannot redeclare identifier " + id + ".");
 		} else {
-			scope.addVar(id, t);
+			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
 		}
 
 		// Rule 4
@@ -101,12 +100,17 @@ public class SemanticRules {
 		String id = node.getId();
 		List<VarType> params = node.getParams();
 		if (scope.getMethods().containsKey(id)) {
+			// Treat main differently.
+			if (id.equals("main")) {
+				MethodDecl mainDecl = scope.getMethods().get(id);
+				// TODO(josh): complete main checking.
+			}
 			// TODO: Also store where the original ID was declared.
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
 					"Cannot redeclare method " + id + ".");
 		} else {
 			scope.getMethods().put(id,
-					new MethodSignature(returnType, id, params));
+					new MethodDecl(returnType, id, params, node.getLine(), node.getColumn()));
 		}
 	}
 
@@ -114,7 +118,7 @@ public class SemanticRules {
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")
 				|| scope.getMethods().get("main").getParams().size() != 0) {
-			ErrorCenter.reportError(1, 1,
+			ErrorCenter.reportError(.1, 1,
 							"Program must contain definition for `main` with no parameters.");
 		}
 	}

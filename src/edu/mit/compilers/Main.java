@@ -64,22 +64,22 @@ class Main {
 				}
 			} else if (CLI.target == Action.PARSE || CLI.target == Action.INTER
 					|| CLI.target == Action.DEFAULT) {
-				
+
 				DecafScanner scanner = new DecafScanner(new DataInputStream(
 						inputStream));
 				DecafParser parser = new DecafParser(scanner);
 				parser.setTrace(CLI.debug);
 				parser.program();
 
+				// Return a non-zero code if an error has occurred. DO NOT
+				// proceed with semantic checking.
+				if (parser.hasError()) {
+					System.exit(1);
+				}
+
 				if (CLI.target == Action.INTER) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
-				}
-
-				// Return a non-zero code if an error has occurred.
-				if (parser.hasError()) {
-					System.out.println("ERROR. PEACE OUT.");
-					System.exit(1);
 				}
 			}
 		} catch (Exception e) {
