@@ -1,4 +1,5 @@
 class Program {
+  int Program;
   int a() {
   }
   boolean main(int a) {

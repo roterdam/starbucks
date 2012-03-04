@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class Scope {
 
-	private Map<String, VarType> localVars;
-	private Map<String, MethodSignature> methods;
+	private Map<String, VarDecl> localVars;
+	private Map<String, MethodDecl> methods;
 	private Scope parent;
 	private BlockType blockType;
 
@@ -21,15 +21,15 @@ public class Scope {
 	public Scope(Scope parent, BlockType blockType) {
 		this.parent = parent;
 		this.blockType = blockType;
-		localVars = new HashMap<String, VarType>();
+		localVars = new HashMap<String, VarDecl>();
 		if (parent == null) {
-			methods = new HashMap<String, MethodSignature>();
+			methods = new HashMap<String, MethodDecl>();
 		} else {
 			methods = parent.getMethods();
 		}
 	}
 
-	public Map<String, MethodSignature> getMethods() {
+	public Map<String, MethodDecl> getMethods() {
 		return methods;
 	}
 
@@ -37,8 +37,8 @@ public class Scope {
 		return blockType;
 	}
 
-	public void addVar(String v, VarType t) {
-		localVars.put(v, t);
+	public void addVar(String id, VarDecl var) {
+		localVars.put(id, var);
 	}
 
 	public boolean hasVar(String v) {
@@ -50,7 +50,7 @@ public class Scope {
 	}
 
 	public VarType getType(String v) {
-		return hasVar(v) ? localVars.get(v) : parent.getType(v);
+		return hasVar(v) ? localVars.get(v).getReturnType() : parent.getType(v);
 	}
 
 	public Scope getParent() {
