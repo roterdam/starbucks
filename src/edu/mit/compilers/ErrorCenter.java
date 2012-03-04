@@ -1,15 +1,65 @@
 package edu.mit.compilers;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ErrorCenter {
 
-  static String filename = "";
+	static String filename = "";
+	static RandomAccessFile file;
+	static List<Long> lineOffsets;
+	static int maxLineNumberWidth;
 
-  public static void setFilename(String newFilename) {
-    filename = newFilename;
-  }
+	/**
+	 * Reads entire file into memory for error reporting.
+	 * 
+	 * @param newFilename
+	 * @throws IOException
+	 */
+	public static void loadFile(String newFilename) {
+		try {
+			file = new RandomAccessFile(newFilename, "r");
+			filename = newFilename;
+			lineOffsets = new ArrayList<Long>();
+			// Line "0" doesn't exist.
+			lineOffsets.add(-1L);
+			lineOffsets.add(file.getFilePointer());
+			while (file.readLine() != null) {
+				lineOffsets.add(file.getFilePointer());
+			}
+			maxLineNumberWidth = Integer.toString(lineOffsets.size() - 1).length();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
-  public static void reportError(int line, int col, String message) {
-    System.out.println("Error at " + filename + ":" + line + "," + col + ": " + message);
-  }
-  
+	public static void reportError(int line, int col, String message) {
+		try {
+			System.out.println("Error at " + filename + ":" + line + "," + col
+					+ ": " + message);
+			file.seek(lineOffsets.get(line));
+			StringBuilder prefixSb = new StringBuilder();
+			for (int i = 0; i < maxLineNumberWidth - Integer.toString(line).length(); i++) {
+				prefixSb.append(" ");
+			}
+			prefixSb.append(line);
+			prefixSb.append(":");
+			String prefix = prefixSb.toString();
+			System.out.println(prefix + file.readLine());
+			StringBuilder caretSb = new StringBuilder();
+			for (int i = 0; i < prefix.length() + col - 1; i++) {
+				caretSb.append(" ");
+			}
+			caretSb.append("^");
+			System.out.println(caretSb.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

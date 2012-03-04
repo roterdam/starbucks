@@ -1,4 +1,5 @@
 class Program {
+  int a;
   int c[4];
   int a, b;
   boolean aa, bb, cc;
@@ -58,15 +59,5 @@ class Program {
   }
   boolean recurse(int n) {
     recurse(n - 1);
-  }
-  void nope() {
-  }
-  void nope(int i) {
-  }
-  boolean recurse(boolean b) {
-  }
-  void test() {
-  }
-  boolean test() {
   }
 }
