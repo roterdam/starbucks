@@ -13,8 +13,9 @@ public class IDNode extends ExpressionNode {
 	 */
 	@Override
 	public VarType getReturnType(Scope scope) {
+		if(!scope.seesVar(getText())) return VarType.UNDECLARED;
+		
 		VarType returnType = scope.getType(getText());
-
 		assert getNumberOfChildren() <= 1;
 		// If accessing an array, return the type of the array. However, if
 		// there's no children this ends up returning INT_ARRAY or BOOLEAN_ARRAY

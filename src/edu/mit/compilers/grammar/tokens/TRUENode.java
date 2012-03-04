@@ -1,8 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
-import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.grammar.BooleanNode;
 
 @SuppressWarnings("serial")
-public class TRUENode extends DecafNode {
+public class TRUENode extends BooleanNode {
 
 }

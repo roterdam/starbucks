@@ -80,6 +80,7 @@ class Main {
 				if (CLI.target == Action.INTER) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
+					System.out.println("I'm done.");
 				}
 			}
 		} catch (Exception e) {

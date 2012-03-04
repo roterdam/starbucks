@@ -1,5 +1,7 @@
 package edu.mit.compilers.crawler;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.mit.compilers.ErrorCenter;
@@ -7,6 +9,7 @@ import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
+import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
@@ -21,7 +24,9 @@ public class SemanticRules {
 	static String REDECLARE_METHOD_ERROR = "Cannot redeclare method %1$s.";
 	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
 	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
-
+	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method %1$s before declaration.";
+	static String METHOD_ARGS_ERROR = "Cannot call method %1$s with arguments %2$s. Expected %3$s.";
+	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -162,17 +167,49 @@ public class SemanticRules {
 		// Rule 2b
 		assert node.getNumberOfChildren() > 0;
 		assert node.getChild(0) instanceof METHOD_IDNode;
-
-		String methodName = node.getChild(0).getText();
-
+		
+		METHOD_IDNode methodIDNode = (METHOD_IDNode)node.getChild(0);
+		String methodName = methodIDNode.getText();
 		if (scope.getMethods().containsKey(methodName)) {
+			
+			// Rule 5
+			// Construct a list of passed in parameters.
+			List<VarType> args = new ArrayList<VarType>();
+			DecafNode arg = node.getFirstChild().getNextSibling();
+			while(arg != null){
+				assert arg instanceof ExpressionNode;
+				VarType returnType = ((ExpressionNode)arg).getReturnType(scope);
+				args.add(returnType);
+				arg = arg.getNextSibling();
+			}
+			
 			MethodDecl method = scope.getMethods().get(methodName);
-			// TODO: finish compare lists.
+			List<VarType> params = method.getParams();
+
+			if(reportErrorForParams(params, args)){
+				ErrorCenter
+				.reportError(methodIDNode.getLine(), methodIDNode.getColumn(),
+						String.format(METHOD_ARGS_ERROR, methodName, args.toString(), params.toString()));
+			}
 		} else {
 			ErrorCenter
-					.reportError(node.getLine(), node.getColumn(),
-							"Cannot call method " + methodName
-									+ " before declaration.");
+					.reportError(node.getLine(), node.getColumn(), String.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
 		}
+	}
+	
+	private static boolean reportErrorForParams(List<VarType> params, List<VarType> args){
+		// Silently fail for undeclared variables
+		for(int i=0; i<args.size(); i++){
+			if(args.get(i) == VarType.UNDECLARED){
+				return false;
+			}
+		}
+		if(params.size() == args.size()){
+			for(int i=0; i<params.size();i++){
+				if(args.get(i) != params.get(i)) return true;
+			}
+			return false;
+		}
+		return true;
 	}
 }

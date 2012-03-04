@@ -11,7 +11,7 @@ class Program {
   int aloha(int a, int b){
      return a+b;
   }
-  void main(int e, boolean g) {
+  void main() {
     int a,b;
     int b;
     boolean e;
@@ -25,6 +25,7 @@ class Program {
     a = fuckyou - 2;
     a = -1;
     a = -a;
+    aloha(a, true);
     freaky = false;
     c[5] = 0x45AEE;
 
