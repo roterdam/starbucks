@@ -60,7 +60,12 @@ public class Scope {
 	}
 
 	public VarType getType(String v) {
-		return hasVar(v) ? localVars.get(v).getReturnType() : parent.getType(v);
+		if (hasVar(v)){
+			return localVars.get(v).getReturnType();
+		} else if (parent != null){
+			return parent.getType(v);
+		}
+		return VarType.UNDECLARED;
 	}
 
 	public Scope getParent() {
