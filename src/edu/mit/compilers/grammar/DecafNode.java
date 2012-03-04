@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import antlr.CommonAST;
 import antlr.Token;
 
@@ -37,7 +38,7 @@ abstract public class DecafNode extends CommonAST {
 	}
 	
 	public void validate(Scope scope) {
-		checkRule(scope);
+		SemanticRules.apply(this.getClass().cast(this), scope);
 		validateChildren(scope);
 	}
 	
@@ -47,10 +48,6 @@ abstract public class DecafNode extends CommonAST {
 			child.validate(scope);
 			child = child.getNextSibling();
 		}
-	}
-	
-	public void checkRule(Scope scope) {
-		
 	}
 	
 }

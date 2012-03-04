@@ -1,16 +1,9 @@
 package edu.mit.compilers.grammar;
 
-import edu.mit.compilers.crawler.Scope;
-import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 
 @SuppressWarnings("serial")
 public class DeclNode extends DecafNode {
-	
-	@Override
-	public void checkRule(Scope scope) {
-		SemanticRules.apply(this, scope);
-	}
 	
 	public IDNode getIDNode() {
 		assert this.getNumberOfChildren() == 2;

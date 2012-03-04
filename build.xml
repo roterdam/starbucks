@@ -1,7 +1,7 @@
 <project name="Compiler" default="jar" basedir=".">
 
   <property environment="env" />
-  <property name="phase" value="parser" />
+  <property name="phase" value="semantics" />
   <property name="base_package_dir" value="edu/mit/compilers" />
   <property name="base_package_name" value="edu.mit.compilers" />
 

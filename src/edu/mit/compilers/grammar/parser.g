@@ -184,10 +184,12 @@ statement
 	| block
 	;
 
-method_call
-	: ID^ LPAREN! (expr (COMMA! expr)*)? RPAREN!
-	{ #method_call = #([METHOD_CALL, "method call"], method_call); }
-	|! CALLOUT LPAREN! name:STRING_LITERAL
+method_call!
+	: i:ID { #method_call = #([METHOD_CALL, "method call"], [METHOD_ID, #i.getText()]); }
+    LPAREN!
+      (e:expr { #method_call.addChild(#e); } (COMMA! f:expr { #method_call.addChild(#f); })*)?
+    RPAREN!
+	| CALLOUT LPAREN! name:STRING_LITERAL
     {
       DecafNode cargs = #([CALLOUT_ARGS, "args"]);
       #method_call = #(CALLOUT,
