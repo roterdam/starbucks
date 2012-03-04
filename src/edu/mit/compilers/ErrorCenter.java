@@ -12,6 +12,7 @@ public class ErrorCenter {
 	static List<Long> lineOffsets;
 	static int maxLineNumberWidth;
 	static boolean hasError = false;
+	static int TAB_SIZE = 4;
 
 	/**
 	 * Reads entire file into memory for error reporting.
@@ -30,7 +31,8 @@ public class ErrorCenter {
 			while (file.readLine() != null) {
 				lineOffsets.add(file.getFilePointer());
 			}
-			maxLineNumberWidth = Integer.toString(lineOffsets.size() - 1).length();
+			maxLineNumberWidth = Integer.toString(lineOffsets.size() - 1)
+					.length();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -43,28 +45,57 @@ public class ErrorCenter {
 			System.out.println("Error at " + filename + ":" + line + "," + col
 					+ ": " + message);
 			file.seek(lineOffsets.get(line));
+
 			StringBuilder prefixSb = new StringBuilder();
-			for (int i = 0; i < maxLineNumberWidth - Integer.toString(line).length(); i++) {
+			for (int i = 0; i < maxLineNumberWidth
+					- Integer.toString(line).length(); i++) {
 				prefixSb.append(" ");
 			}
 			prefixSb.append(line);
 			prefixSb.append(":");
-			String prefix = prefixSb.toString();
-			// TODO: REPLACE TABS WITH SPACES FOR PRINTING.
-			System.out.println(prefix + file.readLine());
+			String out = prefixSb.toString() + file.readLine();
+
+			// This is absurd.
+			String spaces = "";
+			for (int i = 0; i < TAB_SIZE; i++) {
+				spaces += " ";
+			}
+			out = out.replace("\t", spaces);
+			System.out.println(out);
+
 			StringBuilder caretSb = new StringBuilder();
-			for (int i = 0; i < prefix.length() + col - 1; i++) {
+			int end = sizeWithTabs(out, TAB_SIZE, col + prefixSb.length() - 1);
+			for (int i = 0; i < end; i++) {
 				caretSb.append(" ");
 			}
 			caretSb.append("^");
 			System.out.println(caretSb.toString());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	public static boolean hasError(){
+
+	/**
+	 * Calculates the length of a string, assuming a tab size.
+	 * 
+	 * @param in
+	 * @param tabsize
+	 * @return
+	 */
+	private static int sizeWithTabs(String in, int tabsize, int col) {
+		int size = 0;
+		for (int i = 0; i < col; i++) {
+			char c = in.charAt(i);
+			if (c == '\t') {
+				size += tabsize;
+			} else {
+				size += 1;
+			}
+		}
+		return size;
+	}
+
+	public static boolean hasError() {
 		return hasError;
 	}
 
