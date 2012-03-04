@@ -1,6 +1,5 @@
 package edu.mit.compilers;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;

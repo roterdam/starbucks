@@ -210,7 +210,7 @@ public class SemanticRules {
 		String methodName = node.getChild(0).getText();
 
 		if (scope.getMethods().containsKey(methodName)) {
-			MethodDecl method = scope.getMethods().get(methodName);
+			// MethodDecl method = scope.getMethods().get(methodName);
 			// TODO: finish compare lists.
 		} else {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
