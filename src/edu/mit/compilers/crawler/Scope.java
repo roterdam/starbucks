@@ -6,6 +6,7 @@ import java.util.Map;
 public class Scope {
 
 	private Map<String, VarType> localVars;
+	private Map<String, MethodSignature> methods;
 	private Scope parent;
 	private BlockType blockType;
 
@@ -21,6 +22,15 @@ public class Scope {
 		this.parent = parent;
 		this.blockType = blockType;
 		localVars = new HashMap<String, VarType>();
+		if (parent == null) {
+			methods = new HashMap<String, MethodSignature>();
+		} else {
+			methods = parent.getMethods();
+		}
+	}
+
+	public Map<String, MethodSignature> getMethods() {
+		return methods;
 	}
 
 	public BlockType getBlockType() {

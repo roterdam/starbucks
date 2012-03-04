@@ -43,4 +43,14 @@ class Program {
   boolean recurse(int n) {
     recurse(n - 1);
   }
+  void nope() {
+  }
+  void nope(int i) {
+  }
+  boolean recurse(boolean b) {
+  }
+  void test() {
+  }
+  boolean test() {
+  }
 }

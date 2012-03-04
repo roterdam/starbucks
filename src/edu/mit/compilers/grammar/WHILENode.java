@@ -14,7 +14,6 @@ public class WHILENode extends DecafNode {
 		assert getChild(0) instanceof WHILE_TERMINATENode;
 		assert getChild(1) instanceof BLOCKNode;
 		getChild(0).validate(scope);
-		getChild(1).validate(scope);
-		((BLOCKNode) getChild(2)).validate(scope, BlockType.WHILE);
+		((BLOCKNode) getChild(1)).validate(scope, BlockType.WHILE);
 	}
 }

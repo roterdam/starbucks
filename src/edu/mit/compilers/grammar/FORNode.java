@@ -14,7 +14,7 @@ public class FORNode extends DecafNode {
 		
 		assert getNumberOfChildren() == 3;
 		assert getChild(0) instanceof FOR_INITIALIZENode;
-		assert getChild(1) instanceof FOR_INITIALIZENode;
+		assert getChild(1) instanceof FOR_TERMINATENode;
 		assert getChild(2) instanceof BLOCKNode;
 		getChild(0).validate(scope);
 		getChild(1).validate(scope);
