@@ -75,12 +75,12 @@ program!
       DecafNode fields = #([FIELDS, "fields"]);
       DecafNode methods = #([METHODS, "methods"]);
     }
-    CLASS PROGRAM! LCURLY!
+    CLASS id:ID LCURLY!
   	(f:field_decl { fields.addChild(#f); })*
   	(m:method_decl { methods.addChild(#m); })*
     RCURLY! EOF!
     {
-      #program = #(CLASS, fields, methods);
+      #program = #(CLASS, id, fields, methods);
     }
 	;
 

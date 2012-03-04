@@ -1,0 +1,5 @@
+class program { // must be named Program (uppercase)
+  void Main() { // must be called main (lowercase)
+    int x;
+  }								
+}

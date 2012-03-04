@@ -37,6 +37,11 @@ public class SemanticRules {
 			apply((BranchNode) node, scope);
 			return;
 		}
+		
+		if (node instanceof CLASSNode) {
+			apply((CLASSNode) node, scope);
+			return;
+		}
 
 		// TODO: enable this when all rules are done.
 		// assert false :
@@ -116,6 +121,13 @@ public class SemanticRules {
 	}
 
 	static public void apply(CLASSNode node, Scope scope) {
+		DecafNode child = node.getFirstChild();
+		if (!child.getText().equals("Program")){
+			ErrorCenter.reportError(child.getLine(), child.getColumn(), "The class must be named `Program`. It is currently `"+child.getText()+"`");
+		}
+	}
+	
+	static public void finalApply(CLASSNode node, Scope scope){
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")) {
 			ErrorCenter.reportError(1, 1, MISSING_MAIN_ERROR);

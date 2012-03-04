@@ -15,7 +15,7 @@ public class DecafSemanticChecker {
 
 		scope = new Scope(BlockType.CLASS);
 		root.validate(scope);
-		SemanticRules.apply(root, scope);
+		SemanticRules.finalApply(root, scope);
 	}
 
 }

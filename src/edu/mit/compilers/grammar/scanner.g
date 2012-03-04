@@ -36,7 +36,6 @@ tokens {
   BREAK="break";
   CALLOUT="callout";
   CLASS="class";
-  PROGRAM="Program";
   CONTINUE="continue";
   ELSE="else";
   FOR="for";
