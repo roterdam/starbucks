@@ -8,6 +8,9 @@ import edu.mit.compilers.grammar.IDNode;
 public class SemanticRules {
 	
 	static public void apply(DecafNode node, Scope scope) {
+		if (node instanceof DeclNode) {
+			apply((DeclNode) node, scope);
+		}
 		// TODO: enable this when all rules are done.
 		//assert false : "apply on DecafNode should not be called, only its children.";
 		return;
@@ -19,8 +22,6 @@ public class SemanticRules {
 		String id = idNode.getText();
 		VarType t = node.getVarType();
 		
-		System.out.println("Rule-checking DeclNode: " + id + " at line " + idNode.getLine());
-
 		if (scope.hasVar(id)) {
 			// TODO: Also store where the original ID was declared.
 			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
