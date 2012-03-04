@@ -113,18 +113,20 @@ method_decl!
 	: (i:INT_TYPE | b:BOOLEAN_TYPE | v:VOID) ID
     LPAREN! (p:method_decl_params)? RPAREN! bl:block
     {
-      // Splice out the BLOCK bl with a METHOD_BLOCK
       DecafNode replace = #bl;
+      if (#p != null) {
+        DecafNode first = replace.getFirstChild();
+        replace.setFirstChild(#p);
+        #p.setNextSibling(first);
+      }
       #method_decl = #(ID,
-        #([METHOD_RETURN, "return"], i, b, v), p,
-        #([METHOD_BLOCK, "method block"], replace.getFirstChild())
+        #([METHOD_RETURN, "return"], i, b, v), replace
       );
     }
 	;
 
 method_decl_params
   : method_decl_param (COMMA! method_decl_param)*
-  { #method_decl_params = #([METHOD_PARAMS, "params"], #method_decl_params); }
   ;
 
 method_decl_param !
@@ -140,12 +142,12 @@ block
 var_decl !
 	: t:type id1:ID 
 	{
-	   DecafNode decl = #([METHOD_DECL, "method decl"], t, id1);
+	   DecafNode decl = #([VAR_DECL, "var decl"], t, id1);
 	   DecafNode next = decl;  
 	} 
 	(COMMA! id2:ID 
 	{
-	   next.setNextSibling(#([METHOD_DECL, "method decl"], astFactory.create(t), id2)); 
+	   next.setNextSibling(#([VAR_DECL, "var decl"], astFactory.create(t), id2)); 
 	   next = next.getNextSibling(); 
 	}
 	)* SEMICOLON!

@@ -22,18 +22,7 @@ public class Scope {
 	}
 
 	public boolean hasVar(String v) {
-		if (this.localVars.containsKey(v)) {
-			return true;
-		}
-		Scope upScope = this.getParent();
-		while (upScope != null) {
-			if (upScope.hasVar(v)) {
-				return true;
-			} else {
-				upScope = upScope.getParent();
-			}
-		}
-		return false;
+		return this.localVars.containsKey(v);
 	}
 	
 	public VarType getType(String v) {

@@ -1,13 +1,23 @@
 class Program {
   int c[4];
-  int a, b, c;
+  int a, b;
   boolean aa, bb, cc;
   boolean s;
 
+  void nope() {
+    int c;
+  }
+
   void main(int e, boolean g) {
     int a,b;
+    int b;
+    boolean e;
     boolean freaky;
 
+    {
+      int a;
+      boolean e,a;
+    }
     a = 5 - 6;
     freaky = false;
     c[4] = 0x45AEE;

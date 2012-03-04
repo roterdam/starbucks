@@ -46,13 +46,13 @@ public class TokenTypeSetter {
 			put(DecafParserTokenTypes.METHODS, METHODSNode.class);
 			put(DecafParserTokenTypes.METHOD_CALL, METHOD_CALLNode.class);
 			put(DecafParserTokenTypes.METHOD_DECL, METHOD_DECLNode.class);
-			put(DecafParserTokenTypes.METHOD_PARAMS, METHOD_PARAMSNode.class);
 			put(DecafParserTokenTypes.METHOD_RETURN, METHOD_RETURNNode.class);
 			put(DecafParserTokenTypes.MINUS, MINUSNode.class);
 			put(DecafParserTokenTypes.MINUS_ASSIGN, MINUS_ASSIGNNode.class);
 			put(DecafParserTokenTypes.MOD, MODNode.class);
 			put(DecafParserTokenTypes.NEQ, NEQNode.class);
 			put(DecafParserTokenTypes.OR, ORNode.class);
+			put(DecafParserTokenTypes.PARAM_DECL, PARAM_DECLNode.class);
 			put(DecafParserTokenTypes.PLUS, PLUSNode.class);
 			put(DecafParserTokenTypes.PLUS_ASSIGN, PLUS_ASSIGNNode.class);
 			put(DecafParserTokenTypes.RETURN, RETURNNode.class);

@@ -76,7 +76,7 @@
     </antlr>
   </target>
 
-  <target name="compile" depends="clean,parser">
+  <target name="compile" depends="parser">
     <javac srcdir="${autogen}:${src}" destdir="${classes}"
            debug="on" includeantruntime="false">
       <classpath refid="libraries" />
