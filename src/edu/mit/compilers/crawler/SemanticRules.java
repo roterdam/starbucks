@@ -103,7 +103,7 @@ public class SemanticRules {
 			// Treat main differently.
 			if (id.equals("main")) {
 				MethodDecl mainDecl = scope.getMethods().get(id);
-				// TODO(josh): complete main checking.
+				
 			}
 			// TODO: Also store where the original ID was declared.
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
@@ -118,7 +118,7 @@ public class SemanticRules {
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")
 				|| scope.getMethods().get("main").getParams().size() != 0) {
-			ErrorCenter.reportError(.1, 1,
+			ErrorCenter.reportError(1, 1,
 							"Program must contain definition for `main` with no parameters.");
 		}
 	}
