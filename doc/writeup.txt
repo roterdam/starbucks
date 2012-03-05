@@ -1,0 +1,59 @@
+Group Coordination
+===
+Josh and David worked on generating an abstract syntax tree, using ANTLR's rewrite rules and custom Java to create the initial tree of custom DecafNodes. Saji and Saif worked on the rule application scaffolding in order to express rules systematically. We split up the rule implementations evenly and all participated in the testing process. Heavy usage of pair coding helped when logic-heavy coding was required and not too many tasks could be pipelined. Just by coincidence, David ended up finishing his rules earlier and was responsible for writting test cases.
+
+Clarifications, Assumptions, and Additions
+===
+* Token scanning issues are fatal issues that we do not attempt to recover from - the ANTLR-generated scanner cannot recover from an assignment like a = 'morethanone'.
+* When types are incompatible, the return type is matched according to the operator and used for the remainder of type checking. i.e. "false && 1 + true" would give two errors, for (boolean && int) and (int + boolean).
+* Local variables and parameters are allowed to shadow field or method names, but shadowed methods cannot be called.
+* The loop index variable cannot be shadowed, and trying to declare a varaible of the same name generates an error.
+* Method declarations were moved into blocks in our tree because they share scope
+* We have no guarantee that a return statement in a while/for loop will be ever be reached (including in nested blocks). We are only sure that an if/else construct will return true if both if-block and else-block guarantee to return true. We ignore unequivocally true statements in if clauses. For example, if (true) { return 1;} is not treated differently than if (i > 2) { return 1;} Therefore, a method is only guaranteed to return if a return is found directly in the body, or any if and else branches foudn in the method body are guaranteed to return true.
+
+Design Overview
+===
+Our semantic checker performs three tasks:
+
+    1) Construct an abstract syntax tree
+    The AST is built using ANTLR's rewrite rules interleaved with Java for more advanced node manipulation. When there are multiple field or variable declarations on the same line, we expand these into multiple lines. For example, "int a, b, c;" becomes "int a; int b; int c;". The visitor can therefore remain relatively simple and only handle individual declarations.
+    
+    All ANTLR tokens are mapped to object representations, which allows us to define relationships through inheritance. We use the ASTFactory and pass in a Hashtable that maps token types to node classes - the Parser then uses this factory when creating nodes. Scope objects are used to implement symbol tables. They track local variables and methods and can recursively reference parent scopes.
+    
+    It is worth noting that at this stage, negative integers are allowed as array indices. We found that it was easier to handle this error at the semantic checking stage when we had a better idea of context in which it occurred.
+      
+    2) Clean up the abstract syntax tree
+    Before applying semantic rules, we introduce a processing ("clean"-ing) phase prior to the main semantic validation. Currently, this phase only serves one purpose, replacing a MINUSNode (representing a MINUS token) with a more semantically-rich SubtractNode or UnaryMinusNode, depending on usage as a binary or unary operator. We made the decision to introduce an entire phase to 1) make the previous operation simple and 2) because we foresee using this phase to augment our node structures with more data in later stages.
+    
+    3) Apply each semantic rule to the tree
+    As hinted in the specifications, we use a visitor pattern to effectively apply each semantic rule to the abstract syntax tree. Each node is responsible for dispatching rule-checking calls to its children and modifying the scope stack as necessary. Semantic violations are sent to the static class ErrorCenter for logging and printing. In addition to the line and column number, our compiler prints out a caret as a visual indication of the exact error source. The ErrorCenter currently immediately prints errors sent to it, but it can be seen that, if necessary, the ErrorCenter can catch errors, process them, and print them out at a later date.
+    
+Decisions & Alternatives
+===
+We considered an iterative approach to semantic checking because it is not limited by stack size. A program consisting of thousands of nested if statements would cause the compiler to exhaust its callstack and crash, if checking were performed recursively. However, we ultimately decided to perform recursive checking because it presented an opportunity for a far cleaner implementation. Additionally, only non-practical programs specifically designed to cause a stack overflow would fail.
+
+We assume that a for/while loop is not guaranteed to return in a method. Optimizations can be done to catch some cases where the condition in a loop while always evaluates to true. For example, the method
+
+int a() {
+    if (true || false) {
+        return 1;
+    }
+}
+
+should be treated as always returning 1. Currently our compiler gives an error that a() may not always return a value. This is semantically valid given our assumptions, and we maintain that it might actually enforce better code when the above method can be reduced to
+
+int a() {
+    return 1;
+}
+
+Thus, it isn't straightforward whether such an optimization is beneficial, and we ultimately decided to side with the simpler alternative.
+
+Implementation Issues of Interest
+===
+We unintentionally re-invented the visitor pattern over multiple iterations of rule checking code. In hindsight, we all wish we had read the project specification more carefully and (maybe) paid more attention in 6.005. We use SemanticRules and ValidReturnChecker as two Visitor objects that traverse the tree to check for semantic correctness and return guarantees, respectively.
+
+Known Problems
+===
+We currently do not have any known problems, although there are improvements we would like to make.
+
+We do not warn the user if they have "dead" code. For example, if a method is defined after main() and thus can never be run, we do not indicate this is the case.
