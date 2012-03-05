@@ -1,0 +1,9 @@
+class Program {
+
+  int main() {
+    return 3;
+  }
+  void main() {         //redeclared main error 1 of 1
+    return;             
+  }								
+}

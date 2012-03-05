@@ -1,0 +1,31 @@
+class Program {
+  boolean b;            // first decl
+  int b;                // second decl   error 1 of 7
+  boolean b;            // third decl    error 2 of 7
+  int a,b,c,d,e;        // fourth decl   error 3 of 7
+
+
+  int foo() {
+    boolean b;
+    int b;              // second decl   error 4 of 7
+  
+  }
+  
+  void main() {
+    int b;              // Shadow. Okay
+    int b;              // second decl   error 5 of 7
+    
+    for (b = 0; 4){     // Shadow. Okay
+        int b;          // second decl   error 6 of 7
+        b += 1;         // inside.
+    
+        if (c < d) {
+            int d;      
+            boolean d;  // more decl     error 7 of 7
+            d += 1;
+        }
+    }
+
+    
+  }								
+}

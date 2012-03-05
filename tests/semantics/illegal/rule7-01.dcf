@@ -1,0 +1,26 @@
+class Program {    
+
+    void foo() {
+        boolean b;
+        return b;                   //ERROR 1 of 3
+    }
+    
+    void bar() {
+        int a;
+        return a;                     //ERROR 2 of 3
+    }
+    
+    boolean faz() {
+        boolean b;
+        return b;
+    }
+    
+    int baz() {
+        int a;
+        return a; 
+    }
+
+    void main() {
+        return 3;                    //ERROR 3 of 3
+    }						
+}

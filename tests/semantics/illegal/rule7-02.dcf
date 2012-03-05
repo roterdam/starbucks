@@ -1,0 +1,28 @@
+class Program {    
+
+    void foo() {
+        boolean b;
+        return b;
+    }
+    
+    void bar() {
+        int a;
+        return a; 
+    }
+    
+    boolean faz() {
+        boolean b;
+        return b;
+    }
+    
+    int baz() {
+        int a;
+        return a; 
+    }
+    
+    return 2;                        //ERROR 1 of 1 (Actually at the parser level
+
+    void main() {
+        return 3; 
+    }						
+}

@@ -1,0 +1,17 @@
+class Program {
+
+  int foo() {
+    b += 1;             // second decl   error 1 of 4  
+  }
+  
+  void main() {
+    for (b = 0; 4){     // decl in for. okay
+    
+        if (i < j) {    // two errors   error 2 & 3 of 4
+            d += 1;     //              error 4 of 4
+        }
+    }
+
+    
+  }								
+}

@@ -1,0 +1,10 @@
+// some comments
+
+class Program {
+  int a() {
+  }
+  boolean main() {
+    int b;
+    b = 1 + a();
+  }
+}
