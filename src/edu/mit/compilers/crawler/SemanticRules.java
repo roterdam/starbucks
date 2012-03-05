@@ -1,7 +1,5 @@
 package edu.mit.compilers.crawler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.mit.compilers.ErrorCenter;
@@ -32,7 +30,6 @@ public class SemanticRules {
 	static String REDECLARE_METHOD_ERROR = "Cannot declare method `%1$s`; variable or field `%1$s` already exists.";
 	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
 	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
-	static String METHOD_ARGS_ERROR = "Cannot call method %1$s with arguments %2$s. Expected %3$s.";
 	static String RETURN_TYPE_ERROR = "Return type mismatch. Expected `%1$s` but got `%2$s` instead.";
 	static String ARRAY_INDEX_TYPE_ERROR = "Invalid array index: expected "
 			+ VarType.INT.name() + ", found %1$s instead.";
@@ -238,52 +235,19 @@ public class SemanticRules {
 	}
 
 	static public void apply(METHOD_CALLNode node, Scope scope) {
-		// Rule 2b.
+		// Rule 2b
 		assert node.getNumberOfChildren() > 0;
 		assert node.getChild(0) instanceof METHOD_IDNode;
-		
-		METHOD_IDNode methodIDNode = (METHOD_IDNode)node.getChild(0);
-		String methodName = methodIDNode.getText();
-		if (scope.getMethods().containsKey(methodName)) {			
-			// Rule 5
-			// Construct a list of passed in parameters.
-			List<VarType> args = new ArrayList<VarType>();
-			DecafNode arg = node.getFirstChild().getNextSibling();
-			while(arg != null){
-				assert arg instanceof ExpressionNode;
-				VarType returnType = ((ExpressionNode)arg).getReturnType(scope);
-				args.add(returnType);
-				arg = arg.getNextSibling();
-			}
-			
-			MethodDecl method = scope.getMethods().get(methodName);
-			List<VarType> params = method.getParams();
 
-			if(reportErrorForParams(params, args)){
-				ErrorCenter
-				.reportError(methodIDNode.getLine(), methodIDNode.getColumn(),
-						String.format(METHOD_ARGS_ERROR, methodName, args.toString(), params.toString()));
-			}
+		String methodName = node.getChild(0).getText();
+
+		if (scope.getMethods().containsKey(methodName)) {
+			// MethodDecl method = scope.getMethods().get(methodName);
+			// TODO: finish compare lists.
 		} else {
-			ErrorCenter
-					.reportError(node.getLine(), node.getColumn(), String.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
 		}
-	}
-	
-	private static boolean reportErrorForParams(List<VarType> params, List<VarType> args){
-		// Silently fail for undeclared variables
-		for(int i=0; i<args.size(); i++){
-			if(args.get(i) == VarType.UNDECLARED){
-				return false;
-			}
-		}
-		if(params.size() == args.size()){
-			for(int i=0; i<params.size();i++){
-				if(args.get(i) != params.get(i)) return true;
-			}
-			return false;
-		}
-		return true;
 	}
 	
 	static public void apply(OpIntInt2IntNode node, Scope scope) {
@@ -292,10 +256,11 @@ public class SemanticRules {
 		assert node.getChild(0) instanceof ExpressionNode;
 		assert node.getChild(1) instanceof ExpressionNode;
 		
-		DecafNode[] children = node.getAllChildren();
-		ExpressionNode child;
+		ExpressionNode child = (ExpressionNode) node.getFirstChild();
+		ExpressionNode[] children = new ExpressionNode[] {child, (ExpressionNode) child.getNextSibling()};
+		
 		for (int i = 0; i < children.length; i++) {
-			child = (ExpressionNode) children[i];
+			child = children[i];
 			VarType type = child.getReturnType(scope);
 			if (type != VarType.INT) {
 				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
