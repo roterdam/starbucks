@@ -8,7 +8,7 @@ class Program {
   int foo() {
     boolean b;
     int b;              // second decl   error 4 of 7
-  
+    return 1;  
   }
   
   void main() {

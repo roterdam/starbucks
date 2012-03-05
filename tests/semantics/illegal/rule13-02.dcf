@@ -3,7 +3,7 @@ class Program {
   boolean b;
 
 
-  int foo() {
+  void foo() {
 
   }   
 

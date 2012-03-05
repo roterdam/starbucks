@@ -21,6 +21,8 @@ class Program {
     b = (a < 3) && ( 3 > ar[2]) || 'c' >= 2 && !(c <= 3); //okay
     b = (2 < false) && ( ar > ar[2]) || 'c' >= d && !(bar() <= 3); //error 6,7,8,9 of 9
 
+    return c;
+
   }   
 
   void main() {

@@ -1,6 +1,6 @@
 class Program {
 
-  int foo() {
+  void foo() {
     b += 1;             // second decl   error 1 of 4  
   }
   
