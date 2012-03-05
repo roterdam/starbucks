@@ -421,13 +421,12 @@ public class SemanticRules {
 
 		// Silently fail if variable is undeclared
 		if (scope.hasVar(varName)
-				&& scope.getType(varName) != val.getReturnType(scope)) {
+				&& idNode.getReturnType(scope) != val.getReturnType(scope)) {
 			ErrorCenter
 					.reportError(val.getLine(), val.getColumn(), String
 							.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val
-									.getReturnType(scope), scope
-									.getType(varName), varName));
-
+									.getReturnType(scope), idNode
+									.getReturnType(scope), idNode.getRepresentation()));
 		}
 	}
 
