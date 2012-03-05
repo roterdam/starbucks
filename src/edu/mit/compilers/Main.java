@@ -91,9 +91,8 @@ class Main {
 						System.out.println("--------------------  Error Checking Done  -----------------------");
 						ASTFrame frame = new ASTFrame("6.035", root);
 						frame.setVisible(true);
-					}
-					
-					if (ErrorCenter.hasError()) {
+					} else if (ErrorCenter.hasError()) {
+						// Only exit if we're not trying to show the frame.
 						System.exit(1);
 					}
 				}

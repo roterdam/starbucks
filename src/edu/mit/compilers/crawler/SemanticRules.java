@@ -10,7 +10,12 @@ import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
+import edu.mit.compilers.grammar.expressions.OpSameSame2BoolNode;
+import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
+import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
+import edu.mit.compilers.grammar.tokens.FOR_TERMINATENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
@@ -34,7 +39,10 @@ public class SemanticRules {
 	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method `%1$s` before declaration.";
 	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
 	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
-
+	static String INT_OPERAND_ERROR = "Incorrect use of arithmetic or comparison operator. Expecting INT, found `%1$s`";
+	static String FOR_LOOP_TERMINATE_INT_ERROR = "For loop termination condition must be an int.";
+	static String FOR_LOOP_INIT_INT_ERROR = "For loop initial condition must be an int.";
+	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -64,6 +72,26 @@ public class SemanticRules {
 
 		if (node instanceof RETURNNode) {
 			apply((RETURNNode) node, scope);
+			return;
+		}
+		
+		if (node instanceof OpIntInt2IntNode) {
+			apply((OpIntInt2IntNode) node, scope);
+			return;
+		}
+		
+		if (node instanceof OpSameSame2BoolNode) {
+			apply((OpSameSame2BoolNode) node, scope);
+			return;
+		}
+
+		if (node instanceof FOR_TERMINATENode) {
+			apply((FOR_TERMINATENode) node, scope);
+			return;
+		}
+		
+		if (node instanceof FOR_INITIALIZENode) {
+			apply((FOR_INITIALIZENode) node, scope);
 			return;
 		}
 
@@ -255,5 +283,64 @@ public class SemanticRules {
 			return false;
 		}
 		return true;
+	}
+	
+	static public void apply(OpIntInt2IntNode node, Scope scope) {
+		// Rule 12
+		assert node.getNumberOfChildren() == 2;
+		assert node.getChild(0) instanceof ExpressionNode;
+		assert node.getChild(1) instanceof ExpressionNode;
+		
+		ExpressionNode[] children = new ExpressionNode[] {(ExpressionNode) node.getChild(0), 
+				(ExpressionNode) node.getChild(1)};
+		
+		for (ExpressionNode child : children) {
+			VarType type = null;
+			if (child instanceof IDNode) {
+				type = ((IDNode) child).getReturnType(scope);
+			} else if (child instanceof METHOD_CALLNode) {
+				type = ((METHOD_CALLNode) child).getReturnType(scope);
+			} else if (child instanceof INT_LITERALNode) {
+				type = ((INT_LITERALNode) child).getReturnType(scope);
+			}
+			if (type != VarType.INT) {
+				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+						.format(INT_OPERAND_ERROR, child.getReturnType(scope)));
+			}
+		}
+	}
+	
+	static public void apply(OpSameSame2BoolNode node, Scope scope) {
+		// Rule 13
+		assert node.getNumberOfChildren() == 2;
+		
+		
+	}
+	
+	static public void apply(FOR_TERMINATENode node, Scope scope) {
+		// Rule 17
+		
+		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
+		
+		if (!(node.getFirstChild() instanceof ExpressionNode) || ((ExpressionNode)node.getFirstChild()).getReturnType(scope) != VarType.INT){
+			ErrorCenter.reportError(node.getFirstChild().getLine(), node.getFirstChild().getColumn(), String
+					.format(FOR_LOOP_TERMINATE_INT_ERROR));
+		}
+	}
+	
+	static public void apply(FOR_INITIALIZENode node, Scope scope) {
+		// Rule 17
+			
+		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
+		assert node.getFirstChild().getNumberOfChildren() == 2;
+		
+		
+		if (!(node.getFirstChild() instanceof ASSIGNNode) 
+				|| !(node.getFirstChild().getChild(1) instanceof ExpressionNode) 
+				|| ((ExpressionNode)node.getFirstChild().getChild(1)).getReturnType(scope) != VarType.INT
+				){
+			ErrorCenter.reportError(node.getFirstChild().getLine(), node.getFirstChild().getColumn(), String
+					.format(FOR_LOOP_INIT_INT_ERROR));
+		}
 	}
 }
