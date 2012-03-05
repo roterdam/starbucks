@@ -116,6 +116,12 @@
   	<exec executable="${tests}/semantics/test.sh" />
   </target>
 	
+  <target name="test_semantics_verbose" depends="jar">
+	<!-- Set failonerror="true" when you're confident you're correct
+	     and want to prevent accidentally regressing. -->
+	<exec executable="${tests}/semantics/test-verbose.sh" />
+  </target>
+	
   <target name="integrationtests" depends="test_scanner,test_parser">
   </target>
 

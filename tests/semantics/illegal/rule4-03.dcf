@@ -1,0 +1,13 @@
+class Program {    
+    boolean c[0];                       //ERROR 1 of 3
+    boolean d[234];
+    boolean e[1];
+    boolean f[-1];                      //ERROR 2 of 3
+    boolean g[-234];                    //ERROR 3 of 3
+    
+
+  void main() {
+
+    return;
+  }						
+}
