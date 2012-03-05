@@ -6,9 +6,6 @@ import edu.mit.compilers.grammar.ExpressionNode;
 
 /**
  * Careful, this is "3" not "int".
- * 
- * @author joshma
- * 
  */
 @SuppressWarnings("serial")
 public class INT_LITERALNode extends ExpressionNode {
@@ -16,8 +13,14 @@ public class INT_LITERALNode extends ExpressionNode {
 	/**
 	 * SURPRISE! INT_LITERALs store Java 64-bit longs.
 	 */
-	public long getValue() {
-		return Long.parseLong(getText());
+	public boolean isWithinBounds() {
+		try {
+			System.out.println("trying to be within bounds.");
+			Long.parseLong(getText());
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
 	}
 
 	/**
