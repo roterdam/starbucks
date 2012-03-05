@@ -9,6 +9,7 @@ import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
 import edu.mit.compilers.grammar.expressions.OpSameSame2BoolNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
@@ -46,7 +47,11 @@ public class SemanticRules {
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
-	
+	static String MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1 = "Cannot increment/decrement `%1$s`. Expecting ["
+			+ VarType.INT.name() + "], found [%2$s].";
+	static String MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE2 = "Cannot increment/decrement. Expecting ["
+			+ VarType.INT.name() + "], found [%1$s].";
+
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -87,8 +92,12 @@ public class SemanticRules {
 		if (node instanceof FOR_INITIALIZENode) {
 			apply((FOR_INITIALIZENode) node, scope);
 		}
-		if (node instanceof ASSIGNNode){
+		if (node instanceof ASSIGNNode) {
 			apply((ASSIGNNode) node, scope);
+			return;
+		}
+		if (node instanceof ModifyAssignNode) {
+			apply((ModifyAssignNode) node, scope);
 			return;
 		}
 		// TODO: enable this when all rules are done.
@@ -107,12 +116,11 @@ public class SemanticRules {
 		// FIELD_DECLs are not allowed to shadow methods, other DECLs are.
 		if ((node instanceof FIELD_DECLNode && scope.hasSymbol(id))
 				|| (scope.hasLocalVar(id))) {
-			ErrorCenter
-					.reportError(idNode.getLine(), idNode.getColumn(), String
-							.format(REDECLARE_IDENTIFIER_ERROR, id));
+			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
+					String.format(REDECLARE_IDENTIFIER_ERROR, id));
 		} else {
-			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode
-					.getColumn()));
+			scope.addVar(id,
+					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
 		}
 
 		// Rule 4
@@ -122,9 +130,8 @@ public class SemanticRules {
 			INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
 					.getFirstChild();
 			if (!intNode.isPositive()) {
-				ErrorCenter
-						.reportError(intNode.getLine(), intNode.getColumn(), String
-								.format(ARRAY_INDEX_NEGATIVE_ERROR, id));
+				ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
+						String.format(ARRAY_INDEX_NEGATIVE_ERROR, id));
 			}
 		}
 
@@ -134,8 +141,8 @@ public class SemanticRules {
 		// Rule 2
 		String id = node.getText();
 		if (!scope.hasVar(node.getText())) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(ID_BEFORE_DECLARATION_ERROR, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(ID_BEFORE_DECLARATION_ERROR, id));
 		}
 
 		// Rule 10
@@ -145,10 +152,11 @@ public class SemanticRules {
 		if ((indexNode = node.getFirstChild()) != null) {
 			// Check that the IDNode is an array.
 			if (!(scope.getType(id) == VarType.INT_ARRAY)) {
-				ErrorCenter
-						.reportError(node.getLine(), node.getColumn(), String
-								.format(INVALID_ARRAY_ACCESS_ERROR, id, scope
-										.getType(id)));
+				ErrorCenter.reportError(
+						node.getLine(),
+						node.getColumn(),
+						String.format(INVALID_ARRAY_ACCESS_ERROR, id,
+								scope.getType(id)));
 				return;
 			}
 			// Check that the index is an INT.
@@ -156,9 +164,12 @@ public class SemanticRules {
 			VarType indexType = ((ExpressionNode) indexNode)
 					.getReturnType(scope);
 			if (indexType != VarType.INT) {
-				ErrorCenter.reportError(indexNode.getLine(), indexNode
-						.getColumn(), String
-						.format(ARRAY_INDEX_TYPE_ERROR, indexType.name()));
+				ErrorCenter
+						.reportError(
+								indexNode.getLine(),
+								indexNode.getColumn(),
+								String.format(ARRAY_INDEX_TYPE_ERROR,
+										indexType.name()));
 			}
 		}
 	}
@@ -175,8 +186,8 @@ public class SemanticRules {
 			}
 		}
 		if (currentScope == null) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(UNALLOWED_JUMP_ERROR, node.getText()));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(UNALLOWED_JUMP_ERROR, node.getText()));
 		}
 	}
 
@@ -186,27 +197,29 @@ public class SemanticRules {
 		List<VarType> params = node.getParams();
 		// Don't allow shadowing existing methods or fields.
 		if (scope.hasSymbol(id)) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(REDECLARE_METHOD_ERROR, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(REDECLARE_METHOD_ERROR, id));
 		} else {
-			scope.getMethods().put(id, new MethodDecl(returnType, id, params,
-					node.getLine(), node.getColumn()));
+			scope.getMethods().put(
+					id,
+					new MethodDecl(returnType, id, params, node.getLine(), node
+							.getColumn()));
 		}
 	}
 
 	static public void apply(RETURNNode node, Scope scope) {
 		if (node.getReturnType(scope) != scope.getReturnType()) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(RETURN_TYPE_ERROR, scope.getReturnType(), node
-							.getReturnType(scope)));
+					.format(RETURN_TYPE_ERROR, scope.getReturnType(),
+							node.getReturnType(scope)));
 		}
 	}
 
 	static public void apply(CLASSNode node, Scope scope) {
 		DecafNode child = node.getFirstChild();
 		if (!child.getText().equals("Program")) {
-			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
-					.format(INVALID_CLASS_NAME_ERROR, child.getText()));
+			ErrorCenter.reportError(child.getLine(), child.getColumn(),
+					String.format(INVALID_CLASS_NAME_ERROR, child.getText()));
 		}
 	}
 
@@ -226,10 +239,11 @@ public class SemanticRules {
 					}
 				}
 				paramsStringBuilder.append(">");
-				ErrorCenter.reportError(mainDecl.getLine(), mainDecl
-						.getColumn(), String
-						.format(INCORRECT_MAIN_ERROR, paramsStringBuilder
-								.toString()));
+				ErrorCenter.reportError(
+						mainDecl.getLine(),
+						mainDecl.getColumn(),
+						String.format(INCORRECT_MAIN_ERROR,
+								paramsStringBuilder.toString()));
 			}
 		}
 	}
@@ -258,15 +272,15 @@ public class SemanticRules {
 			List<VarType> params = method.getParams();
 
 			if (reportErrorForParams(params, args)) {
-				ErrorCenter
-						.reportError(methodIDNode.getLine(), methodIDNode
-								.getColumn(), String
-								.format(METHOD_ARGS_ERROR, methodName, args
-										.toString(), params.toString()));
+				ErrorCenter.reportError(
+						methodIDNode.getLine(),
+						methodIDNode.getColumn(),
+						String.format(METHOD_ARGS_ERROR, methodName,
+								args.toString(), params.toString()));
 			}
 		} else {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
 		}
 	}
 
@@ -302,10 +316,11 @@ public class SemanticRules {
 			child = children[i];
 			VarType type = child.getReturnType(scope);
 			if (type != VarType.INT) {
-				ErrorCenter
-						.reportError(child.getLine(), child.getColumn(), String
-								.format(INT_OPERAND_ERROR, node.getText(), child
-										.getReturnType(scope)));
+				ErrorCenter.reportError(
+						child.getLine(),
+						child.getColumn(),
+						String.format(INT_OPERAND_ERROR, node.getText(),
+								child.getReturnType(scope)));
 			}
 		}
 	}
@@ -315,42 +330,79 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 2;
 		assert node.getChild(0) instanceof ExpressionNode;
 		assert node.getChild(1) instanceof ExpressionNode;
-		
+
 		ExpressionNode first = (ExpressionNode) node.getFirstChild();
 		ExpressionNode second = (ExpressionNode) first.getNextSibling();
 		VarType firstType = first.getReturnType(scope);
 		VarType secondType = second.getReturnType(scope);
-		
+
 		// Could get away only checking first type but doing both in order to
 		// identify the second token as error causing
-		// Probably ugly to call report error multiple times, store in temp variable
+		// Probably ugly to call report error multiple times, store in temp
+		// variable
 		// and call at the end if exists
 		if (firstType != VarType.INT && firstType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(first.getLine(), first.getColumn(), String
-					.format(OP_SAME_SAME_BAD_TYPE, firstType));
+			ErrorCenter.reportError(first.getLine(), first.getColumn(),
+					String.format(OP_SAME_SAME_BAD_TYPE, firstType));
 		} else if (secondType != VarType.INT && secondType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(second.getLine(), second.getColumn(), String
-					.format(OP_SAME_SAME_BAD_TYPE, secondType));
+			ErrorCenter.reportError(second.getLine(), second.getColumn(),
+					String.format(OP_SAME_SAME_BAD_TYPE, secondType));
 		} else if (firstType != secondType) {
-			ErrorCenter.reportError(second.getLine(), second.getColumn(), String
-					.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
+			ErrorCenter.reportError(second.getLine(), second.getColumn(),
+					String.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType,
+							secondType));
 		}
 	}
-	static public void apply(ASSIGNNode node, Scope scope){
+
+	static public void apply(ASSIGNNode node, Scope scope) {
 		// Rule 15
 		assert node.getFirstChild() instanceof IDNode;
 		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
-		
-		IDNode idNode = (IDNode)node.getFirstChild();
-		ExpressionNode val = (ExpressionNode)idNode.getNextSibling();
+
+		IDNode idNode = (IDNode) node.getFirstChild();
+		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
+
 		String varName = idNode.getText();
-		
-		// Silenty fail if variable is undeclared
-		if(scope.hasVar(varName) && scope.getType(varName) != val.getReturnType(scope)){
-				ErrorCenter.reportError(val.getLine(), val.getColumn(), String
-						.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val.getReturnType(scope), scope.getType(varName), varName));
+
+		VarType leftType = idNode.getReturnType(scope);
+		VarType rightType = val.getReturnType(scope);
+
+		// Silently fail if variable is undeclared
+		if (leftType != VarType.UNDECLARED && rightType != VarType.UNDECLARED
+				&& leftType != rightType) {
+			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
+					.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR,
+							val.getReturnType(scope), scope.getType(varName),
+							varName));
 		}
 	}
+
+	static public void apply(ModifyAssignNode node, Scope scope) {
+		// Rule 16
+		assert node.getFirstChild() instanceof IDNode;
+		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
+
+		IDNode idNode = (IDNode) node.getFirstChild();
+		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
+
+		String varName = idNode.getText();
+
+		VarType leftType = idNode.getReturnType(scope);
+		VarType rightType = val.getReturnType(scope);
+
+		// Silently fail if variable is undeclared
+		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
+			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
+					String.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1,
+							varName, leftType));
+		}
+		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
+			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
+					.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE2, rightType));
+		}
+
+	}
+
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
 		// Rule 17
 

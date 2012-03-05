@@ -25,6 +25,11 @@ class Program {
     a = fuckyou - 2;
     a = -1;
     a = -a;
+    a += 1+2;
+    a += true;
+    e -= 1/2;
+    e += true;
+    
     a = true;
     aloha(a, true);
     freaky = false;
