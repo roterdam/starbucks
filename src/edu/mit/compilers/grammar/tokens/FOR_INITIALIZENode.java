@@ -10,7 +10,6 @@ public class FOR_INITIALIZENode extends DecafNode {
 	@Override
 	public void validateChildren(Scope scope) {
 		
-		
 		DecafNode child = this.getFirstChild();
 		//Don't check the first child. THE ID doesn't exist.
 		child = child.getNextSibling();
