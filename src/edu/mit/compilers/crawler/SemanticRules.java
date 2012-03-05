@@ -10,6 +10,7 @@ import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
+import edu.mit.compilers.grammar.tokens.FOR_TERMINATENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
@@ -32,8 +33,9 @@ public class SemanticRules {
 	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method `%1$s` before declaration.";
 	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
 	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
-	static String INT_OPERAND_ERROR = "Arithmetic or comparison operator cannot be applied to type `%1$s`";
-
+	static String INT_OPERAND_ERROR = "Incorrect use of arithmetic or comparison operator. Expecting INT, found `%1$s`";
+	static String FOR_LOOP_TERMINATE_INT_ERROR = "For loop termination condition must be an int.";
+	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -68,6 +70,11 @@ public class SemanticRules {
 		
 		if (node instanceof OpIntInt2IntNode) {
 			apply((OpIntInt2IntNode) node, scope);
+			return;
+		}
+
+		if (node instanceof FOR_TERMINATENode) {
+			apply((FOR_TERMINATENode) node, scope);
 			return;
 		}
 
@@ -248,5 +255,18 @@ public class SemanticRules {
 						.format(INT_OPERAND_ERROR, child.getClass()));
 			}
 		}
+	}
+	
+	static public void apply(FOR_TERMINATENode node, Scope scope) {
+		// Rule 17
+		
+		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
+		
+		//TODO: Line number.
+		if (!(node.getFirstChild() instanceof ExpressionNode) || ((ExpressionNode)node.getFirstChild()).getReturnType(scope) != VarType.INT){
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(FOR_LOOP_TERMINATE_INT_ERROR));
+		}
+		
 	}
 }
