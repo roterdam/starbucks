@@ -56,6 +56,7 @@ public class SemanticRules {
 	static String IF_EXPR_BOOL_ERROR = "The if loop requires a boolean";
 	static String WHILE_EXPR_BOOL_ERROR = "The while loop requires a boolean";
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
+	static String OP_UNARY_MINUS_TYPE_ERROR = "Urnary minus operator type error. Expecting `%1$s` found `%2$s`";
 
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof INT_LITERALNode) {
@@ -429,7 +430,7 @@ public class SemanticRules {
 		
 		if (type != VarType.INT) {
 			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
-					.format(OP_URNARY_MINUS_TYPE_ERROR, VarType.INT, type));
+					.format(OP_UNARY_MINUS_TYPE_ERROR, VarType.INT, type));
 		}
 	}
 	
