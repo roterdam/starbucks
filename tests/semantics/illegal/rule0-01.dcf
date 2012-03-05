@@ -1,5 +1,6 @@
 class SomethingStupid1039 { // must be named Program
   void main() {
     int x;
+    return;
   }								
 }
