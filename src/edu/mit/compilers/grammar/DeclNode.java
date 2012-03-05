@@ -8,7 +8,7 @@ import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 public class DeclNode extends DecafNode {
 
 	public IDNode getIDNode() {
-		assert getNumberOfChildren() == 2;
+		assert getNumberOfChildren() == 2 : getText() + " has " + getNumberOfChildren() + " children: " + toStringTree();
 		assert getFirstChild().getNextSibling() instanceof IDNode;
 
 		return (IDNode) this.getFirstChild().getNextSibling();

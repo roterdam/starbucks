@@ -9,18 +9,24 @@ public class Scope {
 	private Map<String, MethodDecl> methods;
 	private Scope parent;
 	private BlockType blockType;
+	private VarType returnType;
 
 	public enum BlockType {
-		FOR, CLASS, IF, WHILE, ANON, ELSE;
+		FOR, CLASS, METHOD, IF, WHILE, ANON, ELSE;
 	}
 
 	public Scope(BlockType blockType) {
-		this(null, blockType);
+		this(null, blockType, VarType.VOID);
+	}
+	
+	public Scope(Scope parent, BlockType blockType) {
+		this(parent, blockType, parent.getReturnType());
 	}
 
-	public Scope(Scope parent, BlockType blockType) {
+	public Scope(Scope parent, BlockType blockType, VarType returnType) {
 		this.parent = parent;
 		this.blockType = blockType;
+		this.returnType = returnType;
 		localVars = new HashMap<String, VarDecl>();
 		if (parent == null) {
 			methods = new HashMap<String, MethodDecl>();
@@ -36,6 +42,10 @@ public class Scope {
 	public BlockType getBlockType() {
 		return blockType;
 	}
+	
+	public VarType getReturnType() {
+		return returnType;
+	}
 
 	public void addVar(String id, VarDecl var) {
 		localVars.put(id, var);
@@ -50,7 +60,12 @@ public class Scope {
 	}
 
 	public VarType getType(String v) {
-		return hasVar(v) ? localVars.get(v).getReturnType() : parent.getType(v);
+		if (hasVar(v)){
+			return localVars.get(v).getReturnType();
+		} else if (parent != null){
+			return parent.getType(v);
+		}
+		return VarType.UNDECLARED;
 	}
 
 	public Scope getParent() {

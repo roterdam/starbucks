@@ -12,9 +12,11 @@ import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
+import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_IDNode;
+import edu.mit.compilers.grammar.tokens.RETURNNode;
 
 public class SemanticRules {
 
@@ -24,9 +26,15 @@ public class SemanticRules {
 	static String REDECLARE_METHOD_ERROR = "Cannot redeclare method %1$s.";
 	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
 	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
-	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method %1$s before declaration.";
 	static String METHOD_ARGS_ERROR = "Cannot call method %1$s with arguments %2$s. Expected %3$s.";
-	
+	static String RETURN_TYPE_ERROR = "Return type mismatch. Expected `%1$s` but got `%2$s` instead.";
+	static String ARRAY_INDEX_TYPE_ERROR = "Invalid array index: expected "
+			+ VarType.INT.name() + ", found %1$s instead.";
+	static String INVALID_CLASS_NAME_ERROR = "The class must be named `Program`. It is currently `%1$s`";
+	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method `%1$s` before declaration.";
+	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
+	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
+
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -48,9 +56,14 @@ public class SemanticRules {
 			apply((BranchNode) node, scope);
 			return;
 		}
-		
+
 		if (node instanceof CLASSNode) {
 			apply((CLASSNode) node, scope);
+			return;
+		}
+
+		if (node instanceof RETURNNode) {
+			apply((RETURNNode) node, scope);
 			return;
 		}
 
@@ -69,24 +82,26 @@ public class SemanticRules {
 
 		if (scope.hasVar(id)) {
 			// TODO: Also store where the original ID was declared.
-			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
-					String.format(REDECLARE_IDENTIFIER_ERROR, id));
+			ErrorCenter
+					.reportError(idNode.getLine(), idNode.getColumn(), String
+							.format(REDECLARE_IDENTIFIER_ERROR, id));
 		} else {
-			scope.addVar(id,
-					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
+			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode
+					.getColumn()));
 		}
 
 		// Rule 4
-		// TODO: This gets caught by the parser... need better error messages at
-		// parser level or let it get handled here.
-		/*
-		 * if (node.getVarTypeNode().getNumberOfChildren() == 1) { assert
-		 * node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
-		 * INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
-		 * .getFirstChild(); if (intNode.getValue() < 1) {
-		 * ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
-		 * "The dimension of array " + id + " must be greater than 0."); } }
-		 */
+		// If the node's VarTypeNode has children, check the array size.
+		if (node.getVarTypeNode().getNumberOfChildren() == 1) {
+			assert node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
+			INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
+					.getFirstChild();
+			if (!intNode.isPositive()) {
+				ErrorCenter.reportError(intNode.getLine(), intNode
+						.getColumn(), String
+						.format(ARRAY_INDEX_NEGATIVE_ERROR, id));
+			}
+		}
 
 	}
 
@@ -94,8 +109,32 @@ public class SemanticRules {
 		// Rule 2
 		String id = node.getText();
 		if (!scope.seesVar(node.getText())) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					String.format(ID_BEFORE_DECLARATION_ERROR, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(ID_BEFORE_DECLARATION_ERROR, id));
+		}
+
+		// Rule 10
+		assert node.getNumberOfChildren() <= 1;
+		DecafNode indexNode;
+		// If there's a child, it must be array access, i.e. a[5]
+		if ((indexNode = node.getFirstChild()) != null) {
+			// Check that the IDNode is an array.
+			if (!(scope.getType(id) == VarType.INT_ARRAY)) {
+				ErrorCenter
+						.reportError(node.getLine(), node.getColumn(), String
+								.format(INVALID_ARRAY_ACCESS_ERROR, id, scope
+										.getType(id)));
+				return;
+			}
+			// Check that the index is an INT.
+			assert indexNode instanceof ExpressionNode;
+			VarType indexType = ((ExpressionNode) indexNode)
+					.getReturnType(scope);
+			if (indexType != VarType.INT) {
+				ErrorCenter.reportError(indexNode.getLine(), indexNode
+						.getColumn(), String
+						.format(ARRAY_INDEX_TYPE_ERROR, indexType.name()));
+			}
 		}
 	}
 
@@ -111,8 +150,8 @@ public class SemanticRules {
 			}
 		}
 		if (currentScope == null) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					String.format(UNALLOWED_JUMP_ERROR, node.getText()));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(UNALLOWED_JUMP_ERROR, node.getText()));
 		}
 	}
 
@@ -121,24 +160,31 @@ public class SemanticRules {
 		String id = node.getId();
 		List<VarType> params = node.getParams();
 		if (scope.getMethods().containsKey(id)) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(),
-					String.format(REDECLARE_METHOD_ERROR, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(REDECLARE_METHOD_ERROR, id));
 		} else {
-			scope.getMethods().put(
-					id,
-					new MethodDecl(returnType, id, params, node.getLine(), node
-							.getColumn()));
+			scope.getMethods().put(id, new MethodDecl(returnType, id, params,
+					node.getLine(), node.getColumn()));
+		}
+	}
+
+	static public void apply(RETURNNode node, Scope scope) {
+		if (node.getReturnType(scope) != scope.getReturnType()) {
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(RETURN_TYPE_ERROR, scope.getReturnType(), node
+							.getReturnType(scope)));
 		}
 	}
 
 	static public void apply(CLASSNode node, Scope scope) {
 		DecafNode child = node.getFirstChild();
-		if (!child.getText().equals("Program")){
-			ErrorCenter.reportError(child.getLine(), child.getColumn(), "The class must be named `Program`. It is currently `"+child.getText()+"`");
+		if (!child.getText().equals("Program")) {
+			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+					.format(INVALID_CLASS_NAME_ERROR, child.getText()));
 		}
 	}
-	
-	static public void finalApply(CLASSNode node, Scope scope){
+
+	static public void finalApply(CLASSNode node, Scope scope) {
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")) {
 			ErrorCenter.reportError(1, 1, MISSING_MAIN_ERROR);
@@ -154,11 +200,10 @@ public class SemanticRules {
 					}
 				}
 				paramsStringBuilder.append(">");
-				ErrorCenter.reportError(
-						mainDecl.getLine(),
-						mainDecl.getColumn(),
-						String.format(INCORRECT_MAIN_ERROR,
-								paramsStringBuilder.toString()));
+				ErrorCenter.reportError(mainDecl.getLine(), mainDecl
+						.getColumn(), String
+						.format(INCORRECT_MAIN_ERROR, paramsStringBuilder
+								.toString()));
 			}
 		}
 	}
@@ -170,8 +215,7 @@ public class SemanticRules {
 		
 		METHOD_IDNode methodIDNode = (METHOD_IDNode)node.getChild(0);
 		String methodName = methodIDNode.getText();
-		if (scope.getMethods().containsKey(methodName)) {
-			
+		if (scope.getMethods().containsKey(methodName)) {			
 			// Rule 5
 			// Construct a list of passed in parameters.
 			List<VarType> args = new ArrayList<VarType>();

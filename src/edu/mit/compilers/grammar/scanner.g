@@ -41,7 +41,6 @@ tokens {
   FOR="for";
   IF="if";
   INT_TYPE="int";
-  INT_ARRAY_TYPE;
   RETURN="return";
   VOID="void";
   WHILE="while";

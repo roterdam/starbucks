@@ -2,6 +2,7 @@ package edu.mit.compilers.grammar;
 
 import java.util.Hashtable;
 
+import antlr.ASTFactory;
 import edu.mit.compilers.grammar.tokens.ANDNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.BANGNode;
@@ -28,7 +29,6 @@ import edu.mit.compilers.grammar.tokens.GTNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.IFNode;
 import edu.mit.compilers.grammar.tokens.IF_CLAUSENode;
-import edu.mit.compilers.grammar.tokens.INT_ARRAY_TYPENode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.INT_TYPENode;
 import edu.mit.compilers.grammar.tokens.LTENode;
@@ -54,8 +54,6 @@ import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.VOIDNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
 import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
-
-import antlr.ASTFactory;
 
 public class TokenTypeSetter {
 
@@ -90,7 +88,6 @@ public class TokenTypeSetter {
 			put(DecafParserTokenTypes.ID, IDNode.class);
 			put(DecafParserTokenTypes.IF, IFNode.class);
 			put(DecafParserTokenTypes.IF_CLAUSE, IF_CLAUSENode.class);
-			put(DecafParserTokenTypes.INT_ARRAY_TYPE, INT_ARRAY_TYPENode.class);
 			put(DecafParserTokenTypes.INT_LITERAL, INT_LITERALNode.class);
 			put(DecafParserTokenTypes.INT_TYPE, INT_TYPENode.class);
 			put(DecafParserTokenTypes.LT, LTNode.class);

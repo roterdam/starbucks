@@ -1,5 +1,7 @@
 header {
 package edu.mit.compilers.grammar;
+
+import edu.mit.compilers.ErrorCenter;
 }
 
 options
@@ -29,12 +31,7 @@ options
   public void reportError (RecognitionException ex) {
     // Print the error via some kind of error reporting mechanism.
     error = true;
-    try {
-      traceIn("RecognitionException at [" + ex.getLine() + "," + ex.getLine() + "]: " + ex.toString());
-      ex.printStackTrace();
-    } catch (TokenStreamException e) {
-      e.printStackTrace();
-    }
+    ErrorCenter.reportError(ex.getLine(), ex.getColumn(), ex.toString());
   }
   @Override
   public void reportError (String s) {
@@ -84,29 +81,38 @@ program!
     }
 	;
 
-field_decl !
+field_decl!
     : t:type id1:field_decl_id 
     {
-        DecafNode id1_array = id1_AST.getNextSibling();
-        id1_AST.setNextSibling(null);
+        DecafNode id1_array = #id1.getNextSibling();
+        #id1.setNextSibling(null);
         DecafNode field = #([FIELD_DECL, "field decl"], #(t, id1_array), id1); 
         DecafNode next = field;  
     } 
     (COMMA! id2:field_decl_id 
     {
-        next.setNextSibling(#([FIELD_DECL, "field decl"], astFactory.create(t), id2)); 
+        next.setNextSibling(#([FIELD_DECL, "field decl"], #t, id2)); 
         next = next.getNextSibling(); 
     }
     )* SEMICOLON!
-	{
-	   #field_decl = field;
-	}
+		{ #field_decl = field; }
 	;
 
 type: INT_TYPE | BOOLEAN_TYPE;
 
-field_decl_id
-  : ID (LBRACKET! INT_LITERAL RBRACKET!)?
+field_decl_id!
+  : i:ID { #field_decl_id = #i; DecafNode rest = null; }
+		(LBRACKET!
+			(m:MINUS { rest = #m; })? intlit:INT_LITERAL
+			{
+				if (rest == null) {
+					#field_decl_id.setNextSibling(#intlit);
+				} else {
+					rest.setFirstChild(#intlit);
+					#field_decl_id.setNextSibling(rest);
+				}
+			}
+		RBRACKET!)?
   ;
 
 method_decl!
@@ -191,7 +197,12 @@ statement
 	;
 
 method_call!
-	: i:ID { #method_call = #([METHOD_CALL, "method call"], [METHOD_ID, #i.getText()]); }
+	: i:ID
+		{
+      DecafNode methodId = #[METHOD_ID];
+		  methodId.copyFromNode(#i);
+			#method_call = #([METHOD_CALL, "method call"], methodId);
+		}
     LPAREN!
       (e:expr { #method_call.addChild(#e); } (COMMA! f:expr { #method_call.addChild(#f); })*)?
     RPAREN!

@@ -69,6 +69,12 @@ public class CLI {
 	public static boolean debug;
 
 	/**
+	 * The visual flag.  This is true if <tt>-visual</tt> was passed on the command 
+	 * line, requesting a AST in a JFrame.
+	 */
+	public static boolean visual;
+
+	/**
 	 * Sets up default values for all of the result fields. Specifically, sets
 	 * the input and output files to null, the target to DEFAULT, and the extras
 	 * and extraopts arrays to new empty Vectors.
@@ -110,6 +116,8 @@ public class CLI {
 			if (args[i].equals("-debug")) {
 				context = 0;
 				debug = true;
+			} else if (args[i].equals("-visual")) {
+				visual = true;
 			} else if (args[i].equals("-opt")) {
 				context = 1;
 			} else if (args[i].equals("-o")) {
