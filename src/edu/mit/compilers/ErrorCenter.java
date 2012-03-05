@@ -41,7 +41,7 @@ public class ErrorCenter {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void reportFatalError(int line, int col, String message) {
 		System.out.println("Fatal syntax error encountered, stopping now:");
 		reportError(line, col, message);
@@ -50,6 +50,12 @@ public class ErrorCenter {
 	public static void reportError(int line, int col, String message) {
 		hasError = true;
 		try {
+			// If both line and col are 0, treat it as a "global" error with no
+			// real context.
+			if (line == 0 && col == 0) {
+				System.out.println("Error in " + filename + ":" + message);
+				return;
+			}
 			System.out.println("Error at " + filename + ":" + line + "," + col
 					+ ": " + message);
 			file.seek(lineOffsets.get(line));
@@ -80,7 +86,10 @@ public class ErrorCenter {
 				c = out.charAt(i);
 				if (c == '\t') {
 					outBuilder.append(spaces);
-					col -= (ANTLR_TAB_SIZE - TAB_SIZE);
+					// Only subtract from the column index if tabs occur before it.
+					if (i < col) {
+						col -= (ANTLR_TAB_SIZE - TAB_SIZE);
+					}
 				} else {
 					outBuilder.append(c);
 				}

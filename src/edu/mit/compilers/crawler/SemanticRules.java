@@ -49,53 +49,42 @@ public class SemanticRules {
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
-			return;
 		}
 		if (node instanceof METHOD_CALLNode) {
 			apply((METHOD_CALLNode) node, scope);
-			return;
 		}
 		if (node instanceof DeclNode) {
 			apply((DeclNode) node, scope);
-			return;
 		}
 		if (node instanceof IDNode) {
 			apply((IDNode) node, scope);
-			return;
 		}
 		if (node instanceof BranchNode) {
 			apply((BranchNode) node, scope);
-			return;
 		}
 
 		if (node instanceof CLASSNode) {
 			apply((CLASSNode) node, scope);
-			return;
 		}
 
 		if (node instanceof RETURNNode) {
 			apply((RETURNNode) node, scope);
-			return;
 		}
 
 		if (node instanceof OpIntInt2IntNode) {
 			apply((OpIntInt2IntNode) node, scope);
-			return;
 		}
 
 		if (node instanceof OpSameSame2BoolNode) {
 			apply((OpSameSame2BoolNode) node, scope);
-			return;
 		}
 
 		if (node instanceof FOR_TERMINATENode) {
 			apply((FOR_TERMINATENode) node, scope);
-			return;
 		}
 
 		if (node instanceof FOR_INITIALIZENode) {
 			apply((FOR_INITIALIZENode) node, scope);
-			return;
 		}
 
 		// TODO: enable this when all rules are done.
@@ -220,7 +209,7 @@ public class SemanticRules {
 	static public void finalApply(CLASSNode node, Scope scope) {
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")) {
-			ErrorCenter.reportError(1, 1, MISSING_MAIN_ERROR);
+			ErrorCenter.reportError(0, 0, MISSING_MAIN_ERROR);
 		} else {
 			MethodDecl mainDecl = scope.getMethods().get("main");
 			if (mainDecl.getParams().size() != 0) {
@@ -360,7 +349,6 @@ public class SemanticRules {
 	static public void apply(FOR_INITIALIZENode node, Scope scope) {
 		// Rule 17
 
-		System.out.println("AHA");
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
 		assert node.getFirstChild().getNumberOfChildren() == 2;
 		// assert node.getFirstChild() instanceof ASSIGNNode;
