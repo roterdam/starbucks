@@ -65,7 +65,6 @@ public class INT_LITERALNode extends ExpressionNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {
-		// TODO Auto-generated method stub
 		return VarType.INT;
 	}
 	

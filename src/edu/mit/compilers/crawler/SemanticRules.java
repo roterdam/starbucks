@@ -73,7 +73,6 @@ public class SemanticRules {
 	}
 
 	static public void apply(INT_LITERALNode node, Scope scope) {
-
 		if (!node.isWithinBounds()) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(INTEGER_OUT_OF_BOUNDS, node.getText()));
