@@ -76,7 +76,7 @@ class Main {
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
-					ErrorCenter.reportError(e.recog.line, e.recog.column, e.recog.getMessage());
+					ErrorCenter.reportFatalError(e.recog.line, e.recog.column, e.recog.getMessage());
 				}
 
 				// Return a non-zero code if an error has occurred. DO NOT

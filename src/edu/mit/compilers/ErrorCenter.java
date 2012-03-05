@@ -41,6 +41,11 @@ public class ErrorCenter {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void reportFatalError(int line, int col, String message) {
+		System.out.println("Fatal syntax error encountered, stopping now:");
+		reportError(line, col, message);
+	}
 
 	public static void reportError(int line, int col, String message) {
 		hasError = true;
