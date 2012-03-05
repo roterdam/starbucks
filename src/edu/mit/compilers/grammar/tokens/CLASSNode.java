@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 
@@ -20,6 +21,10 @@ public class CLASSNode extends DecafNode {
 			child.validate(scope);
 			child = child.getNextSibling();
 		}
-
+	}
+	
+	@Override
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
 	}
 }

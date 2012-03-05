@@ -1,6 +1,7 @@
 class Program {
 
     int param(){
+        return 1;
     }
 
     int foo(int param){

@@ -3,7 +3,7 @@ class Program {
   boolean b;
 
 
-  int foo() {
+  void foo() {
     a = 2;
     a = 'c';
     a = 19039 + 'c' * 2;

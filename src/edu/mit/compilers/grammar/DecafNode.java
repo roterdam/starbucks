@@ -63,8 +63,12 @@ abstract public class DecafNode extends CommonAST {
 	}
 
 	public void validate(Scope scope) {
-		SemanticRules.apply(this, scope);
+		applyRules(scope);
 		validateChildren(scope);
+	}
+	
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
 	}
 	
 	public void validateChildren(Scope scope) {
