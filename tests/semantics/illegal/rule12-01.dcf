@@ -1,0 +1,30 @@
+class Program {
+  int a;
+  boolean b;
+  int ar[4];
+
+  void bar(){
+  
+  }
+
+  int foo() {
+    int c;
+    boolean d;
+    
+    // + - * / %
+    a = (a+1)-(2*(ar[2]/'a'))%c; //okay    
+    a = (b+bar())-(true*(3/ar))%d;    //error 1,2,3,4,5 of 9
+    
+    // < > <= >=
+    
+    
+    b = (a < 3) && ( 3 > ar[2]) || 'c' >= 2 && !(c <= 3); //okay
+    b = (2 < false) && ( ar > ar[2]) || 'c' >= d && !(bar() <= 3); //error 6,7,8,9 of 9
+
+  }   
+
+  void main() {
+
+    
+  }                                
+}

@@ -5,10 +5,10 @@ class Program {
     int f[-1];                      //ERROR 2 of 3
     int g[-234];                    //ERROR 3 of 3
     
-    int h[0b01];                // Not sure what this should do
-    int i[0x39B];                // Not sure what this should do
-    int j[-0b01];                       //ERROR 4 of 5
-    int k[-0x39B];                      //ERROR 5 of 5
+    int h[0b01];                    //okay
+    int i[0x39B];                   //okay
+    int k[-0b01];                       //ERROR 4 of 5
+    int l[-0x39B];                      //ERROR 5 of 5
 
   void main() {
 

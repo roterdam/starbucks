@@ -205,7 +205,7 @@ public class SemanticRules {
 		// If there's a child, it must be array access, i.e. a[5]
 		if ((indexNode = node.getFirstChild()) != null) {
 			// Check that the IDNode is an array.
-			if (!(scope.getType(id) == VarType.INT_ARRAY)) {
+			if (scope.getType(id) != VarType.INT_ARRAY && scope.getType(id) != VarType.BOOLEAN_ARRAY) {
 				ErrorCenter
 						.reportError(node.getLine(), node.getColumn(), String
 								.format(INVALID_ARRAY_ACCESS, id, scope

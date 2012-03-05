@@ -1,0 +1,27 @@
+class Program {
+
+    int a[5];
+    boolean b[10];
+    int c;
+    boolean d;
+
+  void main() {
+      int outi;
+      boolean outb;
+      
+      outi = a[3]; //okay
+      outi = a[3-6]; //okay
+
+      outi = c[3];              //error 1 of 8
+      outi = d[3];              //error 2 & 3 of 8
+      outi = a[false];          //error 4 of 8
+      
+      outb = b[2]; //okay
+      
+      outb = c[3];              //error 5 & 6 of 8
+      outb = d[3];              //error 7 of 8
+      outb = b[false];          //error 8 of 8
+      
+      
+  }                                
+}
