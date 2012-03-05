@@ -4,6 +4,7 @@ import antlr.CommonAST;
 import antlr.Token;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 
 @SuppressWarnings("serial")
 abstract public class DecafNode extends CommonAST {
@@ -93,5 +94,9 @@ abstract public class DecafNode extends CommonAST {
 			}
 		}
 		return this;
+	}
+	
+	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
+		return returnChecker.visit(this);
 	}
 }

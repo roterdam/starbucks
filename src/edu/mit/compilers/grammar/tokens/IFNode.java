@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
 
@@ -17,5 +18,10 @@ public class IFNode extends DecafNode {
 		if (getNumberOfChildren() == 3) {
 			getChild(2).validate(scope);
 		}
+	}
+	
+	@Override
+	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
+		return returnChecker.visit(this);
 	}
 }

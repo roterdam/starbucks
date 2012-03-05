@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
@@ -44,6 +45,11 @@ public class METHOD_DECLNode extends DecafNode {
 		getChild(0).validate(scope);
 		((BLOCKNode) getChild(1)).validate(scope, BlockType.METHOD, this.getReturnType());		
 		
+	}
+	
+	@Override
+	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
+		return returnChecker.visit(this);
 	}
 
 }

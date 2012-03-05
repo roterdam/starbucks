@@ -1,11 +1,10 @@
 package edu.mit.compilers.grammar.tokens;
 
-import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.crawler.Scope;
-import edu.mit.compilers.crawler.SemanticRules;
+import edu.mit.compilers.crawler.Scope.BlockType;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarDecl;
 import edu.mit.compilers.crawler.VarType;
-import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
 
 @SuppressWarnings("serial")
@@ -44,5 +43,10 @@ public class BLOCKNode extends DecafNode {
 		super.validate(scope);
 		scope = scope.getParent();
 	}	
+	
+	@Override
+	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
+		return returnChecker.visit(this);
+	}
 
 }

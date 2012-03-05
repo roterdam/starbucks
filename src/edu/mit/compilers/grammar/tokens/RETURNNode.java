@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
@@ -21,6 +22,11 @@ public class RETURNNode extends DecafNode {
 		} else {
 			return VarType.VOID;
 		}
-	}	
+	}
+	
+	@Override
+	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
+		return returnChecker.visit(this);
+	}
 	
 }
