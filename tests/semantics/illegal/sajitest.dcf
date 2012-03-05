@@ -1,13 +1,25 @@
 class Program {
+  int a() {
+    return 5;
+  }
+
+  boolean q() {
+    return true;
+  } 
+
+
   void main() {
     int x;
     int y;
     boolean z;
+
     x = 5 + 5;
     x = 5 + x;
     x = x + 5;
     y = x + 3;
     y = x + y;
+    y = 5 + a();
     y = x + z; 
+    x = 5 + q();
   }								
 }

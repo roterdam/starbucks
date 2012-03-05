@@ -9,6 +9,7 @@ import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
+import edu.mit.compilers.grammar.expressions.OpSameSame2BoolNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
@@ -73,6 +74,11 @@ public class SemanticRules {
 		
 		if (node instanceof OpIntInt2IntNode) {
 			apply((OpIntInt2IntNode) node, scope);
+			return;
+		}
+		
+		if (node instanceof OpSameSame2BoolNode) {
+			apply((OpSameSame2BoolNode) node, scope);
 			return;
 		}
 
@@ -246,9 +252,13 @@ public class SemanticRules {
 	static public void apply(OpIntInt2IntNode node, Scope scope) {
 		// Rule 12
 		assert node.getNumberOfChildren() == 2;
+		assert node.getChild(0) instanceof ExpressionNode;
+		assert node.getChild(1) instanceof ExpressionNode;
 		
-		DecafNode[] children = new DecafNode[] {node.getChild(0), node.getChild(1)};
-		for (DecafNode child : children) {
+		ExpressionNode[] children = new ExpressionNode[] {(ExpressionNode) node.getChild(0), 
+				(ExpressionNode) node.getChild(1)};
+		
+		for (ExpressionNode child : children) {
 			VarType type = null;
 			if (child instanceof IDNode) {
 				type = ((IDNode) child).getReturnType(scope);
@@ -258,11 +268,17 @@ public class SemanticRules {
 				type = ((INT_LITERALNode) child).getReturnType(scope);
 			}
 			if (type != VarType.INT) {
-				// TODO: Fix class output. Is there a way to get the *final* type?
 				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
-						.format(INT_OPERAND_ERROR, child.getClass()));
+						.format(INT_OPERAND_ERROR, child.getReturnType(scope)));
 			}
 		}
+	}
+	
+	static public void apply(OpSameSame2BoolNode node, Scope scope) {
+		// Rule 13
+		assert node.getNumberOfChildren() == 2;
+		
+		
 	}
 	
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
