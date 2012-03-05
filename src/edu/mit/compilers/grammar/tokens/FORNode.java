@@ -19,7 +19,6 @@ public class FORNode extends DecafNode {
 		//No need to validate the scope of the initialize.
 		getChild(0).validate(scope);
 		
-		//TODO: Make sure it's an int.
 		getChild(1).validate(scope);
 		((BLOCKNode) getChild(2)).validate(scope, BlockType.FOR, (FOR_INITIALIZENode) getChild(0) );
 	}

@@ -82,7 +82,6 @@ public class SemanticRules {
 
 	static public void apply(DeclNode node, Scope scope) {
 		// Rule 1, Rule 9
-		// TODO: Should apply to methods also
 		IDNode idNode = node.getIDNode();
 		String id = idNode.getText();
 		VarType t = node.getVarType();
@@ -506,8 +505,7 @@ public class SemanticRules {
 		}
 	}
 
-	// TODO: Raise IF_CLAUSENode and WHILE_TERMINATENode ?
-
+	// TODO(saif): Raise IF_CLAUSENode and WHILE_TERMINATENode to common class
 	static public void apply(IF_CLAUSENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
