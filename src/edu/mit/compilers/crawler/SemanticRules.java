@@ -9,6 +9,7 @@ import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.expressions.OpBool2BoolNode;
 import edu.mit.compilers.grammar.expressions.OpBoolBool2BoolNode;
 import edu.mit.compilers.grammar.expressions.OpInt2IntNode;
@@ -47,14 +48,18 @@ public class SemanticRules {
 	static String ARRAY_INDEX_NEGATIVE = "Size of array `%1$s` cannot be negative.";
 	static String INT_OPERAND_ERROR = "Incorrect use of `%1$s` operator. Expecting <"
 			+ VarType.INT.name() + ">, found <%2$s>.";
-	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an int.";
-	static String FOR_LOOP_INIT_INT = "For loop initial condition must be an int.";
+	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an ["+VarType.INT.name()+"], found [%1$s].";
+	static String FOR_LOOP_INIT_INT = "For loop initial condition must be ["+VarType.INT.name()+"], found [%1$s].";
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
-	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
+	static String ASSIGN_EXPRESSION_WRONG_TYPE = "Cannot assign %1$s value to %2$s `%3$s`.";
+	static String MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1 = "Cannot increment/decrement `%1$s`. Expecting ["
+			+ VarType.INT.name() + "], found [%2$s].";
+	static String MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE2 = "Cannot increment/decrement. Expecting ["
+			+ VarType.INT.name() + "], found [%1$s].";
 	static String OP_EQ_COND_BAD_TYPE_ERROR = "Incorrect use of conditional or logical not operator. Expecting `%1$s` found `%2$s`.";
 	static String IF_EXPR_BOOL_ERROR = "The if loop requires a boolean";
-	static String WHILE_EXPR_BOOL_ERROR = "The while loop requires a boolean";
+	static String WHILE_EXPR_BOOL_ERROR = "Ill-formed while loop. Expecting ["+VarType.BOOLEAN.name()+"], found [%1$s]";
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
 	static String OP_UNARY_MINUS_TYPE_ERROR = "Urnary minus operator type error. Expecting `%1$s` found `%2$s`";
 
@@ -122,6 +127,10 @@ public class SemanticRules {
 			apply((ASSIGNNode) node, scope);
 			return;
 		}
+		if (node instanceof ModifyAssignNode) {
+			apply((ModifyAssignNode) node, scope);
+			return;
+		}
 		
 		if (node instanceof IF_CLAUSENode){
 			apply((IF_CLAUSENode) node, scope);
@@ -155,7 +164,7 @@ public class SemanticRules {
 		IDNode idNode = node.getIDNode();
 		String id = idNode.getText();
 		VarType t = node.getVarType();
-
+		
 		// FIELD_DECLs are not allowed to shadow methods, other DECLs are.
 		if ((node instanceof FIELD_DECLNode && scope.hasSymbol(id))
 				|| (scope.hasLocalVar(id))) {
@@ -163,8 +172,8 @@ public class SemanticRules {
 					.reportError(idNode.getLine(), idNode.getColumn(), String
 							.format(REDECLARE_IDENTIFIER, id));
 		} else {
-			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode
-					.getColumn()));
+			scope.addVar(id,
+					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
 		}
 
 		// Rule 4
@@ -185,7 +194,7 @@ public class SemanticRules {
 	static public void apply(IDNode node, Scope scope) {
 		// Rule 2
 		String id = node.getText();
-		if (!scope.hasVar(node.getText())) {
+		if (node.getReturnType(scope) == VarType.UNDECLARED) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(ID_BEFORE_DECLARATION, id));
 		}
@@ -241,8 +250,10 @@ public class SemanticRules {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(REDECLARE_METHOD, id));
 		} else {
-			scope.getMethods().put(id, new MethodDecl(returnType, id, params,
-					node.getLine(), node.getColumn()));
+			scope.getMethods().put(
+					id,
+					new MethodDecl(returnType, id, params, node.getLine(), node
+							.getColumn()));
 		}
 	}
 
@@ -378,8 +389,8 @@ public class SemanticRules {
 		// variable and call at the end if exists.
 
 		if (firstType != VarType.INT && firstType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(first.getLine(), first.getColumn(), String
-					.format(OP_SAME_SAME_BAD_TYPE, firstType));
+			ErrorCenter.reportError(first.getLine(), first.getColumn(),
+					String.format(OP_SAME_SAME_BAD_TYPE, firstType));
 		} else if (secondType != VarType.INT && secondType != VarType.BOOLEAN) {
 			ErrorCenter
 					.reportError(second.getLine(), second.getColumn(), String
@@ -462,29 +473,56 @@ public class SemanticRules {
 
 		IDNode idNode = (IDNode) node.getFirstChild();
 		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
-		String varName = idNode.getText();
+
+		VarType leftType = idNode.getReturnType(scope);
+		VarType rightType = val.getReturnType(scope);
 
 		// Silently fail if variable is undeclared
-		if (scope.hasVar(varName)
-				&& idNode.getReturnType(scope) != val.getReturnType(scope)) {
-			ErrorCenter
-					.reportError(val.getLine(), val.getColumn(), String
-							.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val
-									.getReturnType(scope), idNode
-									.getReturnType(scope), idNode.getRepresentation()));
+		if (leftType != VarType.UNDECLARED && rightType != VarType.UNDECLARED
+				&& leftType != rightType) {
+			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
+					.format(ASSIGN_EXPRESSION_WRONG_TYPE,
+							rightType, leftType,
+							idNode.getRepresentation()));
 		}
+	}
+
+	static public void apply(ModifyAssignNode node, Scope scope) {
+		// Rule 16
+		assert node.getFirstChild() instanceof IDNode;
+		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
+
+		IDNode idNode = (IDNode) node.getFirstChild();
+		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
+
+		VarType leftType = idNode.getReturnType(scope);
+		VarType rightType = val.getReturnType(scope);
+
+		// Silently fail if variable is undeclared
+		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
+			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
+					String.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1,
+							idNode.getRepresentation(), leftType));
+		}
+		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
+			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
+					.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE2, rightType));
+		}
+
 	}
 
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
 		// Rule 17
 
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
-
-		if (!(node.getFirstChild() instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.INT) {
-			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String
-					.format(FOR_LOOP_TERMINATE_INT));
+		assert node.getFirstChild() instanceof ExpressionNode;
+		
+		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+		VarType returnType = expr.getReturnType(scope);
+		
+		if(returnType != VarType.UNDECLARED && returnType != VarType.INT) {
+			ErrorCenter.reportError(expr.getLine(), expr.getColumn(), String
+					.format(FOR_LOOP_TERMINATE_INT, returnType));
 		}
 	}
 
@@ -492,40 +530,48 @@ public class SemanticRules {
 		// Rule 17
 
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
+		assert node.getFirstChild() instanceof ASSIGNNode;
+		
 		assert node.getFirstChild().getNumberOfChildren() == 2;
-		// assert node.getFirstChild() instanceof ASSIGNNode;
-
-		if (!(node.getFirstChild() instanceof ASSIGNNode)
-				|| !(node.getFirstChild().getChild(1) instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild().getChild(1))
-						.getReturnType(scope) != VarType.INT) {
-			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String
-					.format(FOR_LOOP_INIT_INT));
+		assert node.getFirstChild().getFirstChild() instanceof IDNode;
+		assert node.getFirstChild().getFirstChild().getNextSibling() instanceof ExpressionNode;
+		
+		ASSIGNNode assignNode = (ASSIGNNode)node.getFirstChild();
+		IDNode idNode = (IDNode) assignNode.getFirstChild();
+		ExpressionNode expr = (ExpressionNode)idNode.getNextSibling();
+		VarType returnType = expr.getReturnType(scope);
+		if(returnType != VarType.UNDECLARED && returnType != VarType.INT) {
+			ErrorCenter.reportError(assignNode.getLine(), assignNode.getColumn(), 
+					String.format(FOR_LOOP_INIT_INT, returnType));
 		}
 	}
+	// TODO: Raise IF_CLAUSENode and WHILE_TERMINATENode ?
 	
 	static public void apply(IF_CLAUSENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
+		assert node.getFirstChild() instanceof ExpressionNode;
 		
-		if (!(node.getFirstChild() instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.BOOLEAN){
+		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+		VarType returnType = expr.getReturnType(scope);
+		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN){
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
-					.format(IF_EXPR_BOOL_ERROR));
+					.format(IF_EXPR_BOOL_ERROR, returnType));
 		}
 	}
 	
 	static public void apply(WHILE_TERMINATENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
+		assert node.getFirstChild() instanceof ExpressionNode;
 		
-		if (!(node.getFirstChild() instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.BOOLEAN){
+		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+		VarType returnType = expr.getReturnType(scope);
+		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN){
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
-					.format(WHILE_EXPR_BOOL_ERROR));
+					.format(WHILE_EXPR_BOOL_ERROR, returnType));
 		}
 	}
 	

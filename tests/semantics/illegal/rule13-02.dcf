@@ -1,0 +1,63 @@
+class Program {
+  int a;
+  boolean b;
+
+
+  int foo() {
+
+  }   
+
+  void main() {
+
+       int c;
+    boolean d;
+    
+    boolean f;
+    
+    
+    //okay
+    f = a == 12;
+    f = a == 12*203+1902;
+    f = a == c;
+    f = a == 3*c;
+    
+    f = a != 12;
+    f = a != 12*203+1902;
+    f = a != c;
+    f = a != 3*c;
+    
+    f = a == true;                           //error 1 of 16
+    f = a == !(true && false);               //error 2 of 16
+    f = a == d;                              //error 3 of 16
+    f = a == !d || false;                    //error 4 of 16
+    
+    f = a != true;                          //error 5 of 16
+    f = a != !(true && false);              //error 6 of 16
+    f = a != d;                             //error 7 of 16
+    f = a != !d || false;                   //error 8 of 16
+    
+    
+    //okay
+    f = b == true;
+    f = b == !(true && false);
+    f = b == d;
+    f = b == !d || false;
+    
+    f = b != true;
+    f = b != !(true && false);
+    f = b != d;
+    f = b != !d || false;
+    
+    f = b == 12;                             //error 9 of 16
+    f = b == 12*203+1902;                    //error 10 of 16
+    f = b == c;                              //error 11 of 16
+    f = b == 3*c;                            //error 12 of 16
+    
+    f = b != 12;                            //error 13 of 16
+    f = b != 12*203+1902;                   //error 14 of 16
+    f = b != c;                             //error 15 of 16
+    f = b != 3*c;                           //error 16 of 16
+    
+ 
+  }                                
+}

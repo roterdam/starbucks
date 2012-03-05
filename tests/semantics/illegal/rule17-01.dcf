@@ -1,0 +1,25 @@
+class Program {
+  int a[10];
+
+  void main() {
+  
+       for ( i = 3; true) { //should be an int in terminator error 1 of 4
+           i += 1;
+           break;
+       }
+
+       for ( b = true; a[3]){ //should be an int in init error 2 of 4
+           break;       
+       }
+       for ( c = 4; 3 && true){ // 3 should be a bool. && gives us a boolean, not an int.
+           break;
+       }       
+       for ( c = a; 10){  //should be an int in init error 3 of 4
+           break;
+       }
+       
+       for ( c = 10; a){  //should be an int in terminator error 4 of 4
+           break;
+       }
+  }								
+}

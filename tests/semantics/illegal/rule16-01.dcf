@@ -1,0 +1,33 @@
+class Program {
+  int a;
+  boolean b;
+
+  void main() {
+        a += 3;     //okay
+        a -= a;     //okay
+        
+        a += b;                         //error 1 of 15
+        a += false;                        //error 2 of 15
+        a += true;                        //error 3 of 15
+        
+        a -= b;                        //error 4 of 15
+        a -= false;                        //error 5 of 15
+        a -= true;                        //error 6 of 15
+        
+        b += b;                        //error 7 & 8 of 15
+        b += false;                        //error 9 & 10 of 15
+        b += true;                        //error 11 & 12 of 15
+        
+        b += 1;                        //error 13 of 15
+        b += a;                        //error 14 of 15
+        a += 0x2;    //okay
+        a += 0b101;   //okay
+        
+        a += 'c';              //okay since char is int
+        a += 'c' + 10239;       //okay since char is int
+
+        a += 'c' + true;            //only one error. should be c+true error 15 of 15
+        
+             
+  }                                
+}

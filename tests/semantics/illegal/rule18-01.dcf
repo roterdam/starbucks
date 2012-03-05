@@ -1,0 +1,28 @@
+class Program {
+    int a[10];
+    int i;
+    
+    void main() {
+        
+        if (i < 19){
+            break;              //Error 1
+        }
+
+        if (i < 19){
+            continue;           //Error 2
+        }
+        
+        break;                  //Error 3
+        
+        continue;               //Error 4
+        
+        {
+        break;                  //Error 5
+        
+        continue;               //Error 6
+        }
+        return;
+        
+        
+    }								
+}

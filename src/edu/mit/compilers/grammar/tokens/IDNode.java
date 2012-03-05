@@ -9,7 +9,9 @@ public class IDNode extends ExpressionNode {
 
 	/**
 	 * Returns INT or BOOLEAN (If INT_ARRAY or BOOLEAN_ARRAY, returns INT and
-	 * BOOLEAN respectively.)
+	 * BOOLEAN respectively.) 
+	 * 
+	 * Returns UNDECLARED if variable has not been declared.
 	 */
 	@Override
 	public VarType getReturnType(Scope scope) {

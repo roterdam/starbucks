@@ -1,0 +1,36 @@
+class Program {
+  int a;
+  boolean b;
+
+
+  int foo() {
+    
+    b = false;
+    b = true;
+    b = false && true;
+    b = true || true;
+    
+    
+    b = a;                  //error 1 of 12
+    b = 0;                 //error 2 of 12
+    b = -2;                 //error 3 of 12
+    b = 0xb;                 //error 4 of 12
+    b = 0b101;                 //error 5 of 12
+    
+    b = 3 && false;            // only should have one error. error 6 of 12
+  }   
+
+  void main() {
+  
+      b = a;                  //error 7 of 12
+    b = 0;                 //error 8 of 12
+    b = -2;                 //error 9 of 12
+    b = 0xb;                 //error 10 of 12
+    b = 0b101;                 //error 11 of 12
+    
+    b = 3 && false;            // only should have one error. error 12 of 12
+
+        
+             
+  }                                
+}
