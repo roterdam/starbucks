@@ -51,6 +51,15 @@ public class Scope {
 		localVars.put(id, var);
 	}
 
+	/**
+	 * Checks for declaration of symbol in both variable and method tables.
+	 * @param v
+	 * @return
+	 */
+	public boolean hasSymbol(String symbol) {
+		return (this.localVars.containsKey(symbol) || getMethods().containsKey(symbol));
+	}
+	
 	public boolean hasVar(String v) {
 		return this.localVars.containsKey(v);
 	}

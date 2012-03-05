@@ -203,7 +203,9 @@ method_call!
 		{
       DecafNode methodId = #[METHOD_ID, #i.getText()];
 		  methodId.copyFromNode(#i);
-			#method_call = #([METHOD_CALL, "method call"], methodId);
+			DecafNode methodCall = #[METHOD_CALL, "method call"];
+			methodCall.copyFromNode(methodId);
+			#method_call = #(methodCall, methodId);
 		}
     LPAREN!
       (e:expr { #method_call.addChild(#e); } (COMMA! f:expr { #method_call.addChild(#f); })*)?

@@ -26,7 +26,8 @@ public class SemanticRules {
 	static String REDECLARE_IDENTIFIER_ERROR = "Cannot redeclare identifier %1$s.";
 	static String ID_BEFORE_DECLARATION_ERROR = "Cannot access identifier %1$s before declaration.";
 	static String UNALLOWED_JUMP_ERROR = "Cannot call %1$s from outside a while/for loop.";
-	static String REDECLARE_METHOD_ERROR = "Cannot redeclare method %1$s.";
+	// TODO: show where it was declared.
+	static String REDECLARE_METHOD_ERROR = "Cannot declare method `%1$s`; variable or field `%1$s` already exists.";
 	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
 	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
 	static String RETURN_TYPE_ERROR = "Return type mismatch. Expected `%1$s` but got `%2$s` instead.";
@@ -105,8 +106,7 @@ public class SemanticRules {
 		String id = idNode.getText();
 		VarType t = node.getVarType();
 
-		if (scope.hasVar(id)) {
-			// TODO: Also store where the original ID was declared.
+		if (scope.hasSymbol(id)) {
 			ErrorCenter
 					.reportError(idNode.getLine(), idNode.getColumn(), String
 							.format(REDECLARE_IDENTIFIER_ERROR, id));
@@ -184,7 +184,8 @@ public class SemanticRules {
 		VarType returnType = node.getReturnType();
 		String id = node.getId();
 		List<VarType> params = node.getParams();
-		if (scope.getMethods().containsKey(id)) {
+		// Don't allow shadowing existing methods or fields.
+		if (scope.hasSymbol(id)) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(REDECLARE_METHOD_ERROR, id));
 		} else {
