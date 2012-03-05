@@ -1,0 +1,19 @@
+class Program {
+
+    int param(){
+    }
+
+    int foo(int param){
+        int foo;                //legal
+        foo = 1;
+        foo = foo();            //ERROR 1 of 2
+        foo = param;
+        foo = param();          //ERROR 2 of 2
+        return 1;
+        
+    }
+
+  void main() {
+      
+  }                                
+}

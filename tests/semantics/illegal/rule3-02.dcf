@@ -1,0 +1,6 @@
+class Program {
+
+  void main(int a) {            //Error 1 of 1
+      return;             
+  }								
+}
