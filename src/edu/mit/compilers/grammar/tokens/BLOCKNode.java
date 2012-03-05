@@ -1,6 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarDecl;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.crawler.Scope.BlockType;
@@ -35,6 +37,7 @@ public class BLOCKNode extends DecafNode {
 		super.validate(scope);
 		scope = scope.getParent();
 	}
+		
 	@Override
 	public void validate(Scope scope) {
 		scope = new Scope(scope, BlockType.ANON);

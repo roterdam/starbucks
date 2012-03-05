@@ -9,8 +9,8 @@ public class Scope {
 	private Map<String, MethodDecl> methods;
 	private Scope parent;
 	private BlockType blockType;
-	private VarType returnType;
-
+	private VarType returnType; 
+	
 	public enum BlockType {
 		FOR, CLASS, METHOD, IF, WHILE, ANON, ELSE;
 	}
@@ -46,7 +46,7 @@ public class Scope {
 	public VarType getReturnType() {
 		return returnType;
 	}
-
+	
 	public void addVar(String id, VarDecl var) {
 		localVars.put(id, var);
 	}
