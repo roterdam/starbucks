@@ -232,20 +232,20 @@ public class SemanticRules {
 		// Rule 12
 		assert node.getNumberOfChildren() == 2;
 		
-		DecafNode child = node.getFirstChild();
-		// TODO: Condense this
-		while (child != null) {
+		DecafNode[] children = new DecafNode[] {node.getChild(0), node.getChild(1)};
+		for (DecafNode child : children) {
+			VarType type = null;
 			if (child instanceof IDNode) {
-				VarType type = ((IDNode) child).getReturnType(scope);
-				if (type != VarType.INT) {
-					ErrorCenter.reportError(child.getLine(), child.getColumn(),
-							String.format(INT_OPERAND_ERROR, type.toString()));
-				}
-			} else if (!(child instanceof INT_LITERALNode)) {
-				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
-						.format(INT_OPERAND_ERROR, child.getClass().toString()));
+				type = ((IDNode) child).getReturnType(scope);
+			} else if (child instanceof METHOD_CALLNode) {
+				type = ((METHOD_CALLNode) child).getReturnType(scope);
+			} else if (child instanceof INT_LITERALNode) {
+				type = ((INT_LITERALNode) child).getReturnType(scope);
 			}
-			child = child.getNextSibling();
+			if (type != VarType.INT) {
+				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+						.format(INT_OPERAND_ERROR, child.getClass()));
+			}
 		}
 	}
 }
