@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 
 import antlr.Token;
-import antlr.TokenStreamException;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
