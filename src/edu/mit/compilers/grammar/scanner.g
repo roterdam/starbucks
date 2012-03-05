@@ -10,6 +10,7 @@ options {
 class DecafScanner extends Lexer;
 options {
   k = 2;
+  defaultErrorHandler=false;
 }
 
 tokens {

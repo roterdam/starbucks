@@ -1,0 +1,4 @@
+class Program {
+  // Valid comment. asldfkjasdf "
+  asdf invalid"
+}
