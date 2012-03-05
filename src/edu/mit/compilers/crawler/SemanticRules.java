@@ -69,90 +69,7 @@ public class SemanticRules {
 	static String DOES_NOT_RETURN = "Method `%1$s` may not return a value.";
 	
 	static public void apply(DecafNode node, Scope scope) {
-		if (node instanceof INT_LITERALNode) {
-			apply((INT_LITERALNode) node, scope);
-		}
-		if (node instanceof METHOD_DECLNode) {
-			apply((METHOD_DECLNode) node, scope);
-		}
-
-		if (node instanceof METHOD_CALLNode) {
-			apply((METHOD_CALLNode) node, scope);
-		}
-
-		if (node instanceof DeclNode) {
-			apply((DeclNode) node, scope);
-		}
-		if (node instanceof IDNode) {
-			apply((IDNode) node, scope);
-		}
-		if (node instanceof BranchNode) {
-			apply((BranchNode) node, scope);
-		}
-
-		if (node instanceof CLASSNode) {
-			apply((CLASSNode) node, scope);
-		}
-
-		if (node instanceof RETURNNode) {
-			apply((RETURNNode) node, scope);
-		}
-
-		if (node instanceof OpBool2BoolNode) {
-			apply((OpBool2BoolNode) node, scope);
-		}
-
-		if (node instanceof OpBoolBool2BoolNode) {
-			apply((OpBoolBool2BoolNode) node, scope);
-		}
-
-		if (node instanceof OpInt2IntNode) {
-			apply((OpInt2IntNode) node, scope);
-		}
-
-		if (node instanceof OpIntInt2BoolNode) {
-			apply((OpIntInt2BoolNode) node, scope);
-		}
-
-		// the exact same as intint2bool
-		if (node instanceof OpIntInt2IntNode) {
-			apply((OpIntInt2IntNode) node, scope);
-		}
-
-		if (node instanceof OpSameSame2BoolNode) {
-			apply((OpSameSame2BoolNode) node, scope);
-		}
-
-		if (node instanceof FOR_TERMINATENode) {
-			apply((FOR_TERMINATENode) node, scope);
-		}
-
-		if (node instanceof FOR_INITIALIZENode) {
-			apply((FOR_INITIALIZENode) node, scope);
-		}
-		if (node instanceof ASSIGNNode) {
-			apply((ASSIGNNode) node, scope);
-			return;
-		}
-		if (node instanceof ModifyAssignNode) {
-			apply((ModifyAssignNode) node, scope);
-			return;
-		}
-
-		if (node instanceof IF_CLAUSENode) {
-			apply((IF_CLAUSENode) node, scope);
-			return;
-		}
-
-		if (node instanceof WHILE_TERMINATENode) {
-			apply((WHILE_TERMINATENode) node, scope);
-			return;
-		}
-
-		// TODO: enable this when all rules are done.
-		// assert false :
-		// "apply on DecafNode should not be called, only its children.";
-		return;
+		//assert false : "apply on DecafNode should not be called, only its children. " + node.toStringTree();
 	}
 
 	static public void apply(INT_LITERALNode node, Scope scope) {
@@ -370,6 +287,7 @@ public class SemanticRules {
 		return true;
 	}
 
+	// the exact same as intint2bool
 	static public void apply(OpIntInt2IntNode node, Scope scope) {
 		// Rule 12
 		assert node.getNumberOfChildren() == 2;

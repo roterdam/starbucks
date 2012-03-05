@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.crawler.Scope.BlockType;
@@ -50,6 +51,11 @@ public class METHOD_DECLNode extends DecafNode {
 	@Override
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
+	}
+	
+	@Override
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
 	}
 
 }

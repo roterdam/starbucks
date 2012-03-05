@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
@@ -27,6 +28,11 @@ public class RETURNNode extends DecafNode {
 	@Override
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
+	}
+	
+	@Override
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
 	}
 	
 }

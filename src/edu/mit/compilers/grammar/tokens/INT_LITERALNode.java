@@ -2,6 +2,7 @@ package edu.mit.compilers.grammar.tokens;
 
 import antlr.Token;
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.ExpressionNode;
 
@@ -66,6 +67,11 @@ public class INT_LITERALNode extends ExpressionNode {
 	public VarType getReturnType(Scope scope) {
 		// TODO Auto-generated method stub
 		return VarType.INT;
+	}
+	
+	@Override
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
 	}
 
 }
