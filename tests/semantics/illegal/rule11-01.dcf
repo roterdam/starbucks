@@ -1,0 +1,17 @@
+class Program {
+  int a;
+  boolean b;
+
+  void main() {
+       if (a){                  //a is an int. should be boolean. Error 1 of 2
+            return;
+       } else {
+            return;
+       }
+
+       while (a) {              //a is an int. should be boolean. Error 2 of 2
+             break;
+       }
+             
+  }                                
+}
