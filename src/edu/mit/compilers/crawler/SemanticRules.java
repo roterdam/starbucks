@@ -17,6 +17,7 @@ import edu.mit.compilers.grammar.expressions.OpIntInt2BoolNode;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
 import edu.mit.compilers.grammar.expressions.OpSameSame2BoolNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
+import edu.mit.compilers.grammar.tokens.BLOCKNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
@@ -70,9 +71,11 @@ public class SemanticRules {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
 		}
+		
 		if (node instanceof METHOD_CALLNode) {
 			apply((METHOD_CALLNode) node, scope);
 		}
+		
 		if (node instanceof DeclNode) {
 			apply((DeclNode) node, scope);
 		}
@@ -295,6 +298,11 @@ public class SemanticRules {
 										.toString()));
 			}
 		}
+	}
+	
+	static public void finalApply(BLOCKNode node, Scope scope) {
+		// Rule 6
+		
 	}
 
 	static public void apply(METHOD_CALLNode node, Scope scope) {
