@@ -59,7 +59,7 @@ public class SemanticRules {
 			+ VarType.INT.name() + "], found [%1$s].";
 	static String OP_EQ_COND_BAD_TYPE_ERROR = "Incorrect use of conditional or logical not operator. Expecting `%1$s` found `%2$s`.";
 	static String IF_EXPR_BOOL_ERROR = "The if loop requires a boolean";
-	static String WHILE_EXPR_BOOL_ERROR = "The while loop requires a boolean";
+	static String WHILE_EXPR_BOOL_ERROR = "Ill-formed while loop. Expecting ["+VarType.BOOLEAN.name()+"], found [%1$s]";
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
 	static String OP_UNARY_MINUS_TYPE_ERROR = "Urnary minus operator type error. Expecting `%1$s` found `%2$s`";
 
@@ -164,7 +164,7 @@ public class SemanticRules {
 		IDNode idNode = node.getIDNode();
 		String id = idNode.getText();
 		VarType t = node.getVarType();
-
+		
 		// FIELD_DECLs are not allowed to shadow methods, other DECLs are.
 		if ((node instanceof FIELD_DECLNode && scope.hasSymbol(id))
 				|| (scope.hasLocalVar(id))) {
@@ -540,28 +540,33 @@ public class SemanticRules {
 					.format(FOR_LOOP_INIT_INT));
 		}
 	}
+	// TODO: Raise IF_CLAUSENode and WHILE_TERMINATENode ?
 	
 	static public void apply(IF_CLAUSENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
+		assert node.getFirstChild() instanceof ExpressionNode;
 		
-		if (!(node.getFirstChild() instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.BOOLEAN){
+		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+		VarType returnType = expr.getReturnType(scope);
+		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN){
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
-					.format(IF_EXPR_BOOL_ERROR));
+					.format(IF_EXPR_BOOL_ERROR, returnType));
 		}
 	}
 	
 	static public void apply(WHILE_TERMINATENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
+		assert node.getFirstChild() instanceof ExpressionNode;
 		
-		if (!(node.getFirstChild() instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.BOOLEAN){
+		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+		VarType returnType = expr.getReturnType(scope);
+		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN){
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
-					.format(WHILE_EXPR_BOOL_ERROR));
+					.format(WHILE_EXPR_BOOL_ERROR, returnType));
 		}
 	}
 	
