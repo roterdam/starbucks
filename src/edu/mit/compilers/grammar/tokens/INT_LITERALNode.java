@@ -33,4 +33,5 @@ public class INT_LITERALNode extends ExpressionNode {
 		// TODO Auto-generated method stub
 		return VarType.INT;
 	}
+
 }
