@@ -17,6 +17,12 @@ class Program {
     boolean e;
     boolean freaky;
 
+    while(fuck){
+       b = 3;
+    }
+    while(1+2){
+       a = 3;
+    }
     {
       int a;
       boolean e,a;
