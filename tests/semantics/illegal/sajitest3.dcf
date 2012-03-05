@@ -9,6 +9,7 @@ class Program {
     int x;
     int y;
     boolean z;
+    boolean r;
     z = true;
     x = 5;
     y = 3;
@@ -25,6 +26,11 @@ class Program {
     q(y == 5 + 5);
     q(y == 1 + 2);
     q(!z);
+    q(x || y);
+    q(z || z);
+    q(!z || z);
+    q(z && r);
+    q(x && z);
   }								
 
 }

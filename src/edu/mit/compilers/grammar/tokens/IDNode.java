@@ -15,7 +15,7 @@ public class IDNode extends ExpressionNode {
 	 */
 	@Override
 	public VarType getReturnType(Scope scope) {
-		
+
 		VarType returnType = scope.getType(getText());
 		assert getNumberOfChildren() <= 1;
 		// If accessing an array, return the type of the array. However, if
@@ -31,6 +31,18 @@ public class IDNode extends ExpressionNode {
 			}
 		}
 		return returnType;
+	}
+
+	/**
+	 * Returns the ID name if just an INT or BOOLEAN, but includes the index if
+	 * it's an array element. i.e. "a[5]" if applicable.
+	 */
+	public String getRepresentation() {
+		String out = getText();
+		if (getNumberOfChildren() == 1) {
+			out += "[" + getFirstChild().getText() + "]";
+		}
+		return out;
 	}
 
 }
