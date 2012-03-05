@@ -1,9 +1,9 @@
 class Program {    
-    int c[0];                       //ERROR 1 of 3
+    int c[0];                       //ERROR 1 of 5
     int d[234];
     int e[1];
-    int f[-1];                      //ERROR 2 of 3
-    int g[-234];                    //ERROR 3 of 3
+    int f[-1];                      //ERROR 2 of 5
+    int g[-234];                    //ERROR 3 of 5
     
     int h[0b01];                    //okay
     int i[0x39B];                   //okay

@@ -1,6 +1,6 @@
 class Program {
 
-  void main(boolean a) {
+  void main(boolean a) {        //ERROR 1 of 1
       return;             
   }								
 }

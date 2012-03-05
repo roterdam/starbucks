@@ -18,7 +18,7 @@ class Program {
         }
     }
     
-      int far(){  // OK
+      int fam(){  // OK
         boolean a;
     
         if (a) {
