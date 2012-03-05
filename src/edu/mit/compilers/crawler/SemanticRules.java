@@ -11,6 +11,8 @@ import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.expressions.OpBool2BoolNode;
 import edu.mit.compilers.grammar.expressions.OpBoolBool2BoolNode;
+import edu.mit.compilers.grammar.expressions.OpInt2IntNode;
+import edu.mit.compilers.grammar.expressions.OpIntInt2BoolNode;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
 import edu.mit.compilers.grammar.expressions.OpSameSame2BoolNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
@@ -82,14 +84,6 @@ public class SemanticRules {
 		if (node instanceof RETURNNode) {
 			apply((RETURNNode) node, scope);
 		}
-
-		if (node instanceof OpIntInt2IntNode) {
-			apply((OpIntInt2IntNode) node, scope);
-		}
-
-		if (node instanceof OpSameSame2BoolNode) {
-			apply((OpSameSame2BoolNode) node, scope);
-		}
 		
 		if (node instanceof OpBool2BoolNode) {
 			apply((OpBool2BoolNode) node, scope);
@@ -97,6 +91,23 @@ public class SemanticRules {
 		
 		if (node instanceof OpBoolBool2BoolNode) {
 			apply((OpBoolBool2BoolNode) node, scope);
+		}
+		
+		if (node instanceof OpInt2IntNode) {
+			apply((OpInt2IntNode) node, scope);
+		}
+		
+		if (node instanceof OpIntInt2BoolNode) {
+			apply((OpIntInt2BoolNode) node, scope);
+		}
+		
+		// the exact same as intint2bool
+		if (node instanceof OpIntInt2IntNode) {
+			apply((OpIntInt2IntNode) node, scope);
+		}
+		
+		if (node instanceof OpSameSame2BoolNode) {
+			apply((OpSameSame2BoolNode) node, scope);
 		}
 
 		if (node instanceof FOR_TERMINATENode) {
@@ -408,6 +419,39 @@ public class SemanticRules {
 						.format(OP_EQ_COND_BAD_TYPE_ERROR, VarType.BOOLEAN, type));
 			}
 		}
+	}
+	
+	static public void apply(OpInt2IntNode node, Scope scope) {
+		assert node.getNumberOfChildren() == 1;
+		
+		ExpressionNode child = (ExpressionNode) node.getFirstChild();
+		VarType type = child.getReturnType(scope);
+		
+		if (type != VarType.INT) {
+			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+					.format(OP_URNARY_MINUS_TYPE_ERROR, VarType.INT, type));
+		}
+	}
+	
+	static public void apply(OpIntInt2BoolNode node, Scope scope) {
+		// Rule 12
+		assert node.getNumberOfChildren() == 2;
+		assert node.getChild(0) instanceof ExpressionNode;
+		assert node.getChild(1) instanceof ExpressionNode;
+
+		ExpressionNode child = (ExpressionNode) node.getFirstChild();
+		ExpressionNode[] children = new ExpressionNode[] { child,
+				(ExpressionNode) child.getNextSibling() };
+
+		for (int i = 0; i < children.length; i++) {
+			child = children[i];
+			VarType type = child.getReturnType(scope);
+			if (type != VarType.INT) {
+				ErrorCenter
+						.reportError(child.getLine(), child.getColumn(), String.format(INT_OPERAND_ERROR, node
+								.getText(), child.getReturnType(scope)));
+			}
+		}		
 	}
 	
 	static public void apply(ASSIGNNode node, Scope scope) {
