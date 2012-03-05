@@ -2,7 +2,7 @@
 //asdfas
 class Program {
   int a[5], c[2];
-  int d;
+  int d[adf];
 
   int b(int b, boolean a) {
   }
@@ -10,6 +10,7 @@ class Program {
   void main() {
     boolean asdf;
     a = 5 + b('d', 'asd');
+    c = 'asdfasdf';
   }
 }
 

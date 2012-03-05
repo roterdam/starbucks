@@ -2,6 +2,7 @@ package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.MethodDecl;
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.ExpressionNode;
 

@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 
 import antlr.Token;
-import antlr.TokenStreamException;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
@@ -76,7 +75,7 @@ class Main {
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
-					ErrorCenter.reportError(e.recog.line, e.recog.column, e.recog.getMessage());
+					ErrorCenter.reportFatalError(e.recog.line, e.recog.column, e.recog.getMessage());
 				}
 
 				// Return a non-zero code if an error has occurred. DO NOT
