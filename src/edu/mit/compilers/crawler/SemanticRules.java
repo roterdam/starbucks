@@ -243,6 +243,7 @@ public class SemanticRules {
 				type = ((INT_LITERALNode) child).getReturnType(scope);
 			}
 			if (type != VarType.INT) {
+				// TODO: Fix class output. Is there a way to get the *final* type?
 				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
 						.format(INT_OPERAND_ERROR, child.getClass()));
 			}
