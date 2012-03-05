@@ -2,6 +2,7 @@ package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.MethodDecl;
 import edu.mit.compilers.crawler.Scope;
+import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.ExpressionNode;
 
@@ -17,6 +18,11 @@ public class METHOD_CALLNode extends ExpressionNode {
 		assert scope.getMethods().containsKey(getMethodName());
 		MethodDecl method = scope.getMethods().get(getMethodName());
 		return method.getReturnType();
+	}
+	
+	@Override
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
 	}
 
 }

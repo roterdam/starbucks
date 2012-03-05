@@ -37,8 +37,7 @@ public class ErrorCenter {
 			maxLineNumberWidth = Integer.toString(lineOffsets.size() - 1)
 					.length();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error opening " + newFilename);
 		}
 	}
 
