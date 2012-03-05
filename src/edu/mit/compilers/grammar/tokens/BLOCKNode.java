@@ -16,13 +16,10 @@ public class BLOCKNode extends DecafNode {
 		
 		ASSIGNNode assign_node = (ASSIGNNode) node.getChild(0);
 		IDNode id = (IDNode) assign_node.getChild(0);
-		//TODO: Get the right line numbers
-		VarDecl decl_node = new VarDecl(VarType.INT, id.getText(), 1, 1);
+		VarDecl decl_node = new VarDecl(VarType.INT, id.getText(), id.getLine(), id.getColumn());
 		
 		//TODO: verify that expression is an int.
 		scope.addVar(id.getText(), decl_node);
-		System.out.println("ID " + id.getText() + id.getColumn() + id.getLine() );
-		System.out.println("FOR LOOP SHIT");
 		super.validate(scope);
 		scope = scope.getParent();
 	}

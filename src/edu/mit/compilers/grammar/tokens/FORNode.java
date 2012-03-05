@@ -3,6 +3,7 @@ package edu.mit.compilers.grammar.tokens;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.grammar.ExpressionNode;
 
 @SuppressWarnings("serial")
 public class FORNode extends DecafNode {
@@ -17,10 +18,10 @@ public class FORNode extends DecafNode {
 		assert getChild(2) instanceof BLOCKNode;
 		
 		//No need to validate the scope of the initialize.
-		//getChild(0).validate(scope);
+		getChild(0).validate(scope);
 		
-		//TODO: Fix this so that it has the right scope.
-		//getChild(1).validate(scope);		
+		//TODO: Make sure it's an int.
+		getChild(1).validate(scope);
 		((BLOCKNode) getChild(2)).validate(scope, BlockType.FOR, (FOR_INITIALIZENode) getChild(0) );
 	}
 

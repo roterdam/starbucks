@@ -8,8 +8,16 @@ import edu.mit.compilers.grammar.DecafNode;
 public class FOR_INITIALIZENode extends DecafNode {
 
 	@Override
-	public void validate(Scope scope) {
-		assert false : "For loop initializiation is treated differently and should never be validated";
+	public void validateChildren(Scope scope) {
+		
+		
+		DecafNode child = this.getFirstChild();
+		//Don't check the first child. THE ID doesn't exist.
+		child = child.getNextSibling();
+		while (child != null) {
+			child.validate(scope);
+			child = child.getNextSibling();
+		}
 	}
 	
 }
