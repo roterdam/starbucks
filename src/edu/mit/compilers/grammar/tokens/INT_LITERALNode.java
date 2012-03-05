@@ -6,9 +6,6 @@ import edu.mit.compilers.grammar.ExpressionNode;
 
 /**
  * Careful, this is "3" not "int".
- * 
- * @author joshma
- * 
  */
 @SuppressWarnings("serial")
 public class INT_LITERALNode extends ExpressionNode {

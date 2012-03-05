@@ -25,29 +25,33 @@ import edu.mit.compilers.grammar.tokens.RETURNNode;
 
 public class SemanticRules {
 
-	static String REDECLARE_IDENTIFIER_ERROR = "Cannot redeclare identifier `%1$s`.";
-	static String ID_BEFORE_DECLARATION_ERROR = "Cannot access identifier `%1$s` before declaration.";
-	static String UNALLOWED_JUMP_ERROR = "Cannot call `%1$s` from outside a while/for loop.";
-	static String REDECLARE_METHOD_ERROR = "Cannot declare method `%1$s`; variable or field `%1$s` already exists.";
-	static String MISSING_MAIN_ERROR = "Program must contain definition for 'main' with no parameters.";
-	static String INCORRECT_MAIN_ERROR = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
-	static String METHOD_ARGS_ERROR = "Cannot call method `%1$s` with arguments `%2$s`. Expected %3$s.";
-	static String RETURN_TYPE_ERROR = "Return type mismatch. Expected `%1$s` but got `%2$s` instead.";
-	static String ARRAY_INDEX_TYPE_ERROR = "Invalid array index: expected "
+	static String REDECLARE_IDENTIFIER = "Cannot redeclare identifier `%1$s`.";
+	static String ID_BEFORE_DECLARATION = "Cannot access identifier `%1$s` before declaration.";
+	static String UNALLOWED_JUMP = "Cannot call `%1$s` from outside a while/for loop.";
+	static String REDECLARE_METHOD = "Cannot declare method `%1$s`; variable or field `%1$s` already exists.";
+	static String MISSING_MAIN = "Program must contain definition for 'main' with no parameters.";
+	static String INCORRECT_MAIN = "Program must contain definition for 'main' with no parameters; %1$s found instead.";
+	static String METHOD_ARGS = "Cannot call method `%1$s` with arguments `%2$s`. Expected %3$s.";
+	static String RETURN_TYPE = "Return type mismatch. Expected `%1$s` but got `%2$s` instead.";
+	static String ARRAY_INDEX_TYPE = "Invalid array index: expected "
 			+ VarType.INT.name() + ", found %1$s instead.";
-	static String INVALID_CLASS_NAME_ERROR = "The class must be named `Program`. It is currently `%1$s`.";
-	static String METHOD_BEFORE_DECLARATION_ERROR = "Method `%1$s` is not visible or valid.";
-	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
-	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
+	static String INVALID_CLASS_NAME = "The class must be named `Program`. It is currently `%1$s`.";
+	static String METHOD_BEFORE_DECLARATION = "Method `%1$s` is not visible or valid.";
+	static String INVALID_ARRAY_ACCESS = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
+	static String ARRAY_INDEX_NEGATIVE = "Size of array `%1$s` cannot be negative.";
 	static String INT_OPERAND_ERROR = "Incorrect use of `%1$s` operator. Expecting <"
 			+ VarType.INT.name() + ">, found <%2$s>.";
-	static String FOR_LOOP_TERMINATE_INT_ERROR = "For loop termination condition must be an int.";
-	static String FOR_LOOP_INIT_INT_ERROR = "For loop initial condition must be an int.";
+	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an int.";
+	static String FOR_LOOP_INIT_INT = "For loop initial condition must be an int.";
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
+	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
 	
 	static public void apply(DecafNode node, Scope scope) {
+		if (node instanceof INT_LITERALNode) {
+			apply((INT_LITERALNode) node, scope);
+		}
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
 		}
@@ -96,6 +100,15 @@ public class SemanticRules {
 		// "apply on DecafNode should not be called, only its children.";
 		return;
 	}
+	
+	static public void apply(INT_LITERALNode node, Scope scope) {
+		
+		long value = node.getValue();
+		if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String.format(INTEGER_OUT_OF_BOUNDS, Long.toString(value)));
+		}
+		
+	}
 
 	static public void apply(DeclNode node, Scope scope) {
 		// Rule 1, Rule 9
@@ -109,7 +122,7 @@ public class SemanticRules {
 				|| (scope.hasLocalVar(id))) {
 			ErrorCenter
 					.reportError(idNode.getLine(), idNode.getColumn(), String
-							.format(REDECLARE_IDENTIFIER_ERROR, id));
+							.format(REDECLARE_IDENTIFIER, id));
 		} else {
 			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode
 					.getColumn()));
@@ -124,7 +137,7 @@ public class SemanticRules {
 			if (!intNode.isPositive()) {
 				ErrorCenter
 						.reportError(intNode.getLine(), intNode.getColumn(), String
-								.format(ARRAY_INDEX_NEGATIVE_ERROR, id));
+								.format(ARRAY_INDEX_NEGATIVE, id));
 			}
 		}
 
@@ -135,7 +148,7 @@ public class SemanticRules {
 		String id = node.getText();
 		if (!scope.hasVar(node.getText())) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(ID_BEFORE_DECLARATION_ERROR, id));
+					.format(ID_BEFORE_DECLARATION, id));
 		}
 
 		// Rule 10
@@ -147,7 +160,7 @@ public class SemanticRules {
 			if (!(scope.getType(id) == VarType.INT_ARRAY)) {
 				ErrorCenter
 						.reportError(node.getLine(), node.getColumn(), String
-								.format(INVALID_ARRAY_ACCESS_ERROR, id, scope
+								.format(INVALID_ARRAY_ACCESS, id, scope
 										.getType(id)));
 				return;
 			}
@@ -158,7 +171,7 @@ public class SemanticRules {
 			if (indexType != VarType.INT) {
 				ErrorCenter.reportError(indexNode.getLine(), indexNode
 						.getColumn(), String
-						.format(ARRAY_INDEX_TYPE_ERROR, indexType.name()));
+						.format(ARRAY_INDEX_TYPE, indexType.name()));
 			}
 		}
 	}
@@ -176,7 +189,7 @@ public class SemanticRules {
 		}
 		if (currentScope == null) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(UNALLOWED_JUMP_ERROR, node.getText()));
+					.format(UNALLOWED_JUMP, node.getText()));
 		}
 	}
 
@@ -187,7 +200,7 @@ public class SemanticRules {
 		// Don't allow shadowing existing methods or fields.
 		if (scope.hasSymbol(id)) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(REDECLARE_METHOD_ERROR, id));
+					.format(REDECLARE_METHOD, id));
 		} else {
 			scope.getMethods().put(id, new MethodDecl(returnType, id, params,
 					node.getLine(), node.getColumn()));
@@ -197,7 +210,7 @@ public class SemanticRules {
 	static public void apply(RETURNNode node, Scope scope) {
 		if (node.getReturnType(scope) != scope.getReturnType()) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(RETURN_TYPE_ERROR, scope.getReturnType(), node
+					.format(RETURN_TYPE, scope.getReturnType(), node
 							.getReturnType(scope)));
 		}
 	}
@@ -206,14 +219,14 @@ public class SemanticRules {
 		DecafNode child = node.getFirstChild();
 		if (!child.getText().equals("Program")) {
 			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
-					.format(INVALID_CLASS_NAME_ERROR, child.getText()));
+					.format(INVALID_CLASS_NAME, child.getText()));
 		}
 	}
 
 	static public void finalApply(CLASSNode node, Scope scope) {
 		// Rule 3.
 		if (!scope.getMethods().containsKey("main")) {
-			ErrorCenter.reportError(0, 0, MISSING_MAIN_ERROR);
+			ErrorCenter.reportError(0, 0, MISSING_MAIN);
 		} else {
 			MethodDecl mainDecl = scope.getMethods().get("main");
 			if (mainDecl.getParams().size() != 0) {
@@ -228,7 +241,7 @@ public class SemanticRules {
 				paramsStringBuilder.append(">");
 				ErrorCenter.reportError(mainDecl.getLine(), mainDecl
 						.getColumn(), String
-						.format(INCORRECT_MAIN_ERROR, paramsStringBuilder
+						.format(INCORRECT_MAIN, paramsStringBuilder
 								.toString()));
 			}
 		}
@@ -261,12 +274,12 @@ public class SemanticRules {
 				ErrorCenter
 						.reportError(methodIDNode.getLine(), methodIDNode
 								.getColumn(), String
-								.format(METHOD_ARGS_ERROR, methodName, args
+								.format(METHOD_ARGS, methodName, args
 										.toString(), params.toString()));
 			}
 		} else {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
+					.format(METHOD_BEFORE_DECLARATION, methodName));
 		}
 	}
 
@@ -360,7 +373,7 @@ public class SemanticRules {
 				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.INT) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
-					.format(FOR_LOOP_TERMINATE_INT_ERROR));
+					.format(FOR_LOOP_TERMINATE_INT));
 		}
 	}
 
@@ -377,7 +390,7 @@ public class SemanticRules {
 						.getReturnType(scope) != VarType.INT) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
-					.format(FOR_LOOP_INIT_INT_ERROR));
+					.format(FOR_LOOP_INIT_INT));
 		}
 	}
 }
