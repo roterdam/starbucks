@@ -9,6 +9,8 @@ import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.expressions.OpBool2BoolNode;
+import edu.mit.compilers.grammar.expressions.OpBoolBool2BoolNode;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
 import edu.mit.compilers.grammar.expressions.OpSameSame2BoolNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
@@ -46,6 +48,7 @@ public class SemanticRules {
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
+	static String OP_EQ_COND_BAD_TYPE_ERROR = "Incorrect use of conditional or logical not operator. Expecting `%1$s` found `%2$s`.";
 	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
@@ -78,6 +81,14 @@ public class SemanticRules {
 
 		if (node instanceof OpSameSame2BoolNode) {
 			apply((OpSameSame2BoolNode) node, scope);
+		}
+		
+		if (node instanceof OpBool2BoolNode) {
+			apply((OpBool2BoolNode) node, scope);
+		}
+		
+		if (node instanceof OpBoolBool2BoolNode) {
+			apply((OpBoolBool2BoolNode) node, scope);
 		}
 
 		if (node instanceof FOR_TERMINATENode) {
@@ -336,6 +347,38 @@ public class SemanticRules {
 					.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
 		}
 	}
+	
+	static public void apply(OpBool2BoolNode node, Scope scope) {
+		// Rule 14
+		assert node.getNumberOfChildren() == 1;
+		
+		ExpressionNode child = (ExpressionNode) node.getFirstChild();
+		VarType type = child.getReturnType(scope);
+		if (type != VarType.BOOLEAN) {
+			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+					.format(OP_EQ_COND_BAD_TYPE_ERROR, VarType.BOOLEAN, type));
+		}
+		
+	}
+	
+	static public void apply(OpBoolBool2BoolNode node, Scope scope) {
+		// Rule 14
+		assert node.getNumberOfChildren() == 2;
+			
+		ExpressionNode child = (ExpressionNode) node.getFirstChild();
+		ExpressionNode[] children = new ExpressionNode[] { child,
+				(ExpressionNode) child.getNextSibling() };
+
+		for (int i = 0; i < children.length; i++) {
+			child = children[i];
+			VarType type = children[i].getReturnType(scope);
+			if (type != VarType.BOOLEAN) {
+				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+						.format(OP_EQ_COND_BAD_TYPE_ERROR, VarType.BOOLEAN, type));
+			}
+		}
+	}
+	
 	static public void apply(ASSIGNNode node, Scope scope){
 		// Rule 15
 		assert node.getFirstChild() instanceof IDNode;
