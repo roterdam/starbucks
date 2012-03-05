@@ -2,9 +2,11 @@
 
 class Program {
   int a() {
+    return 9001;
   }
   boolean main() {
     int b;
     b = 1 + a();
+    return true;
   }
 }

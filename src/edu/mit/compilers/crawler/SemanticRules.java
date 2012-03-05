@@ -49,8 +49,10 @@ public class SemanticRules {
 	static String ARRAY_INDEX_NEGATIVE = "Size of array `%1$s` cannot be negative.";
 	static String INT_OPERAND_ERROR = "Incorrect use of `%1$s` operator. Expecting <"
 			+ VarType.INT.name() + ">, found <%2$s>.";
-	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an ["+VarType.INT.name()+"], found [%1$s].";
-	static String FOR_LOOP_INIT_INT = "For loop initial condition must be ["+VarType.INT.name()+"], found [%1$s].";
+	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an ["
+			+ VarType.INT.name() + "], found [%1$s].";
+	static String FOR_LOOP_INIT_INT = "For loop initial condition must be ["
+			+ VarType.INT.name() + "], found [%1$s].";
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE = "Cannot assign %1$s value to %2$s `%3$s`.";
@@ -60,10 +62,12 @@ public class SemanticRules {
 			+ VarType.INT.name() + "], found [%1$s].";
 	static String OP_EQ_COND_BAD_TYPE_ERROR = "Incorrect use of conditional or logical not operator. Expecting `%1$s` found `%2$s`.";
 	static String IF_EXPR_BOOL_ERROR = "The if loop requires a boolean";
-	static String WHILE_EXPR_BOOL_ERROR = "Ill-formed while loop. Expecting ["+VarType.BOOLEAN.name()+"], found [%1$s]";
+	static String WHILE_EXPR_BOOL_ERROR = "Ill-formed while loop. Expecting ["
+			+ VarType.BOOLEAN.name() + "], found [%1$s]";
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
 	static String OP_UNARY_MINUS_TYPE_ERROR = "Urnary minus operator type error. Expecting `%1$s` found `%2$s`";
-
+	static String DOES_NOT_RETURN = "Method `%1$s` may not return a value.";
+	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof INT_LITERALNode) {
 			apply((INT_LITERALNode) node, scope);
@@ -71,11 +75,11 @@ public class SemanticRules {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
 		}
-		
+
 		if (node instanceof METHOD_CALLNode) {
 			apply((METHOD_CALLNode) node, scope);
 		}
-		
+
 		if (node instanceof DeclNode) {
 			apply((DeclNode) node, scope);
 		}
@@ -93,28 +97,28 @@ public class SemanticRules {
 		if (node instanceof RETURNNode) {
 			apply((RETURNNode) node, scope);
 		}
-		
+
 		if (node instanceof OpBool2BoolNode) {
 			apply((OpBool2BoolNode) node, scope);
 		}
-		
+
 		if (node instanceof OpBoolBool2BoolNode) {
 			apply((OpBoolBool2BoolNode) node, scope);
 		}
-		
+
 		if (node instanceof OpInt2IntNode) {
 			apply((OpInt2IntNode) node, scope);
 		}
-		
+
 		if (node instanceof OpIntInt2BoolNode) {
 			apply((OpIntInt2BoolNode) node, scope);
 		}
-		
+
 		// the exact same as intint2bool
 		if (node instanceof OpIntInt2IntNode) {
 			apply((OpIntInt2IntNode) node, scope);
 		}
-		
+
 		if (node instanceof OpSameSame2BoolNode) {
 			apply((OpSameSame2BoolNode) node, scope);
 		}
@@ -134,17 +138,16 @@ public class SemanticRules {
 			apply((ModifyAssignNode) node, scope);
 			return;
 		}
-		
-		if (node instanceof IF_CLAUSENode){
+
+		if (node instanceof IF_CLAUSENode) {
 			apply((IF_CLAUSENode) node, scope);
 			return;
 		}
-		
-		if (node instanceof WHILE_TERMINATENode){
+
+		if (node instanceof WHILE_TERMINATENode) {
 			apply((WHILE_TERMINATENode) node, scope);
 			return;
 		}
-
 
 		// TODO: enable this when all rules are done.
 		// assert false :
@@ -167,7 +170,7 @@ public class SemanticRules {
 		IDNode idNode = node.getIDNode();
 		String id = idNode.getText();
 		VarType t = node.getVarType();
-		
+
 		// FIELD_DECLs are not allowed to shadow methods, other DECLs are.
 		if ((node instanceof FIELD_DECLNode && scope.hasSymbol(id))
 				|| (scope.hasLocalVar(id))) {
@@ -175,8 +178,8 @@ public class SemanticRules {
 					.reportError(idNode.getLine(), idNode.getColumn(), String
 							.format(REDECLARE_IDENTIFIER, id));
 		} else {
-			scope.addVar(id,
-					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
+			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode
+					.getColumn()));
 		}
 
 		// Rule 4
@@ -253,10 +256,18 @@ public class SemanticRules {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(REDECLARE_METHOD, id));
 		} else {
-			scope.getMethods().put(
-					id,
-					new MethodDecl(returnType, id, params, node.getLine(), node
-							.getColumn()));
+			scope.getMethods().put(id, new MethodDecl(returnType, id, params,
+					node.getLine(), node.getColumn()));
+		}
+
+		if (returnType == VarType.VOID) {
+			return;
+		}
+		// Check for valid return statement.
+		ValidReturnChecker returnChecker = new ValidReturnChecker(returnType);
+		if (!node.hasValidReturn(returnChecker)) {
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(DOES_NOT_RETURN, id));
 		}
 	}
 
@@ -299,10 +310,10 @@ public class SemanticRules {
 			}
 		}
 	}
-	
+
 	static public void finalApply(BLOCKNode node, Scope scope) {
 		// Rule 6
-		
+
 	}
 
 	static public void apply(METHOD_CALLNode node, Scope scope) {
@@ -415,7 +426,7 @@ public class SemanticRules {
 			}
 		}
 	}
-	
+
 	static public void apply(OpBool2BoolNode node, Scope scope) {
 		// Rule 14
 		assert node.getNumberOfChildren() == 1;
@@ -431,7 +442,7 @@ public class SemanticRules {
 							VarType.BOOLEAN, type));
 		}
 	}
-	
+
 	static public void apply(OpBoolBool2BoolNode node, Scope scope) {
 		// Rule 14
 		assert node.getNumberOfChildren() == 2;
@@ -456,7 +467,7 @@ public class SemanticRules {
 							 node.getText(), rightType));
 		}
 	}
-	
+
 	static public void apply(OpInt2IntNode node, Scope scope) {
 		assert node.getNumberOfChildren() == 1;
 		assert node.getFirstChild() instanceof ExpressionNode;
@@ -471,7 +482,7 @@ public class SemanticRules {
 							VarType.INT, type));
 		}
 	}
-	
+
 	static public void apply(OpIntInt2BoolNode node, Scope scope) {
 		// Rule 12
 		assert node.getNumberOfChildren() == 2;
@@ -496,7 +507,7 @@ public class SemanticRules {
 							 node.getText(), rightType));
 		}
 	}
-	
+
 	static public void apply(ASSIGNNode node, Scope scope) {
 		// Rule 15
 		assert node.getFirstChild() instanceof IDNode;
@@ -511,10 +522,10 @@ public class SemanticRules {
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && rightType != VarType.UNDECLARED
 				&& leftType != rightType) {
-			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
-					.format(ASSIGN_EXPRESSION_WRONG_TYPE,
-							rightType, leftType,
-							idNode.getRepresentation()));
+			ErrorCenter
+					.reportError(val.getLine(), val.getColumn(), String
+							.format(ASSIGN_EXPRESSION_WRONG_TYPE, rightType, leftType, idNode
+									.getRepresentation()));
 		}
 	}
 
@@ -531,9 +542,10 @@ public class SemanticRules {
 
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
-			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
-					String.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1,
-							idNode.getRepresentation(), leftType));
+			ErrorCenter
+					.reportError(idNode.getLine(), idNode.getColumn(), String
+							.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1, idNode
+									.getRepresentation(), leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
 			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
@@ -547,11 +559,11 @@ public class SemanticRules {
 
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
 		assert node.getFirstChild() instanceof ExpressionNode;
-		
-		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+
+		ExpressionNode expr = (ExpressionNode) node.getFirstChild();
 		VarType returnType = expr.getReturnType(scope);
-		
-		if(returnType != VarType.UNDECLARED && returnType != VarType.INT) {
+
+		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
 			ErrorCenter.reportError(expr.getLine(), expr.getColumn(), String
 					.format(FOR_LOOP_TERMINATE_INT, returnType));
 		}
@@ -562,48 +574,49 @@ public class SemanticRules {
 
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
 		assert node.getFirstChild() instanceof ASSIGNNode;
-		
+
 		assert node.getFirstChild().getNumberOfChildren() == 2;
 		assert node.getFirstChild().getFirstChild() instanceof IDNode;
 		assert node.getFirstChild().getFirstChild().getNextSibling() instanceof ExpressionNode;
-		
-		ASSIGNNode assignNode = (ASSIGNNode)node.getFirstChild();
+
+		ASSIGNNode assignNode = (ASSIGNNode) node.getFirstChild();
 		IDNode idNode = (IDNode) assignNode.getFirstChild();
-		ExpressionNode expr = (ExpressionNode)idNode.getNextSibling();
+		ExpressionNode expr = (ExpressionNode) idNode.getNextSibling();
 		VarType returnType = expr.getReturnType(scope);
-		if(returnType != VarType.UNDECLARED && returnType != VarType.INT) {
-			ErrorCenter.reportError(assignNode.getLine(), assignNode.getColumn(), 
-					String.format(FOR_LOOP_INIT_INT, returnType));
+		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
+			ErrorCenter.reportError(assignNode.getLine(), assignNode
+					.getColumn(), String.format(FOR_LOOP_INIT_INT, returnType));
 		}
 	}
+
 	// TODO: Raise IF_CLAUSENode and WHILE_TERMINATENode ?
-	
+
 	static public void apply(IF_CLAUSENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
 		assert node.getFirstChild() instanceof ExpressionNode;
-		
-		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+
+		ExpressionNode expr = (ExpressionNode) node.getFirstChild();
 		VarType returnType = expr.getReturnType(scope);
-		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN){
+		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
 					.format(IF_EXPR_BOOL_ERROR, returnType));
 		}
 	}
-	
+
 	static public void apply(WHILE_TERMINATENode node, Scope scope) {
 		// Rule 11
 		assert node.getNumberOfChildren() == 1;
 		assert node.getFirstChild() instanceof ExpressionNode;
-		
-		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+
+		ExpressionNode expr = (ExpressionNode) node.getFirstChild();
 		VarType returnType = expr.getReturnType(scope);
-		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN){
+		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String
 					.format(WHILE_EXPR_BOOL_ERROR, returnType));
 		}
 	}
-	
+
 }

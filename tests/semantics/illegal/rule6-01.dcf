@@ -2,10 +2,10 @@ class Program {
     int a;
     boolean b;
 
-    int foo() {    //error
+    int foo() {    //error 1
     }   
   
-    boolean bar() {    //error
+    boolean bar() {    //error 2
     }   
 
     int far(){  // OK
@@ -21,7 +21,7 @@ class Program {
     
  
     
-    int fem(){  // error
+    int fem(){  // error 3
         boolean a;
     
         if (a == false) {
@@ -29,12 +29,19 @@ class Program {
         } 
     }
     
-    int baz(){  // error? no? Whatever.
+    int baz(){  // error 4
         boolean a;
         
         if (true) {
             return 1;
         }     
+    }
+
+    int jooo() { // error 5 LAST
+      for (a = 3; 5) {
+        break;
+        return 5;
+      }
     }
 
 
