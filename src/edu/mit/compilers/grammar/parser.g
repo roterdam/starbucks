@@ -86,12 +86,14 @@ field_decl!
     {
         DecafNode id1_array = #id1.getNextSibling();
         #id1.setNextSibling(null);
-        DecafNode field = #([FIELD_DECL, "field decl"], #(t, id1_array), id1); 
+        DecafNode field = #([FIELD_DECL, "field_decl"], #(t, id1_array), id1); 
         DecafNode next = field;  
     } 
     (COMMA! id2:field_decl_id 
     {
-        next.setNextSibling(#([FIELD_DECL, "field decl"], #t, id2)); 
+				DecafNode id2_array = #id2.getNextSibling();
+				#id2.setNextSibling(null);
+        next.setNextSibling(#([FIELD_DECL, "field_decl"], #(astFactory.create(t), id2_array), id2)); 
         next = next.getNextSibling(); 
     }
     )* SEMICOLON!

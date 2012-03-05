@@ -234,7 +234,7 @@ public class SemanticRules {
 	}
 
 	static public void apply(METHOD_CALLNode node, Scope scope) {
-		// Rule 2b
+		// Rule 2b.
 		assert node.getNumberOfChildren() > 0;
 		assert node.getChild(0) instanceof METHOD_IDNode;
 
@@ -247,6 +247,7 @@ public class SemanticRules {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
 		}
+	
 	}
 	
 	static public void apply(OpIntInt2IntNode node, Scope scope) {
