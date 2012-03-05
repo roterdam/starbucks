@@ -13,11 +13,9 @@ public class IFNode extends DecafNode {
 		assert getChild(0) instanceof IF_CLAUSENode;
 		assert getChild(1) instanceof BLOCKNode;
 		getChild(0).validate(scope);
-		getChild(1).validate(scope);
 		((BLOCKNode) getChild(1)).validate(scope, BlockType.IF);
 		if (getNumberOfChildren() == 3) {
 			getChild(2).validate(scope);
 		}
 	}
-	
 }

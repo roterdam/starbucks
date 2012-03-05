@@ -194,7 +194,7 @@ public class SemanticRules {
 	static public void apply(IDNode node, Scope scope) {
 		// Rule 2
 		String id = node.getText();
-		if (!scope.hasVar(node.getText())) {
+		if (node.getReturnType(scope) == VarType.UNDECLARED) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(ID_BEFORE_DECLARATION, id));
 		}
