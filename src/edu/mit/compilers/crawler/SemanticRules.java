@@ -295,10 +295,8 @@ public class SemanticRules {
 	static public void apply(FOR_INITIALIZENode node, Scope scope) {
 		// Rule 17
 			
-		System.out.println("AHA");
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
 		assert node.getFirstChild().getNumberOfChildren() == 2;
-		//assert node.getFirstChild() instanceof ASSIGNNode;
 		
 		
 		if (!(node.getFirstChild() instanceof ASSIGNNode) 
