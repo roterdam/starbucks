@@ -43,7 +43,9 @@ public class SemanticRules {
 			+ VarType.INT.name() + ">, found <%2$s>.";
 	static String FOR_LOOP_TERMINATE_INT_ERROR = "For loop termination condition must be an int.";
 	static String FOR_LOOP_INIT_INT_ERROR = "For loop initial condition must be an int.";
-
+	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
+	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
+	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
 			apply((METHOD_DECLNode) node, scope);
@@ -320,7 +322,26 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 2;
 		assert node.getChild(0) instanceof ExpressionNode;
 		assert node.getChild(1) instanceof ExpressionNode;
-
+		
+		ExpressionNode first = (ExpressionNode) node.getFirstChild();
+		ExpressionNode second = (ExpressionNode) first.getNextSibling();
+		VarType firstType = first.getReturnType(scope);
+		VarType secondType = second.getReturnType(scope);
+		
+		// Could get away only checking first type but doing both in order to
+		// identify the second token as error causing
+		// Probably ugly to call report error multiple times, store in temp variable
+		// and call at the end if exists
+		if (firstType != VarType.INT && firstType != VarType.BOOLEAN) {
+			ErrorCenter.reportError(first.getLine(), first.getColumn(), String
+					.format(OP_SAME_SAME_BAD_TYPE, firstType));
+		} else if (secondType != VarType.INT && secondType != VarType.BOOLEAN) {
+			ErrorCenter.reportError(second.getLine(), second.getColumn(), String
+					.format(OP_SAME_SAME_BAD_TYPE, secondType));
+		} else if (firstType != secondType) {
+			ErrorCenter.reportError(second.getLine(), second.getColumn(), String
+					.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
+		}
 	}
 
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
