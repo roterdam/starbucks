@@ -49,6 +49,17 @@ abstract public class DecafNode extends CommonAST {
 		}
 		return currentNode;
 	}
+	
+	public DecafNode[] getAllChildren() {
+		int numChildren = this.getNumberOfChildren();
+		DecafNode[] children = new DecafNode[numChildren];
+		DecafNode child = this.getFirstChild();
+		for (int i = 0; i < numChildren; i++) {
+			children[i] = child;
+			child.getNextSibling();
+		}
+		return children;
+	}
 
 	public void validate(Scope scope) {
 		SemanticRules.apply(this, scope);
