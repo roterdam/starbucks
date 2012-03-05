@@ -26,6 +26,7 @@ public class SemanticRules {
 	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
 	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
 	static String FOR_LOOP_TERMINATE_INT_ERROR = "For loop termination condition must be an int.";
+	static String FOR_LOOP_INIT_INT_ERROR = "For loop initial condition must be an int.";
 	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
@@ -61,6 +62,11 @@ public class SemanticRules {
 		
 		if (node instanceof FOR_TERMINATENode) {
 			apply((FOR_TERMINATENode) node, scope);
+			return;
+		}
+		
+		if (node instanceof FOR_INITIALIZENode) {
+			apply((FOR_INITIALIZENode) node, scope);
 			return;
 		}
 
@@ -227,12 +233,28 @@ public class SemanticRules {
 		
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
 		
-		//TODO: Line number.
 		if (!(node.getFirstChild() instanceof ExpressionNode) || ((ExpressionNode)node.getFirstChild()).getReturnType(scope) != VarType.INT){
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+			ErrorCenter.reportError(node.getFirstChild().getLine(), node.getFirstChild().getColumn(), String
 					.format(FOR_LOOP_TERMINATE_INT_ERROR));
 		}
+	}
+	
+	static public void apply(FOR_INITIALIZENode node, Scope scope) {
+		// Rule 17
+			
+		System.out.println("AHA");
+		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
+		assert node.getFirstChild().getNumberOfChildren() == 2;
+		//assert node.getFirstChild() instanceof ASSIGNNode;
 		
+		
+		if (!(node.getFirstChild() instanceof ASSIGNNode) 
+				|| !(node.getFirstChild().getChild(1) instanceof ExpressionNode) 
+				|| ((ExpressionNode)node.getFirstChild().getChild(1)).getReturnType(scope) != VarType.INT
+				){
+			ErrorCenter.reportError(node.getFirstChild().getLine(), node.getFirstChild().getColumn(), String
+					.format(FOR_LOOP_INIT_INT_ERROR));
+		}
 	}
 	
 }
