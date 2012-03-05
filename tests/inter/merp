@@ -1,9 +1,6 @@
 class Program {
-  int c[-55];
-  void main() {
-    int a,b;
-    a = c[5];
-  }
+  int a[5], b[2];
+
   void main(int a) {
   }
 }

@@ -237,7 +237,7 @@ public class SemanticRules {
 	}
 
 	static public void apply(METHOD_CALLNode node, Scope scope) {
-		// Rule 2b
+		// Rule 2b.
 		assert node.getNumberOfChildren() > 0;
 		assert node.getChild(0) instanceof METHOD_IDNode;
 		
@@ -291,18 +291,11 @@ public class SemanticRules {
 		assert node.getChild(0) instanceof ExpressionNode;
 		assert node.getChild(1) instanceof ExpressionNode;
 		
-		ExpressionNode[] children = new ExpressionNode[] {(ExpressionNode) node.getChild(0), 
-				(ExpressionNode) node.getChild(1)};
-		
-		for (ExpressionNode child : children) {
-			VarType type = null;
-			if (child instanceof IDNode) {
-				type = ((IDNode) child).getReturnType(scope);
-			} else if (child instanceof METHOD_CALLNode) {
-				type = ((METHOD_CALLNode) child).getReturnType(scope);
-			} else if (child instanceof INT_LITERALNode) {
-				type = ((INT_LITERALNode) child).getReturnType(scope);
-			}
+		DecafNode[] children = node.getAllChildren();
+		ExpressionNode child;
+		for (int i = 0; i < children.length; i++) {
+			child = (ExpressionNode) children[i];
+			VarType type = child.getReturnType(scope);
 			if (type != VarType.INT) {
 				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
 						.format(INT_OPERAND_ERROR, child.getReturnType(scope)));
@@ -313,6 +306,9 @@ public class SemanticRules {
 	static public void apply(OpSameSame2BoolNode node, Scope scope) {
 		// Rule 13
 		assert node.getNumberOfChildren() == 2;
+		assert node.getChild(0) instanceof ExpressionNode;
+		assert node.getChild(1) instanceof ExpressionNode;
+		
 		
 		
 	}
@@ -331,8 +327,10 @@ public class SemanticRules {
 	static public void apply(FOR_INITIALIZENode node, Scope scope) {
 		// Rule 17
 			
+		System.out.println("AHA");
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
 		assert node.getFirstChild().getNumberOfChildren() == 2;
+		//assert node.getFirstChild() instanceof ASSIGNNode;
 		
 		
 		if (!(node.getFirstChild() instanceof ASSIGNNode) 

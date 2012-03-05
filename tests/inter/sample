@@ -1,11 +1,11 @@
 class Program {
   int a;
   int c[4];
-  int a, b;
+  int a1, b1;
   boolean aa, bb, cc;
   boolean s;
 
-  void nope() {
+  void nope(int a, int b) {
     int c;
   }
   int aloha(int a, int b){
