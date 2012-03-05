@@ -1,0 +1,32 @@
+class Program {
+    int c[4];
+    boolean d[6];
+
+
+    int foo(int a) {
+        return 1;
+    }   
+  
+    boolean bar(boolean b, int c, int d, boolean e) {
+        return false;
+    }   
+    
+    void baz(){
+    }
+
+  void main() {
+    int out;
+    boolean outb;
+    out = foo(c[1]);    //okay
+    outb = bar(d[0], 1, out, false); //okay
+    
+    out = foo(1, false);             //error 1
+    out = foo(baz());                //error 2
+
+
+    outb = bar(true);               //error 3
+    outb = bar(true, c, 2, outb);   //error 4
+    
+
+  }                                
+}

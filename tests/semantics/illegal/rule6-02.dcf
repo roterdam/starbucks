@@ -18,8 +18,16 @@ class Program {
         }
     }
     
+      int far(){  // OK
+        boolean a;
     
- 
+        if (a) {
+            return 1;
+        } else {
+            return false; //error, but not this rule
+        }
+    }
+    
     
     int fem(){  // error
         boolean a;
