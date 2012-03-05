@@ -205,7 +205,7 @@ public class SemanticRules {
 		// If there's a child, it must be array access, i.e. a[5]
 		if ((indexNode = node.getFirstChild()) != null) {
 			// Check that the IDNode is an array.
-			if (!(scope.getType(id) == VarType.INT_ARRAY)) {
+			if (scope.getType(id) != VarType.INT_ARRAY || scope.getType(id) != VarType.BOOLEAN_ARRAY) {
 				ErrorCenter
 						.reportError(node.getLine(), node.getColumn(), String
 								.format(INVALID_ARRAY_ACCESS, id, scope
@@ -448,22 +448,26 @@ public class SemanticRules {
 	static public void apply(OpIntInt2BoolNode node, Scope scope) {
 		// Rule 12
 		assert node.getNumberOfChildren() == 2;
-		assert node.getChild(0) instanceof ExpressionNode;
-		assert node.getChild(1) instanceof ExpressionNode;
+		assert node.getFirstChild() instanceof ExpressionNode;
+		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
 
-		ExpressionNode child = (ExpressionNode) node.getFirstChild();
-		ExpressionNode[] children = new ExpressionNode[] { child,
-				(ExpressionNode) child.getNextSibling() };
-
-		for (int i = 0; i < children.length; i++) {
-			child = children[i];
-			VarType type = child.getReturnType(scope);
-			if (type != VarType.INT) {
-				ErrorCenter
-						.reportError(child.getLine(), child.getColumn(), String.format(INT_OPERAND_ERROR, node
-								.getText(), child.getReturnType(scope)));
-			}
-		}		
+		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
+		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
+		
+		VarType leftType = operand1.getReturnType(scope);
+		VarType rightType = operand2.getReturnType(scope);
+		
+		// Silently fail if variable is undeclared
+		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
+			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
+					String.format(INT_OPERAND_ERROR,
+							node.getText(), leftType));
+		}
+		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
+			ErrorCenter.reportError(operand2.getLine(), operand2.getColumn(), 
+					String.format(INT_OPERAND_ERROR, 
+							 node.getText(), rightType));
+		}
 	}
 	
 	static public void apply(ASSIGNNode node, Scope scope) {
