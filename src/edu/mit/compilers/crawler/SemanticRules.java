@@ -45,6 +45,7 @@ public class SemanticRules {
 	static String FOR_LOOP_INIT_INT_ERROR = "For loop initial condition must be an int.";
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
+	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
 	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
@@ -97,7 +98,10 @@ public class SemanticRules {
 			apply((FOR_INITIALIZENode) node, scope);
 			return;
 		}
-
+		if (node instanceof ASSIGNNode){
+			apply((ASSIGNNode) node, scope);
+			return;
+		}
 		// TODO: enable this when all rules are done.
 		// assert false :
 		// "apply on DecafNode should not be called, only its children.";
@@ -343,7 +347,21 @@ public class SemanticRules {
 					.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
 		}
 	}
-
+	static public void apply(ASSIGNNode node, Scope scope){
+		// Rule 15
+		assert node.getFirstChild() instanceof IDNode;
+		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
+		
+		IDNode idNode = (IDNode)node.getFirstChild();
+		ExpressionNode val = (ExpressionNode)idNode.getNextSibling();
+		String varName = idNode.getText();
+		
+		// Silenty fail if variable is undeclared
+		if(scope.hasVar(varName) && scope.getType(varName) != val.getReturnType(scope)){
+				ErrorCenter.reportError(val.getLine(), val.getColumn(), String
+						.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val.getReturnType(scope), scope.getType(varName), varName));
+		}
+	}
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
 		// Rule 17
 

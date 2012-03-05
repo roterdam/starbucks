@@ -25,6 +25,7 @@ class Program {
     a = fuckyou - 2;
     a = -1;
     a = -a;
+    a = true;
     aloha(a, true);
     freaky = false;
     c[5] = 0x45AEE;
