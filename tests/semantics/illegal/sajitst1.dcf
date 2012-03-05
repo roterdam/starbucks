@@ -1,0 +1,29 @@
+class Program {
+
+  boolean q(boolean a) {
+    return a;
+  } 
+
+
+  void main() {
+    int x;
+    int y;
+    boolean z;
+    z = true;
+    x = 5;
+    y = 3;
+    q(z == true);
+    q(z == false);
+    q(z != true);
+    q(z != false);
+    q(z != 5);
+    q(x == z);
+    q(x == y);
+    q(x != z);
+    q(x == z);
+    q(y == 5);
+    q(y == 5 + 5);
+    q(y == 1 + 2);
+  }								
+
+}
