@@ -11,7 +11,9 @@ class Program {
        for ( b = true; a[3]){ //should be an int in init error 2 of 4
            break;       
        }
-       
+       for ( c = 4; 3 && true){ // 3 should be a bool. && gives us a boolean, not an int.
+           break;
+       }       
        for ( c = a; 10){  //should be an int in init error 3 of 4
            break;
        }

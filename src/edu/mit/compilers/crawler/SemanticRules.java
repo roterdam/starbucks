@@ -48,8 +48,8 @@ public class SemanticRules {
 	static String ARRAY_INDEX_NEGATIVE = "Size of array `%1$s` cannot be negative.";
 	static String INT_OPERAND_ERROR = "Incorrect use of `%1$s` operator. Expecting <"
 			+ VarType.INT.name() + ">, found <%2$s>.";
-	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an int.";
-	static String FOR_LOOP_INIT_INT = "For loop initial condition must be ["+VarType.INT.name()+"], found %1$s.";
+	static String FOR_LOOP_TERMINATE_INT = "For loop termination condition must be an ["+VarType.INT.name()+"], found [%1$s].";
+	static String FOR_LOOP_INIT_INT = "For loop initial condition must be ["+VarType.INT.name()+"], found [%1$s].";
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE = "Cannot assign %1$s value to %2$s `%3$s`.";
@@ -515,12 +515,14 @@ public class SemanticRules {
 		// Rule 17
 
 		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
-
-		if (!(node.getFirstChild() instanceof ExpressionNode)
-				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.INT) {
-			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String
-					.format(FOR_LOOP_TERMINATE_INT));
+		assert node.getFirstChild() instanceof ExpressionNode;
+		
+		ExpressionNode expr = (ExpressionNode)node.getFirstChild();
+		VarType returnType = expr.getReturnType(scope);
+		
+		if(returnType != VarType.UNDECLARED && returnType != VarType.INT) {
+			ErrorCenter.reportError(expr.getLine(), expr.getColumn(), String
+					.format(FOR_LOOP_TERMINATE_INT, returnType));
 		}
 	}
 
@@ -536,7 +538,7 @@ public class SemanticRules {
 		
 		ASSIGNNode assignNode = (ASSIGNNode)node.getFirstChild();
 		IDNode idNode = (IDNode) assignNode.getFirstChild();
-		ExpressionNode expr = (ExpressionNode)idNode.getFirstChild();
+		ExpressionNode expr = (ExpressionNode)idNode.getNextSibling();
 		VarType returnType = expr.getReturnType(scope);
 		if(returnType != VarType.UNDECLARED && returnType != VarType.INT) {
 			ErrorCenter.reportError(assignNode.getLine(), assignNode.getColumn(), 
