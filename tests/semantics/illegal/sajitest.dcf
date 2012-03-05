@@ -1,0 +1,13 @@
+class Program {
+  void main() {
+    int x;
+    int y;
+    boolean z;
+    x = 5 + 5;
+    x = 5 + x;
+    x = x + 5;
+    y = x + 3;
+    y = x + y;
+    y = x + z; 
+  }								
+}

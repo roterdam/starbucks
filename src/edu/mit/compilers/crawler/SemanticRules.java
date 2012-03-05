@@ -8,6 +8,7 @@ import edu.mit.compilers.grammar.BranchNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
@@ -31,6 +32,7 @@ public class SemanticRules {
 	static String METHOD_BEFORE_DECLARATION_ERROR = "Cannot call method `%1$s` before declaration.";
 	static String INVALID_ARRAY_ACCESS_ERROR = "Cannot access `%1$s` as an array: `%1$s` has type %2$s.";
 	static String ARRAY_INDEX_NEGATIVE_ERROR = "Size of array `%1$s` cannot be negative.";
+	static String INT_OPERAND_ERROR = "Arithmetic or comparison operator cannot be applied to type `%1$s`";
 
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
@@ -61,6 +63,11 @@ public class SemanticRules {
 
 		if (node instanceof RETURNNode) {
 			apply((RETURNNode) node, scope);
+			return;
+		}
+		
+		if (node instanceof OpIntInt2IntNode) {
+			apply((OpIntInt2IntNode) node, scope);
 			return;
 		}
 
@@ -218,6 +225,27 @@ public class SemanticRules {
 		} else {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
 					.format(METHOD_BEFORE_DECLARATION_ERROR, methodName));
+		}
+	}
+	
+	static public void apply(OpIntInt2IntNode node, Scope scope) {
+		// Rule 12
+		assert node.getNumberOfChildren() == 2;
+		
+		DecafNode child = node.getFirstChild();
+		// TODO: Condense this
+		while (child != null) {
+			if (child instanceof IDNode) {
+				VarType type = ((IDNode) child).getReturnType(scope);
+				if (type != VarType.INT) {
+					ErrorCenter.reportError(child.getLine(), child.getColumn(),
+							String.format(INT_OPERAND_ERROR, type.toString()));
+				}
+			} else if (!(child instanceof INT_LITERALNode)) {
+				ErrorCenter.reportError(child.getLine(), child.getColumn(), String
+						.format(INT_OPERAND_ERROR, child.getClass().toString()));
+			}
+			child = child.getNextSibling();
 		}
 	}
 }
