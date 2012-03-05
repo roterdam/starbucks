@@ -53,21 +53,29 @@ public class SemanticRules {
 			+ VarType.INT.name() + "], found [%1$s].";
 	static String FOR_LOOP_INIT_INT = "For loop initial condition must be ["
 			+ VarType.INT.name() + "], found [%1$s].";
-	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
-	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
+	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting ["
+			+ VarType.INT + "] or [" + VarType.BOOLEAN + "], found `%1$s`.";
+	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting ["
+			+ VarType.INT
+			+ ","
+			+ VarType.INT
+			+ "] or ["
+			+ VarType.BOOLEAN
+			+ "," + VarType.BOOLEAN + "]. Found `%1$s` `%2$s`.";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE = "Cannot assign %1$s value to %2$s `%3$s`.";
 	static String MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1 = "Cannot increment/decrement `%1$s`. Expecting ["
 			+ VarType.INT.name() + "], found [%2$s].";
 	static String MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE2 = "Cannot increment/decrement. Expecting ["
 			+ VarType.INT.name() + "], found [%1$s].";
 	static String OP_EQ_COND_BAD_TYPE_ERROR = "Incorrect use of conditional or logical not operator. Expecting `%1$s` found `%2$s`.";
-	static String IF_EXPR_BOOL_ERROR = "The if loop requires a boolean";
+	static String IF_EXPR_BOOL_ERROR = "The if loop requires ["
+			+ VarType.BOOLEAN + "].";
 	static String WHILE_EXPR_BOOL_ERROR = "Ill-formed while loop. Expecting ["
-			+ VarType.BOOLEAN.name() + "], found [%1$s]";
+			+ VarType.BOOLEAN.name() + "], found [%1$s].";
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
-	static String OP_UNARY_MINUS_TYPE_ERROR = "Urnary minus operator type error. Expecting `%1$s` found `%2$s`";
+	static String OP_UNARY_MINUS_TYPE_ERROR = "Unary minus operator type error. Expecting `%1$s` found `%2$s`.";
 	static String DOES_NOT_RETURN = "Method `%1$s` may not return a value.";
-	
+
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof INT_LITERALNode) {
 			apply((INT_LITERALNode) node, scope);
@@ -158,8 +166,8 @@ public class SemanticRules {
 	static public void apply(INT_LITERALNode node, Scope scope) {
 
 		if (!node.isWithinBounds()) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(INTEGER_OUT_OF_BOUNDS, node.getText()));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(INTEGER_OUT_OF_BOUNDS, node.getText()));
 		}
 
 	}
@@ -174,12 +182,11 @@ public class SemanticRules {
 		// FIELD_DECLs are not allowed to shadow methods, other DECLs are.
 		if ((node instanceof FIELD_DECLNode && scope.hasSymbol(id))
 				|| (scope.hasLocalVar(id))) {
-			ErrorCenter
-					.reportError(idNode.getLine(), idNode.getColumn(), String
-							.format(REDECLARE_IDENTIFIER, id));
+			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
+					String.format(REDECLARE_IDENTIFIER, id));
 		} else {
-			scope.addVar(id, new VarDecl(t, id, idNode.getLine(), idNode
-					.getColumn()));
+			scope.addVar(id,
+					new VarDecl(t, id, idNode.getLine(), idNode.getColumn()));
 		}
 
 		// Rule 4
@@ -189,9 +196,8 @@ public class SemanticRules {
 			INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
 					.getFirstChild();
 			if (!intNode.isPositive()) {
-				ErrorCenter
-						.reportError(intNode.getLine(), intNode.getColumn(), String
-								.format(ARRAY_INDEX_NEGATIVE, id));
+				ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
+						String.format(ARRAY_INDEX_NEGATIVE, id));
 			}
 		}
 
@@ -201,8 +207,8 @@ public class SemanticRules {
 		// Rule 2
 		String id = node.getText();
 		if (node.getReturnType(scope) == VarType.UNDECLARED) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(ID_BEFORE_DECLARATION, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(ID_BEFORE_DECLARATION, id));
 		}
 
 		// Rule 10
@@ -211,11 +217,13 @@ public class SemanticRules {
 		// If there's a child, it must be array access, i.e. a[5]
 		if ((indexNode = node.getFirstChild()) != null) {
 			// Check that the IDNode is an array.
-			if (scope.getType(id) != VarType.INT_ARRAY && scope.getType(id) != VarType.BOOLEAN_ARRAY) {
-				ErrorCenter
-						.reportError(node.getLine(), node.getColumn(), String
-								.format(INVALID_ARRAY_ACCESS, id, scope
-										.getType(id)));
+			if (scope.getType(id) != VarType.INT_ARRAY
+					&& scope.getType(id) != VarType.BOOLEAN_ARRAY) {
+				ErrorCenter.reportError(
+						node.getLine(),
+						node.getColumn(),
+						String.format(INVALID_ARRAY_ACCESS, id,
+								scope.getType(id)));
 				return;
 			}
 			// Check that the index is an INT.
@@ -223,9 +231,9 @@ public class SemanticRules {
 			VarType indexType = ((ExpressionNode) indexNode)
 					.getReturnType(scope);
 			if (indexType != VarType.INT) {
-				ErrorCenter.reportError(indexNode.getLine(), indexNode
-						.getColumn(), String.format(ARRAY_INDEX_TYPE, indexType
-						.name()));
+				ErrorCenter.reportError(indexNode.getLine(),
+						indexNode.getColumn(),
+						String.format(ARRAY_INDEX_TYPE, indexType.name()));
 			}
 		}
 	}
@@ -242,8 +250,8 @@ public class SemanticRules {
 			}
 		}
 		if (currentScope == null) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(UNALLOWED_JUMP, node.getText()));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(UNALLOWED_JUMP, node.getText()));
 		}
 	}
 
@@ -253,11 +261,13 @@ public class SemanticRules {
 		List<VarType> params = node.getParams();
 		// Don't allow shadowing existing methods or fields.
 		if (scope.hasSymbol(id)) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(REDECLARE_METHOD, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(REDECLARE_METHOD, id));
 		} else {
-			scope.getMethods().put(id, new MethodDecl(returnType, id, params,
-					node.getLine(), node.getColumn()));
+			scope.getMethods().put(
+					id,
+					new MethodDecl(returnType, id, params, node.getLine(), node
+							.getColumn()));
 		}
 
 		if (returnType == VarType.VOID) {
@@ -266,24 +276,26 @@ public class SemanticRules {
 		// Check for valid return statement.
 		ValidReturnChecker returnChecker = new ValidReturnChecker(returnType);
 		if (!node.hasValidReturn(returnChecker)) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(DOES_NOT_RETURN, id));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(DOES_NOT_RETURN, id));
 		}
 	}
 
 	static public void apply(RETURNNode node, Scope scope) {
 		if (node.getReturnType(scope) != scope.getReturnType()) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(RETURN_TYPE, scope.getReturnType(), node
-							.getReturnType(scope)));
+			ErrorCenter.reportError(
+					node.getLine(),
+					node.getColumn(),
+					String.format(RETURN_TYPE, scope.getReturnType(),
+							node.getReturnType(scope)));
 		}
 	}
 
 	static public void apply(CLASSNode node, Scope scope) {
 		DecafNode child = node.getFirstChild();
 		if (!child.getText().equals("Program")) {
-			ErrorCenter.reportError(child.getLine(), child.getColumn(), String
-					.format(INVALID_CLASS_NAME, child.getText()));
+			ErrorCenter.reportError(child.getLine(), child.getColumn(),
+					String.format(INVALID_CLASS_NAME, child.getText()));
 		}
 	}
 
@@ -303,10 +315,11 @@ public class SemanticRules {
 					}
 				}
 				paramsStringBuilder.append(">");
-				ErrorCenter
-						.reportError(mainDecl.getLine(), mainDecl.getColumn(), String
-								.format(INCORRECT_MAIN, paramsStringBuilder
-										.toString()));
+				ErrorCenter.reportError(
+						mainDecl.getLine(),
+						mainDecl.getColumn(),
+						String.format(INCORRECT_MAIN,
+								paramsStringBuilder.toString()));
 			}
 		}
 	}
@@ -340,15 +353,13 @@ public class SemanticRules {
 			List<VarType> params = method.getParams();
 
 			if (reportErrorForParams(params, args)) {
-				ErrorCenter
-						.reportError(methodIDNode.getLine(), methodIDNode
-								.getColumn(), String
-								.format(METHOD_ARGS, methodName, args
-										.toString(), params.toString()));
+				ErrorCenter.reportError(methodIDNode.getLine(), methodIDNode
+						.getColumn(), String.format(METHOD_ARGS, methodName,
+						args.toString(), params.toString()));
 			}
 		} else {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
-					.format(METHOD_BEFORE_DECLARATION, methodName));
+			ErrorCenter.reportError(node.getLine(), node.getColumn(),
+					String.format(METHOD_BEFORE_DECLARATION, methodName));
 		}
 	}
 
@@ -378,20 +389,20 @@ public class SemanticRules {
 
 		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
 		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
-		
+
 		VarType leftType = operand1.getReturnType(scope);
 		VarType rightType = operand2.getReturnType(scope);
-		
+
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
 			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
-					String.format(INT_OPERAND_ERROR,
-							node.getText(), leftType));
+					String.format(INT_OPERAND_ERROR, node.getText(), leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
-			ErrorCenter.reportError(operand2.getLine(), operand2.getColumn(), 
-					String.format(INT_OPERAND_ERROR, 
-							 node.getText(), rightType));
+			ErrorCenter
+					.reportError(operand2.getLine(), operand2.getColumn(),
+							String.format(INT_OPERAND_ERROR, node.getText(),
+									rightType));
 		}
 	}
 
@@ -411,18 +422,18 @@ public class SemanticRules {
 		// Probably ugly to call report error multiple times, store in temp
 		// variable and call at the end if exists.
 
-		if(firstType != VarType.UNDECLARED && secondType != VarType.UNDECLARED){
+		if (firstType != VarType.UNDECLARED && secondType != VarType.UNDECLARED) {
 			if (firstType != VarType.INT && firstType != VarType.BOOLEAN) {
 				ErrorCenter.reportError(first.getLine(), first.getColumn(),
 						String.format(OP_SAME_SAME_BAD_TYPE, firstType));
-			} else if (secondType != VarType.INT && secondType != VarType.BOOLEAN) {
-				ErrorCenter
-						.reportError(second.getLine(), second.getColumn(), String
-								.format(OP_SAME_SAME_BAD_TYPE, secondType));
+			} else if (secondType != VarType.INT
+					&& secondType != VarType.BOOLEAN) {
+				ErrorCenter.reportError(second.getLine(), second.getColumn(),
+						String.format(OP_SAME_SAME_BAD_TYPE, secondType));
 			} else if (firstType != secondType) {
-				ErrorCenter
-						.reportError(second.getLine(), second.getColumn(), String
-								.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
+				ErrorCenter.reportError(second.getLine(), second.getColumn(),
+						String.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType,
+								secondType));
 			}
 		}
 	}
@@ -434,12 +445,12 @@ public class SemanticRules {
 
 		ExpressionNode operand = (ExpressionNode) node.getFirstChild();
 		VarType type = operand.getReturnType(scope);
-		
+
 		// Silently fail if variable is undeclared
 		if (type != VarType.UNDECLARED && type != VarType.BOOLEAN) {
 			ErrorCenter.reportError(operand.getLine(), operand.getColumn(),
-					String.format(OP_EQ_COND_BAD_TYPE_ERROR,
-							VarType.BOOLEAN, type));
+					String.format(OP_EQ_COND_BAD_TYPE_ERROR, VarType.BOOLEAN,
+							type));
 		}
 	}
 
@@ -451,20 +462,20 @@ public class SemanticRules {
 
 		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
 		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
-		
+
 		VarType leftType = operand1.getReturnType(scope);
 		VarType rightType = operand2.getReturnType(scope);
-		
+
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
-					String.format(OP_EQ_COND_BAD_TYPE_ERROR,
-							node.getText(), leftType));
+					String.format(OP_EQ_COND_BAD_TYPE_ERROR, node.getText(),
+							leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(operand2.getLine(), operand2.getColumn(), 
-					String.format(OP_EQ_COND_BAD_TYPE_ERROR, 
-							 node.getText(), rightType));
+			ErrorCenter.reportError(operand2.getLine(), operand2.getColumn(),
+					String.format(OP_EQ_COND_BAD_TYPE_ERROR, node.getText(),
+							rightType));
 		}
 	}
 
@@ -474,12 +485,13 @@ public class SemanticRules {
 
 		ExpressionNode operand = (ExpressionNode) node.getFirstChild();
 		VarType type = operand.getReturnType(scope);
-		
+
 		// Silently fail if variable is undeclared
 		if (type != VarType.UNDECLARED && type != VarType.INT) {
-			ErrorCenter.reportError(operand.getLine(), operand.getColumn(),
-					String.format(OP_UNARY_MINUS_TYPE_ERROR,
-							VarType.INT, type));
+			ErrorCenter
+					.reportError(operand.getLine(), operand.getColumn(), String
+							.format(OP_UNARY_MINUS_TYPE_ERROR, VarType.INT,
+									type));
 		}
 	}
 
@@ -491,20 +503,20 @@ public class SemanticRules {
 
 		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
 		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
-		
+
 		VarType leftType = operand1.getReturnType(scope);
 		VarType rightType = operand2.getReturnType(scope);
-		
+
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
 			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
-					String.format(INT_OPERAND_ERROR,
-							node.getText(), leftType));
+					String.format(INT_OPERAND_ERROR, node.getText(), leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
-			ErrorCenter.reportError(operand2.getLine(), operand2.getColumn(), 
-					String.format(INT_OPERAND_ERROR, 
-							 node.getText(), rightType));
+			ErrorCenter
+					.reportError(operand2.getLine(), operand2.getColumn(),
+							String.format(INT_OPERAND_ERROR, node.getText(),
+									rightType));
 		}
 	}
 
@@ -522,10 +534,9 @@ public class SemanticRules {
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && rightType != VarType.UNDECLARED
 				&& leftType != rightType) {
-			ErrorCenter
-					.reportError(val.getLine(), val.getColumn(), String
-							.format(ASSIGN_EXPRESSION_WRONG_TYPE, rightType, leftType, idNode
-									.getRepresentation()));
+			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
+					.format(ASSIGN_EXPRESSION_WRONG_TYPE, rightType, leftType,
+							idNode.getRepresentation()));
 		}
 	}
 
@@ -542,10 +553,11 @@ public class SemanticRules {
 
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
-			ErrorCenter
-					.reportError(idNode.getLine(), idNode.getColumn(), String
-							.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1, idNode
-									.getRepresentation(), leftType));
+			ErrorCenter.reportError(
+					idNode.getLine(),
+					idNode.getColumn(),
+					String.format(MODIFY_ASSIGN_EXPRESSION_WRONG_TYPE1,
+							idNode.getRepresentation(), leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
 			ErrorCenter.reportError(val.getLine(), val.getColumn(), String
@@ -564,8 +576,8 @@ public class SemanticRules {
 		VarType returnType = expr.getReturnType(scope);
 
 		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
-			ErrorCenter.reportError(expr.getLine(), expr.getColumn(), String
-					.format(FOR_LOOP_TERMINATE_INT, returnType));
+			ErrorCenter.reportError(expr.getLine(), expr.getColumn(),
+					String.format(FOR_LOOP_TERMINATE_INT, returnType));
 		}
 	}
 
@@ -584,8 +596,9 @@ public class SemanticRules {
 		ExpressionNode expr = (ExpressionNode) idNode.getNextSibling();
 		VarType returnType = expr.getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
-			ErrorCenter.reportError(assignNode.getLine(), assignNode
-					.getColumn(), String.format(FOR_LOOP_INIT_INT, returnType));
+			ErrorCenter.reportError(assignNode.getLine(),
+					assignNode.getColumn(),
+					String.format(FOR_LOOP_INIT_INT, returnType));
 		}
 	}
 
@@ -600,8 +613,8 @@ public class SemanticRules {
 		VarType returnType = expr.getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String
-					.format(IF_EXPR_BOOL_ERROR, returnType));
+					.getFirstChild().getColumn(), String.format(
+					IF_EXPR_BOOL_ERROR, returnType));
 		}
 	}
 
@@ -614,8 +627,8 @@ public class SemanticRules {
 		VarType returnType = expr.getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String
-					.format(WHILE_EXPR_BOOL_ERROR, returnType));
+					.getFirstChild().getColumn(), String.format(
+					WHILE_EXPR_BOOL_ERROR, returnType));
 		}
 	}
 

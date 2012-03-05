@@ -16,6 +16,8 @@ class Program {
     int b;
     boolean e;
     boolean freaky;
+    aloha(nope(1,2), 3);
+    aloha(dick,fuck);
 
     while(fuck){
        b = 3;
