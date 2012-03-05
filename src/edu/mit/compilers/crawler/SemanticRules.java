@@ -17,11 +17,13 @@ import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
 import edu.mit.compilers.grammar.tokens.FOR_TERMINATENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
+import edu.mit.compilers.grammar.tokens.IF_CLAUSENode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_IDNode;
 import edu.mit.compilers.grammar.tokens.RETURNNode;
+import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
 
 public class SemanticRules {
 
@@ -46,6 +48,8 @@ public class SemanticRules {
 	static String OP_SAME_SAME_BAD_TYPE = "Incorrect use of equality operator. Expecting INT or BOOLEAN, found `%1$s`";
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
+	static String IF_EXPR_BOOL_ERROR = "The if loop requires a boolean";
+	static String WHILE_EXPR_BOOL_ERROR = "The while loop requires a boolean";
 	
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof METHOD_DECLNode) {
@@ -91,6 +95,18 @@ public class SemanticRules {
 			apply((ASSIGNNode) node, scope);
 			return;
 		}
+		
+		if (node instanceof IF_CLAUSENode){
+			apply((IF_CLAUSENode) node, scope);
+			return;
+		}
+		
+		if (node instanceof WHILE_TERMINATENode){
+			apply((WHILE_TERMINATENode) node, scope);
+			return;
+		}
+
+
 		// TODO: enable this when all rules are done.
 		// assert false :
 		// "apply on DecafNode should not be called, only its children.";
@@ -345,7 +361,7 @@ public class SemanticRules {
 		ExpressionNode val = (ExpressionNode)idNode.getNextSibling();
 		String varName = idNode.getText();
 		
-		// Silenty fail if variable is undeclared
+		// Silently fail if variable is undeclared
 		if(scope.hasVar(varName) && scope.getType(varName) != val.getReturnType(scope)){
 				ErrorCenter.reportError(val.getLine(), val.getColumn(), String
 						.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val.getReturnType(scope), scope.getType(varName), varName));
@@ -380,4 +396,29 @@ public class SemanticRules {
 					.format(FOR_LOOP_INIT_INT_ERROR));
 		}
 	}
+	
+	static public void apply(IF_CLAUSENode node, Scope scope) {
+		// Rule 11
+		assert node.getNumberOfChildren() == 1;
+		
+		if (!(node.getFirstChild() instanceof ExpressionNode)
+				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.BOOLEAN){
+			ErrorCenter.reportError(node.getFirstChild().getLine(), node
+					.getFirstChild().getColumn(), String
+					.format(IF_EXPR_BOOL_ERROR));
+		}
+	}
+	
+	static public void apply(WHILE_TERMINATENode node, Scope scope) {
+		// Rule 11
+		assert node.getNumberOfChildren() == 1;
+		
+		if (!(node.getFirstChild() instanceof ExpressionNode)
+				|| ((ExpressionNode) node.getFirstChild()).getReturnType(scope) != VarType.BOOLEAN){
+			ErrorCenter.reportError(node.getFirstChild().getLine(), node
+					.getFirstChild().getColumn(), String
+					.format(WHILE_EXPR_BOOL_ERROR));
+		}
+	}
+	
 }

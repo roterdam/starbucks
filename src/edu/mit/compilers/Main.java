@@ -87,7 +87,7 @@ class Main {
 				if (CLI.target == Action.INTER) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
-
+					
 					if (CLI.visual) {
 						// For debugging.
 						System.out
