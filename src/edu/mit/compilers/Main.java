@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 
 import antlr.Token;
+import antlr.TokenStreamException;
+import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
@@ -71,24 +73,30 @@ class Main {
 						inputStream));
 				DecafParser parser = new DecafParser(scanner);
 				parser.setTrace(CLI.debug);
-				parser.program();
+				try {
+					parser.program();
+				} catch (TokenStreamRecognitionException e) {
+					ErrorCenter.reportError(e.recog.line, e.recog.column, e.recog.getMessage());
+				}
 
 				// Return a non-zero code if an error has occurred. DO NOT
 				// proceed with semantic checking.
-				if (parser.hasError()) {
+				if (ErrorCenter.hasError()) {
 					System.exit(1);
 				}
 
 				if (CLI.target == Action.INTER) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
-					
-					if (CLI.visual){
+
+					if (CLI.visual) {
 						// For debugging.
-						System.out.println("--------------------      String Tree      -----------------------");
+						System.out
+								.println("--------------------      String Tree      -----------------------");
 						AST root = parser.getAST();
 						System.out.println(root.toStringTree());
-						System.out.println("--------------------  Error Checking Done  -----------------------");
+						System.out
+								.println("--------------------  Error Checking Done  -----------------------");
 						ASTFrame frame = new ASTFrame("6.035", root);
 						frame.setVisible(true);
 					} else if (ErrorCenter.hasError()) {

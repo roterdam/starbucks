@@ -13,7 +13,6 @@ public class IDNode extends ExpressionNode {
 	 */
 	@Override
 	public VarType getReturnType(Scope scope) {
-		if(!scope.seesVar(getText())) return VarType.UNDECLARED;
 		
 		VarType returnType = scope.getType(getText());
 		assert getNumberOfChildren() <= 1;

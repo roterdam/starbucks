@@ -53,23 +53,34 @@ public class Scope {
 
 	/**
 	 * Checks for declaration of symbol in both variable and method tables.
-	 * @param v
-	 * @return
 	 */
 	public boolean hasSymbol(String symbol) {
-		return (this.localVars.containsKey(symbol) || getMethods().containsKey(symbol));
+		return (hasVar(symbol) || getMethods().containsKey(symbol));
 	}
 	
-	public boolean hasVar(String v) {
+	/**
+	 * Only checks for var in local scope.
+	 */
+	public boolean hasLocalVar(String v) {
 		return this.localVars.containsKey(v);
 	}
 
-	public boolean seesVar(String v) {
-		return hasVar(v) || parent != null && parent.seesVar(v);
+	/**
+	 * Checks for var in local scope as well as all parent scopes.
+	 */
+	public boolean hasVar(String v) {
+		return hasLocalVar(v) || parent != null && parent.hasVar(v);
+	}
+	
+	/**
+	 * Checks for method, but takes into account shadowing by local vars.
+	 */
+	public boolean hasMethod(String method) {
+		return !hasVar(method) && getMethods().containsKey(method);
 	}
 
 	public VarType getType(String v) {
-		if (hasVar(v)){
+		if (hasLocalVar(v)){
 			return localVars.get(v).getReturnType();
 		} else if (parent != null){
 			return parent.getType(v);

@@ -1,11 +1,15 @@
+//adsfasdfa
+//asdfas
 class Program {
   int a[5], c[2];
+  int d;
 
-  boolean b() {
+  int b(int b, boolean a) {
   }
 
-  void main(int a) {
-    a = 5 + b();
+  void main() {
+    boolean asdf;
+    a = 5 + b('d', 'asd');
   }
 }
 
