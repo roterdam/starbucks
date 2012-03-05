@@ -1,0 +1,29 @@
+class Program {
+  int a;
+  boolean b;
+
+
+  int foo() {
+    
+
+
+  }   
+
+  void main() {
+
+    {
+    //okay
+    b = !false;
+    b = !true && !false;
+    b = !(true && false);
+    
+    b = !a;                     //error 1 of 6
+    b = true && 2;              //error 2 of 6
+    b = false || 0xb;           //error 3 of 6
+    
+    b = !(3+2);                 //error 4 of 6
+    b = true && ('a' || 'b');   //error 5 & 6 of 6
+    }
+    
+  }                                
+}

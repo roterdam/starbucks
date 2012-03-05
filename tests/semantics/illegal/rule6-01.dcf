@@ -1,0 +1,54 @@
+class Program {
+    int a;
+    boolean b;
+
+    int foo() {    //error
+    }   
+  
+    boolean bar() {    //error
+    }   
+
+    int far(){  // OK
+        boolean a;
+    
+        if (a) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+    
+    
+    int fee(){  // OK
+        boolean a;
+    
+        if (a) {
+            return 1;
+        } else {
+            return true;  //error here, but not this rule
+        }
+    }    
+    
+    int far(){  // error
+        boolean a;
+    
+        if (a == false) {
+            return 1;
+        } 
+    }
+    
+    int baz(){  // error? no? Whatever.
+        boolean a;
+        
+        if (true) {
+            return 1;
+        }     
+    }
+
+
+  void main() {  //also okay.
+    int c;
+    c = foo();
+
+  }                                
+}

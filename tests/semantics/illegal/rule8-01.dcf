@@ -2,12 +2,14 @@ class Program {
     
     int faz() {
         boolean b;
-        return b;                       //error 1 of 2
+        return b;                       //error 1 of 4
+        return true;                    //error 2 of 4
     }
     
     boolean baz() {
         int a;
-        return a;                       //error 2 of 2
+        return a;                       //error 3 of 4
+        return 1;                       //error 4 of 4
     }
 
     void main() {

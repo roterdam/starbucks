@@ -1,0 +1,32 @@
+class Program {
+  int a;
+  boolean b;
+
+
+  int foo() {
+    a = 2;
+    a = 'c';
+    a = 19039 + 'c' * 2;
+    a = 0b101;
+    a = 0x2d;
+    a = -23423;
+    
+    
+    a = b;                  //error 1 of 10
+    a = false;             //error 2 of 10
+    a = true;             //error 3 of 10
+    a = 3 && false;             //error 4 & 5 of 10
+    
+
+  }   
+
+  void main() {
+
+        
+    a = b;                  //error 6 of 10
+    a = false;             //error 7 of 10
+    a = true;             //error 8 of 10
+    a = 3 && false;             //error 9 & 10 of 10
+    
+  }                                
+}
