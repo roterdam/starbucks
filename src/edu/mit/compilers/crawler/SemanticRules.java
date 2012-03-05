@@ -47,7 +47,7 @@ public class SemanticRules {
 	static String OP_SAME_SAME_NOT_SAME_TYPE = "Comparison type mismatch. Expecting INT INT or BOOLEAN BOOLEAN. Found `%1$s` `%2$s`";
 	static String ASSIGN_EXPRESSION_WRONG_TYPE_ERROR = "Cannot assign %1$s value to %2$s `%3$s`.";
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
-	
+
 	static public void apply(DecafNode node, Scope scope) {
 		if (node instanceof INT_LITERALNode) {
 			apply((INT_LITERALNode) node, scope);
@@ -91,7 +91,7 @@ public class SemanticRules {
 		if (node instanceof FOR_INITIALIZENode) {
 			apply((FOR_INITIALIZENode) node, scope);
 		}
-		if (node instanceof ASSIGNNode){
+		if (node instanceof ASSIGNNode) {
 			apply((ASSIGNNode) node, scope);
 			return;
 		}
@@ -100,14 +100,14 @@ public class SemanticRules {
 		// "apply on DecafNode should not be called, only its children.";
 		return;
 	}
-	
+
 	static public void apply(INT_LITERALNode node, Scope scope) {
-		
-		long value = node.getValue();
-		if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
-			ErrorCenter.reportError(node.getLine(), node.getColumn(), String.format(INTEGER_OUT_OF_BOUNDS, Long.toString(value)));
+
+		if (!node.isWithinBounds()) {
+			ErrorCenter.reportError(node.getLine(), node.getColumn(), String
+					.format(INTEGER_OUT_OF_BOUNDS, node.getText()));
 		}
-		
+
 	}
 
 	static public void apply(DeclNode node, Scope scope) {
@@ -170,8 +170,8 @@ public class SemanticRules {
 					.getReturnType(scope);
 			if (indexType != VarType.INT) {
 				ErrorCenter.reportError(indexNode.getLine(), indexNode
-						.getColumn(), String
-						.format(ARRAY_INDEX_TYPE, indexType.name()));
+						.getColumn(), String.format(ARRAY_INDEX_TYPE, indexType
+						.name()));
 			}
 		}
 	}
@@ -239,10 +239,10 @@ public class SemanticRules {
 					}
 				}
 				paramsStringBuilder.append(">");
-				ErrorCenter.reportError(mainDecl.getLine(), mainDecl
-						.getColumn(), String
-						.format(INCORRECT_MAIN, paramsStringBuilder
-								.toString()));
+				ErrorCenter
+						.reportError(mainDecl.getLine(), mainDecl.getColumn(), String
+								.format(INCORRECT_MAIN, paramsStringBuilder
+										.toString()));
 			}
 		}
 	}
@@ -316,9 +316,8 @@ public class SemanticRules {
 			VarType type = child.getReturnType(scope);
 			if (type != VarType.INT) {
 				ErrorCenter
-						.reportError(child.getLine(), child.getColumn(), String
-								.format(INT_OPERAND_ERROR, node.getText(), child
-										.getReturnType(scope)));
+						.reportError(child.getLine(), child.getColumn(), String.format(INT_OPERAND_ERROR, node
+								.getText(), child.getReturnType(scope)));
 			}
 		}
 	}
@@ -328,42 +327,51 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 2;
 		assert node.getChild(0) instanceof ExpressionNode;
 		assert node.getChild(1) instanceof ExpressionNode;
-		
+
 		ExpressionNode first = (ExpressionNode) node.getFirstChild();
 		ExpressionNode second = (ExpressionNode) first.getNextSibling();
 		VarType firstType = first.getReturnType(scope);
 		VarType secondType = second.getReturnType(scope);
-		
+
 		// Could get away only checking first type but doing both in order to
-		// identify the second token as error causing
-		// Probably ugly to call report error multiple times, store in temp variable
-		// and call at the end if exists
+		// identify the second token as error causing.
+		// Probably ugly to call report error multiple times, store in temp
+		// variable and call at the end if exists.
+
 		if (firstType != VarType.INT && firstType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(first.getLine(), first.getColumn(), String
 					.format(OP_SAME_SAME_BAD_TYPE, firstType));
 		} else if (secondType != VarType.INT && secondType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(second.getLine(), second.getColumn(), String
-					.format(OP_SAME_SAME_BAD_TYPE, secondType));
+			ErrorCenter
+					.reportError(second.getLine(), second.getColumn(), String
+							.format(OP_SAME_SAME_BAD_TYPE, secondType));
 		} else if (firstType != secondType) {
-			ErrorCenter.reportError(second.getLine(), second.getColumn(), String
-					.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
+			ErrorCenter
+					.reportError(second.getLine(), second.getColumn(), String
+							.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType, secondType));
 		}
 	}
-	static public void apply(ASSIGNNode node, Scope scope){
+
+	static public void apply(ASSIGNNode node, Scope scope) {
 		// Rule 15
 		assert node.getFirstChild() instanceof IDNode;
 		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
-		
-		IDNode idNode = (IDNode)node.getFirstChild();
-		ExpressionNode val = (ExpressionNode)idNode.getNextSibling();
+
+		IDNode idNode = (IDNode) node.getFirstChild();
+		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
 		String varName = idNode.getText();
-		
+
 		// Silenty fail if variable is undeclared
-		if(scope.hasVar(varName) && scope.getType(varName) != val.getReturnType(scope)){
-				ErrorCenter.reportError(val.getLine(), val.getColumn(), String
-						.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val.getReturnType(scope), scope.getType(varName), varName));
+		if (scope.hasVar(varName)
+				&& scope.getType(varName) != val.getReturnType(scope)) {
+			ErrorCenter
+					.reportError(val.getLine(), val.getColumn(), String
+							.format(ASSIGN_EXPRESSION_WRONG_TYPE_ERROR, val
+									.getReturnType(scope), scope
+									.getType(varName), varName));
 		}
 	}
+
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
 		// Rule 17
 
