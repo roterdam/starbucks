@@ -46,7 +46,7 @@ public class DeclNode extends DecafNode {
 		switch(getVarType()){
 		case INT_ARRAY : case BOOLEAN_ARRAY:
 			VarTypeNode childVarTypeNode = ((VarTypeNode) getFirstChild());
-			return ((INT_LITERALNode)childVarTypeNode.getFirstChild()).getValue();
+			return childVarTypeNode.getIntLiteralNode().getValue();
 		default:
 			return -1;
 		}
