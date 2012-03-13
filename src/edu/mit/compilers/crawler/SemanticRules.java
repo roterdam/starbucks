@@ -247,28 +247,24 @@ public class SemanticRules {
 	static public void apply(METHOD_CALLNode node, Scope scope) {
 		// Rule 2b
 		assert node.getNumberOfChildren() > 0;
-		assert node.getChild(0) instanceof METHOD_IDNode;
 
-		METHOD_IDNode methodIDNode = (METHOD_IDNode) node.getChild(0);
-		String methodName = methodIDNode.getText();
+		METHOD_IDNode methodIdNode = node.getMethodIdNode();
+		String methodName = node.getMethodName();
 		if (scope.hasMethod(methodName)) {
 			// Rule 5
 			// Construct a list of passed in parameters.
-			List<VarType> args = new ArrayList<VarType>();
-			DecafNode arg = node.getFirstChild().getNextSibling();
-			while (arg != null) {
-				assert arg instanceof ExpressionNode;
-				VarType returnType = ((ExpressionNode) arg)
-						.getReturnType(scope);
-				args.add(returnType);
-				arg = arg.getNextSibling();
+			List<ExpressionNode> args = node.getParamNodes();
+			
+			List<VarType> argTypes = new ArrayList<VarType>();
+			for (ExpressionNode argNode : node.getParamNodes()) {
+				argTypes.add(argNode.getReturnType(scope));
 			}
 
 			MethodDecl method = scope.getMethods().get(methodName);
 			List<VarType> params = method.getParams();
 
-			if (reportErrorForParams(params, args)) {
-				ErrorCenter.reportError(methodIDNode.getLine(), methodIDNode
+			if (reportErrorForParams(params, argTypes)) {
+				ErrorCenter.reportError(methodIdNode.getLine(), methodIdNode
 						.getColumn(), String.format(METHOD_ARGS, methodName,
 						args.toString(), params.toString()));
 			}
@@ -438,11 +434,8 @@ public class SemanticRules {
 
 	static public void apply(ASSIGNNode node, Scope scope) {
 		// Rule 15
-		assert node.getFirstChild() instanceof IDNode;
-		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
-
-		IDNode idNode = (IDNode) node.getFirstChild();
-		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
+		IDNode idNode = node.getLocation();
+		ExpressionNode val = node.getExpression();
 
 		VarType leftType = idNode.getReturnType(scope);
 		VarType rightType = val.getReturnType(scope);
@@ -458,11 +451,8 @@ public class SemanticRules {
 
 	static public void apply(ModifyAssignNode node, Scope scope) {
 		// Rule 16
-		assert node.getFirstChild() instanceof IDNode;
-		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
-
-		IDNode idNode = (IDNode) node.getFirstChild();
-		ExpressionNode val = (ExpressionNode) idNode.getNextSibling();
+		IDNode idNode = node.getLocation();
+		ExpressionNode val = node.getExpression();
 
 		VarType leftType = idNode.getReturnType(scope);
 		VarType rightType = val.getReturnType(scope);
@@ -508,8 +498,7 @@ public class SemanticRules {
 		assert node.getFirstChild().getFirstChild().getNextSibling() instanceof ExpressionNode;
 
 		ASSIGNNode assignNode = (ASSIGNNode) node.getFirstChild();
-		IDNode idNode = (IDNode) assignNode.getFirstChild();
-		ExpressionNode expr = (ExpressionNode) idNode.getNextSibling();
+		ExpressionNode expr = assignNode.getExpression();
 		VarType returnType = expr.getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
 			ErrorCenter.reportError(assignNode.getLine(),
