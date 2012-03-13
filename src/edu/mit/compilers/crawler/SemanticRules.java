@@ -510,11 +510,8 @@ public class SemanticRules {
 	// TODO(saif): Raise IF_CLAUSENode and WHILE_TERMINATENode to common class
 	static public void apply(IF_CLAUSENode node, Scope scope) {
 		// Rule 11
-		assert node.getNumberOfChildren() == 1;
-		assert node.getFirstChild() instanceof ExpressionNode;
 
-		ExpressionNode expr = (ExpressionNode) node.getFirstChild();
-		VarType returnType = expr.getReturnType(scope);
+		VarType returnType = node.getExpressionNode().getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
 			ErrorCenter.reportError(node.getFirstChild().getLine(), node
 					.getFirstChild().getColumn(), String.format(
