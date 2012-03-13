@@ -7,6 +7,7 @@ import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
+import edu.mit.compilers.codegen.MidLevelVisitor;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
@@ -66,6 +67,7 @@ class Main {
 					}
 				}
 			} else if (CLI.target == Action.PARSE || CLI.target == Action.INTER
+					|| CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY
 					|| CLI.target == Action.DEFAULT) {
 
 				DecafScanner scanner = new DecafScanner(new DataInputStream(
@@ -85,7 +87,7 @@ class Main {
 					System.exit(1);
 				}
 
-				if (CLI.target == Action.INTER) {
+				if (CLI.target == Action.INTER || CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
 					
@@ -102,6 +104,11 @@ class Main {
 					} else if (ErrorCenter.hasError()) {
 						// Only exit if we're not trying to show the frame.
 						System.exit(1);
+					}
+					
+					if (CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY) {
+						MidLevelVisitor midLevelVisitor = new MidLevelVisitor();
+						midLevelVisitor.visit((CLASSNode) parser.getAST());
 					}
 				}
 			}

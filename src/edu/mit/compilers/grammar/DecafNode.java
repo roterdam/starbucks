@@ -2,6 +2,8 @@ package edu.mit.compilers.grammar;
 
 import antlr.CommonAST;
 import antlr.Token;
+import edu.mit.compilers.codegen.MidLevelNode;
+import edu.mit.compilers.codegen.MidLevelVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
@@ -50,17 +52,6 @@ abstract public class DecafNode extends CommonAST {
 		}
 		return currentNode;
 	}
-	
-	public DecafNode[] getAllChildren() {
-		int numChildren = this.getNumberOfChildren();
-		DecafNode[] children = new DecafNode[numChildren];
-		DecafNode child = this.getFirstChild();
-		for (int i = 0; i < numChildren; i++) {
-			children[i] = child;
-			child = child.getNextSibling();
-		}
-		return children;
-	}
 
 	public void validate(Scope scope) {
 		applyRules(scope);
@@ -102,5 +93,11 @@ abstract public class DecafNode extends CommonAST {
 	
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
+	}
+	
+	public MidLevelNode convertToMidLevel(MidLevelVisitor visitor) {
+		// TODO: make this method abstract.
+		assert false;
+		return visitor.visit(this);
 	}
 }
