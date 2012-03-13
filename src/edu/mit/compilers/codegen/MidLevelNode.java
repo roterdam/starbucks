@@ -8,6 +8,9 @@ public class MidLevelNode {
 	MidLevelNode next;
 	LinkedList<MidLevelNode> children;
 	
+	public MidLevelNode(){
+		this(null);
+	}
 	public MidLevelNode(MidLevelNode prev) {
 		this.prev = prev;
 		this.prev.setNext(this);

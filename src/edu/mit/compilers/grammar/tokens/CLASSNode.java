@@ -1,8 +1,13 @@
 package edu.mit.compilers.grammar.tokens;
 
+<<<<<<< HEAD
+import edu.mit.compilers.codegen.MidLevelNode;
+import edu.mit.compilers.codegen.MidLevelVisitor;
+=======
 import java.util.ArrayList;
 import java.util.List;
 
+>>>>>>> df823ab0ceb3a5b7c74e0f16abaadca8e4969b64
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
@@ -29,6 +34,15 @@ public class CLASSNode extends DecafNode {
 			methodDeclNode.validate(scope);
 		}
 	}
+<<<<<<< HEAD
+	@Override
+	public MidLevelNode convertToMidLevel(MidLevelVisitor visitor) {
+		return visitor.visit(this);
+	}
+	@Override
+	public void applyRules(Scope scope) {
+		SemanticRules.apply(this, scope);
+=======
 
 	public IDNode getIdNode() {
 		assert getChild(0) instanceof IDNode;
@@ -58,5 +72,6 @@ public class CLASSNode extends DecafNode {
 			output.add((METHOD_DECLNode) methods.getChild(i));
 		}
 		return output;
+>>>>>>> df823ab0ceb3a5b7c74e0f16abaadca8e4969b64
 	}
 }
