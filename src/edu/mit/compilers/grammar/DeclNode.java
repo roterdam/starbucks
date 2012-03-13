@@ -44,6 +44,15 @@ public class DeclNode extends DecafNode {
 		
 		return childVarType;
 	}
+	public long getArrayLength(){
+		switch(getVarType()){
+		case INT_ARRAY : case BOOLEAN_ARRAY:
+			VarTypeNode childVarTypeNode = ((VarTypeNode) getFirstChild());
+			return ((INT_LITERALNode)childVarTypeNode.getFirstChild()).getValue();
+		default:
+			return -1;
+		}
+	}
 	
 	@Override
 	public void applyRules(Scope scope) {
