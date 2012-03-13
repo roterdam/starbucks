@@ -11,5 +11,9 @@ public class MidParamDeclNode extends MidVarDeclNode {
 	public String getName() {
 		return name;
 	}
+	
+	public String toString() {
+		return "<param: " + name + ">";
+	}
 
 }
