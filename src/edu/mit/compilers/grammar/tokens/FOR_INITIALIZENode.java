@@ -8,16 +8,18 @@ import edu.mit.compilers.grammar.DecafNode;
 @SuppressWarnings("serial")
 public class FOR_INITIALIZENode extends DecafNode {
 
+	public ASSIGNNode getAssignNode(){
+		assert getNumberOfChildren() == 1;
+		assert getFirstChild() instanceof ASSIGNNode;
+		return (ASSIGNNode) getFirstChild();
+	}
+	
 	@Override
 	public void validateChildren(Scope scope) {
+		assert getNumberOfChildren() == 1;
+		assert getAssignNode().getNumberOfChildren() == 2;
 		
-		DecafNode child = this.getFirstChild();
-		//Don't check the first child. THE ID doesn't exist.
-		child = child.getNextSibling();
-		while (child != null) {
-			child.validate(scope);
-			child = child.getNextSibling();
-		}
+		getAssignNode().getExpression().validate(scope);
 	}
 	
 	@Override
