@@ -106,10 +106,8 @@ public class SemanticRules {
 
 		// Rule 4
 		// If the node's VarTypeNode has children, check the array size.
-		if (node.getVarTypeNode().getNumberOfChildren() == 1) {
-			assert node.getVarTypeNode().getFirstChild() instanceof INT_LITERALNode;
-			INT_LITERALNode intNode = (INT_LITERALNode) node.getVarTypeNode()
-					.getFirstChild();
+		if (node.getVarTypeNode().isArray()) {
+			INT_LITERALNode intNode = node.getVarTypeNode().getIntLiteralNode();
 			if (!intNode.isPositive()) {
 				ErrorCenter.reportError(intNode.getLine(), intNode.getColumn(),
 						String.format(ARRAY_INDEX_NEGATIVE, id));
@@ -128,9 +126,9 @@ public class SemanticRules {
 
 		// Rule 10
 		assert node.getNumberOfChildren() <= 1;
-		DecafNode indexNode;
+		
 		// If there's a child, it must be array access, i.e. a[5]
-		if ((indexNode = node.getFirstChild()) != null) {
+		if (node.isArray()) {
 			// Check that the IDNode is an array.
 			if (scope.getType(id) != VarType.INT_ARRAY
 					&& scope.getType(id) != VarType.BOOLEAN_ARRAY) {
@@ -142,9 +140,8 @@ public class SemanticRules {
 				return;
 			}
 			// Check that the index is an INT.
-			assert indexNode instanceof ExpressionNode;
-			VarType indexType = ((ExpressionNode) indexNode)
-					.getReturnType(scope);
+			ExpressionNode indexNode = node.getExpressionNode();
+			VarType indexType = indexNode.getReturnType(scope);
 			if (indexType != VarType.INT) {
 				ErrorCenter.reportError(indexNode.getLine(),
 						indexNode.getColumn(),
@@ -277,19 +274,19 @@ public class SemanticRules {
 	private static boolean reportErrorForParams(List<VarType> params,
 			List<VarType> args) {
 		// Silently fail for undeclared variables
-		for (int i = 0; i < args.size(); i++) {
-			if (args.get(i) == VarType.UNDECLARED) {
-				return false;
-			}
+		for (VarType type : args){
+			if (type == VarType.UNDECLARED) return false;
 		}
-		if (params.size() == args.size()) {
-			for (int i = 0; i < params.size(); i++) {
-				if (args.get(i) != params.get(i))
-					return true;
-			}
-			return false;
+
+		if (params.size() != args.size()) {
+			return true;
 		}
-		return true;
+		
+		for (int i = 0; i < params.size(); i++) {
+			if (args.get(i) != params.get(i))
+				return true;
+		}
+		return false;
 	}
 
 	// the exact same as intint2bool

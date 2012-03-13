@@ -23,7 +23,7 @@ public class IDNode extends ExpressionNode {
 		// there's no children this ends up returning INT_ARRAY or BOOLEAN_ARRAY
 		// so whoever is calling it will get an error (as desired).
 		// (i.e. 5 + array will error)
-		if (getNumberOfChildren() == 1) {
+		if (isArray()) {
 			switch (returnType) {
 			case INT_ARRAY:
 				return VarType.INT;
@@ -34,6 +34,21 @@ public class IDNode extends ExpressionNode {
 		return returnType;
 	}
 
+	public Boolean isArray(){
+		return getNumberOfChildren() == 1;
+	}
+	
+	/**
+	 * returns null if not an array;
+	 */
+	public ExpressionNode getExpressionNode(){
+		if (isArray()){
+			return (ExpressionNode) getFirstChild();
+		}
+		assert false;
+		return null;
+	}
+	
 	/**
 	 * Returns the ID name if just an INT or BOOLEAN, but includes the index if
 	 * it's an array element. i.e. "a[5]" if applicable.
