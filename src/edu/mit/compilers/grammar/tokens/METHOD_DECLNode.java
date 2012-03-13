@@ -21,8 +21,13 @@ public class METHOD_DECLNode extends DecafNode {
 		assert getFirstChild() instanceof METHOD_RETURNNode;
 		return ((METHOD_RETURNNode) getFirstChild()).getReturnType();
 	}
+	
+	public METHOD_RETURNNode getReturnTypeNode() {
+		assert getFirstChild() instanceof METHOD_RETURNNode;
+		return (METHOD_RETURNNode) getFirstChild();
+	}
 
-	public List<VarType> getParams() {
+	public List<VarType> getParamNodes() {
 		List<VarType> o = new ArrayList<VarType>();
 		assert getChild(1) instanceof BLOCKNode;
 		BLOCKNode block = (BLOCKNode) getChild(1);
@@ -35,6 +40,11 @@ public class METHOD_DECLNode extends DecafNode {
 			o.add(((PARAM_DECLNode) n).getVarType());
 		}
 		return o;
+	}
+	
+	public BLOCKNode getBlockNode() {
+		assert getChild(1) instanceof BLOCKNode;
+		return (BLOCKNode) getChild(1);
 	}
 	
 	@Override
