@@ -12,13 +12,13 @@ public class DeclNode extends DecafNode {
 		assert getNumberOfChildren() == 2 : toStringTree();
 		assert getFirstChild().getNextSibling() instanceof IDNode;
 
-		return (IDNode) this.getFirstChild().getNextSibling();
+		return (IDNode) getFirstChild().getNextSibling();
 	}
 
 	public VarTypeNode getVarTypeNode() {
 		assert getNumberOfChildren() == 2;
 		assert getFirstChild() instanceof VarTypeNode;
-		return (VarTypeNode) this.getFirstChild();
+		return (VarTypeNode) getFirstChild();
 	}
 
 	public VarType getVarType() {
@@ -45,8 +45,7 @@ public class DeclNode extends DecafNode {
 	public long getArrayLength(){
 		switch(getVarType()){
 		case INT_ARRAY : case BOOLEAN_ARRAY:
-			VarTypeNode childVarTypeNode = ((VarTypeNode) getFirstChild());
-			return childVarTypeNode.getIntLiteralNode().getValue();
+			return getVarTypeNode().getIntLiteralNode().getValue();
 		default:
 			return -1;
 		}
