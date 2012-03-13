@@ -7,7 +7,8 @@ import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.codegen.MidLevelVisitor;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
@@ -107,8 +108,7 @@ class Main {
 					}
 					
 					if (CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY) {
-						MidLevelVisitor midLevelVisitor = new MidLevelVisitor();
-						midLevelVisitor.visit((CLASSNode) parser.getAST());
+						MidVisitor.visit((CLASSNode) parser.getAST(), new MidSymbolTable());
 					}
 				}
 			}
