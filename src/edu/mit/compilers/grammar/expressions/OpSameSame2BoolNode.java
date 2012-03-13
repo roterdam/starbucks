@@ -3,10 +3,9 @@ package edu.mit.compilers.grammar.expressions;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
-import edu.mit.compilers.grammar.ExpressionNode;
 
 @SuppressWarnings("serial")
-public class OpSameSame2BoolNode extends ExpressionNode {
+public class OpSameSame2BoolNode extends DoubleOperandNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {

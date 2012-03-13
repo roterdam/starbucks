@@ -4,7 +4,6 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.tokens.IDNode;
-import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 
 @SuppressWarnings("serial")
 public class DeclNode extends DecafNode {
@@ -26,14 +25,13 @@ public class DeclNode extends DecafNode {
 		assert getNumberOfChildren() == 2;
 		assert getFirstChild() instanceof VarTypeNode;
 		
-		VarTypeNode childVarTypeNode = ((VarTypeNode) getFirstChild());
+		VarTypeNode childVarTypeNode = getVarTypeNode();
+		
 		VarType childVarType = childVarTypeNode.getVarType();
 		assert childVarType == VarType.BOOLEAN || childVarType == VarType.INT;
-		
-		// Indicate if it's an array.
 		assert childVarTypeNode.getNumberOfChildren() <= 1;
-		if (childVarTypeNode.getNumberOfChildren() == 1) {
-			assert childVarTypeNode.getFirstChild() instanceof INT_LITERALNode;
+		
+		if (childVarTypeNode.isArray()) {
 			switch (childVarType) {
 			case INT:
 				return VarType.INT_ARRAY;
@@ -43,6 +41,15 @@ public class DeclNode extends DecafNode {
 		}
 		
 		return childVarType;
+	}
+	public long getArrayLength(){
+		switch(getVarType()){
+		case INT_ARRAY : case BOOLEAN_ARRAY:
+			VarTypeNode childVarTypeNode = ((VarTypeNode) getFirstChild());
+			return childVarTypeNode.getIntLiteralNode().getValue();
+		default:
+			return -1;
+		}
 	}
 	
 	@Override

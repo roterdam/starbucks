@@ -108,7 +108,8 @@ class Main {
 					}
 					
 					if (CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY) {
-						MidVisitor.visit((CLASSNode) parser.getAST(), new MidSymbolTable());
+						MidSymbolTable symbolTable = MidVisitor.createMidLevelIR((CLASSNode) parser.getAST());
+						System.out.println(symbolTable.toString());
 					}
 				}
 			}
