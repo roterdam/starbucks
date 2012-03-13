@@ -173,7 +173,7 @@ public class SemanticRules {
 	static public void apply(METHOD_DECLNode node, Scope scope) {
 		VarType returnType = node.getReturnType();
 		String id = node.getId();
-		List<VarType> params = node.getParams();
+		List<VarType> params = node.getParamNodes();
 		// Don't allow shadowing existing methods or fields.
 		if (scope.hasSymbol(id)) {
 			ErrorCenter.reportError(node.getLine(), node.getColumn(),
@@ -207,10 +207,10 @@ public class SemanticRules {
 	}
 
 	static public void apply(CLASSNode node, Scope scope) {
-		DecafNode child = node.getFirstChild();
-		if (!child.getText().equals("Program")) {
-			ErrorCenter.reportError(child.getLine(), child.getColumn(),
-					String.format(INVALID_CLASS_NAME, child.getText()));
+		IDNode idNode = node.getIdNode();
+		if (!idNode.getText().equals("Program")) {
+			ErrorCenter.reportError(idNode.getLine(), idNode.getColumn(),
+					String.format(INVALID_CLASS_NAME, idNode.getText()));
 		}
 	}
 
