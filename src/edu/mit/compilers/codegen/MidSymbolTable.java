@@ -17,10 +17,11 @@ public class MidSymbolTable {
 	public MidSymbolTable() {
 		this(null, null);
 	}
-	
+
 	public MidSymbolTable(MidSymbolTable p) {
 		this(p, null);
 	}
+
 	// Breakable.
 	public MidSymbolTable(MidSymbolTable p, MidNode breakableNode) {
 		this.parent = p;
@@ -35,9 +36,9 @@ public class MidSymbolTable {
 	}
 
 	public MidNode getBreakableNode() {
-		if (breakableNode != null){
+		if (breakableNode != null) {
 			return breakableNode;
-		} else if(parent != null){
+		} else if (parent != null) {
 			return parent.getBreakableNode();
 		} else {
 			assert false : "Semantic Checker, where you at bro?";
@@ -56,7 +57,7 @@ public class MidSymbolTable {
 		if (localVars.containsKey(v)) {
 			return localVars.get(v);
 		} else if (parent != null) {
-			return this.parent.getVar(v);
+			return parent.getVar(v);
 		} else {
 			assert false : "Variables should be declared. Semantic Checker, what up?";
 			return null;
@@ -71,8 +72,30 @@ public class MidSymbolTable {
 	public void addMethod(String method, MidMethodDeclNode node) {
 		getMethods().put(method, node);
 	}
-	
+
 	public MidSymbolTable getParent() {
-		return this.parent;
+		return parent;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder out = new StringBuilder();
+		out.append("=== MidSymbolTable ===\n  Fields: ");
+		String prefix = "";
+		for (String field : localVars.keySet()) {
+			out.append(prefix);
+			out.append(field);
+			prefix = ", ";
+		}
+		out.append("\n  Methods:\n");
+		prefix = "  ";
+		for (String method : methods.keySet()) {
+			out.append(prefix);
+			out.append(method);
+			out.append(": ");
+			out.append(methods.get(method).toString());
+			prefix = "\n  ";
+		}
+		return out.toString();
 	}
 }

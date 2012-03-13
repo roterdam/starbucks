@@ -162,5 +162,18 @@ public class MidNodeList implements List<MidNode> {
 	public boolean addAll(int arg0, Collection<? extends MidNode> arg1) {
 		throw new java.lang.UnsupportedOperationException();
 	}
-
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		String prefix = "";
+		for (MidNode m : this) {
+			sb.append(prefix);
+			sb.append(m.toString());
+			prefix = " -> ";
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 }
