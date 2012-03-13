@@ -476,10 +476,7 @@ public class SemanticRules {
 	static public void apply(FOR_TERMINATENode node, Scope scope) {
 		// Rule 17
 
-		assert node.getNumberOfChildren() == 1 : "Should only have one child in For Terminate";
-		assert node.getFirstChild() instanceof ExpressionNode;
-
-		ExpressionNode expr = (ExpressionNode) node.getFirstChild();
+		ExpressionNode expr = node.getExpressionNode();
 		VarType returnType = expr.getReturnType(scope);
 
 		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
@@ -491,16 +488,13 @@ public class SemanticRules {
 	static public void apply(FOR_INITIALIZENode node, Scope scope) {
 		// Rule 17
 
-		assert node.getNumberOfChildren() == 1 : "Should only have one child in For INIT";
-		assert node.getFirstChild() instanceof ASSIGNNode;
 
-		assert node.getFirstChild().getNumberOfChildren() == 2;
-		assert node.getFirstChild().getFirstChild() instanceof IDNode;
-		assert node.getFirstChild().getFirstChild().getNextSibling() instanceof ExpressionNode;
+		assert node.getAssignNode().getNumberOfChildren() == 2;
+		assert node.getAssignNode().getFirstChild() instanceof IDNode;
+		assert node.getAssignNode().getChild(1) instanceof ExpressionNode;
 
-		ASSIGNNode assignNode = (ASSIGNNode) node.getFirstChild();
-		ExpressionNode expr = assignNode.getExpression();
-		VarType returnType = expr.getReturnType(scope);
+		ASSIGNNode assignNode = node.getAssignNode();
+		VarType returnType = assignNode.getExpression().getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.INT) {
 			ErrorCenter.reportError(assignNode.getLine(),
 					assignNode.getColumn(),
