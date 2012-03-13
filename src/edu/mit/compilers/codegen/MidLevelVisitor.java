@@ -5,14 +5,12 @@ import edu.mit.compilers.grammar.tokens.CLASSNode;
 
 public class MidLevelVisitor {
 	
-	public MidLevelNode visit(DecafNode node) {
+	public static MidLevelNode visit(DecafNode node, MidLevelSymbolTable symbolTable) {
 		// TODO: replace with real logic, i.e. call visitor.visit() on all children.
 		return new MidLevelNode(null);
 	}
 	
-	public MidLevelNode visit(CLASSNode node) {
+	public static MidLevelNode visit(CLASSNode node, MidLevelSymbolTable symbolTable) {
 		return null;
 	}
-	
-
 }

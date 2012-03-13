@@ -1,5 +1,7 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.codegen.MidLevelNode;
+import edu.mit.compilers.codegen.MidLevelVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
@@ -22,7 +24,10 @@ public class CLASSNode extends DecafNode {
 			child = child.getNextSibling();
 		}
 	}
-	
+	@Override
+	public MidLevelNode convertToMidLevel(MidLevelVisitor visitor) {
+		return visitor.visit(this);
+	}
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
