@@ -299,20 +299,20 @@ public class SemanticRules {
 		assert node.getFirstChild() instanceof ExpressionNode;
 		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
 
-		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
-		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
+		ExpressionNode leftOperand = node.getLeftOperand();
+		ExpressionNode rightOperand = node.getRightOperand();
 
-		VarType leftType = operand1.getReturnType(scope);
-		VarType rightType = operand2.getReturnType(scope);
+		VarType leftType = leftOperand.getReturnType(scope);
+		VarType rightType = rightOperand.getReturnType(scope);
 
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
-			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
+			ErrorCenter.reportError(leftOperand.getLine(), leftOperand.getColumn(),
 					String.format(INT_OPERAND_ERROR, node.getText(), leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
 			ErrorCenter
-					.reportError(operand2.getLine(), operand2.getColumn(),
+					.reportError(rightOperand.getLine(), rightOperand.getColumn(),
 							String.format(INT_OPERAND_ERROR, node.getText(),
 									rightType));
 		}
@@ -323,11 +323,12 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 2;
 		assert node.getChild(0) instanceof ExpressionNode;
 		assert node.getChild(1) instanceof ExpressionNode;
+		
+		ExpressionNode leftOperand = node.getLeftOperand();
+		ExpressionNode rightOperand = node.getRightOperand();
 
-		ExpressionNode first = (ExpressionNode) node.getFirstChild();
-		ExpressionNode second = (ExpressionNode) first.getNextSibling();
-		VarType firstType = first.getReturnType(scope);
-		VarType secondType = second.getReturnType(scope);
+		VarType firstType = leftOperand.getReturnType(scope);
+		VarType secondType = rightOperand.getReturnType(scope);
 
 		// Could get away only checking first type but doing both in order to
 		// identify the second token as error causing.
@@ -336,14 +337,14 @@ public class SemanticRules {
 
 		if (firstType != VarType.UNDECLARED && secondType != VarType.UNDECLARED) {
 			if (firstType != VarType.INT && firstType != VarType.BOOLEAN) {
-				ErrorCenter.reportError(first.getLine(), first.getColumn(),
+				ErrorCenter.reportError(leftOperand.getLine(), leftOperand.getColumn(),
 						String.format(OP_SAME_SAME_BAD_TYPE, firstType));
 			} else if (secondType != VarType.INT
 					&& secondType != VarType.BOOLEAN) {
-				ErrorCenter.reportError(second.getLine(), second.getColumn(),
+				ErrorCenter.reportError(rightOperand.getLine(), rightOperand.getColumn(),
 						String.format(OP_SAME_SAME_BAD_TYPE, secondType));
 			} else if (firstType != secondType) {
-				ErrorCenter.reportError(second.getLine(), second.getColumn(),
+				ErrorCenter.reportError(rightOperand.getLine(), rightOperand.getColumn(),
 						String.format(OP_SAME_SAME_NOT_SAME_TYPE, firstType,
 								secondType));
 			}
@@ -355,7 +356,7 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 1;
 		assert node.getFirstChild() instanceof ExpressionNode;
 
-		ExpressionNode operand = (ExpressionNode) node.getFirstChild();
+		ExpressionNode operand = node.getOperand();
 		VarType type = operand.getReturnType(scope);
 
 		// Silently fail if variable is undeclared
@@ -372,20 +373,20 @@ public class SemanticRules {
 		assert node.getFirstChild() instanceof ExpressionNode;
 		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
 
-		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
-		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
+		ExpressionNode leftOperand = node.getLeftOperand();
+		ExpressionNode rightOperand = node.getRightOperand();
 
-		VarType leftType = operand1.getReturnType(scope);
-		VarType rightType = operand2.getReturnType(scope);
+		VarType leftType = leftOperand.getReturnType(scope);
+		VarType rightType = rightOperand.getReturnType(scope);
 
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
+			ErrorCenter.reportError(leftOperand.getLine(), leftOperand.getColumn(),
 					String.format(OP_EQ_COND_BAD_TYPE_ERROR, node.getText(),
 							leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(operand2.getLine(), operand2.getColumn(),
+			ErrorCenter.reportError(rightOperand.getLine(), rightOperand.getColumn(),
 					String.format(OP_EQ_COND_BAD_TYPE_ERROR, node.getText(),
 							rightType));
 		}
@@ -395,7 +396,7 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 1;
 		assert node.getFirstChild() instanceof ExpressionNode;
 
-		ExpressionNode operand = (ExpressionNode) node.getFirstChild();
+		ExpressionNode operand = node.getOperand();
 		VarType type = operand.getReturnType(scope);
 
 		// Silently fail if variable is undeclared
@@ -413,20 +414,20 @@ public class SemanticRules {
 		assert node.getFirstChild() instanceof ExpressionNode;
 		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
 
-		ExpressionNode operand1 = (ExpressionNode) node.getFirstChild();
-		ExpressionNode operand2 = (ExpressionNode) operand1.getNextSibling();
+		ExpressionNode leftOperand = node.getLeftOperand();
+		ExpressionNode rightOperand = node.getRightOperand();
 
-		VarType leftType = operand1.getReturnType(scope);
-		VarType rightType = operand2.getReturnType(scope);
+		VarType leftType = leftOperand.getReturnType(scope);
+		VarType rightType = rightOperand.getReturnType(scope);
 
 		// Silently fail if variable is undeclared
 		if (leftType != VarType.UNDECLARED && leftType != VarType.INT) {
-			ErrorCenter.reportError(operand1.getLine(), operand1.getColumn(),
+			ErrorCenter.reportError(leftOperand.getLine(), leftOperand.getColumn(),
 					String.format(INT_OPERAND_ERROR, node.getText(), leftType));
 		}
 		if (rightType != VarType.UNDECLARED && rightType != VarType.INT) {
 			ErrorCenter
-					.reportError(operand2.getLine(), operand2.getColumn(),
+					.reportError(rightOperand.getLine(), rightOperand.getColumn(),
 							String.format(INT_OPERAND_ERROR, node.getText(),
 									rightType));
 		}
