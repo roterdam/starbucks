@@ -15,6 +15,11 @@ import edu.mit.compilers.grammar.ExpressionNode;
  */
 @SuppressWarnings("serial")
 public class RETURNNode extends DecafNode {
+	
+	public ExpressionNode getReturnExpression() {
+		assert getChild(0) instanceof ExpressionNode;
+		return (ExpressionNode) getChild(0);
+	}
 
 	public VarType getReturnType(Scope scope) {
 		if (getFirstChild() != null){

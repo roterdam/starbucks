@@ -527,11 +527,10 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() == 1;
 		assert node.getFirstChild() instanceof ExpressionNode;
 
-		ExpressionNode expr = (ExpressionNode) node.getFirstChild();
+		ExpressionNode expr = node.getExpressionNode();
 		VarType returnType = expr.getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String.format(
+			ErrorCenter.reportError(expr.getLine(), expr.getColumn(), String.format(
 					WHILE_EXPR_BOOL_ERROR, returnType));
 		}
 	}
