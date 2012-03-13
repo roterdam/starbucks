@@ -1,11 +1,11 @@
 package edu.mit.compilers.grammar.tokens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.codegen.nodes.MidNode;
-
-import java.util.ArrayList;
-import java.util.List;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
@@ -32,6 +32,7 @@ public class CLASSNode extends DecafNode {
 			methodDeclNode.validate(scope);
 		}
 	}
+	
 	@Override
 	public MidNode convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
