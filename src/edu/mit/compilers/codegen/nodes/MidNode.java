@@ -2,24 +2,16 @@ package edu.mit.compilers.codegen.nodes;
 
 import java.util.LinkedList;
 
-// TODO: make abstract
-public class MidNode {
-	
-	MidNode prev;
-	MidNode next;
-	LinkedList<MidNode> children;
-	
-	public MidNode(){
-		this.prev = null;
-	}
-	
-	public MidNode(MidNode prev) {
-		this.prev = prev;
-		this.prev.setNext(this);
-	}
-	
-	public void setNext(MidNode next) {
-		this.next = next;
-	}
+import edu.mit.compilers.codegen.MidNodeList.MidNode;
 
+// TODO: make abstract
+public class MidNode {	
+	MidNode nextNode;
+	public void setNextNode(MidNode node){
+		nextNode = node;
+	}
+	public MidNode getNextNode(){
+		return nextNode;
+	}
+	
 }
