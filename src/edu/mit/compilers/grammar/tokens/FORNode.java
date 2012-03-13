@@ -6,7 +6,7 @@ import edu.mit.compilers.grammar.DecafNode;
 
 @SuppressWarnings("serial")
 public class FORNode extends DecafNode {
-
+	
 	@Override
 	public void validateChildren(Scope scope) {
 		assert getNumberOfChildren() == 3;
