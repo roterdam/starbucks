@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.crawler.MethodDecl;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
@@ -9,10 +12,24 @@ import edu.mit.compilers.grammar.ExpressionNode;
 @SuppressWarnings("serial")
 public class METHOD_CALLNode extends ExpressionNode {
 	public String getMethodName() {
-		assert this.getFirstChild() instanceof METHOD_IDNode;
-		return ((METHOD_IDNode) this.getFirstChild()).getText();
+		assert getFirstChild() instanceof METHOD_IDNode;
+		return ((METHOD_IDNode) getFirstChild()).getText();
 	}
-
+	
+	public METHOD_IDNode getMethodIdNode() {
+		assert getFirstChild() instanceof METHOD_IDNode;
+		return (METHOD_IDNode) getFirstChild();
+	}
+	
+	public List<ExpressionNode> getParamNodes() {
+		List<ExpressionNode> output = new ArrayList<ExpressionNode>();
+		for (int i = 1; i < getNumberOfChildren(); i++) {
+			assert getChild(i) instanceof ExpressionNode;
+			output.add((ExpressionNode) getChild(i));
+		}
+		return output;
+	}
+	
 	@Override
 	public VarType getReturnType(Scope scope) {
 		assert scope.getMethods().containsKey(getMethodName());
