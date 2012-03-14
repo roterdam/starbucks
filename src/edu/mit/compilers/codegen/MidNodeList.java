@@ -34,7 +34,6 @@ public class MidNodeList implements List<MidNode> {
 			tail = list.getTail();
 			size = list.size();
 		} else if (list.isEmpty()) {
-			// do nothing.
 		} else {
 			tail.setNextNode(list.getHead());
 			tail = list.getTail();

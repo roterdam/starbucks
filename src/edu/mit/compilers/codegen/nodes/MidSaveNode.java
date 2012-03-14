@@ -48,7 +48,7 @@ public class MidSaveNode extends MidMemoryNode {
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		String value = null;
+		String value = "wtf value is this";
 		switch (saveType) {
 		case INT:
 			value = Long.toString(decafIntValue);
