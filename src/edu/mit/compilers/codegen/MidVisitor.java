@@ -3,11 +3,13 @@ package edu.mit.compilers.codegen;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
+import edu.mit.compilers.codegen.nodes.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidVarType;
+import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.grammar.DecafNode;
@@ -17,9 +19,11 @@ import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
+import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
+import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
@@ -127,14 +131,39 @@ public class MidVisitor {
 		
 		MidNodeList assignList = node.getAssignNode().convertToMidLevel(newSymbolTable);
 		MidSaveNode assignNode = assignList.getSaveNode();
-		outputList.addAll(assignList);
+		
 		MidNodeList limitList = node.getForTerminateNode().getExpressionNode().convertToMidLevel(newSymbolTable);
 		MidSaveNode limitNode = limitList.getSaveNode(); 
+		
+		MidLoadNode assignLoadNode = new MidLoadNode(assignNode);
+		MidLoadNode limitLoadNode = new MidLoadNode(limitNode);
+		MidCompareNode compareNode = new MidCompareNode(assignLoadNode, limitLoadNode);
+		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
+		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
+		
+		MidNodeList statementList = node.getBlockNode().convertToMidLevel(newSymbolTable);
+		
+		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
+		intLiteralNode.setText("1");
+		IDNode idNode = new IDNode();
+		idNode.setText(node.getAssignNode().getLocation().getText());
+		PLUS_ASSIGNNode incrementNode = new PLUS_ASSIGNNode();
+		idNode.setNextSibling(intLiteralNode);
+		incrementNode.setFirstChild(idNode);
+		MidNodeList incrementList = incrementNode.convertToMidLevel(newSymbolTable);
+		
+		outputList.addAll(assignList);
 		outputList.addAll(limitList);
-		
 		outputList.add(startLabel);
+		outputList.add(assignLoadNode);
+		outputList.add(limitLoadNode);
+		outputList.add(compareNode);
+		outputList.add(jumpEndNode);
+		outputList.addAll(statementList);
+		outputList.addAll(incrementList);
+		outputList.add(jumpStartNode);
 		
-		return null;
+		return outputList;
 		
 	}
 	
