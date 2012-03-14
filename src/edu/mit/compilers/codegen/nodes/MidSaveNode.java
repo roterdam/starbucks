@@ -46,8 +46,6 @@ public class MidSaveNode extends MidMemoryNode {
 	}
 	
 	public String toString() {
-		return "fuck shit";
-		/*
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
 		String value = "wtf value is this";
@@ -62,7 +60,6 @@ public class MidSaveNode extends MidMemoryNode {
 			value = "reg";
 		}
 		return "<" + className.substring(mid) + ": " + value + ">";
-		*/
 	}
 
 }
