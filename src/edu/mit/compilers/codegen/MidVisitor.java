@@ -8,8 +8,10 @@ import edu.mit.compilers.codegen.nodes.MidVarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
+import edu.mit.compilers.grammar.tokens.FORNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
+import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
 
@@ -48,6 +50,26 @@ public class MidVisitor {
 
 		return out;
 	}
+	
+	public static MidNodeList visit(FORNode node, MidSymbolTable symbolTable) {
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
+		MidNodeList outputList = new MidNodeList();
+		// add the initialization and termination condition
+		outputList.addAll(node.getForInitializeNode().convertToMidLevel(newSymbolTable));
+		outputList.addAll(node.getForTerminateNode().convertToMidLevel(newSymbolTable));
+		
+		return null;
+		
+	}
+	
+	public static MidNodeList visit(WHILENode node, MidSymbolTable symbolTable) {
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
+		MidNodeList mn = new MidNodeList();
+		
+		return null;
+		
+	}
+	
 
 	/**
 	 * Special method returns a MidFieldDeclNode instead of the usual List.
