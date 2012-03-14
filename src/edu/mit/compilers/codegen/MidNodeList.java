@@ -26,7 +26,10 @@ public class MidNodeList implements List<MidNode> {
 	}
 
 	public boolean addAll(MidNodeList list) {
-		if (this.isEmpty()) {
+		if (list == null) {
+			return false;
+		}
+		else if (this.isEmpty()) {
 			head = list.getHead();
 			tail = list.getTail();
 			size = list.size();
