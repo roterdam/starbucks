@@ -1,14 +1,21 @@
 package edu.mit.compilers.codegen;
 
+import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
+import edu.mit.compilers.codegen.nodes.MidLabelNode;
+import edu.mit.compilers.codegen.nodes.MidLocalVarDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
+import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidVarType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
+import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
@@ -52,15 +59,40 @@ public class MidVisitor {
 	}
 	
 	public static MidNodeList visit(FORNode node, MidSymbolTable symbolTable) {
-		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
+		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.FOR);
+		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ROF);
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, endLabel);
 		MidNodeList outputList = new MidNodeList();
+		
 		// add the initialization and termination condition
-		outputList.addAll(node.getForInitializeNode().convertToMidLevel(newSymbolTable));
-		outputList.addAll(node.getForTerminateNode().convertToMidLevel(newSymbolTable));
+		//
+//		init;  
+//		compute limit.
+//		label for_start
+//		CMP(variable, limit)
+//		jge for_end
+//		{statements}
+//		increment variable.
+//		jmp for_start
+//		label for_end
+		
+		MidNodeList assignList = node.getAssignNode().convertToMidLevel(newSymbolTable);
+		MidSaveNode assignNode = assignList.getSaveNode();
+		outputList.addAll(assignList);
+		MidNodeList limitList = node.getForTerminateNode().getExpressionNode().convertToMidLevel(newSymbolTable);
+		MidSaveNode limitNode = limitList.getSaveNode(); 
+		outputList.addAll(limitList);
+		
+		outputList.add(startLabel);
 		
 		return null;
 		
 	}
+	
+	//public static MidLocalVarDeclNode visitLocalVarDecl(FOR_INITIALIZENode node, 
+	//		MidSymbolTable symbolTable) {
+		
+	//}
 	
 	public static MidNodeList visit(WHILENode node, MidSymbolTable symbolTable) {
 		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
