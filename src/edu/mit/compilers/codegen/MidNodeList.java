@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
-import edu.mit.compilers.codegen.nodes.MidSaveNode;
 
 public class MidNodeList implements List<MidNode> {
 	private MidNode head;
@@ -200,9 +200,9 @@ public class MidNodeList implements List<MidNode> {
 		return out.toString();
 	}
 	
-	public MidSaveNode getSaveNode() {
-		assert getTail() instanceof MidSaveNode;
-		return (MidSaveNode) getTail();
+	public MidMemoryNode getMemoryNode() {
+		assert getTail() instanceof MidMemoryNode;
+		return (MidMemoryNode) getTail();
 	}
 	
 }

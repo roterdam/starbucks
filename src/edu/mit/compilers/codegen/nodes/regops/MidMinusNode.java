@@ -8,5 +8,4 @@ public class MidMinusNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 	}
 
-
 }
