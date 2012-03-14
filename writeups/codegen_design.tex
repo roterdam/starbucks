@@ -1,0 +1,115 @@
+\documentclass[12pt]{article}
+\usepackage[pdftex]{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{enumerate}
+\setlength{\parskip}{1pc}
+\setlength{\parindent}{0pt}
+\setlength{\textheight}{9.5in}
+\setlength{\textwidth}{6.5in}
+\usepackage[left=1.25in, right=1.25in, top=1.25in, bottom=1.25in, includefoot,
+headheight=13.6pt]{geometry}
+\pagestyle{empty}
+
+\begin{document}
+
+\title{6.035 - Code Generation \\ Design Documentation}
+\author{David Chang \\ Saif Hakim \\ Joshua Ma \\Sajith Wickramasekara}
+\date{\today}
+\maketitle
+
+\section{Introduction}
+Currently our compiler generates an abstract syntax tree from an input program and applies a set of
+semantic checks to it. The next step is to build lower level representations of the AST such that
+assembly translation is straightforward. However, different optimizations are best applied at
+different levels of abstraction. Thus, we will first generate a mid-level IR and apply relevant
+optimizations before creating a low-level IR that is easily mapped to assembly. We plan to
+accomplish this using visitor patterns to traverse and modify our AST.
+
+\subsection{Mid-Level IR}
+The purpose of the mid-level intermediate representation is to remove certain abstractions from the
+high-level IR. After semantic checking, a good deal of the structure is unnecessary and can be
+stripped away. The result more closely resemble assembly code, with the major exception of being
+hardware independent.
+
+The focus is on flattening the code tree, eliminating complex control structures (through the use of
+jump and label nodes), and (naively) expanding nested expressions. We implement a visitor that
+recursively replaces each node in the tree with a linked-list, where the head and tail of the list
+are linked to the previous and next siblings respectively.
+
+\subsection{Control Structures}
+If, for and while statements are the supported control statements in Decaf, and each can be expanded
+into a linear series of expression evaluation, main block, jump node where applicable. The
+statements of an if/else statement, then, are no longer grouped into two subtrees. The statements
+are in a linear linked list, with expression evaluation and jump logic inserted between.
+
+\subsection{Integer Expressions}
+Integer expressions are flattened through the addition of temporary variable storage. Rather than
+represent exprA + exprB as a tree (+ exprA exprB), the root node is replaced with three linked
+nodes:
+\begin{verbatim}
+[tempA = resultOfExprA,
+tempB = resultOfExprB,
+resultOfPlus = tempA+tempB].
+\end{verbatim}
+
+The first linked node might be expanded recursively:
+
+\begin{verbatim}
+[tempAA = 1,
+tempAB = 2,
+tempA = tempAA * tempAB,
+tempB = resultOfExprB,
+resultOfPlus = tempA+tempB].
+\end{verbatim}
+
+Each expression is decomposed into operations of at most three operands (one is the assignment
+operand). This also requires the design of a namespacing controller, able to allocate
+non-conflicting names and look up names given a node.
+
+\subsection{Boolean Expressions}
+
+Boolean expressions are treated differently, due to the required presence of short-circuiting
+optimization. Utilizing the algorithm presented in class, jump nodes and block statements are
+assembled into a graph structure. The structure is then linearized through converting the pointers
+in jump statements to newly created labels.
+
+\subsection{Methods}
+
+In the mid-level IR, each method declaration remains its own linked list, referenced by a global
+scope object. Method calls aren’t broken down yet, but rather consist of a node storing pointers to
+the method declaration and the nodes where parameters are assigned.
+
+\section{Low-Level IR}
+
+The purpose of our low level IR is to simplify the process of translating our AST to assembly. The
+representation will be constructed with the target architecture in mind. It will incorporate the
+idea of register and memory allocation. Every node in our AST will maintain a data structure of
+instructions with the ability to recursively determine child instructions.
+Methods
+
+All methods will be identified by labels and we will introduce nodes that indicate setup and
+teardown, producing appropriate assembly code during the final step of code generation. Since space
+for local variables is then allocated on the stack, each variable node will be able to indicate how
+much space it requires at this point. The visitor keeps track of the variable locations to later
+produce offsets. It also maintains positions for the relevant pointers in each scope.
+Register and Memory Allocation
+
+Through using a visitor object to generate the low-level IR, the visitor maintains state, including
+register allocation. When queried, it provides storage and access requests with an available
+register, using the stack if registers are not available. All callee/caller-register logic is
+handled by the visitor.
+Visitor Design
+
+Throughout this document, a generic “Visitor” object for each IR has been referenced. The actual
+visitor objects will be composed of submodules responsible for their individual tasks, coordinated
+by one main object.
+
+A final visitor runs through the low-level IR to generate assembly code using the Intel x86 syntax
+and NASM.j
+
+
+\end{document}

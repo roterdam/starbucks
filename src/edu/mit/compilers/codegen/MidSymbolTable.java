@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidVarDeclNode;
@@ -12,7 +13,7 @@ public class MidSymbolTable {
 	private Map<String, MidVarDeclNode> localVars;
 	private Map<String, MidMethodDeclNode> methods;
 	private MidSymbolTable parent;
-	private MidNode breakableNode;
+	private MidLabelNode breakableNode;
 
 	public MidSymbolTable() {
 		this(null, null);
@@ -23,7 +24,7 @@ public class MidSymbolTable {
 	}
 
 	// Breakable.
-	public MidSymbolTable(MidSymbolTable p, MidNode breakableNode) {
+	public MidSymbolTable(MidSymbolTable p, MidLabelNode breakableNode) {
 		this.parent = p;
 		this.breakableNode = breakableNode;
 		this.localVars = new HashMap<String, MidVarDeclNode>();
@@ -35,7 +36,7 @@ public class MidSymbolTable {
 		return methods;
 	}
 
-	public MidNode getBreakableNode() {
+	public MidLabelNode getBreakableNode() {
 		if (breakableNode != null) {
 			return breakableNode;
 		} else if (parent != null) {
