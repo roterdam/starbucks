@@ -5,7 +5,8 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 	private MidRegisterNode leftOperand;
 	private MidRegisterNode rightOperand;
 
-	public MidBinaryRegNode(MidRegisterNode leftOperand, MidRegisterNode rightOperand) {
+	public MidBinaryRegNode(MidRegisterNode leftOperand,
+			MidRegisterNode rightOperand) {
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
 	}
@@ -16,6 +17,13 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 
 	public MidRegisterNode getRightOperand() {
 		return rightOperand;
+	}
+
+	public String toString() {
+		String className = getClass().getName();
+		int mid = className.lastIndexOf('.') + 1;
+		return "<" + className.substring(mid) + ": " + leftOperand.toString()
+				+ "," + rightOperand.toString() + ">";
 	}
 
 }

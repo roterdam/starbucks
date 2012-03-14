@@ -44,5 +44,22 @@ public class MidSaveNode extends MidNode {
 		assert saveType == MidSaveNodeType.BOOLEAN;
 		return decafBooleanValue;
 	}
+	
+	public String toString() {
+		String className = getClass().getName();
+		int mid = className.lastIndexOf('.') + 1;
+		String value = null;
+		switch (saveType) {
+		case INT:
+			value = Long.toString(decafIntValue);
+			break;
+		case BOOLEAN:
+			value = Boolean.toString(decafBooleanValue);
+			break;
+		case REGISTER:
+			value = "reg";
+		}
+		return "<" + className.substring(mid) + ": " + value + ">";
+	}
 
 }

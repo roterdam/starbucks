@@ -18,7 +18,6 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidMinusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidModNode;
 import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
-import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.SubtractNode;
@@ -34,8 +33,8 @@ import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.MODNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
-import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
+import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
@@ -76,7 +75,7 @@ public class MidVisitor {
 			MidLoadNode leftLoadNode = new MidLoadNode(preLists[0].getSaveNode());
 			MidLoadNode rightLoadNode = new MidLoadNode(preLists[1].getSaveNode());
 			MidBinaryRegNode binNode;
-			binNode = c.getConstructor(MidRegisterNode.class, MidRegisterNode.class).newInstance(leftLoadNode, rightLoadNode);
+			binNode = c.getConstructor(MidLoadNode.class, MidLoadNode.class).newInstance(leftLoadNode, rightLoadNode);
 			MidNodeList out = preLists[0];
 			out.addAll(preLists[1]);
 			out.add(leftLoadNode);
