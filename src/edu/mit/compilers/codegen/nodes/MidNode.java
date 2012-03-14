@@ -1,6 +1,5 @@
 package edu.mit.compilers.codegen.nodes;
 
-
 // TODO: make abstract
 public class MidNode {
 	MidNode nextNode;
@@ -12,9 +11,11 @@ public class MidNode {
 	public MidNode getNextNode() {
 		return nextNode;
 	}
-	
+
 	public String toString() {
-		return "<node>";
+		String className = getClass().getName();
+		int mid = className.lastIndexOf('.') + 1;
+		return "<" + className.substring(mid) + ">";
 	}
 
 }
