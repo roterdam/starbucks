@@ -98,7 +98,7 @@ abstract public class DecafNode extends CommonAST {
 	
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		// TODO: make this method abstract.
-		assert false;
+//		assert false;
 		return MidVisitor.visit(this, symbolTable);
 	}
 }

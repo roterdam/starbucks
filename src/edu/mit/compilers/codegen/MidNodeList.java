@@ -176,4 +176,27 @@ public class MidNodeList implements List<MidNode> {
 		return sb.toString();
 	}
 	
+	private String getUniqueName(String rootName, int i) {
+		return rootName + i;
+	}
+	
+	/**
+	 * Only returns the relevant part of the graph, not the entire dot file.
+	 */
+	public String toDotSyntax(String rootName) {
+		StringBuilder out = new StringBuilder();
+
+		MidNode head = getHead();
+		String prefix = rootName +  " -> ";
+		for (int i = 0; i < size() - 1; i++) {
+			out.append(prefix);
+			out.append(getUniqueName(rootName, i) + ";\n");
+			out.append(getUniqueName(rootName, i) + "[label=\"" + head.toString() + "\"];\n");
+			head = head.getNextNode();
+			prefix = getUniqueName(rootName, i) + " -> ";
+		}
+		
+		return out.toString();
+	}
+	
 }

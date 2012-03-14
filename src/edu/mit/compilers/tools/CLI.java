@@ -69,10 +69,16 @@ public class CLI {
 	public static boolean debug;
 
 	/**
-	 * The visual flag.  This is true if <tt>-visual</tt> was passed on the command 
-	 * line, requesting a AST in a JFrame.
+	 * The visual flag. This is true if <tt>-visual</tt> was passed on the
+	 * command line, requesting a AST in a JFrame.
 	 */
 	public static boolean visual;
+
+	/**
+	 * The dot flag. This is true if <tt>-dot</tt> was passed on the command
+	 * line, generating text for a dot file.
+	 */
+	public static boolean dot;
 
 	/**
 	 * Sets up default values for all of the result fields. Specifically, sets
@@ -118,6 +124,8 @@ public class CLI {
 				debug = true;
 			} else if (args[i].equals("-visual")) {
 				visual = true;
+			} else if (args[i].equals("-dot")) {
+				dot = true;
 			} else if (args[i].equals("-opt")) {
 				context = 1;
 			} else if (args[i].equals("-o")) {

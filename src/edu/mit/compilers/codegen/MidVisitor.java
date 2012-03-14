@@ -19,31 +19,39 @@ public class MidVisitor {
 		return new MidNodeList();
 	}
 
+	public static MidNodeList visit(PARAM_DECLNode node,
+			MidSymbolTable symbolTable) {
+		MidNodeList outputList = new MidNodeList();
+		
+		String name = node.getIDNode().getText();
+		MidParamDeclNode paramNode = new MidParamDeclNode(name);
+		outputList.add(paramNode);
+		
+		symbolTable.addVar(name, paramNode);
+		
+		return outputList;
+	}
+
+	/**
+	 * Special method returns a MidMethodDeclNode instead of the usual List.
+	 */
 	public static MidMethodDeclNode visitMethodDecl(METHOD_DECLNode node,
 			MidSymbolTable symbolTable) {
 
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
 		MidNodeList outputList = new MidNodeList();
 		for (DecafNode statement : node.getBlockNode().getStatementNodes()) {
-			System.out.println("Examining statement " + statement.toStringTree());
-			outputList.addAll(statement.convertToMidLevel(symbolTable));
+			outputList.addAll(statement.convertToMidLevel(newSymbolTable));
 		}
 
-		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), outputList);
+		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), outputList, newSymbolTable);
 
 		return out;
 	}
 
-	public static MidNodeList visit(PARAM_DECLNode node,
-			MidSymbolTable symbolTable) {
-		MidNodeList outputList = new MidNodeList();
-		String name = node.getIDNode().getText();
-		MidParamDeclNode paramNode = new MidParamDeclNode(name);
-		outputList.add(paramNode);
-		symbolTable.addVar(name, paramNode);
-		System.out.println("ADDING PARAM NODE " + node.toStringTree());
-		return outputList;
-	}
-
+	/**
+	 * Special method returns a MidFieldDeclNode instead of the usual List.
+	 */
 	public static MidFieldDeclNode visitFieldDecl(FIELD_DECLNode node,
 			MidSymbolTable symbolTable) {
 		String name = node.getIDNode().getText();

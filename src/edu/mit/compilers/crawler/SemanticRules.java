@@ -505,8 +505,8 @@ public class SemanticRules {
 
 		VarType returnType = node.getExpressionNode().getReturnType(scope);
 		if (returnType != VarType.UNDECLARED && returnType != VarType.BOOLEAN) {
-			ErrorCenter.reportError(node.getFirstChild().getLine(), node
-					.getFirstChild().getColumn(), String.format(
+			ErrorCenter.reportError(node.getExpressionNode().getLine(), node
+					.getExpressionNode().getColumn(), String.format(
 					IF_EXPR_BOOL_ERROR, returnType));
 		}
 	}
