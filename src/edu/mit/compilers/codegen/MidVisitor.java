@@ -1,5 +1,7 @@
 package edu.mit.compilers.codegen;
 
+import java.lang.reflect.InvocationTargetException;
+
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
@@ -8,9 +10,16 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidVarType;
+import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidMinusNode;
+import edu.mit.compilers.codegen.nodes.regops.MidModNode;
+import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
+import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
+import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.expressions.DoubleOperandNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
@@ -19,7 +28,10 @@ import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
+import edu.mit.compilers.grammar.tokens.MODNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
+import edu.mit.compilers.grammar.tokens.PLUSNode;
+import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
@@ -51,22 +63,62 @@ public class MidVisitor {
 				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
 
-	public static MidNodeList visit(DIVIDENode node, MidSymbolTable symbolTable) {
-		MidNodeList[] preLists = partialVisit(node, symbolTable);
-		assert preLists.length == 2;
-		
-		MidLoadNode leftLoadNode = new MidLoadNode(preLists[0].getSaveNode());
-		MidLoadNode rightLoadNode = new MidLoadNode(preLists[1].getSaveNode());
-		MidDivideNode divideNode = new MidDivideNode(leftLoadNode, rightLoadNode);
-		
-		MidNodeList out = preLists[0];
-		out.addAll(preLists[1]);
-		out.add(leftLoadNode);
-		out.add(rightLoadNode);
-		out.add(divideNode);
-		out.add(new MidSaveNode(divideNode));
-		return out;
+	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node, MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c ){
+
+		try {
+			MidNodeList[] preLists = partialVisit(node, symbolTable);
+			assert preLists.length == 2;
+			
+			MidLoadNode leftLoadNode = new MidLoadNode(preLists[0].getSaveNode());
+			MidLoadNode rightLoadNode = new MidLoadNode(preLists[1].getSaveNode());
+			MidBinaryRegNode binNode;
+			binNode = c.getConstructor(MidRegisterNode.class, MidRegisterNode.class).newInstance(leftLoadNode, rightLoadNode);
+			MidNodeList out = preLists[0];
+			out.addAll(preLists[1]);
+			out.add(leftLoadNode);
+			out.add(rightLoadNode);
+			out.add(binNode);
+			out.add(new MidSaveNode(binNode));
+
+			return out;
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
+	
+	public static MidNodeList visit(DIVIDENode node, MidSymbolTable symbolTable) {
+		return visitBinaryOpHelper(node, symbolTable, MidDivideNode.class);
+	}
+	
+	public static MidNodeList visit(TIMESNode node, MidSymbolTable symbolTable) {
+		return visitBinaryOpHelper(node, symbolTable, MidTimesNode.class);
+	}
+	
+	public static MidNodeList visit(SubtractNode node, MidSymbolTable symbolTable) {
+		return visitBinaryOpHelper(node, symbolTable, MidMinusNode.class);
+	}
+	
+	public static MidNodeList visit(PLUSNode node, MidSymbolTable symbolTable) {
+		return visitBinaryOpHelper(node, symbolTable, MidPlusNode.class);
+	}
+	
+	public static MidNodeList visit(MODNode node, MidSymbolTable symbolTable) {
+		return visitBinaryOpHelper(node, symbolTable, MidModNode.class);
+	}
+	
+	
+	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);

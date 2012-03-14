@@ -149,17 +149,14 @@ public class MidNodeList implements List<MidNode> {
 
 	}
 
-	@Override
 	public void add(int arg0, MidNode arg1) {
 		throw new java.lang.UnsupportedOperationException();
 	}
 
-	@Override
 	public boolean addAll(Collection<? extends MidNode> arg0) {
 		throw new java.lang.UnsupportedOperationException();
 	}
 
-	@Override
 	public boolean addAll(int arg0, Collection<? extends MidNode> arg1) {
 		throw new java.lang.UnsupportedOperationException();
 	}
