@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
@@ -27,6 +30,11 @@ public class ASSIGNNode extends DecafNode {
 	public ExpressionNode getExpression() {
 		assert getChild(1) instanceof ExpressionNode;
 		return (ExpressionNode) getChild(1);
+	}
+	
+	@Override
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
 	}
 	
 }

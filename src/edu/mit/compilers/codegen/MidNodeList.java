@@ -18,9 +18,8 @@ public class MidNodeList implements List<MidNode> {
 			head = object;
 			tail = head;
 		} else {
-			MidNode newTail = object;
-			tail.setNextNode(newTail);
-			tail = newTail;
+			tail.setNextNode(object);
+			tail = object;
 		}
 		size++;
 		return true;
@@ -37,6 +36,7 @@ public class MidNodeList implements List<MidNode> {
 			tail.setNextNode(list.getHead());
 			size += list.size();
 		}
+		tail = list.getTail();
 		return true;
 	}
 
@@ -189,7 +189,7 @@ public class MidNodeList implements List<MidNode> {
 
 		MidNode head = getHead();
 		String prefix = rootName +  " -> ";
-		for (int i = 0; i < size() - 1; i++) {
+		for (int i = 0; i < size(); i++) {
 			out.append(prefix);
 			out.append(getUniqueName(rootName, i) + ";\n");
 			out.append(getUniqueName(rootName, i) + "[label=\"" + head.toString() + "\"];\n");

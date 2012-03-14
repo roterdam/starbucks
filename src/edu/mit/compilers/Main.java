@@ -115,6 +115,7 @@ class Main {
 							|| CLI.target == Action.ASSEMBLY) {
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
+						
 						if (CLI.dot) {
 							System.out.println(symbolTable
 									.toDotSyntax("PROGRAM", true));

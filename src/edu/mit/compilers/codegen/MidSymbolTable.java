@@ -54,7 +54,7 @@ public class MidSymbolTable {
 	/**
 	 * Checks for var in local scope as well as all parent scopes.
 	 */
-	public MidNode getVar(String v) {
+	public MidVarDeclNode getVar(String v) {
 		if (localVars.containsKey(v)) {
 			return localVars.get(v);
 		} else if (parent != null) {
@@ -65,7 +65,7 @@ public class MidSymbolTable {
 		}
 	}
 
-	public MidNode getMethod(String method) {
+	public MidMethodDeclNode getMethod(String method) {
 		assert getMethods().containsKey(method);
 		return getMethods().get(method);
 	}
