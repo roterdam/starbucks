@@ -1,0 +1,9 @@
+class Program {
+    int i;
+    void main() {
+        i = 0;
+        for (a = 3; 5) {
+            i += a;    
+        }
+    }
+}

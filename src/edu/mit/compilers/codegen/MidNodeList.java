@@ -9,8 +9,8 @@ import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 
 public class MidNodeList implements List<MidNode> {
-	MidNode head;
-	MidNode tail;
+	private MidNode head;
+	private MidNode tail;
 	int size;
 
 	public boolean add(MidNode object) {
