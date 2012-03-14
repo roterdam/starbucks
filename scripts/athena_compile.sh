@@ -6,13 +6,28 @@ if [ -z $STARBUCKS_HOME ]; then
 fi
 
 if [ $# -ne 1 ]; then
-  echo "usage: `basename $0` [compiled.o]"
+  echo "usage: `basename $0` [input.asm]"
   exit 1
 fi
-PLAYGROUND = "playground"
-echo "Resetting ~/${PLAYGROUND}"
-ssh -i ${STARBUCKS_HOME}/scripts/starbucks_rsa starbucks@173.255.228.108 "rm -rf ${PLAYGROUND};mkdir ${PLAYGROUND}"
-echo "Uploading $1 to ~/${PLAYGROUND}"
-scp -i ${STARBUCKS_HOME}/scripts/starbucks_rsa $1 starbucks@173.255.228.108:~/${PLAYGROUND}/
-echo "Compiling $1 and running it."
-ssh -i ${STARBUCKS_HOME}/scripts/starbucks_rsa starbucks@173.255.228.108 "cd ~/{PLAYGROUND}; gcc $1; chmod +x $1; ./$1"
+PLAYGROUND="/tmp/playground"
+HOST="ec2-50-16-79-112.compute-1.amazonaws.com"
+PEM=${STARBUCKS_HOME}/scripts/starbucks.pem
+OUTNAME="starbucks"
+
+echo "Compiling $1"
+nasm -f elf64 $1 -o ${OUTNAME}.o
+
+echo "Resetting ${PLAYGROUND}"
+ssh -i ${PEM} ubuntu@${HOST} "rm -rf ${PLAYGROUND};mkdir ${PLAYGROUND}"
+
+echo "Uploading compiled ${OUTNAME}.o to ${PLAYGROUND}"
+scp -i ${PEM} ${OUTNAME}.o ubuntu@${HOST}:${PLAYGROUND}/
+
+echo "Linking and running. Binary results:"
+echo ""
+echo "=== START OUTPUT ==="
+ssh -i ${PEM} ubuntu@${HOST} "cd ${PLAYGROUND}; gcc -o ${OUTNAME} ${OUTNAME}.o; chmod +x ${OUTNAME}; ./${OUTNAME}"
+echo "==== END OUTPUT ===="
+echo ""
+echo "Cleaning up .o files"
+rm ${OUTNAME}.o
