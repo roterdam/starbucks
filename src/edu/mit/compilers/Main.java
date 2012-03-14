@@ -68,7 +68,8 @@ class Main {
 					}
 				}
 			} else if (CLI.target == Action.PARSE || CLI.target == Action.INTER
-					|| CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY
+					|| CLI.target == Action.LOWIR
+					|| CLI.target == Action.ASSEMBLY
 					|| CLI.target == Action.DEFAULT) {
 
 				DecafScanner scanner = new DecafScanner(new DataInputStream(
@@ -78,7 +79,9 @@ class Main {
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
-					ErrorCenter.reportFatalError(e.recog.line, e.recog.column, e.recog.getMessage());
+					ErrorCenter
+							.reportFatalError(e.recog.line, e.recog.column, e.recog
+									.getMessage());
 					scanner.consume();
 				}
 
@@ -88,10 +91,11 @@ class Main {
 					System.exit(1);
 				}
 
-				if (CLI.target == Action.INTER || CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY) {
+				if (CLI.target == Action.INTER || CLI.target == Action.LOWIR
+						|| CLI.target == Action.ASSEMBLY) {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
-					
+
 					if (CLI.visual) {
 						// For debugging.
 						System.out
@@ -106,10 +110,15 @@ class Main {
 						// Only exit if we're not trying to show the frame.
 						System.exit(1);
 					}
-					
-					if (CLI.target == Action.LOWIR || CLI.target == Action.ASSEMBLY) {
-						MidSymbolTable symbolTable = MidVisitor.createMidLevelIR((CLASSNode) parser.getAST());
-						System.out.println(symbolTable.toDotSyntax("PROGRAM", true));
+
+					if (CLI.target == Action.LOWIR
+							|| CLI.target == Action.ASSEMBLY) {
+						MidSymbolTable symbolTable = MidVisitor
+								.createMidLevelIR((CLASSNode) parser.getAST());
+						if (CLI.dot) {
+							System.out.println(symbolTable
+									.toDotSyntax("PROGRAM", true));
+						}
 					}
 				}
 			}
