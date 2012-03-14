@@ -5,7 +5,6 @@ import java.util.Map;
 
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
-import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidVarDeclNode;
 
 public class MidSymbolTable {

@@ -1,19 +1,19 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
-import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 
 /**
  * Loads value from memory.
  */
 public class MidLoadNode extends MidRegisterNode {
 
-	private MidSaveNode saveNode;
+	private MidMemoryNode saveNode;
 
-	public MidLoadNode(MidSaveNode saveNode) {
+	public MidLoadNode(MidMemoryNode saveNode) {
 		this.saveNode = saveNode;
 	}
 
-	public MidSaveNode getSaveNode() {
+	public MidMemoryNode getSaveNode() {
 		return saveNode;
 	}
 

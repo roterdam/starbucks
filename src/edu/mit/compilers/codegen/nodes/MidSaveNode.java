@@ -5,7 +5,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 /**
  * Saves referenced register node or literal to memory (the stack?).
  */
-public class MidSaveNode extends MidNode {
+public class MidSaveNode extends MidMemoryNode {
 	
 	private MidRegisterNode registerNode;
 	private long decafIntValue;

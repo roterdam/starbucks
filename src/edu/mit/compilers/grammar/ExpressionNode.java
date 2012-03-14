@@ -11,7 +11,7 @@ public abstract class ExpressionNode extends DecafNode {
 	public abstract VarType getReturnType(Scope scope);
 	
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		System.out.println("EXPRESSION NODE'S CONVERT IS CALLED.");
+		//System.out.println("EXPRESSION NODE'S CONVERT IS CALLED.");
 		return MidVisitor.visit(this, symbolTable);
 	}
 }
