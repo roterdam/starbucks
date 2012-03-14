@@ -9,7 +9,7 @@ public class MidLabelManager {
 	@SuppressWarnings("serial")
 	private static Map<LabelType, Integer> tracker = new HashMap<LabelType, Integer>(){{
 		for (LabelType type : LabelType.values()) {
-			tracker.put(type, 0);
+			this.put(type, 0);
 		}
 	}};
 	

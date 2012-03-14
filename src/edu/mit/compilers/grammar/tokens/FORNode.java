@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
@@ -24,6 +27,10 @@ public class FORNode extends DecafNode {
 	public BLOCKNode getBlockNode(){
 		assert getChild(2) instanceof BLOCKNode;
 		return (BLOCKNode) getChild(2);
+	}
+	
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
 	}
 	
 	@Override
