@@ -98,4 +98,43 @@ public class MidSymbolTable {
 		}
 		return out.toString();
 	}
+
+	/**
+	 * Converts symbolTable to dot syntax
+	 * 
+	 * @param rootName
+	 *            The name of the root of the graph.
+	 * @param topLevel
+	 *            Whether or not this is a top level symbol table. Used to
+	 *            determine whether or not to show the methods table, useful for
+	 *            child symbol tables. Also prints the digraph statement.
+	 * @return
+	 */
+	public String toDotSyntax(String rootName, boolean topLevel) {
+		StringBuilder out = new StringBuilder();
+		if (topLevel) {
+			out.append("digraph MidLevelIR {\n");
+		}
+
+		out.append(rootName + " -> " + rootName + "_fields;\n");
+		for (String field : localVars.keySet()) {
+			out.append(rootName + "_fields [label=\"fields\"]");
+			out.append(rootName + "_fields -> " + rootName + "_" + field
+					+ ";\n");
+			out.append(rootName + "_" + field + " [label=\"" + field + "\"];\n");
+		}
+
+		if (topLevel) {
+			out.append(rootName + " -> " + rootName + "_methods;\n");
+			for (String method : methods.keySet()) {
+				out.append(rootName + "_methods -> " + method + ";\n");
+				out.append(methods.get(method).toDotSyntax(method));
+			}
+		}
+
+		if (topLevel) {
+			out.append("}");
+		}
+		return out.toString();
+	}
 }
