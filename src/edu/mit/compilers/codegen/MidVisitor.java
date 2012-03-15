@@ -35,6 +35,7 @@ import edu.mit.compilers.grammar.tokens.FORNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
+import edu.mit.compilers.grammar.tokens.MINUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.MODNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
@@ -193,6 +194,57 @@ public class MidVisitor {
 		return rightOperandList;
 	}
 	
+	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
+		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
+		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+		MidNodeList newOperandList = new MidNodeList();
+		
+		assert rightOperandList.getTail() != null;		
+		assert leftOperandList.getTail() != null;
+		
+		// Load from memory into register and add to left hand side
+		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getMemoryNode());
+		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getMemoryNode());
+		MidPlusNode plusNode = new MidPlusNode(loadLeftNode, loadRightNode);
+		MidSaveNode savePlusNode = new MidSaveNode(plusNode);
+		
+		// Save from register to memory
+		newOperandList.addAll(leftOperandList);
+		newOperandList.addAll(rightOperandList);
+		newOperandList.add(loadLeftNode);
+		newOperandList.add(loadRightNode);
+		newOperandList.add(plusNode);
+		newOperandList.add(savePlusNode);
+		
+		return newOperandList;		
+	}
+
+	public static MidNodeList visit(MINUS_ASSIGNNode node, MidSymbolTable symbolTable) {
+		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
+		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+		MidNodeList newOperandList = new MidNodeList();
+		
+		assert rightOperandList.getTail() != null;		
+		assert leftOperandList.getTail() != null;
+		
+		// Load from memory into register and add to left hand side
+		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getMemoryNode());
+		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getMemoryNode());
+		MidMinusNode minusNode = new MidMinusNode(loadLeftNode, loadRightNode);
+		MidSaveNode saveMinusNode = new MidSaveNode(minusNode);
+		
+		// Save from register to memory
+		newOperandList.addAll(leftOperandList);
+		newOperandList.addAll(rightOperandList);
+		newOperandList.add(loadLeftNode);
+		newOperandList.add(loadRightNode);
+		newOperandList.add(minusNode);
+		newOperandList.add(saveMinusNode);
+		
+		return newOperandList;		
+	}
+	
+	
 	public static MidNodeList visit(INT_LITERALNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
 		MidTempDeclNode dest = new MidTempDeclNode();
@@ -247,18 +299,6 @@ public class MidVisitor {
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ROF);
 		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, endLabel);
 		MidNodeList outputList = new MidNodeList();
-		
-		// add the initialization and termination condition
-		//
-//		init;  
-//		compute limit.
-//		label for_start
-//		CMP(variable, limit)
-//		jge for_end
-//		{statements}
-//		increment variable.
-//		jmp for_start
-//		label for_end
 		
 		MidNodeList assignList = node.getAssignNode().convertToMidLevel(newSymbolTable);
 		MidSaveNode assignNode = (MidSaveNode)assignList.getMemoryNode();
