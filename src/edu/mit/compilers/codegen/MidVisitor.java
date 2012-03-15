@@ -206,7 +206,7 @@ public class MidVisitor {
 		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getMemoryNode());
 		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getMemoryNode());
 		MidPlusNode plusNode = new MidPlusNode(loadLeftNode, loadRightNode);
-		MidSaveNode savePlusNode = new MidSaveNode(plusNode);
+		MidSaveNode savePlusNode = new MidSaveNode(plusNode, leftOperandList.getMemoryNode());
 		
 		// Save from register to memory
 		newOperandList.addAll(leftOperandList);
@@ -231,7 +231,7 @@ public class MidVisitor {
 		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getMemoryNode());
 		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getMemoryNode());
 		MidMinusNode minusNode = new MidMinusNode(loadLeftNode, loadRightNode);
-		MidSaveNode saveMinusNode = new MidSaveNode(minusNode);
+		MidSaveNode saveMinusNode = new MidSaveNode(minusNode, leftOperandList.getMemoryNode());
 		
 		// Save from register to memory
 		newOperandList.addAll(leftOperandList);
