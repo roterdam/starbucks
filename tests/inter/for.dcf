@@ -3,7 +3,14 @@ class Program {
     void main() {
         i = 0;
         for (a = 3; 5) {
-            i += a;    
+            for (b = 1; 7){
+                continue;
+                i += 5;
+            }
+            {
+            break;
+            }
+            i += a;
         }
     }
 }

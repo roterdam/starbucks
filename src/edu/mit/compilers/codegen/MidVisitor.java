@@ -34,7 +34,9 @@ import edu.mit.compilers.grammar.expressions.DoubleOperandNode;
 import edu.mit.compilers.grammar.expressions.SingleOperandNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.BLOCKNode;
+import edu.mit.compilers.grammar.tokens.BREAKNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
+import edu.mit.compilers.grammar.tokens.CONTINUENode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
 import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
@@ -274,6 +276,7 @@ public class MidVisitor {
 		return out;
 	}
 	
+	
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable){
 		MidNodeList out = new MidNodeList();
 		MidLoadNode loadNode = new MidLoadNode(symbolTable.getVar(node.getText()));
@@ -297,6 +300,8 @@ public class MidVisitor {
 		return out;
 	}
 	
+	
+	//FIXME: SHOULD ONLY CREATE A METHOD TABLE IF ITS ANONYMOUS.
 	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable) {
 
 		MidNodeList outputList = new MidNodeList();
@@ -334,10 +339,24 @@ public class MidVisitor {
 		return nodeList;
 		
 	}
+	
+	public static MidNodeList visit(CONTINUENode node, MidSymbolTable symbolTable) {
+		MidNodeList nodeList = new MidNodeList();
+		nodeList.add(new MidJumpNode(symbolTable.getContinueLabel()));
+		return nodeList;
+	}
+	
+	public static MidNodeList visit(BREAKNode node, MidSymbolTable symbolTable) {
+		MidNodeList nodeList = new MidNodeList();
+		nodeList.add(new MidJumpNode(symbolTable.getBreakLabel()));
+		return nodeList;
+	}
+	
 	public static MidNodeList visit(FORNode node, MidSymbolTable symbolTable) {
 		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.FOR);
+		MidLabelNode nextLabel = MidLabelManager.getLabel(LabelType.FOR_NEXT);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ROF);
-		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, endLabel);
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, nextLabel, endLabel);
 		MidNodeList outputList = new MidNodeList();
 		
 		MidNodeList assignList = node.getForInitializeNode().convertToMidLevel(newSymbolTable);
@@ -376,6 +395,7 @@ public class MidVisitor {
 		outputList.add(compareNode);
 		outputList.add(jumpEndNode);
 		outputList.addAll(statementList);
+		outputList.add(nextLabel);
 		outputList.addAll(incrementList);
 		outputList.add(jumpStartNode);
 		outputList.add(endLabel);

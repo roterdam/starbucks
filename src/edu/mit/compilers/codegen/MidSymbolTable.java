@@ -12,20 +12,22 @@ public class MidSymbolTable {
 	private Map<String, MidMemoryNode> localVars;
 	private Map<String, MidMethodDeclNode> methods;
 	private MidSymbolTable parent;
-	private MidLabelNode breakableNode;
+	private MidLabelNode continueLabel;
+	private MidLabelNode breakLabel;
 
 	public MidSymbolTable() {
-		this(null, null);
+		this(null, null, null);
 	}
 
 	public MidSymbolTable(MidSymbolTable p) {
-		this(p, null);
+		this(p, null, null);
 	}
 
 	// Breakable.
-	public MidSymbolTable(MidSymbolTable p, MidLabelNode breakableNode) {
+	public MidSymbolTable(MidSymbolTable p, MidLabelNode continueLabel, MidLabelNode breakLabel) {
 		this.parent = p;
-		this.breakableNode = breakableNode;
+		this.continueLabel = continueLabel;
+		this.breakLabel = breakLabel;
 		this.localVars = new HashMap<String, MidMemoryNode>();
 		this.methods = parent == null ? new HashMap<String, MidMethodDeclNode>()
 				: parent.getMethods();
@@ -35,17 +37,26 @@ public class MidSymbolTable {
 		return methods;
 	}
 
-	public MidLabelNode getBreakableNode() {
-		if (breakableNode != null) {
-			return breakableNode;
+	public MidLabelNode getBreakLabel() {
+		if (breakLabel != null) {
+			return breakLabel;
 		} else if (parent != null) {
-			return parent.getBreakableNode();
+			return parent.getBreakLabel();
 		} else {
 			assert false : "Semantic Checker, where you at bro?";
 			return null;
 		}
 	}
-
+	public MidLabelNode getContinueLabel() {
+		if (continueLabel != null) {
+			return continueLabel;
+		} else if (parent != null) {
+			return parent.getContinueLabel();
+		} else {
+			assert false : "Semantic Checker, where you at bro?";
+			return null;
+		}
+	}
 	public void addVar(String id, MidMemoryNode var) {
 		localVars.put(id, var);
 	}
