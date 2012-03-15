@@ -11,7 +11,7 @@ abstract public class MidRegisterNode extends MidNode {
 	String name;
 	
 	public MidRegisterNode() {
-		name = "reg" + MidLabelManager.getNodeCount();
+		name = "reg" + MidLabelManager.getNewId();
 	}
 	
 	public String getName() {

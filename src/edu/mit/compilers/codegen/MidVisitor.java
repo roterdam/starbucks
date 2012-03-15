@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
-import edu.mit.compilers.codegen.nodes.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidLocalVarDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMemoryNode;
@@ -13,6 +12,8 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
+import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
+import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
@@ -25,6 +26,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
+import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.UnaryMinusNode;
 import edu.mit.compilers.grammar.VarTypeNode;
@@ -204,49 +206,49 @@ public class MidVisitor {
 	}
 	
 	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
-		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-		MidMemoryNode leftOperandNode = symbolTable.getVar(node.getLocation().getText());
-		MidNodeList newOperandList = new MidNodeList();
-		
-		
-		// Load from memory into register and add to left hand side
-		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
-		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandNode);
-		MidPlusNode plusNode = new MidPlusNode(loadLeftNode, loadRightNode);
-		MidSaveNode savePlusNode = new MidSaveNode(plusNode, leftOperandNode);
-		
-		// Save from register to memory
-		newOperandList.addAll(rightOperandList);
-		newOperandList.add(loadLeftNode);
-		newOperandList.add(loadRightNode);
-		newOperandList.add(plusNode);
-		newOperandList.add(savePlusNode);
-		
-		return newOperandList;		
+		return modifyAssignHelper(node, symbolTable, MidPlusNode.class);	
 	}
 
 	public static MidNodeList visit(MINUS_ASSIGNNode node, MidSymbolTable symbolTable) {
-		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+		return modifyAssignHelper(node, symbolTable, MidMinusNode.class);
+	}
+	
+	private static MidNodeList modifyAssignHelper(ModifyAssignNode node, MidSymbolTable symbolTable,
+			Class<? extends MidBinaryRegNode> nodeClass) {
 		MidNodeList newOperandList = new MidNodeList();
-		
-		assert rightOperandList.getTail() != null;		
-		assert leftOperandList.getTail() != null;
-		
-		// Load from memory into register and add to left hand side
-		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
-		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getSaveNode().getDestinationNode());
-		MidMinusNode minusNode = new MidMinusNode(loadLeftNode, loadRightNode);
-		MidSaveNode saveMinusNode = new MidSaveNode(minusNode, leftOperandList.getSaveNode().getDestinationNode());
-		
-		// Save from register to memory
-		newOperandList.addAll(leftOperandList);
-		newOperandList.addAll(rightOperandList);
-		newOperandList.add(loadLeftNode);
-		newOperandList.add(loadRightNode);
-		newOperandList.add(minusNode);
-		newOperandList.add(saveMinusNode);
-		
+		try {
+			MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
+			MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+			
+			assert !rightOperandList.isEmpty();		
+			assert !leftOperandList.isEmpty();
+			
+			// Load from memory into register and add to left hand side
+			MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
+			MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getSaveNode().getDestinationNode());
+			MidBinaryRegNode binaryRegNode = nodeClass.getConstructor(MidLoadNode.class, MidLoadNode.class).newInstance(loadLeftNode, loadRightNode);
+			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode, leftOperandList.getSaveNode().getDestinationNode());
+			
+			// Save from register to memory
+			newOperandList.addAll(rightOperandList);
+			newOperandList.add(loadLeftNode);
+			newOperandList.add(loadRightNode);
+			newOperandList.add(binaryRegNode);
+			newOperandList.add(saveRegNode);
+			
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
 		return newOperandList;		
 	}
 	
@@ -353,13 +355,15 @@ public class MidVisitor {
 		MidLoadNode iterVarLoadNode = new MidLoadNode(iterVarNode.getDestinationNode());
 		MidLoadNode limitLoadNode = new MidLoadNode(limitNode.getDestinationNode());
 		MidCompareNode compareNode = new MidCompareNode(iterVarLoadNode, limitLoadNode);
-		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
+		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 		
 		MidNodeList statementList = node.getBlockNode().convertToMidLevel(newSymbolTable);
 		
+		
 		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
 		intLiteralNode.setText("1");
+		intLiteralNode.initializeValue();
 		IDNode idNode = new IDNode();
 		idNode.setText(node.getAssignNode().getLocation().getText());
 		PLUS_ASSIGNNode incrementNode = new PLUS_ASSIGNNode();

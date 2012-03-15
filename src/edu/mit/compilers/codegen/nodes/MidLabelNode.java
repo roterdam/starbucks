@@ -14,6 +14,6 @@ public class MidLabelNode extends MidNode {
 	
 	@Override
 	public String toString() {
-		return "<" + getNodeType() + ":" + getName()+">";
+		return "<" + getNodeClass() + ":" + getName()+">";
 	}
 }

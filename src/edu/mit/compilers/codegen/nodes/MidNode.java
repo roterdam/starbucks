@@ -13,9 +13,9 @@ public class MidNode {
 	}
 
 	public String toString() {
-		return "<" + getNodeType() + ">";
+		return "<" + getNodeClass() + ">";
 	}
-	public String getNodeType(){
+	public String getNodeClass(){
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
 		return className.substring(mid);

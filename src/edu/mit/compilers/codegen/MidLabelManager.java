@@ -23,7 +23,7 @@ public class MidLabelManager {
 	}
 	
 	private static int count = 0;
-	public static String getNodeCount() {
+	public static String getNewId() {
 		return Integer.toString(count++);
 	}
 	

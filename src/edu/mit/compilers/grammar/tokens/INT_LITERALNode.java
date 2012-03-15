@@ -29,10 +29,7 @@ public class INT_LITERALNode extends ExpressionNode {
 	public long getValue() {
 		return value;
 	}
-
-	@Override
-	public void initialize(Token t) {
-		super.initialize(t);
+	public void initializeValue(){
 		// Strip the negative sign to figure out the base.
 		boolean isNegative = getText().startsWith("-");
 		String text = getText();
@@ -56,6 +53,11 @@ public class INT_LITERALNode extends ExpressionNode {
 		} catch (NumberFormatException e) {
 			isWithinBounds = false;
 		}
+	}
+	@Override
+	public void initialize(Token t) {
+		super.initialize(t);
+		initializeValue();
 	}
 
 	/**

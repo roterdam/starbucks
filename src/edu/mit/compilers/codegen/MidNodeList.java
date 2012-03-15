@@ -14,9 +14,12 @@ public class MidNodeList implements List<MidNode> {
 	private MidNode tail;
 	int size;
 	
+	/**
+	 * Please do not add a node twice to the list. Breaks will shit.
+	 */
 	public boolean add(MidNode object) {
 		assert object != null : "Don't add null to the list!";
-		assert object.getNextNode() == null : "Don't add things that are already in lists!";
+		assert object.getNextNode() == null : "Don't add things that are already in lists!"; // this is not an all encompassing assert
 		if (tail == null) {
 			head = object;
 			tail = head;
@@ -36,26 +39,16 @@ public class MidNodeList implements List<MidNode> {
 			head = list.getHead();
 			tail = list.getTail();
 			size = list.size();
-			assert computedLength() == list.computedLength();
 		} else if (list.isEmpty()) {
 		} else {
-			int oldLength = computedLength();
-			int addLength = list.computedLength();
 			tail.setNextNode(list.getHead());
 			tail = list.getTail();
 			size += list.size();
-			assert computedLength() == oldLength + addLength : this.toString() + "\n"+list.toString();
 		}
 		
 		return true;
 	}
-	public int computedLength(){
-		int i = 0;
-		for(MidNode n : this){
-			i++;
-		}
-		return i;
-	}
+
 	public void clear() {
 		head = null;
 		tail = null;
