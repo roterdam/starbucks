@@ -28,6 +28,7 @@ import edu.mit.compilers.grammar.UnaryMinusNode;
 import edu.mit.compilers.grammar.expressions.DoubleOperandNode;
 import edu.mit.compilers.grammar.expressions.SingleOperandNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
+import edu.mit.compilers.grammar.tokens.BLOCKNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
 import edu.mit.compilers.grammar.tokens.FALSENode;
@@ -284,18 +285,26 @@ public class MidVisitor {
 	 */
 	public static MidMethodDeclNode visitMethodDecl(METHOD_DECLNode node,
 			MidSymbolTable symbolTable) {
-
-		// New symbol table for the new method scope.
-		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
-		MidNodeList outputList = new MidNodeList();
-		for (DecafNode statement : node.getBlockNode().getStatementNodes()) {
-			outputList.addAll(statement.convertToMidLevel(newSymbolTable));
-		}
-
+		
+		MidNodeList outputList = node.getBlockNode().convertToMidLevel(symbolTable);
 		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), outputList,
-				newSymbolTable);
+				symbolTable);
 
 		return out;
+	}
+	
+	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable) {
+
+		MidNodeList outputList = new MidNodeList();
+		
+		// New symbol table for the new method scope.
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
+		for (DecafNode statement : node.getStatementNodes()) {
+			outputList.addAll(statement.convertToMidLevel(newSymbolTable));
+		}
+		
+		return outputList;
+		
 	}
 	
 	public static MidNodeList visit(FOR_INITIALIZENode node, MidSymbolTable symbolTable) {
