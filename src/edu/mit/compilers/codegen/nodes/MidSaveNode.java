@@ -70,7 +70,7 @@ public class MidSaveNode extends MidNode {
 			value = Boolean.toString(decafBooleanValue);
 			break;
 		case REGISTER:
-			value = "reg";
+			value = registerNode.getName();
 		}
 		return "<" + className.substring(mid) + ": " + value + " to " + destination.toString() + ">";
 	}

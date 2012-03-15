@@ -10,6 +10,7 @@ public class MidLoadNode extends MidRegisterNode {
 	private MidMemoryNode memoryNode;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
+		super();
 		this.memoryNode = memoryNode;
 	}
 

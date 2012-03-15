@@ -5,6 +5,7 @@ public abstract class MidUnaryRegNode extends MidRegisterNode {
 	private MidLoadNode operand;
 
 	public MidUnaryRegNode(MidLoadNode operand) {
+		super();
 		this.operand = operand;
 	}
 

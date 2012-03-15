@@ -7,6 +7,7 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 
 	public MidBinaryRegNode(MidRegisterNode leftOperand,
 			MidRegisterNode rightOperand) {
+		super();
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
 	}
