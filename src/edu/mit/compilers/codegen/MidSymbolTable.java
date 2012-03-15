@@ -5,11 +5,11 @@ import java.util.Map;
 
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
-import edu.mit.compilers.codegen.nodes.MidVarDeclNode;
+import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 
 public class MidSymbolTable {
 
-	private Map<String, MidVarDeclNode> localVars;
+	private Map<String, MidMemoryNode> localVars;
 	private Map<String, MidMethodDeclNode> methods;
 	private MidSymbolTable parent;
 	private MidLabelNode breakableNode;
@@ -26,7 +26,7 @@ public class MidSymbolTable {
 	public MidSymbolTable(MidSymbolTable p, MidLabelNode breakableNode) {
 		this.parent = p;
 		this.breakableNode = breakableNode;
-		this.localVars = new HashMap<String, MidVarDeclNode>();
+		this.localVars = new HashMap<String, MidMemoryNode>();
 		this.methods = parent == null ? new HashMap<String, MidMethodDeclNode>()
 				: parent.getMethods();
 	}
@@ -46,14 +46,14 @@ public class MidSymbolTable {
 		}
 	}
 
-	public void addVar(String id, MidVarDeclNode var) {
+	public void addVar(String id, MidMemoryNode var) {
 		localVars.put(id, var);
 	}
 
 	/**
 	 * Checks for var in local scope as well as all parent scopes.
 	 */
-	public MidVarDeclNode getVar(String v) {
+	public MidMemoryNode getVar(String v) {
 		if (localVars.containsKey(v)) {
 			assert localVars.get(v) != null: v;
 			return localVars.get(v);
