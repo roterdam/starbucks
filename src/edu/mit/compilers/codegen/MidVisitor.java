@@ -7,6 +7,7 @@ import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
+import edu.mit.compilers.codegen.nodes.MidLocalVarDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -24,6 +25,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.UnaryMinusNode;
+import edu.mit.compilers.grammar.VarTypeNode;
 import edu.mit.compilers.grammar.expressions.DoubleOperandNode;
 import edu.mit.compilers.grammar.expressions.SingleOperandNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
@@ -32,8 +34,10 @@ import edu.mit.compilers.grammar.tokens.DIVIDENode;
 import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
+import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
+import edu.mit.compilers.grammar.tokens.INT_TYPENode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.MINUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.MODNode;
@@ -42,6 +46,7 @@ import edu.mit.compilers.grammar.tokens.PLUSNode;
 import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
+import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
@@ -294,21 +299,41 @@ public class MidVisitor {
 		return out;
 	}
 	
+	/**
+	 * Last node must be a MidSaveNode.
+	 */
+	public static MidNodeList visit(FOR_INITIALIZENode node, MidSymbolTable symbolTable){
+		// Treat 'a=3' as 'int a; a=3;'
+		MidNodeList nodeList = new MidNodeList();
+		
+		// Construct a var decl for 'int a;'
+		VAR_DECLNode declNode = new VAR_DECLNode();
+		VarTypeNode typeNode = new INT_TYPENode();
+		IDNode idNode = new IDNode();
+		idNode.setText(node.getAssignNode().getLocation().getText());
+		typeNode.setNextSibling(idNode);
+		declNode.setFirstChild(typeNode);
+		
+		nodeList.addAll(declNode.convertToMidLevel(symbolTable)); // 'int a;'
+		nodeList.addAll(node.getAssignNode().convertToMidLevel(symbolTable)); // 'a=3;'
+		return nodeList;
+		
+	}
 	public static MidNodeList visit(FORNode node, MidSymbolTable symbolTable) {
 		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.FOR);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ROF);
 		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, endLabel);
 		MidNodeList outputList = new MidNodeList();
 		
-		MidNodeList assignList = node.getAssignNode().convertToMidLevel(newSymbolTable);
-		MidSaveNode assignNode = (MidSaveNode)assignList.getMemoryNode();
-		
+		MidNodeList assignList = node.getForInitializeNode().convertToMidLevel(newSymbolTable);
+		MidSaveNode iterVarNode = (MidSaveNode)assignList.getMemoryNode();
+
 		MidNodeList limitList = node.getForTerminateNode().getExpressionNode().convertToMidLevel(newSymbolTable);
 		MidSaveNode limitNode = (MidSaveNode)limitList.getMemoryNode(); 
 		
-		MidLoadNode assignLoadNode = new MidLoadNode(assignNode);
+		MidLoadNode iterVarLoadNode = new MidLoadNode(iterVarNode);
 		MidLoadNode limitLoadNode = new MidLoadNode(limitNode);
-		MidCompareNode compareNode = new MidCompareNode(assignLoadNode, limitLoadNode);
+		MidCompareNode compareNode = new MidCompareNode(iterVarLoadNode, limitLoadNode);
 		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 		
@@ -326,7 +351,7 @@ public class MidVisitor {
 		outputList.addAll(assignList);
 		outputList.addAll(limitList);
 		outputList.add(startLabel);
-		outputList.add(assignLoadNode);
+		outputList.add(iterVarLoadNode);
 		outputList.add(limitLoadNode);
 		outputList.add(compareNode);
 		outputList.add(jumpEndNode);
