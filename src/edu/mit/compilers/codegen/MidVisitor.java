@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
+import edu.mit.compilers.codegen.nodes.MidVarDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
@@ -181,7 +182,7 @@ public class MidVisitor {
 	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+		MidVarDeclNode leftOperandList = symbolTable.getVar(node.getLocation().getText());
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
 		assert rightOperandList.size >= 1;
 		
@@ -198,7 +199,7 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+		MidVarDeclNode leftOperandList = symbolTable.getVar(node.getLocation().getText());
 		MidNodeList newOperandList = new MidNodeList();
 		
 		assert rightOperandList.getTail() != null;		
@@ -268,12 +269,6 @@ public class MidVisitor {
 		MidTempDeclNode dest = new MidTempDeclNode();
 		out.add(dest);
 		out.add(new MidSaveNode(false, dest));
-		return out;
-	}
-	
-	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable){
-		MidNodeList out = new MidNodeList();
-		out.add(symbolTable.getVar(node.getText()));
 		return out;
 	}
 	
