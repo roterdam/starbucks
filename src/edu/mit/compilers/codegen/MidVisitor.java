@@ -32,6 +32,7 @@ import edu.mit.compilers.grammar.tokens.DIVIDENode;
 import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
+import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
@@ -180,6 +181,7 @@ public class MidVisitor {
 	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
+		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
 		assert rightOperandList.size >= 1;
 		
@@ -188,7 +190,7 @@ public class MidVisitor {
 		rightOperandList.add(loadNode);
 		
 		// Save from register to memory
-		MidSaveNode saveNode = new MidSaveNode(loadNode, symbolTable.getVar(node.getLocation().getText()));
+		MidSaveNode saveNode = new MidSaveNode(loadNode, leftOperandList.getMemoryNode());
 		rightOperandList.add(saveNode);
 		
 		return rightOperandList;
@@ -292,6 +294,11 @@ public class MidVisitor {
 				newSymbolTable);
 
 		return out;
+	}
+	
+	public static MidNodeList visit(FOR_INITIALIZENode node, MidSymbolTable symbolTable) {
+		
+		return null;
 	}
 	
 	public static MidNodeList visit(FORNode node, MidSymbolTable symbolTable) {
