@@ -1,10 +1,12 @@
 package edu.mit.compilers.codegen.nodes;
 
+import edu.mit.compilers.crawler.VarType;
+
 public class MidLocalVarDeclNode extends MidMemoryNode {
 	private String name;
 	
-	public MidLocalVarDeclNode(String name) {
-		super();
+	public MidLocalVarDeclNode(String name, VarType type) {
+		super(type);
 		this.name = name;
 	}
 

@@ -1,6 +1,7 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
 import edu.mit.compilers.codegen.nodes.MidMemoryNode;
+import edu.mit.compilers.crawler.VarType;
 
 /**
  * Loads value from memory.
@@ -16,6 +17,10 @@ public class MidLoadNode extends MidRegisterNode {
 
 	public MidMemoryNode getMemoryNode() {
 		return memoryNode;
+	}
+	
+	public VarType getType() {
+		return memoryNode.getType();
 	}
 
 	public String toString() {
