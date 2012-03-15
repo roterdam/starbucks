@@ -9,11 +9,14 @@ import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 
 public class MidNodeList implements List<MidNode> {
+	
 	private MidNode head;
 	private MidNode tail;
 	int size;
-
+	
 	public boolean add(MidNode object) {
+		assert object != null : "Don't add null to the list!";
+		assert object.getNextNode() == null : "Don't add things that are already in lists!";
 		if (tail == null) {
 			head = object;
 			tail = head;
@@ -33,15 +36,26 @@ public class MidNodeList implements List<MidNode> {
 			head = list.getHead();
 			tail = list.getTail();
 			size = list.size();
+			assert computedLength() == list.computedLength();
 		} else if (list.isEmpty()) {
 		} else {
+			int oldLength = computedLength();
+			int addLength = list.computedLength();
 			tail.setNextNode(list.getHead());
 			tail = list.getTail();
 			size += list.size();
+			assert computedLength() == oldLength + addLength : this.toString() + "\n"+list.toString();
 		}
+		
 		return true;
 	}
-
+	public int computedLength(){
+		int i = 0;
+		for(MidNode n : this){
+			i++;
+		}
+		return i;
+	}
 	public void clear() {
 		head = null;
 		tail = null;
@@ -187,8 +201,10 @@ public class MidNodeList implements List<MidNode> {
 		StringBuilder out = new StringBuilder();
 
 		MidNode head = getHead();
+		if(head == null) return "[]";
 		String prefix = rootName +  " -> ";
 		for (int i = 0; i < size(); i++) {
+			assert head != null : "why you got null.. iterating over "+size()+" elements. stuck at "+i;
 			out.append(prefix);
 			out.append(getUniqueName(rootName, i) + ";\n");
 			out.append(getUniqueName(rootName, i) + "[label=\"" + head.toString() + "\"];\n");

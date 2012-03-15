@@ -3,10 +3,12 @@ package edu.mit.compilers.codegen.nodes;
 public class MidTempDeclNode extends MidMemoryNode {
 	private String name;
 	
+	static int nodeNum = 0;
+	
 	public MidTempDeclNode() {
 		super();
 		//generate a random temp id
-		this.name = Integer.toString(this.hashCode());
+		this.name = "temp"+Integer.toString(nodeNum++);
 	}
 
 	public String getName() {

@@ -8,6 +8,7 @@ import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidLocalVarDeclNode;
+import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -23,6 +24,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.UnaryMinusNode;
 import edu.mit.compilers.grammar.VarTypeNode;
@@ -54,12 +56,13 @@ public class MidVisitor {
 	public static MidNodeList visit(DecafNode node, MidSymbolTable symbolTable) {
 		// TODO: replace with real logic, i.e. call visitor.visit() on all
 		// children.
+		assert false : "Implement convertToMidLevel in "+node.getClass();
 		return new MidNodeList();
 	}
 
 	public static MidNodeList visit(PARAM_DECLNode node,
 			MidSymbolTable symbolTable) {
-		// TODO: THIS IS WRONG. SHOULD BE A SAVE?
+		// TODO: NEED TO ADD NODE FROM PASSED IN REGISTERS
 		MidNodeList outputList = new MidNodeList();
 
 		String name = node.getIDNode().getText();
@@ -201,20 +204,17 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
+		MidMemoryNode leftOperandNode = symbolTable.getVar(node.getLocation().getText());
 		MidNodeList newOperandList = new MidNodeList();
 		
-		assert rightOperandList.getTail() != null;		
-		assert leftOperandList.getTail() != null;
 		
 		// Load from memory into register and add to left hand side
 		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
-		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getSaveNode().getDestinationNode());
+		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandNode);
 		MidPlusNode plusNode = new MidPlusNode(loadLeftNode, loadRightNode);
-		MidSaveNode savePlusNode = new MidSaveNode(plusNode, leftOperandList.getSaveNode().getDestinationNode());
+		MidSaveNode savePlusNode = new MidSaveNode(plusNode, leftOperandNode);
 		
 		// Save from register to memory
-		newOperandList.addAll(leftOperandList);
 		newOperandList.addAll(rightOperandList);
 		newOperandList.add(loadLeftNode);
 		newOperandList.add(loadRightNode);
@@ -318,7 +318,11 @@ public class MidVisitor {
 		declNode.setFirstChild(typeNode);
 		
 		nodeList.addAll(declNode.convertToMidLevel(symbolTable)); // 'int a;'
-		nodeList.addAll(node.getAssignNode().convertToMidLevel(symbolTable)); // 'a=3;'
+		
+		MidNodeList assignList = node.getAssignNode().convertToMidLevel(symbolTable);
+		assignList.getSaveNode();
+		nodeList.addAll(assignList); // 'a=3;'
+		nodeList.getSaveNode();
 		return nodeList;
 		
 	}
@@ -416,8 +420,23 @@ public class MidVisitor {
 	}
 	
 
+	public static MidNodeList visit(VAR_DECLNode node,
+			MidSymbolTable symbolTable) {
+		MidNodeList nodeList = new MidNodeList();
+		String name = node.getIDNode().getText();
+		switch (node.getVarType()) {
+		case INT: case BOOLEAN :
+			MidLocalVarDeclNode declNode = new MidLocalVarDeclNode(name);
+			symbolTable.addVar(name, declNode);
+			nodeList.add(declNode);
+			break;
+		default:
+			assert false : "Unexpected varType: "+node.getVarType();
+		}
+		return nodeList;
+	}
 	/**
-	 * Special method returns a MidFieldDeclNode instead of the usual List.
+	 * Special method returns a MidLocalVarDeclNode instead of the usual List.
 	 */
 	public static MidFieldDeclNode visitFieldDecl(FIELD_DECLNode node,
 			MidSymbolTable symbolTable) {
@@ -436,6 +455,7 @@ public class MidVisitor {
 			return null;
 		}
 	}
+	
 
 	public static MidSymbolTable createMidLevelIR(CLASSNode node) {
 		MidSymbolTable symbolTable = new MidSymbolTable();
