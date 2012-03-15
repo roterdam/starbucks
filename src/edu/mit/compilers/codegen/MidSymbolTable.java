@@ -55,8 +55,10 @@ public class MidSymbolTable {
 	 */
 	public MidVarDeclNode getVar(String v) {
 		if (localVars.containsKey(v)) {
+			assert localVars.get(v) != null: v;
 			return localVars.get(v);
 		} else if (parent != null) {
+			assert parent.getVar(v) != null: v;
 			return parent.getVar(v);
 		} else {
 			assert false : "Variables should be declared. Semantic Checker, what up?";

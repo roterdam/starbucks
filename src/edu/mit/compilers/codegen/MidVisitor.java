@@ -10,8 +10,7 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.MidStackNode;
-import edu.mit.compilers.codegen.nodes.MidVarType;
+import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
@@ -88,7 +87,9 @@ public class MidVisitor {
 			out.add(leftLoadNode);
 			out.add(rightLoadNode);
 			out.add(binNode);
-			out.add(new MidSaveNode(binNode));
+			MidTempDeclNode dest = new MidTempDeclNode();
+			out.add(dest);
+			out.add(new MidSaveNode(binNode, dest));
 
 			return out;
 		} catch (IllegalArgumentException e) {
@@ -127,14 +128,6 @@ public class MidVisitor {
 		return visitBinaryOpHelper(node, symbolTable, MidModNode.class);
 	}
 	
-//	public static MidNodeList visit(ORNode node, MidSymbolTable symbolTable) {
-//		return visitBinaryOpHelper(node, symbolTable, MidOrNode.class);
-//	}
-//	
-//	public static MidNodeList visit(ANDNode node, MidSymbolTable symbolTable) {
-//		return visitBinaryOpHelper(node, symbolTable, MidAndNode.class);
-//	}
-	
 	
 	public static MidNodeList visitUnaryOpHelper(SingleOperandNode node, MidSymbolTable symbolTable, Class<? extends MidUnaryRegNode> c ){
 
@@ -149,7 +142,9 @@ public class MidVisitor {
 			out.addAll(nodeList);
 			out.add(loadNode);
 			out.add(unaryNode);
-			out.add(new MidSaveNode(unaryNode));
+			MidTempDeclNode dest = new MidTempDeclNode();
+			out.add(dest);
+			out.add(new MidSaveNode(unaryNode, dest));
 			return out;
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
@@ -174,18 +169,8 @@ public class MidVisitor {
 	}
 	
 	public static MidNodeList visit(UnaryMinusNode node, MidSymbolTable symbolTable) {
-		MidNodeList nodeList = node.getOperand().convertToMidLevel(symbolTable);
-		assert nodeList.size >= 1;
-		MidLoadNode loadNode = new MidLoadNode(nodeList.getMemoryNode());
-		MidNegNode unaryNode = new MidNegNode(loadNode);
 
-		MidNodeList out = new MidNodeList();
-		out.addAll(nodeList);
-		out.add(loadNode);
-		out.add(unaryNode);
-		out.add(new MidSaveNode(unaryNode));
-		return out;
-		//return visitUnaryOpHelper(node, symbolTable, MidNegNode.class);
+		return visitUnaryOpHelper(node, symbolTable, MidNegNode.class);
 	}
 	
 //	public static MidNodeList visit(BANGNode node, MidSymbolTable symbolTable){
@@ -202,7 +187,7 @@ public class MidVisitor {
 		rightOperandList.add(loadNode);
 		
 		// Save from register to memory
-		MidSaveNode saveNode = new MidSaveNode(loadNode);
+		MidSaveNode saveNode = new MidSaveNode(loadNode, symbolTable.getVar(node.getLocation().getText()));
 		rightOperandList.add(saveNode);
 		
 		return rightOperandList;
@@ -210,25 +195,31 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(INT_LITERALNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		out.add(new MidSaveNode(node.getValue()));
+		MidTempDeclNode dest = new MidTempDeclNode();
+		out.add(dest);
+		out.add(new MidSaveNode(node.getValue(), dest));
 		return out;
 	}
 	
 	public static MidNodeList visit(TRUENode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		out.add(new MidSaveNode(true));
+		MidTempDeclNode dest = new MidTempDeclNode();
+		out.add(dest);
+		out.add(new MidSaveNode(true, dest));
 		return out;
 	}
 	
 	public static MidNodeList visit(FALSENode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		out.add(new MidSaveNode(false));
+		MidTempDeclNode dest = new MidTempDeclNode();
+		out.add(dest);
+		out.add(new MidSaveNode(false, dest));
 		return out;
 	}
 	
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable){
 		MidNodeList out = new MidNodeList();
-		out.add(new MidStackNode(node.getText()));
+		out.add(symbolTable.getVar(node.getText()));
 		return out;
 	}
 	
@@ -329,15 +320,13 @@ public class MidVisitor {
 		String name = node.getIDNode().getText();
 		switch (node.getVarType()) {
 		case BOOLEAN_ARRAY:
-			return new MidFieldArrayDeclNode(name, MidVarType.BOOLEAN,
-					node.getArrayLength());
+			return new MidFieldArrayDeclNode(name, node.getArrayLength());
 		case INT_ARRAY:
-			return new MidFieldArrayDeclNode(name, MidVarType.INT,
-					node.getArrayLength());
+			return new MidFieldArrayDeclNode(name, node.getArrayLength());
 		case INT:
-			return new MidFieldDeclNode(name, MidVarType.INT);
+			return new MidFieldDeclNode(name);
 		case BOOLEAN:
-			return new MidFieldDeclNode(name, MidVarType.BOOLEAN);
+			return new MidFieldDeclNode(name);
 		default:
 			assert false : "Unexpected varType";
 			return null;

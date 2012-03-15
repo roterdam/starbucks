@@ -14,18 +14,27 @@ public class MidSaveNode extends MidMemoryNode {
 		REGISTER, INT, BOOLEAN;
 	}
 	private MidSaveNodeType saveType;
+	private MidMemoryNode destination;
 	
-	public MidSaveNode(MidRegisterNode refNode) {
+	private MidSaveNode(MidMemoryNode dest){
+		assert dest != null;
+		this.destination = dest;
+	}
+	
+	public MidSaveNode(MidRegisterNode refNode, MidMemoryNode dest) {
+		this(dest);
 		this.registerNode = refNode;
 		this.saveType = MidSaveNodeType.REGISTER;
 	}
 	
-	public MidSaveNode(long decafIntValue) {
+	public MidSaveNode(long decafIntValue, MidMemoryNode dest) {
+		this(dest);
 		this.decafIntValue = decafIntValue;
 		this.saveType = MidSaveNodeType.INT;
 	}
 	
-	public MidSaveNode(boolean decafBooleanValue) {
+	public MidSaveNode(boolean decafBooleanValue, MidMemoryNode dest) {
+		this(dest);
 		this.decafBooleanValue = decafBooleanValue;
 		this.saveType = MidSaveNodeType.BOOLEAN;
 	}
@@ -45,6 +54,10 @@ public class MidSaveNode extends MidMemoryNode {
 		return decafBooleanValue;
 	}
 	
+	public MidMemoryNode getDestinationNode() {
+		return this.destination;
+	}
+	
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
@@ -59,7 +72,7 @@ public class MidSaveNode extends MidMemoryNode {
 		case REGISTER:
 			value = "reg";
 		}
-		return "<" + className.substring(mid) + ": " + value + ">";
+		return "<" + className.substring(mid) + ": " + value + " to " + destination.toString() + ">";
 	}
 
 }
