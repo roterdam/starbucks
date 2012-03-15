@@ -3,6 +3,9 @@ package edu.mit.compilers.grammar.tokens;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.crawler.ValidReturnChecker;
@@ -48,6 +51,11 @@ public class BLOCKNode extends DecafNode {
 		scope = new Scope(scope, blockType);
 		super.validate(scope);
 		scope = scope.getParent();
+	}
+	
+	@Override
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
 	}
 
 	@Override
