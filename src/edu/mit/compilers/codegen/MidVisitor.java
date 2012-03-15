@@ -218,16 +218,13 @@ public class MidVisitor {
 		MidNodeList newOperandList = new MidNodeList();
 		try {
 			MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-			MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
-			
-			assert !rightOperandList.isEmpty();		
-			assert !leftOperandList.isEmpty();
+			MidMemoryNode leftOperandNode = symbolTable.getVar(node.getLocation().getText());
 			
 			// Load from memory into register and add to left hand side
 			MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
-			MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getSaveNode().getDestinationNode());
+			MidLoadNode loadLeftNode = new MidLoadNode(leftOperandNode);
 			MidBinaryRegNode binaryRegNode = nodeClass.getConstructor(MidLoadNode.class, MidLoadNode.class).newInstance(loadLeftNode, loadRightNode);
-			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode, leftOperandList.getSaveNode().getDestinationNode());
+			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode, leftOperandNode);
 			
 			// Save from register to memory
 			newOperandList.addAll(rightOperandList);
@@ -337,7 +334,6 @@ public class MidVisitor {
 		return nodeList;
 		
 	}
-
 	public static MidNodeList visit(FORNode node, MidSymbolTable symbolTable) {
 		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.FOR);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ROF);
@@ -364,6 +360,7 @@ public class MidVisitor {
 		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
 		intLiteralNode.setText("1");
 		intLiteralNode.initializeValue();
+		
 		IDNode idNode = new IDNode();
 		idNode.setText(node.getAssignNode().getLocation().getText());
 		PLUS_ASSIGNNode incrementNode = new PLUS_ASSIGNNode();
@@ -381,7 +378,7 @@ public class MidVisitor {
 		outputList.addAll(statementList);
 		outputList.addAll(incrementList);
 		outputList.add(jumpStartNode);
-		
+		outputList.add(endLabel);
 		return outputList;
 		
 	}
