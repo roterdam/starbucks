@@ -14,7 +14,7 @@ public class MidLabelManager {
 	}};
 	
 	public enum LabelType {
-		FOR, ROF, WHILE, ELIHW, IF, FI, FOR_NEXT;
+		FOR, ROF, WHILE, ELIHW, IF, FI, FOR_NEXT, SHORT, ELSE, WHILE_BODY;
 	}
 	
 	public static MidLabelNode getLabel(LabelType type) {

@@ -15,6 +15,5 @@ public class OpBoolBool2BoolNode extends DoubleOperandNode {
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
-	}
-
+	}	
 }

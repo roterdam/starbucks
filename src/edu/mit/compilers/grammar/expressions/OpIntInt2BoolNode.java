@@ -16,5 +16,4 @@ public class OpIntInt2BoolNode extends DoubleOperandNode {
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}
-
 }

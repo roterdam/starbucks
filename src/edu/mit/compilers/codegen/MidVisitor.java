@@ -12,6 +12,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
+import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
@@ -26,28 +27,37 @@ import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.DeclNode;
+import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.UnaryMinusNode;
 import edu.mit.compilers.grammar.VarTypeNode;
 import edu.mit.compilers.grammar.expressions.DoubleOperandNode;
+import edu.mit.compilers.grammar.expressions.OpIntInt2BoolNode;
 import edu.mit.compilers.grammar.expressions.SingleOperandNode;
+import edu.mit.compilers.grammar.tokens.ANDNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
+import edu.mit.compilers.grammar.tokens.BANGNode;
 import edu.mit.compilers.grammar.tokens.BLOCKNode;
 import edu.mit.compilers.grammar.tokens.BREAKNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.CONTINUENode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
+import edu.mit.compilers.grammar.tokens.EQNode;
 import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
 import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
+import edu.mit.compilers.grammar.tokens.IFNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.INT_TYPENode;
+import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.MINUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.MODNode;
+import edu.mit.compilers.grammar.tokens.NEQNode;
+import edu.mit.compilers.grammar.tokens.ORNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
 import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
@@ -55,12 +65,11 @@ import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
+import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
 
 public class MidVisitor {
 
 	public static MidNodeList visit(DecafNode node, MidSymbolTable symbolTable) {
-		// TODO: replace with real logic, i.e. call visitor.visit() on all
-		// children.
 		assert false : "Implement convertToMidLevel in "+node.getClass();
 		return new MidNodeList();
 	}
@@ -161,24 +170,19 @@ public class MidVisitor {
 			out.add(new MidSaveNode(unaryNode, dest));
 			return out;
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		assert false : "NO EXCEPTIONS ALLOWED";
 		return null;
 	}
 	
@@ -193,6 +197,7 @@ public class MidVisitor {
 	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
+		// TODO: needs to handle boolean expressions.
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
 		assert rightOperandList.size >= 1;
 		
@@ -234,7 +239,7 @@ public class MidVisitor {
 			newOperandList.add(loadRightNode);
 			newOperandList.add(binaryRegNode);
 			newOperandList.add(saveRegNode);
-			
+			return newOperandList;	
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
@@ -248,7 +253,8 @@ public class MidVisitor {
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-		return newOperandList;		
+		assert false : "NO EXCEPTIONS ALLOWED";
+		return null;
 	}
 	
 	
@@ -408,45 +414,27 @@ public class MidVisitor {
 		
 	//}
 	
-	public static MidNodeList visit(WHILENode node, MidSymbolTable symbolTable) {/*		
-		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.WHILE);
-		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ELIHW);
-		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, endLabel);
+	public static MidNodeList visit(WHILENode node, MidSymbolTable symbolTable) {
 		MidNodeList outputList = new MidNodeList();
 		
-		MidNodeList conditionList = node.getWhileTerminateNode().getExpressionNode().convertToMidLevel(newSymbolTable);
-		MidSaveNode conditionNode = (MidSaveNode) conditionList.getMemoryNode(); 
-			
-		MidLoadNode assignLoadNode = new MidLoadNode(assignNode);
-		MidLoadNode limitLoadNode = new MidLoadNode(limitNode);
-		MidCompareNode compareNode = new MidCompareNode(assignLoadNode, limitLoadNode);
-		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
-		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
+		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.WHILE);
+		MidLabelNode bodyLabel = MidLabelManager.getLabel(LabelType.WHILE_BODY);
+		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ELIHW);
+		MidJumpNode loopJump = new MidJumpNode(startLabel);
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, startLabel, endLabel);
 		
-		MidNodeList statementList = node.getBlockNode().convertToMidLevel(newSymbolTable);
+		ExpressionNode logicNode = node.getWhileTerminateNode().getExpressionNode();
+		MidNodeList branchList = logicNode.shortCircuit(newSymbolTable, bodyLabel, endLabel);
 		
-		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
-		intLiteralNode.setText("1");
-		IDNode idNode = new IDNode();
-		idNode.setText(node.getAssignNode().getLocation().getText());
-		PLUS_ASSIGNNode incrementNode = new PLUS_ASSIGNNode();
-		idNode.setNextSibling(intLiteralNode);
-		incrementNode.setFirstChild(idNode);
-		MidNodeList incrementList = incrementNode.convertToMidLevel(newSymbolTable);
+		MidNodeList bodyList = node.getBlockNode().convertToMidLevel(newSymbolTable);
 		
-		outputList.addAll(assignList);
-		outputList.addAll(limitList);
 		outputList.add(startLabel);
-		outputList.add(assignLoadNode);
-		outputList.add(limitLoadNode);
-		outputList.add(compareNode);
-		outputList.add(jumpEndNode);
-		outputList.addAll(statementList);
-		outputList.addAll(incrementList);
-		outputList.add(jumpStartNode);
-		
-		return outputList;				*/
-		return null;
+		outputList.addAll(branchList);
+		outputList.add(bodyLabel);
+		outputList.addAll(bodyList);
+		outputList.add(loopJump);
+		outputList.add(endLabel);
+		return outputList;
 	}
 	
 
@@ -502,4 +490,144 @@ public class MidVisitor {
 
 		return symbolTable;
 	}
+	
+	public static MidNodeList visit(IFNode node, MidSymbolTable symbolTable){
+		MidNodeList nodeList = new MidNodeList();
+		
+		MidLabelNode ifLabel = MidLabelManager.getLabel(LabelType.IF);
+		MidLabelNode elseLabel = MidLabelManager.getLabel(LabelType.ELSE);
+		MidLabelNode fiLabel = MidLabelManager.getLabel(LabelType.FI);
+		
+		MidJumpNode skipElseJumpNode = new MidJumpNode(fiLabel);
+		
+		MidNodeList branchList = node.getIfClauseNode().getExpressionNode().shortCircuit(symbolTable, ifLabel, elseLabel);
+		MidNodeList ifList = node.getBlockNode().convertToMidLevel(symbolTable);
+		MidNodeList elseList = new MidNodeList();
+		if(node.getElseBlock() != null)
+			elseList = node.getElseBlock().convertToMidLevel(symbolTable);
+		else
+			elseList = new MidNodeList();
+		
+		nodeList.addAll(branchList);
+		nodeList.add(ifLabel);
+		nodeList.addAll(ifList);
+		nodeList.add(skipElseJumpNode);
+		nodeList.add(elseLabel);
+		nodeList.addAll(elseList);
+		nodeList.add(fiLabel);
+		return nodeList;
+	}
+	public static MidNodeList shortCircuit(ExpressionNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		assert false : node.getClass() + " cannot be short circuited.";
+		return null;
+	}
+	public static MidNodeList shortCircuit(ORNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidNodeList nodeList = new MidNodeList();
+		MidLabelNode rightLabel = MidLabelManager.getLabel(LabelType.SHORT);
+		MidNodeList rightShortList = node.getRightOperand().shortCircuit(symbolTable, trueLabel, falseLabel);
+		MidNodeList leftShortList = node.getLeftOperand().shortCircuit(symbolTable, trueLabel, rightLabel);
+		nodeList.addAll(leftShortList);
+		nodeList.add(rightLabel);
+		nodeList.addAll(rightShortList);
+		return rightShortList;
+	}
+	
+	public static MidNodeList shortCircuit(ANDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidNodeList nodeList = new MidNodeList();
+		MidLabelNode rightLabel = MidLabelManager.getLabel(LabelType.SHORT);
+		MidNodeList rightShortList = node.getRightOperand().shortCircuit(symbolTable, trueLabel, falseLabel);
+		MidNodeList leftShortList = node.getLeftOperand().shortCircuit(symbolTable, rightLabel, falseLabel);
+		nodeList.addAll(leftShortList);
+		nodeList.add(rightLabel);
+		nodeList.addAll(rightShortList);
+		return rightShortList;
+	}
+	
+	public static MidNodeList shortCircuit(BANGNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidNodeList nodeList = node.shortCircuit(symbolTable, falseLabel, trueLabel);
+		return nodeList;
+	}
+	
+	public static MidNodeList shortCircuit(NEQNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		//TODO: make this have common code with EQNOde
+		assert false : "implement me";
+		return null;
+	}
+	public static MidNodeList shortCircuit(OpIntInt2BoolNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		//TODO: make this have common code with EQNOde
+		assert false : "Implement for each int-int-2-bool";
+		return null;
+	}
+	public static MidNodeList shortCircuit(EQNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidNodeList nodeList = new MidNodeList();
+		
+		MidNodeList leftList = new MidNodeList();
+		MidNodeList rightList = new MidNodeList();
+		
+		// Bool-bool case.
+		// TODO: We have no way of testing if this is bool-bool or expr-expr, need to maintain VarType.
+		
+		// Expr Expr case.
+		leftList = node.getLeftOperand().convertToMidLevel(symbolTable);
+		rightList = node.getRightOperand().convertToMidLevel(symbolTable);
+		
+		
+		
+		MidLoadNode leftLoadNode = new MidLoadNode(leftList.getSaveNode().getDestinationNode());
+		MidLoadNode rightLoadNode = new MidLoadNode(rightList.getSaveNode().getDestinationNode());
+		MidCompareNode compareNode = new MidCompareNode(leftLoadNode, rightLoadNode);
+		MidJumpEQNode jumpTrue = new MidJumpEQNode(trueLabel);
+		MidJumpNode jumpFalse = new MidJumpNode(falseLabel);
+		
+		
+		nodeList.addAll(leftList);
+		nodeList.addAll(rightList);
+		nodeList.add(leftLoadNode);
+		nodeList.add(rightLoadNode);
+		nodeList.add(compareNode);
+		nodeList.add(jumpTrue);
+		nodeList.add(jumpFalse);
+		
+		return nodeList;
+	}
+	public static MidNodeList shortCircuit(TRUENode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidNodeList nodeList = new MidNodeList();
+		MidJumpNode jumpNode = new MidJumpNode(trueLabel);
+		nodeList.add(jumpNode);
+		return nodeList;
+	}
+	public static MidNodeList shortCircuit(FALSENode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidNodeList nodeList = new MidNodeList();
+		MidJumpNode jumpNode = new MidJumpNode(falseLabel);
+		nodeList.add(jumpNode);
+		return nodeList;
+	}
+	public static MidNodeList shortCircuit(METHOD_CALLNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		assert false : "This needs to be implemented";
+		return null;
+	}
+	
+	public static MidNodeList shortCircuit(IDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		MidMemoryNode declNode = symbolTable.getVar(node.getText());
+		MidLoadNode loadNode = new MidLoadNode(declNode);
+		MidMemoryNode tempNode = new MidTempDeclNode();
+		MidSaveNode zeroNode = new MidSaveNode(false, tempNode);
+		MidLoadNode zeroLoadNode = new MidLoadNode(tempNode);
+		MidCompareNode compareNode = new MidCompareNode(loadNode, zeroLoadNode);
+		MidJumpEQNode jumpFalseNode = new MidJumpEQNode(falseLabel);
+		MidJumpNode jumpTrueNode = new MidJumpNode(trueLabel);
+		
+		MidNodeList nodeList = new MidNodeList();
+		
+		nodeList.add(declNode);
+		nodeList.add(loadNode);
+		nodeList.add(tempNode);
+		nodeList.add(zeroNode);
+		nodeList.add(zeroLoadNode);
+		nodeList.add(compareNode);
+		nodeList.add(jumpFalseNode);
+		nodeList.add(jumpTrueNode);
+		return nodeList;
+	}
+	
 }

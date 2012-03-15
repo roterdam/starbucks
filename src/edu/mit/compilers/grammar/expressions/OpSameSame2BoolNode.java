@@ -11,10 +11,9 @@ public class OpSameSame2BoolNode extends DoubleOperandNode {
 	public VarType getReturnType(Scope scope) {
 		return VarType.BOOLEAN;
 	}
-	
+
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}
-
 }

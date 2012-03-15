@@ -16,5 +16,4 @@ public class OpBool2BoolNode extends SingleOperandNode {
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}
-	
 }
