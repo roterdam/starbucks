@@ -1,6 +1,6 @@
 package edu.mit.compilers.codegen.nodes;
 
-public class MidFieldDeclNode extends MidVarDeclNode {
+public class MidFieldDeclNode extends MidMemoryNode {
 	private String name;
 
 	// TODO: When we get to implementing space allocation, array subclass knows

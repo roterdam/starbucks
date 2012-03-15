@@ -1,6 +1,6 @@
 package edu.mit.compilers.codegen.nodes;
 
-public class MidLocalVarDeclNode extends MidVarDeclNode {
+public class MidLocalVarDeclNode extends MidMemoryNode {
 	private String name;
 	
 	public MidLocalVarDeclNode(String name) {
