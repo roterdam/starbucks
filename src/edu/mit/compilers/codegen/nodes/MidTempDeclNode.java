@@ -1,11 +1,12 @@
 package edu.mit.compilers.codegen.nodes;
 
-public class MidLocalVarDeclNode extends MidVarDeclNode {
+public class MidTempDeclNode extends MidVarDeclNode {
 	private String name;
 	
-	public MidLocalVarDeclNode(String name) {
+	public MidTempDeclNode() {
 		super();
-		this.name = name;
+		//generate a random temp id
+		this.name = Integer.toString(this.hashCode());
 	}
 
 	public String getName() {
@@ -15,6 +16,6 @@ public class MidLocalVarDeclNode extends MidVarDeclNode {
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		return "<" + className.substring(mid) + ": " + ">";
+		return "<" + className.substring(mid) + ": " + name + " >";
 	}
 }
