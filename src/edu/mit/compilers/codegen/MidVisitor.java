@@ -181,7 +181,6 @@ public class MidVisitor {
 	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		MidNodeList leftOperandList = node.getLocation().convertToMidLevel(symbolTable);
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
 		assert rightOperandList.size >= 1;
 		
@@ -190,7 +189,7 @@ public class MidVisitor {
 		rightOperandList.add(loadNode);
 		
 		// Save from register to memory
-		MidSaveNode saveNode = new MidSaveNode(loadNode, leftOperandList.getMemoryNode());
+		MidSaveNode saveNode = new MidSaveNode(loadNode, symbolTable.getVar(node.getLocation().getText()));
 		rightOperandList.add(saveNode);
 		
 		return rightOperandList;
