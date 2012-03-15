@@ -7,20 +7,20 @@ import edu.mit.compilers.codegen.nodes.MidMemoryNode;
  */
 public class MidLoadNode extends MidRegisterNode {
 
-	private MidMemoryNode saveNode;
+	private MidMemoryNode memoryNode;
 
-	public MidLoadNode(MidMemoryNode saveNode) {
-		this.saveNode = saveNode;
+	public MidLoadNode(MidMemoryNode memoryNode) {
+		this.memoryNode = memoryNode;
 	}
 
-	public MidMemoryNode getSaveNode() {
-		return saveNode;
+	public MidMemoryNode getMemoryNode() {
+		return memoryNode;
 	}
 
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		return "<" + className.substring(mid) + ": " + saveNode.toString() + ">";
+		return "<" + className.substring(mid) + ": " + memoryNode.toString() + ">";
 	}
 
 }

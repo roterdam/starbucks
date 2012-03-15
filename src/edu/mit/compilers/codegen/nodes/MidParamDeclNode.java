@@ -1,6 +1,6 @@
 package edu.mit.compilers.codegen.nodes;
 
-public class MidParamDeclNode extends MidVarDeclNode {
+public class MidParamDeclNode extends MidMemoryNode {
 	
 	private String name;
 	

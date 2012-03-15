@@ -7,11 +7,11 @@ import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
+import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
-import edu.mit.compilers.codegen.nodes.MidVarDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
@@ -81,8 +81,8 @@ public class MidVisitor {
 			MidNodeList[] preLists = partialVisit(node, symbolTable);
 			assert preLists.length == 2;
 			
-			MidLoadNode leftLoadNode = new MidLoadNode(preLists[0].getMemoryNode());
-			MidLoadNode rightLoadNode = new MidLoadNode(preLists[1].getMemoryNode());
+			MidLoadNode leftLoadNode = new MidLoadNode(preLists[0].getSaveNode().getDestinationNode());
+			MidLoadNode rightLoadNode = new MidLoadNode(preLists[1].getSaveNode().getDestinationNode());
 			MidBinaryRegNode binNode;
 			binNode = c.getConstructor(MidLoadNode.class, MidLoadNode.class).newInstance(leftLoadNode, rightLoadNode);
 			MidNodeList out = preLists[0];
@@ -137,7 +137,7 @@ public class MidVisitor {
 		try {
 			MidNodeList nodeList = node.getOperand().convertToMidLevel(symbolTable);
 			assert nodeList.size >= 1;
-			MidLoadNode loadNode = new MidLoadNode(nodeList.getMemoryNode());
+			MidLoadNode loadNode = new MidLoadNode(nodeList.getSaveNode().getDestinationNode());
 			MidUnaryRegNode unaryNode;
 			unaryNode = c.getConstructor(MidLoadNode.class).newInstance(loadNode);
 
@@ -182,16 +182,15 @@ public class MidVisitor {
 	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		MidVarDeclNode leftOperandList = symbolTable.getVar(node.getLocation().getText());
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
 		assert rightOperandList.size >= 1;
 		
 		// Load from memory into register
-		MidLoadNode loadNode = new MidLoadNode(rightOperandList.getMemoryNode());
+		MidLoadNode loadNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
 		rightOperandList.add(loadNode);
 		
 		// Save from register to memory
-		MidSaveNode saveNode = new MidSaveNode(loadNode, leftOperandList.getMemoryNode());
+		MidSaveNode saveNode = new MidSaveNode(loadNode, symbolTable.getVar(node.getLocation().getText()));
 		rightOperandList.add(saveNode);
 		
 		return rightOperandList;
@@ -199,20 +198,18 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
 		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-		MidVarDeclNode leftOperandList = symbolTable.getVar(node.getLocation().getText());
+		MidMemoryNode leftOperandNode = symbolTable.getVar(node.getLocation().getText());
 		MidNodeList newOperandList = new MidNodeList();
 		
-		assert rightOperandList.getTail() != null;		
-		assert leftOperandList.getTail() != null;
 		
 		// Load from memory into register and add to left hand side
-		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getMemoryNode());
-		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getMemoryNode());
+		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
+		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandNode);
 		MidPlusNode plusNode = new MidPlusNode(loadLeftNode, loadRightNode);
-		MidSaveNode savePlusNode = new MidSaveNode(plusNode, leftOperandList.getMemoryNode());
+		MidSaveNode savePlusNode = new MidSaveNode(plusNode, leftOperandNode);
 		
 		// Save from register to memory
-		newOperandList.addAll(leftOperandList);
+		newOperandList.add(leftOperandNode);
 		newOperandList.addAll(rightOperandList);
 		newOperandList.add(loadLeftNode);
 		newOperandList.add(loadRightNode);
@@ -231,10 +228,10 @@ public class MidVisitor {
 		assert leftOperandList.getTail() != null;
 		
 		// Load from memory into register and add to left hand side
-		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getMemoryNode());
-		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getMemoryNode());
+		MidLoadNode loadRightNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
+		MidLoadNode loadLeftNode = new MidLoadNode(leftOperandList.getSaveNode().getDestinationNode());
 		MidMinusNode minusNode = new MidMinusNode(loadLeftNode, loadRightNode);
-		MidSaveNode saveMinusNode = new MidSaveNode(minusNode, leftOperandList.getMemoryNode());
+		MidSaveNode saveMinusNode = new MidSaveNode(minusNode, leftOperandList.getSaveNode().getDestinationNode());
 		
 		// Save from register to memory
 		newOperandList.addAll(leftOperandList);
@@ -272,6 +269,16 @@ public class MidVisitor {
 		return out;
 	}
 	
+	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable){
+		MidNodeList out = new MidNodeList();
+		MidLoadNode loadNode = new MidLoadNode(symbolTable.getVar(node.getText()));
+		MidTempDeclNode tempNode = new MidTempDeclNode();
+		out.add(loadNode);
+		out.add(tempNode);
+		out.add(new MidSaveNode(loadNode, tempNode));
+		return out;
+	}
+	
 	/**
 	 * Special method returns a MidMethodDeclNode instead of the usual List.
 	 */
@@ -303,13 +310,13 @@ public class MidVisitor {
 		MidNodeList outputList = new MidNodeList();
 		
 		MidNodeList assignList = node.getAssignNode().convertToMidLevel(newSymbolTable);
-		MidSaveNode assignNode = (MidSaveNode)assignList.getMemoryNode();
+		MidSaveNode assignNode = (MidSaveNode)assignList.getSaveNode();
 		
 		MidNodeList limitList = node.getForTerminateNode().getExpressionNode().convertToMidLevel(newSymbolTable);
-		MidSaveNode limitNode = (MidSaveNode)limitList.getMemoryNode(); 
+		MidSaveNode limitNode = (MidSaveNode)limitList.getSaveNode(); 
 		
-		MidLoadNode assignLoadNode = new MidLoadNode(assignNode);
-		MidLoadNode limitLoadNode = new MidLoadNode(limitNode);
+		MidLoadNode assignLoadNode = new MidLoadNode(assignNode.getDestinationNode());
+		MidLoadNode limitLoadNode = new MidLoadNode(limitNode.getDestinationNode());
 		MidCompareNode compareNode = new MidCompareNode(assignLoadNode, limitLoadNode);
 		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);

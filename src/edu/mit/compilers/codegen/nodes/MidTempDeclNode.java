@@ -1,6 +1,6 @@
 package edu.mit.compilers.codegen.nodes;
 
-public class MidTempDeclNode extends MidVarDeclNode {
+public class MidTempDeclNode extends MidMemoryNode {
 	private String name;
 	
 	public MidTempDeclNode() {
