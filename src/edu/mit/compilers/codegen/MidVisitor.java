@@ -352,12 +352,45 @@ public class MidVisitor {
 		
 	//}
 	
-	public static MidNodeList visit(WHILENode node, MidSymbolTable symbolTable) {
-		//MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
-		//MidNodeList mn = new MidNodeList();
+	public static MidNodeList visit(WHILENode node, MidSymbolTable symbolTable) {/*		
+		MidLabelNode startLabel = MidLabelManager.getLabel(LabelType.WHILE);
+		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ELIHW);
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, endLabel);
+		MidNodeList outputList = new MidNodeList();
 		
+		MidNodeList conditionList = node.getWhileTerminateNode().getExpressionNode().convertToMidLevel(newSymbolTable);
+		MidSaveNode conditionNode = (MidSaveNode) conditionList.getMemoryNode(); 
+			
+		MidLoadNode assignLoadNode = new MidLoadNode(assignNode);
+		MidLoadNode limitLoadNode = new MidLoadNode(limitNode);
+		MidCompareNode compareNode = new MidCompareNode(assignLoadNode, limitLoadNode);
+		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
+		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
+		
+		MidNodeList statementList = node.getBlockNode().convertToMidLevel(newSymbolTable);
+		
+		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
+		intLiteralNode.setText("1");
+		IDNode idNode = new IDNode();
+		idNode.setText(node.getAssignNode().getLocation().getText());
+		PLUS_ASSIGNNode incrementNode = new PLUS_ASSIGNNode();
+		idNode.setNextSibling(intLiteralNode);
+		incrementNode.setFirstChild(idNode);
+		MidNodeList incrementList = incrementNode.convertToMidLevel(newSymbolTable);
+		
+		outputList.addAll(assignList);
+		outputList.addAll(limitList);
+		outputList.add(startLabel);
+		outputList.add(assignLoadNode);
+		outputList.add(limitLoadNode);
+		outputList.add(compareNode);
+		outputList.add(jumpEndNode);
+		outputList.addAll(statementList);
+		outputList.addAll(incrementList);
+		outputList.add(jumpStartNode);
+		
+		return outputList;				*/
 		return null;
-		
 	}
 	
 
