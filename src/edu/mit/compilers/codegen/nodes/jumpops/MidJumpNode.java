@@ -17,4 +17,9 @@ public class MidJumpNode extends MidNode {
 	public String toString(){
 		return "<"+this.getNodeClass()+": "+getLabelNode()+">";
 	}
+	
+	@Override
+	public String toDotSyntax() {
+		return super.toDotSyntax() + hashCode() + " -> " + labelNode.hashCode() + " [style=dashed,color=red];\n";
+	}
 }

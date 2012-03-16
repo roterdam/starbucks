@@ -79,7 +79,11 @@ public class MidSaveNode extends MidNode {
 
 	@Override
 	public String toDotSyntax() {
-		return super.toDotSyntax() + hashCode() + " -> "
-				+ destination.hashCode() + " [style=dotted];\n";
+		String out = super.toDotSyntax() + hashCode() + " -> "
+				+ destination.hashCode() + " [style=dotted,color=green];\n";
+		if (saveType == MidSaveNodeType.REGISTER) {
+			out += registerNode.hashCode() + " -> " + hashCode() + " [style=dotted,color=green];\n";
+		}
+		return out;
 	}
 }
