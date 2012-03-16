@@ -9,17 +9,23 @@ import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 
 public class MidNodeList implements List<MidNode> {
-	
+
 	private MidNode head;
 	private MidNode tail;
 	int size;
-	
+
 	/**
 	 * Please do not add a node twice to the list. Breaks will shit.
 	 */
 	public boolean add(MidNode object) {
 		assert object != null : "Don't add null to the list!";
-		assert object.getNextNode() == null : "Don't add things that are already in lists!"; // this is not an all encompassing assert
+		assert object.getNextNode() == null : "Don't add things that are already in lists!"; // this
+																								// is
+																								// not
+																								// an
+																								// all
+																								// encompassing
+																								// assert
 		if (tail == null) {
 			head = object;
 			tail = head;
@@ -34,8 +40,7 @@ public class MidNodeList implements List<MidNode> {
 	public boolean addAll(MidNodeList list) {
 		if (list == null) {
 			return false;
-		}
-		else if (this.isEmpty()) {
+		} else if (this.isEmpty()) {
 			head = list.getHead();
 			tail = list.getTail();
 			size = list.size();
@@ -45,7 +50,7 @@ public class MidNodeList implements List<MidNode> {
 			tail = list.getTail();
 			size += list.size();
 		}
-		
+
 		return true;
 	}
 
@@ -169,7 +174,7 @@ public class MidNodeList implements List<MidNode> {
 	public boolean addAll(int arg0, Collection<? extends MidNode> arg1) {
 		throw new java.lang.UnsupportedOperationException();
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
@@ -182,11 +187,11 @@ public class MidNodeList implements List<MidNode> {
 		sb.append("]");
 		return sb.toString();
 	}
-	
+
 	private String getUniqueName(String rootName, int i) {
 		return rootName + i;
 	}
-	
+
 	/**
 	 * Only returns the relevant part of the graph, not the entire dot file.
 	 */
@@ -194,23 +199,26 @@ public class MidNodeList implements List<MidNode> {
 		StringBuilder out = new StringBuilder();
 
 		MidNode head = getHead();
-		if(head == null) return "[]";
-		String prefix = rootName +  " -> ";
+		if (head == null)
+			return rootName + " -> " + hashCode() + ";\n" + hashCode() + " [label=\"EMPTY\"];\n";
+		String prefix = rootName + " -> ";
 		for (int i = 0; i < size(); i++) {
-			assert head != null : "why you got null.. iterating over "+size()+" elements. stuck at "+i;
+			assert head != null : "why you got null.. iterating over " + size()
+					+ " elements. stuck at " + i;
 			out.append(prefix);
 			out.append(getUniqueName(rootName, i) + ";\n");
-			out.append(getUniqueName(rootName, i) + "[label=\"" + head.toString() + "\"];\n");
+			out.append(getUniqueName(rootName, i) + "[label=\""
+					+ head.toString() + "\"];\n");
 			head = head.getNextNode();
 			prefix = getUniqueName(rootName, i) + " -> ";
 		}
-		
+
 		return out.toString();
 	}
-	
+
 	public MidSaveNode getSaveNode() {
 		assert getTail() instanceof MidSaveNode : toString();
 		return (MidSaveNode) getTail();
 	}
-	
+
 }

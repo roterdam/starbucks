@@ -29,8 +29,8 @@ import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
+import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
-import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.SubtractNode;
@@ -74,7 +74,6 @@ import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
-import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
 
 public class MidVisitor {
 
