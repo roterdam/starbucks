@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidNodeList;
-import edu.mit.compilers.codegen.StorageVisitor;
+import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -72,7 +72,7 @@ public class MidMethodDeclNode extends MidNode {
 		// have local and temp decls NOT allocate any more space.
 		int stackVars = 0;
 		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(stackVars)
-				+ " * " + StorageVisitor.ADDRESS_SIZE_STRING, "0"));
+				+ " * " + MemoryManager.ADDRESS_SIZE_STRING, "0"));
 
 		out.addAll(nodeList.toASM());
 

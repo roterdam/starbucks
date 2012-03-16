@@ -581,7 +581,7 @@ public class MidVisitor {
 			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
 		}
 		
-		StorageVisitor.assignStorage(symbolTable);
+		MemoryManager.assignStorage(symbolTable);
 		
 		return symbolTable;
 	}

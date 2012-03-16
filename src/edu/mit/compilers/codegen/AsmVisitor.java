@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.mit.compilers.codegen.asm.ASM;
-import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
@@ -23,15 +22,16 @@ public class AsmVisitor {
 
 	public static String generate(MidSymbolTable symbolTable) {
 
+		List<ASM> asm = new ArrayList<ASM>();
+		
+		asm.addAll(createBSSSection(symbolTable));
 		dataSection = createDataSection(symbolTable);
-
 		List<ASM> textSection = createTextSection();
 
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
 
-		List<ASM> asm = new ArrayList<ASM>();
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
 
@@ -48,21 +48,27 @@ public class AsmVisitor {
 	}
 
 	/**
-	 * Initializes data section with fields.
+	 * Initializes .bss section with fields. Note that .bss is meant for
+	 * UNINITIALIZED data, as opposed to the .data section.
 	 * 
 	 * @return
 	 */
-	private static List<ASM> createDataSection(MidSymbolTable symbolTable) {
+	private static List<ASM> createBSSSection(MidSymbolTable symbolTable) {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new SectionASM("data"));
+		out.add(new SectionASM("bss"));
 		Map<String, MidMemoryNode> fieldVars = symbolTable.getLocalVars();
 		for (String fieldName : fieldVars.keySet()) {
 			MidFieldDeclNode fieldNode = (MidFieldDeclNode) fieldVars
 					.get(fieldName);
-			out.add(new LabelASM("", fieldNode.getFormattedLocationReference()));
-			out.add(new OpASM(String.format("placeholder for `%s`",fieldNode.getName()),
-					OpCode.DB, "dword 0"));
+			out.add(fieldNode.getFieldLabel());
+			out.add(fieldNode.getFieldDeclaration());
 		}
+		return out;
+	}
+	
+	private static List<ASM> createDataSection(MidSymbolTable symbolTable) {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new SectionASM("data"));
 		return out;
 	}
 
