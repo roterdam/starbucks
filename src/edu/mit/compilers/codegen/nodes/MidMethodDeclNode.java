@@ -58,11 +58,6 @@ public class MidMethodDeclNode extends MidNode {
 		
 		out.addAll(nodeList.toASM());
 		
-		out.add(new OpASM(OpASM.OpCode.NOP, 
-				new String[] {"REG1", "REG2"}, 
-				"EXITING " + this.getName()));
-		
-
 		return out;
 	}
 	

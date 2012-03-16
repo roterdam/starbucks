@@ -13,9 +13,9 @@ public class LabelASM extends ASM{
 	@Override
 	public String toString(){
 		if (comment != ""){
-			return String.format("%-24s ; %s\n", name + ":", comment);
+			return String.format("\n%-24s ; %s\n", name + ":", comment);
 		} else {
-			return String.format("   %s:\n", name);
+			return String.format("\n   %s:\n", name);
 		}
 	}
 	

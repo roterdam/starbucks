@@ -1,5 +1,11 @@
 package edu.mit.compilers.codegen.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.OpASM;
+
 public class MidReturnNode extends MidNode {
 	
 	MidMemoryNode returnValue;
@@ -11,4 +17,11 @@ public class MidReturnNode extends MidNode {
 		this.returnValue = returnValue;
 	}
 
+	public List<ASM> toASM() {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new OpASM(OpASM.OpCode.RET, 
+						new String[] {}, 
+							"Error: Needs to do more in MidReturnNode"));
+		return out;
+	}
 }
