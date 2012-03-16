@@ -3,7 +3,6 @@ package edu.mit.compilers.grammar;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
-import edu.mit.compilers.codegen.ValuedMidNodeList;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;

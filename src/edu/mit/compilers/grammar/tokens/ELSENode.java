@@ -1,8 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
 import edu.mit.compilers.crawler.Scope;
-import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.Scope.BlockType;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.grammar.DecafNode;
 
 

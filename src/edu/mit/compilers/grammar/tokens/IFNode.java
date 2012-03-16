@@ -4,8 +4,8 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
-import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.Scope.BlockType;
+import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.grammar.DecafNode;
 
 @SuppressWarnings("serial")
