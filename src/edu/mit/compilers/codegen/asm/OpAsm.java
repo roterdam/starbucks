@@ -1,8 +1,6 @@
 package edu.mit.compilers.codegen.asm;
 
-import java.util.List;
-
-public class OpAsm {
+public class OpASM extends ASM {
 	
 	public enum OpCode {
 		ADD,
@@ -29,6 +27,7 @@ public class OpAsm {
 		LEAVE,
 		MOV,
 		NEG,
+		NOP,
 		POP,
 		PUSH,
 		RET,
@@ -41,10 +40,10 @@ public class OpAsm {
 	}
 	
 	private OpCode op;
-	private List<String> args;
+	private String[] args;
 	private String comment;
 	
-	public OpAsm(OpCode op, List<String> args, String comment) {
+	public OpASM(OpCode op, String[] args, String comment) {
 		this.op = op;
 		this.args = args;
 		this.comment = comment;
@@ -52,7 +51,16 @@ public class OpAsm {
 	
 	@Override
 	public String toString(){
-		return op.toString() + args.toString() + " // " + comment;
+		StringBuilder arguments = new StringBuilder();
+		for (String a : this.args){
+			arguments.append(a + " ");
+		}
+		if (comment != ""){
+			return String.format("   %-10s %-10s ; %s\n", op.toString(), arguments.toString(), comment);
+		} else {
+			return String.format("   %-10s %-10s\n", op.toString(), arguments.toString());
+		}
+		
 	}
 	
 }

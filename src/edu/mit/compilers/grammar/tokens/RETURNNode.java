@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
@@ -40,4 +43,8 @@ public class RETURNNode extends DecafNode {
 		SemanticRules.apply(this, scope);
 	}
 	
+	@Override
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
+	}
 }

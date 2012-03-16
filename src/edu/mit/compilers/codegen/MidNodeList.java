@@ -1,10 +1,12 @@
 package edu.mit.compilers.codegen;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 
@@ -212,16 +214,14 @@ public class MidNodeList implements List<MidNode> {
 		return (MidSaveNode) getTail();
 	}
 
-	public String toASM() {
-		StringBuilder out = new StringBuilder();
-		out.append("NODELIST" + this);
+	public List<ASM> toASM() {
+		List<ASM> out = new ArrayList<ASM>();
 		
 		for (MidNode node : this){
-			out.append(node.toASM());
+			out.addAll(node.toASM());
 		}
 
-		out.append("");
-		return null;
+		return out;
 	}
 
 }

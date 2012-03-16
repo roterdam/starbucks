@@ -9,7 +9,9 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidLocalVarDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+import edu.mit.compilers.codegen.nodes.MidMethodNode;
 import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
+import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
@@ -70,6 +72,7 @@ import edu.mit.compilers.grammar.tokens.ORNode;
 import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
 import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
+import edu.mit.compilers.grammar.tokens.RETURNNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
@@ -362,6 +365,18 @@ public class MidVisitor {
 	public static MidNodeList visit(BREAKNode node, MidSymbolTable symbolTable) {
 		MidNodeList nodeList = new MidNodeList();
 		nodeList.add(new MidJumpNode(symbolTable.getBreakLabel()));
+		return nodeList;
+	}
+	
+	public static MidNodeList visit(RETURNNode node, MidSymbolTable symbolTable) {
+		MidNodeList nodeList = new MidNodeList();
+		nodeList.add(new MidReturnNode());
+		return nodeList;
+	}
+	
+	public static MidNodeList visit(METHOD_CALLNode node, MidSymbolTable symbolTable) {
+		MidNodeList nodeList = new MidNodeList();
+		nodeList.add(new MidMethodNode());
 		return nodeList;
 	}
 	

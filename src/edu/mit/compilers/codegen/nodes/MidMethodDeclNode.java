@@ -1,6 +1,12 @@
 package edu.mit.compilers.codegen.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.LabelASM;
+import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.crawler.VarType;
 
 public class MidMethodDeclNode extends MidNode {
@@ -41,16 +47,23 @@ public class MidMethodDeclNode extends MidNode {
 		return varType;
 	}
 
-	public String toASM() {
+	public List<ASM> toASM() {
 		
-		StringBuilder out = new StringBuilder();
-		out.append("ENTERING METHOD" + this.getName());
+		List<ASM> out = new ArrayList<ASM>();
 		
-		out.append(nodeList.toASM());
+		out.add(new LabelASM(this.getName(), 
+				"ENTERING " + this.getName()));
+		out.add(new OpASM(OpASM.OpCode.ENTER, new String[] {"REG1", "REG2"}, name));
+		
+		
+		out.addAll(nodeList.toASM());
+		
+		out.add(new OpASM(OpASM.OpCode.NOP, 
+				new String[] {"REG1", "REG2"}, 
+				"EXITING " + this.getName()));
+		
 
-		out.append("EXITING METHOD" + this.getName());
-		out.append("");
-		return null;
+		return out;
 	}
 	
 }

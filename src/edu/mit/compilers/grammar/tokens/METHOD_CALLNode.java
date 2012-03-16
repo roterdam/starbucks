@@ -55,5 +55,10 @@ public class METHOD_CALLNode extends ExpressionNode {
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
+	
+	@Override
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
+	}
 
 }

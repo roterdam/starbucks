@@ -1,5 +1,11 @@
 package edu.mit.compilers.codegen.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.OpASM;
+
 // TODO: make abstract
 public class MidNode {
 	MidNode nextNode;
@@ -22,8 +28,12 @@ public class MidNode {
 		return className.substring(mid);
 	}
 
-	public String toASM() {
-		return "TOASM";
+	public List<ASM> toASM() {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new OpASM(OpASM.OpCode.NOP, 
+						new String[] {}, 
+							"Error: IMPLEMENT toASM for " + this.getNodeClass()));
+		return out;
 	}
 
 	/**
