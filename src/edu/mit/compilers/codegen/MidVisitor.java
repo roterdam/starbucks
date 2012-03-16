@@ -537,7 +537,7 @@ public class MidVisitor {
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
-		return rightShortList;
+		return nodeList;
 	}
 	public static MidNodeList shortCircuit(ANDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		MidNodeList nodeList = new MidNodeList();
@@ -547,7 +547,7 @@ public class MidVisitor {
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
-		return rightShortList;
+		return nodeList;
 	}
 	public static MidNodeList shortCircuit(BANGNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		MidNodeList nodeList = node.shortCircuit(symbolTable, falseLabel, trueLabel);
@@ -680,7 +680,6 @@ public class MidVisitor {
 		
 		MidNodeList nodeList = new MidNodeList();
 		
-		nodeList.add(declNode);
 		nodeList.add(loadNode);
 		nodeList.add(tempNode);
 		nodeList.add(zeroNode);
