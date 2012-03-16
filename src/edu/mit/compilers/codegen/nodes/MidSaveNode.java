@@ -105,11 +105,7 @@ public class MidSaveNode extends MidNode {
 		case REGISTER:
 			// TODO: have registerNode be able to provide an ID
 			// rightOperand = registerNode.getRegisterId();
-<<<<<<< HEAD
-			rightOperand = null;
-=======
 			rightOperand = "r10";
->>>>>>> parent of 8065334... a begining of a memory manager
 			break;
 		case INT:
 			rightOperand = "dword " + Long.toString(decafIntValue);
@@ -122,13 +118,7 @@ public class MidSaveNode extends MidNode {
 			assert false : "invalid saveType";
 		}
 
-<<<<<<< HEAD
 		out.add(new OpASM(toString(), OpCode.MOV, destination.getFormattedLocationReference(), rightOperand));
-=======
-		// TODO: Have 803123 replaced by actual offset from destinationNode.
-		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
-				"[rbp - 803123]", rightOperand));
->>>>>>> parent of 8065334... a begining of a memory manager
 
 		return out;
 	}
