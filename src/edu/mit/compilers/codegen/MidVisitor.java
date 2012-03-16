@@ -28,6 +28,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
+import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.ModifyAssignNode;
@@ -72,7 +73,13 @@ public class MidVisitor {
 
 	public static MidNodeList visit(RETURNNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		out.add(new MidReturnNode());
+		MidMemoryNode returnMemoryNode = null;
+		if (node.hasReturnExpression()) {
+			MidNodeList returnExpressionlist = node.getReturnExpression().convertToMidLevel(symbolTable);
+			out.addAll(returnExpressionlist);
+			returnMemoryNode = returnExpressionlist.getSaveNode().getDestinationNode();
+		}
+		out.add(new MidReturnNode(returnMemoryNode));
 		return out;
 	}
 
@@ -87,8 +94,12 @@ public class MidVisitor {
 			out.addAll(paramList);
 		}
 
-		out.add(new MidMethodNode(symbolTable.getMethod(node.getMethodName()),
-				paramMemoryNodes));
+		MidMethodNode methodNode = new MidMethodNode(symbolTable.getMethod(node.getMethodName()),
+				paramMemoryNodes);
+		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
+		out.add(methodNode);
+		out.add(tempDeclNode);
+		out.add(new MidSaveNode(methodNode, tempDeclNode));
 
 		return out;
 	}

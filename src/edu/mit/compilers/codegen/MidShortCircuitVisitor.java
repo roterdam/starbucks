@@ -222,8 +222,27 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(METHOD_CALLNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		assert false : "This needs to be implemented";
-		return null;
+		MidNodeList out = new MidNodeList();
+		MidNodeList methodNodeList = node.convertToMidLevel(symbolTable);
+
+		MidMemoryNode tempNode = new MidTempDeclNode();
+		MidSaveNode trueNode = new MidSaveNode(true, tempNode);
+
+		MidCompareNode compareNode = new MidCompareNode(new MidLoadNode(
+				methodNodeList.getSaveNode().getDestinationNode()),
+				new MidLoadNode(tempNode));
+		
+		MidJumpEQNode jumpTrueNode = new MidJumpEQNode(trueLabel);
+		MidJumpNode jumpFalseNode = new MidJumpNode(falseLabel);
+		
+		out.addAll(methodNodeList);
+		out.add(tempNode);
+		out.add(trueNode);
+		out.add(compareNode);
+		out.add(jumpTrueNode);
+		out.add(jumpFalseNode);
+		
+		return out;
 	}
 
 	public static MidNodeList shortCircuit(IDNode node,
