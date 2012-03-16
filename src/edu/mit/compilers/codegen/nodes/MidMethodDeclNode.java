@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidNodeList;
-import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -66,13 +65,7 @@ public class MidMethodDeclNode extends MidNode {
 
 		out.add(new LabelASM("ENTERING " + this.getName(), this.getName()));
 
-		// TODO: GET THE NUMBER OF STACK VARS NEEDED BY SWEEPING THROUGH WITH
-		// MEM-ALLOCATING VISITOR. When you have this method decl node
-		// accurately provisioning local stack space, please don't forget to
-		// have local and temp decls NOT allocate any more space.
-		int stackVars = 0;
-		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(stackVars)
-				+ " * " + MemoryManager.ADDRESS_SIZE_STRING, "0"));
+		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(localStackSize), "0"));
 
 		out.addAll(nodeList.toASM());
 

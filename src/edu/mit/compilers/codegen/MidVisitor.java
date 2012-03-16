@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
-import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMethodNode;
@@ -13,6 +12,7 @@ import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidLocalVarDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
