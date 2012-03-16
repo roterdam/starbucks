@@ -221,4 +221,16 @@ public class MidNodeList implements List<MidNode> {
 		return (MidSaveNode) getTail();
 	}
 
+	public String toASM() {
+		StringBuilder out = new StringBuilder();
+		out.append("NODELIST" + this);
+		
+		for (MidNode node : this){
+			out.append(node.toASM());
+		}
+
+		out.append("");
+		return null;
+	}
+
 }

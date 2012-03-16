@@ -13,6 +13,7 @@ public class ORNode extends OpBoolBool2BoolNode {
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
 	}
+
 	@Override
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);

@@ -20,4 +20,8 @@ public class MidNode {
 		int mid = className.lastIndexOf('.') + 1;
 		return className.substring(mid);
 	}
+
+	public String toASM() {
+		return "TOASM";
+	}
 }

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidVisitor;
+import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.MethodDecl;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
@@ -46,6 +49,11 @@ public class METHOD_CALLNode extends ExpressionNode {
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
+	}
+	
+	@Override
+	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
 
 }

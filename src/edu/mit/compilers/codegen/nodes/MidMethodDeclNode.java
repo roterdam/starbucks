@@ -44,5 +44,17 @@ public class MidMethodDeclNode extends MidNode {
 	public VarType getMidVarType() {
 		return varType;		
 	}
+
+	public String toASM() {
+		
+		StringBuilder out = new StringBuilder();
+		out.append("ENTERING METHOD" + this.getName());
+		
+		out.append(nodeList.toASM());
+
+		out.append("EXITING METHOD" + this.getName());
+		out.append("");
+		return null;
+	}
 	
 }

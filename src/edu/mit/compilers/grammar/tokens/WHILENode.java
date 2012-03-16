@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
@@ -26,4 +29,8 @@ public class WHILENode extends DecafNode {
 		return (BLOCKNode) getChild(1);
 	}
 	
+	@Override
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
+	}
 }

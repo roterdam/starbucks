@@ -102,12 +102,14 @@
     <!-- Set failonerror="true" when you're confident you're correct
          and want to prevent accidentally regressing. -->
     <exec executable="${tests}/scanner/test.sh" />
+     <exec executable="${tests}/scanner-hidden/test.sh" />
   </target>
 
   <target name="test_parser" depends="jar">
     <!-- Set failonerror="true" when you're confident you're correct
          and want to prevent accidentally regressing. -->
     <exec executable="${tests}/parser/test.sh" />
+        <exec executable="${tests}/parser-hidden/test.sh" />
   </target>
 
   <target name="test_semantics" depends="clean,jar">
@@ -120,6 +122,12 @@
 	<!-- Set failonerror="true" when you're confident you're correct
 	     and want to prevent accidentally regressing. -->
 	<exec executable="${tests}/semantics/test-verbose.sh" />
+  </target>
+  
+    <target name="test_codegen" depends="jar">
+	<!-- Set failonerror="true" when you're confident you're correct
+	     and want to prevent accidentally regressing. -->
+	<exec executable="${tests}/codegen/test.sh" />
   </target>
 	
   <target name="integrationtests" depends="test_scanner,test_parser">

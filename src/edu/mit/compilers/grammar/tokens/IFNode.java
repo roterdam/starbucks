@@ -56,4 +56,5 @@ public class IFNode extends DecafNode {
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
 	}
+	
 }

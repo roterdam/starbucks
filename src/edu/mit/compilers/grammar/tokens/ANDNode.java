@@ -19,5 +19,5 @@ public class ANDNode extends OpBoolBool2BoolNode {
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
-
+	
 }

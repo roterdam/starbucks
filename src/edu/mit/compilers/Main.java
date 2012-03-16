@@ -7,6 +7,7 @@ import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
+import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
@@ -120,6 +121,13 @@ class Main {
 							System.out.println(symbolTable
 									.toDotSyntax("PROGRAM", true));
 						}
+						
+						
+						if (CLI.target == Action.ASSEMBLY) {
+							AsmVisitor asm = new AsmVisitor(symbolTable);
+							System.out.println(asm.generate());
+						}
+						
 					}
 				}
 			}

@@ -7,7 +7,7 @@ runparser() {
 fail=0
 
 for file in `dirname $0`/illegal/*; do
-  if runparser $file; then
+  if runparser $file > /dev/null 2>&1; then
     echo "Illegal file $file parsed successfully.";
     fail=1
   fi
