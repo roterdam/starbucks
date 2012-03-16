@@ -14,19 +14,16 @@ HOST="ec2-50-16-79-112.compute-1.amazonaws.com"
 PEM=${STARBUCKS_HOME}/scripts/starbucks.pem
 OUTNAME="starbucks"
 
-echo "Compiling $1"
-nasm -f elf64 $1 -o ${OUTNAME}.o
-
 echo "Resetting ${PLAYGROUND}"
 ssh -i ${PEM} ubuntu@${HOST} "rm ${PLAYGROUND}/*"
 
-echo "Uploading compiled ${OUTNAME}.o to ${PLAYGROUND}"
-scp -i ${PEM} ${OUTNAME}.o ubuntu@${HOST}:${PLAYGROUND}/
+echo "Uploading $1 to ${PLAYGROUND}"
+scp -i ${PEM} $1 ubuntu@${HOST}:${PLAYGROUND}/${OUTNAME}.s
 
-echo "Linking and running. Binary results:"
+echo "Compiling, linking and running. Binary results:"
 echo ""
 echo "=== START OUTPUT ==="
-ssh -i ${PEM} ubuntu@${HOST} "cd ${PLAYGROUND}; gcc -g -o ${OUTNAME} ${OUTNAME}.o; chmod +x ${OUTNAME}; ./${OUTNAME}"
+ssh -i ${PEM} ubuntu@${HOST} "cd ${PLAYGROUND}; nasm -felf64 -o ${OUTNAME}.o ${OUTNAME}.s; gcc -g -o ${OUTNAME} ${OUTNAME}.o; chmod +x ${OUTNAME}; ./${OUTNAME}"
 echo "==== END OUTPUT ===="
 echo ""
 echo "Cleaning up .o files"
