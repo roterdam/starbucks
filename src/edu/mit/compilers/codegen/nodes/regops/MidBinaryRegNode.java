@@ -23,8 +23,15 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		return "<" + className.substring(mid) + ": " + leftOperand.toString()
-				+ "," + rightOperand.toString() + ">";
+		return "<" + className.substring(mid) + ">";
+	}
+	
+	@Override
+	public String toDotSyntax() {
+		String out = super.toDotSyntax();
+		out += leftOperand.hashCode() + " -> " + hashCode() + " [style=dotted,color=maroon];\n";
+		out += rightOperand.hashCode() + " -> " + hashCode() + " [style=dotted,color=maroon];\n";
+		return out;
 	}
 
 }
