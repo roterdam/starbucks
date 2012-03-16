@@ -5,6 +5,8 @@ import java.util.List;
 
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
+import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 /**
@@ -116,9 +118,7 @@ public class MidSaveNode extends MidNode {
 			assert false : "invalid saveType";
 		}
 
-		// TODO: Have 803123 replaced by actual offset from destinationNode.
-		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
-				"[rbp - 803123]", rightOperand));
+		out.add(new OpASM(toString(), OpCode.MOV, destination.getFormattedLocationReference(), rightOperand));
 
 		return out;
 	}

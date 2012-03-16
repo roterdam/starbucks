@@ -4,9 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
-import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGNode;
@@ -14,6 +12,8 @@ import edu.mit.compilers.codegen.nodes.jumpops.MidJumpLENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpLNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.crawler.VarType;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
+import edu.mit.compilers.codegen.asm.OpCode;
 
 // TODO: make abstract
 public class MidNode {
@@ -30,7 +31,7 @@ public class MidNode {
 
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM("Error: IMPLEMENT toASM for " + this.getNodeClass(), OpASM.OpCode.NOP));
+		out.add(new OpASM("Error: IMPLEMENT toASM for " + this.getNodeClass(), OpCode.NOP));
 		return out;
 	}
 

@@ -1,5 +1,7 @@
 package edu.mit.compilers.codegen.nodes;
 
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
+
 public class MidFieldArrayDeclNode extends MidFieldDeclNode {
 	private long length;
 

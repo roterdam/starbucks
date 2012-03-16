@@ -2,11 +2,6 @@ package edu.mit.compilers.codegen.asm;
 
 public class OpASM extends ASM {
 
-	public enum OpCode {
-		ADD, AND, CMOVE, CMOVGE, CMOVG, CMOVLE, CMOVL, CMOVNE, CMP, CALL, ENTER, IDIV, IMUL, JE, JG, JGE, JL, JLE, JMP, JNE, LEA, LEAVE, MOV, NEG, NOP, POP, PUSH, RET, SHL, SAR, SUB, XCHG, XOR, GLOBAL;
-		;
-	}
-
 	private String comment;
 	private OpCode op;
 	private String[] args;
@@ -32,10 +27,10 @@ public class OpASM extends ASM {
 			prefix = ", ";
 		}
 		if (comment != "") {
-			return String.format("   %-10s %-10s ; %s\n", op.name(), arguments
+			return String.format("   %-10s %-30s ; %s\n", op.name(), arguments
 					.toString(), comment);
 		} else {
-			return String.format("   %-10s %-10s\n", op.name(), arguments
+			return String.format("   %-10s %-30s\n", op.name(), arguments
 					.toString());
 		}
 

@@ -9,7 +9,7 @@ public class SectionASM extends ASM {
 	}
 	
 	public String toString() {
-		return String.format("section .%s\n", sectionName);
+		return String.format("\nsection .%s\n", sectionName);
 	}
 
 }

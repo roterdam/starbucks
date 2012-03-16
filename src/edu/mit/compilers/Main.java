@@ -123,8 +123,7 @@ class Main {
 						
 						
 						if (CLI.target == Action.ASSEMBLY) {
-							AsmVisitor.setSymbolTable(symbolTable);
-							System.out.println(AsmVisitor.generate());
+							System.out.println(AsmVisitor.generate(symbolTable));
 						}
 						
 					}

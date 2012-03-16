@@ -26,7 +26,7 @@ public class MidLabelNode extends MidNode {
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new LabelASM(name, ""));
+		out.add(new LabelASM("", name));
 		return out;
 	}
 }

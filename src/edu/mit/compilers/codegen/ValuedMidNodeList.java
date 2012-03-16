@@ -1,6 +1,6 @@
 package edu.mit.compilers.codegen;
 
-import edu.mit.compilers.codegen.nodes.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 public class ValuedMidNodeList {
 	MidNodeList nodeList;

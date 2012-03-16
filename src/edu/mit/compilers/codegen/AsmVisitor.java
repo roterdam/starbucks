@@ -2,33 +2,32 @@ package edu.mit.compilers.codegen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
+import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 public class AsmVisitor {
 
-	private static MidSymbolTable symbolTable;
 	// Static variable because Strings have to be added to it from within other
 	// code.
 	private static List<ASM> dataSection;
 
-	// How many bytes each address takes. Use for calculating offsets!
-	// Note that it's 8, not 4, in 64-bit since 8*8bytes = 64 bits.
-	public static final int ADDRESS_SIZE = 8;
-	public static final String ADDRESS_SIZE_STRING = Integer.toString(ADDRESS_SIZE);
-
 	private AsmVisitor(MidSymbolTable symbolTable) {
 	}
 
-	public static String generate() {
+	public static String generate(MidSymbolTable symbolTable) {
 
-		dataSection = createDataSection();
+		dataSection = createDataSection(symbolTable);
 
 		List<ASM> textSection = createTextSection();
 
-		for (String methodName : AsmVisitor.symbolTable.getMethods().keySet()) {
+		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
 
@@ -48,20 +47,29 @@ public class AsmVisitor {
 		dataSection.add(asm);
 	}
 
-	private static List<ASM> createDataSection() {
+	/**
+	 * Initializes data section with fields.
+	 * 
+	 * @return
+	 */
+	private static List<ASM> createDataSection(MidSymbolTable symbolTable) {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new SectionASM("data"));
+		Map<String, MidMemoryNode> fieldVars = symbolTable.getLocalVars();
+		for (String fieldName : fieldVars.keySet()) {
+			MidFieldDeclNode fieldNode = (MidFieldDeclNode) fieldVars
+					.get(fieldName);
+			out.add(new LabelASM("", fieldNode.getFormattedLocationReference()));
+			out.add(new OpASM(String.format("placeholder for `%s`",fieldNode.getName()),
+					OpCode.DB, "dword 0"));
+		}
 		return out;
 	}
 
 	private static List<ASM> createTextSection() {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new SectionASM("text"));
-		out.add(new OpASM(OpASM.OpCode.GLOBAL, "main"));
+		out.add(new OpASM(OpCode.GLOBAL, "main"));
 		return out;
-	}
-
-	public static void setSymbolTable(MidSymbolTable symbolTable) {
-		AsmVisitor.symbolTable = symbolTable;
 	}
 }

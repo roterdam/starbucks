@@ -6,18 +6,18 @@ import java.util.List;
 
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidFieldArrayDeclNode;
-import edu.mit.compilers.codegen.nodes.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
-import edu.mit.compilers.codegen.nodes.MidLocalVarDeclNode;
-import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMethodNode;
-import edu.mit.compilers.codegen.nodes.MidParamDeclNode;
 import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
+import edu.mit.compilers.codegen.nodes.memory.MidLocalVarDeclNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidParamDeclNode;
+import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidDivideNode;
@@ -539,22 +539,6 @@ public class MidVisitor {
 		}
 	}
 
-	public static MidSymbolTable createMidLevelIR(CLASSNode node) {
-		MidSymbolTable symbolTable = new MidSymbolTable();
-
-		for (FIELD_DECLNode fieldNode : node.getFieldNodes()) {
-			MidFieldDeclNode midFieldNode = visitFieldDecl(fieldNode, symbolTable);
-			symbolTable.addVar(midFieldNode.getName(), midFieldNode);
-		}
-
-		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
-			MidMethodDeclNode midMethodNode = visitMethodDecl(methodNode, symbolTable);
-			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
-		}
-
-		return symbolTable;
-	}
-
 	public static MidNodeList visit(IFNode node, MidSymbolTable symbolTable) {
 		MidNodeList nodeList = new MidNodeList();
 
@@ -582,5 +566,23 @@ public class MidVisitor {
 		nodeList.addAll(elseList);
 		nodeList.add(fiLabel);
 		return nodeList;
+	}
+	
+	public static MidSymbolTable createMidLevelIR(CLASSNode node) {
+		MidSymbolTable symbolTable = new MidSymbolTable();
+		
+		for (FIELD_DECLNode fieldNode : node.getFieldNodes()) {
+			MidFieldDeclNode midFieldNode = visitFieldDecl(fieldNode, symbolTable);
+			symbolTable.addVar(midFieldNode.getName(), midFieldNode);
+		}
+		
+		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
+			MidMethodDeclNode midMethodNode = visitMethodDecl(methodNode, symbolTable);
+			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
+		}
+		
+		StorageVisitor.assignStorage(symbolTable);
+		
+		return symbolTable;
 	}
 }

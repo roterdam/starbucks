@@ -2,6 +2,7 @@ package edu.mit.compilers.codegen.nodes;
 
 import java.util.List;
 
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 public class MidMethodNode extends MidRegisterNode {

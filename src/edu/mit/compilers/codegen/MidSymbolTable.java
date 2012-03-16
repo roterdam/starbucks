@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
-import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 public class MidSymbolTable {
 
@@ -81,6 +81,10 @@ public class MidSymbolTable {
 		}
 	}
 
+	public Map<String, MidMemoryNode> getLocalVars() {
+		return localVars;
+	}
+	
 	public MidMethodDeclNode getMethod(String method) {
 		assert getMethods().containsKey(method);
 		return getMethods().get(method);

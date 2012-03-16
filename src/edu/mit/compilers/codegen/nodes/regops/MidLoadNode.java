@@ -5,7 +5,8 @@ import java.util.List;
 
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
-import edu.mit.compilers.codegen.nodes.MidMemoryNode;
+import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 /**
  * Loads value from memory.
@@ -42,9 +43,8 @@ public class MidLoadNode extends MidRegisterNode {
 		
 		// TODO: replace with actual getRegisterId() defined in MidRegisterNode.
 		String registerId = "r10";
-		// TODO: replace 16 with actual offset from memoryNode
-		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
-				registerId, "[rbp-16]"));
+		out.add(new OpASM(toString(), OpCode.MOV,
+				registerId, memoryNode.getFormattedLocationReference()));
 
 		return out;
 	}
