@@ -35,63 +35,97 @@ import edu.mit.compilers.grammar.tokens.ORNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
 
 public class MidShortCircuitVisitor {
-	public static MidNodeList shortCircuit(ORNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+	public static MidNodeList shortCircuit(ORNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		MidNodeList nodeList = new MidNodeList();
 		MidLabelNode rightLabel = MidLabelManager.getLabel(LabelType.SHORT);
-		MidNodeList rightShortList = node.getRightOperand().shortCircuit(symbolTable, trueLabel, falseLabel);
-		MidNodeList leftShortList = node.getLeftOperand().shortCircuit(symbolTable, trueLabel, rightLabel);
+		MidNodeList rightShortList = node.getRightOperand()
+				.shortCircuit(symbolTable, trueLabel, falseLabel);
+		MidNodeList leftShortList = node.getLeftOperand()
+				.shortCircuit(symbolTable, trueLabel, rightLabel);
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
 		return nodeList;
 	}
-	public static MidNodeList shortCircuit(ANDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(ANDNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		MidNodeList nodeList = new MidNodeList();
 		MidLabelNode rightLabel = MidLabelManager.getLabel(LabelType.SHORT);
-		MidNodeList rightShortList = node.getRightOperand().shortCircuit(symbolTable, trueLabel, falseLabel);
-		MidNodeList leftShortList = node.getLeftOperand().shortCircuit(symbolTable, rightLabel, falseLabel);
+		MidNodeList rightShortList = node.getRightOperand()
+				.shortCircuit(symbolTable, trueLabel, falseLabel);
+		MidNodeList leftShortList = node.getLeftOperand()
+				.shortCircuit(symbolTable, rightLabel, falseLabel);
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
 		return nodeList;
 	}
-	public static MidNodeList shortCircuit(BANGNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
-		MidNodeList nodeList = node.shortCircuit(symbolTable, falseLabel, trueLabel);
+
+	public static MidNodeList shortCircuit(BANGNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
+		MidNodeList nodeList = node
+				.shortCircuit(symbolTable, falseLabel, trueLabel);
 		return nodeList;
 	}
-	public static MidNodeList shortCircuit(LTENode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(LTENode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		return shortCircuitIntInt2BoolHelper(node, symbolTable, trueLabel, falseLabel, MidJumpLENode.class);
 	}
-	public static MidNodeList shortCircuit(LTNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(LTNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		return shortCircuitIntInt2BoolHelper(node, symbolTable, trueLabel, falseLabel, MidJumpLNode.class);
 	}
-	public static MidNodeList shortCircuit(GTNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(GTNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		return shortCircuitIntInt2BoolHelper(node, symbolTable, trueLabel, falseLabel, MidJumpGNode.class);
 	}
-	public static MidNodeList shortCircuit(GTENode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(GTENode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		return shortCircuitIntInt2BoolHelper(node, symbolTable, trueLabel, falseLabel, MidJumpGENode.class);
 	}
-	public static MidNodeList shortCircuit(EQNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(EQNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		return shortCircuitEqHelper(node, symbolTable, trueLabel, falseLabel, MidJumpEQNode.class);
 	}
-	public static MidNodeList shortCircuit(NEQNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(NEQNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		return shortCircuitEqHelper(node, symbolTable, trueLabel, falseLabel, MidJumpNENode.class);
 	}
-	public static MidNodeList shortCircuitEqHelper(OpSameSame2BoolNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel,
-			Class<? extends MidJumpNode> c){
+
+	public static MidNodeList shortCircuitEqHelper(OpSameSame2BoolNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel, Class<? extends MidJumpNode> c) {
 		MidNodeList nodeList = new MidNodeList();
-		
+
 		ValuedMidNodeList valuedLeft = valuedHelper(node.getLeftOperand(), symbolTable);
 		ValuedMidNodeList valuedRight = valuedHelper(node.getRightOperand(), symbolTable);
 
 		MidNodeList leftInstr = valuedLeft.getList();
 		MidLoadNode leftLoad = new MidLoadNode(valuedLeft.getReturnNode());
 		MidNodeList rightInstr = valuedRight.getList();
-		MidLoadNode rightLoad  = new MidLoadNode(valuedRight.getReturnNode());
-		
+		MidLoadNode rightLoad = new MidLoadNode(valuedRight.getReturnNode());
+
 		MidCompareNode compareNode = new MidCompareNode(leftLoad, rightLoad);
 		try {
-			MidJumpNode jumpTrue = c.getConstructor(MidLabelNode.class).newInstance(trueLabel);
+			MidJumpNode jumpTrue = c.getConstructor(MidLabelNode.class)
+					.newInstance(trueLabel);
 			MidJumpNode jumpFalse = new MidJumpNode(falseLabel);
 			nodeList.addAll(leftInstr);
 			nodeList.addAll(rightInstr);
@@ -117,22 +151,31 @@ public class MidShortCircuitVisitor {
 		assert false : "NO EXCEPTIONS ALLOWED";
 		return null;
 	}
-	public static MidNodeList shortCircuitIntInt2BoolHelper(OpIntInt2BoolNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel,
-			Class<? extends MidJumpNode> c){
+
+	public static MidNodeList shortCircuitIntInt2BoolHelper(
+			OpIntInt2BoolNode node, MidSymbolTable symbolTable,
+			MidLabelNode trueLabel, MidLabelNode falseLabel,
+			Class<? extends MidJumpNode> c) {
 		MidNodeList nodeList = new MidNodeList();
-		
-		MidNodeList leftListNode = node.getLeftOperand().convertToMidLevel(symbolTable);
-		MidNodeList rightListNode = node.getRightOperand().convertToMidLevel(symbolTable);
-		
-		MidMemoryNode leftDeclNode = leftListNode.getSaveNode().getDestinationNode();
-		MidMemoryNode rightDeclNode = rightListNode.getSaveNode().getDestinationNode();
-		
+
+		MidNodeList leftListNode = node.getLeftOperand()
+				.convertToMidLevel(symbolTable);
+		MidNodeList rightListNode = node.getRightOperand()
+				.convertToMidLevel(symbolTable);
+
+		MidMemoryNode leftDeclNode = leftListNode.getSaveNode()
+				.getDestinationNode();
+		MidMemoryNode rightDeclNode = rightListNode.getSaveNode()
+				.getDestinationNode();
+
 		MidLoadNode leftLoadNode = new MidLoadNode(leftDeclNode);
 		MidLoadNode rightLoadNode = new MidLoadNode(rightDeclNode);
-		MidCompareNode compareNode = new MidCompareNode(leftLoadNode, rightLoadNode);
+		MidCompareNode compareNode = new MidCompareNode(leftLoadNode,
+				rightLoadNode);
 		try {
-			MidJumpNode jumpTrue  = c.getConstructor(MidLabelNode.class).newInstance(trueLabel);
-			MidJumpNode jumpFalse = new MidJumpNode(falseLabel);			
+			MidJumpNode jumpTrue = c.getConstructor(MidLabelNode.class)
+					.newInstance(trueLabel);
+			MidJumpNode jumpFalse = new MidJumpNode(falseLabel);
 			nodeList.addAll(leftListNode);
 			nodeList.addAll(rightListNode);
 			nodeList.add(leftLoadNode);
@@ -157,24 +200,35 @@ public class MidShortCircuitVisitor {
 		assert false : "NO EXCEPTIONS ALLOWED";
 		return null;
 	}
-	public static MidNodeList shortCircuit(TRUENode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(TRUENode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		MidNodeList nodeList = new MidNodeList();
 		MidJumpNode jumpNode = new MidJumpNode(trueLabel);
 		nodeList.add(jumpNode);
 		return nodeList;
 	}
-	public static MidNodeList shortCircuit(FALSENode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(FALSENode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		MidNodeList nodeList = new MidNodeList();
 		MidJumpNode jumpNode = new MidJumpNode(falseLabel);
 		nodeList.add(jumpNode);
 		return nodeList;
 	}
-	public static MidNodeList shortCircuit(METHOD_CALLNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(METHOD_CALLNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		assert false : "This needs to be implemented";
 		return null;
 	}
-	
-	public static MidNodeList shortCircuit(IDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(IDNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		MidMemoryNode declNode = symbolTable.getVar(node.getText());
 		MidLoadNode loadNode = new MidLoadNode(declNode);
 		MidMemoryNode tempNode = new MidTempDeclNode();
@@ -183,9 +237,9 @@ public class MidShortCircuitVisitor {
 		MidCompareNode compareNode = new MidCompareNode(loadNode, zeroLoadNode);
 		MidJumpEQNode jumpFalseNode = new MidJumpEQNode(falseLabel);
 		MidJumpNode jumpTrueNode = new MidJumpNode(trueLabel);
-		
+
 		MidNodeList nodeList = new MidNodeList();
-		
+
 		nodeList.add(loadNode);
 		nodeList.add(tempNode);
 		nodeList.add(zeroNode);
@@ -195,11 +249,14 @@ public class MidShortCircuitVisitor {
 		nodeList.add(jumpTrueNode);
 		return nodeList;
 	}
+
 	// Returns true or false
-	static ValuedMidNodeList valuedHelper(ExpressionNode node, MidSymbolTable symbolTable){
-		if(node.getMidVarType(symbolTable) == VarType.INT){
+	static ValuedMidNodeList valuedHelper(ExpressionNode node,
+			MidSymbolTable symbolTable) {
+		if (node.getMidVarType(symbolTable) == VarType.INT) {
 			MidNodeList instrList = node.convertToMidLevel(symbolTable);
-			MidMemoryNode memoryNode = instrList.getSaveNode().getDestinationNode();
+			MidMemoryNode memoryNode = instrList.getSaveNode()
+					.getDestinationNode();
 			return new ValuedMidNodeList(instrList, memoryNode);
 		}
 		MidLabelNode trueLabel = MidLabelManager.getLabel(LabelType.SHORT);
@@ -209,9 +266,10 @@ public class MidShortCircuitVisitor {
 		MidTempDeclNode declNode = new MidTempDeclNode();
 		MidSaveNode saveTrueNode = new MidSaveNode(true, declNode);
 		MidSaveNode saveFalseNode = new MidSaveNode(false, declNode);
-		
+
 		MidNodeList nodeList = new MidNodeList();
-		MidNodeList branchList = node.shortCircuit(symbolTable, trueLabel, falseLabel);
+		MidNodeList branchList = node
+				.shortCircuit(symbolTable, trueLabel, falseLabel);
 		nodeList.add(declNode);
 		nodeList.addAll(branchList);
 		nodeList.add(trueLabel);
@@ -222,7 +280,10 @@ public class MidShortCircuitVisitor {
 		nodeList.add(jumpEndNode);
 		return new ValuedMidNodeList(nodeList, declNode);
 	}
-	public static MidNodeList shortCircuit(ExpressionNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+
+	public static MidNodeList shortCircuit(ExpressionNode node,
+			MidSymbolTable symbolTable, MidLabelNode trueLabel,
+			MidLabelNode falseLabel) {
 		assert false : node.getClass() + " cannot be short circuited.";
 		return null;
 	}
