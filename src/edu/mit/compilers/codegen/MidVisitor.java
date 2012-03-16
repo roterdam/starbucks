@@ -205,20 +205,18 @@ public class MidVisitor {
 	
 	
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		// TODO: needs to handle boolean expressions.
-		MidNodeList rightOperandList = node.getExpression().convertToMidLevel(symbolTable);
-		assert rightOperandList.size >= 1;
-		
-		// Load from memory into register
-		MidLoadNode loadNode = new MidLoadNode(rightOperandList.getSaveNode().getDestinationNode());
-		rightOperandList.add(loadNode);
-		
-		// Save from register to memory
+		ValuedMidNodeList valuedList = valuedHelper(node.getExpression(), symbolTable);
+		MidNodeList instrList = valuedList.getList();
+		MidLoadNode loadNode = new MidLoadNode(valuedList.getReturnNode());
 		MidSaveNode saveNode = new MidSaveNode(loadNode, symbolTable.getVar(node.getLocation().getText()));
-		rightOperandList.add(saveNode);
 		
-		return rightOperandList;
+		MidNodeList nodeList = new MidNodeList();
+		nodeList.addAll(instrList);
+		nodeList.add(loadNode);
+		nodeList.add(saveNode);
+		return nodeList;
 	}
+	
 	
 	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
 		return modifyAssignHelper(node, symbolTable, MidPlusNode.class);	
@@ -314,15 +312,12 @@ public class MidVisitor {
 	}
 	
 	
-	//FIXME: SHOULD ONLY CREATE A METHOD TABLE IF ITS ANONYMOUS.
-	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable) {
-
+	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable, boolean needsNewScope) {
 		MidNodeList outputList = new MidNodeList();
-		
 		// New symbol table for the new method scope.
-		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable);
+		MidSymbolTable blockSymbolTable = needsNewScope ? new MidSymbolTable(symbolTable) : symbolTable;
 		for (DecafNode statement : node.getStatementNodes()) {
-			outputList.addAll(statement.convertToMidLevel(newSymbolTable));
+			outputList.addAll(statement.convertToMidLevel(blockSymbolTable));
 		}
 		
 		return outputList;
@@ -386,7 +381,7 @@ public class MidVisitor {
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 		
-		MidNodeList statementList = node.getBlockNode().convertToMidLevel(newSymbolTable);
+		MidNodeList statementList = node.getBlockNode().convertToMidLevelSpecial(newSymbolTable);
 		
 		
 		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
@@ -433,7 +428,7 @@ public class MidVisitor {
 		ExpressionNode logicNode = node.getWhileTerminateNode().getExpressionNode();
 		MidNodeList branchList = logicNode.shortCircuit(newSymbolTable, bodyLabel, endLabel);
 		
-		MidNodeList bodyList = node.getBlockNode().convertToMidLevel(newSymbolTable);
+		MidNodeList bodyList = node.getBlockNode().convertToMidLevelSpecial(newSymbolTable);
 		
 		outputList.add(startLabel);
 		outputList.addAll(branchList);

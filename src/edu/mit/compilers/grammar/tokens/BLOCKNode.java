@@ -55,8 +55,13 @@ public class BLOCKNode extends DecafNode {
 	
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		return MidVisitor.visit(this, symbolTable);
+		return MidVisitor.visit(this, symbolTable, true);
 	}
+	
+	public MidNodeList convertToMidLevelSpecial(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable, false);
+	}
+
 
 	@Override
 	public void validate(Scope scope) {
