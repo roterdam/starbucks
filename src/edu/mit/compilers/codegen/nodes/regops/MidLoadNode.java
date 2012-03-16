@@ -41,10 +41,7 @@ public class MidLoadNode extends MidRegisterNode {
 
 		List<ASM> out = new ArrayList<ASM>();
 
-		// TODO: replace with actual getRegisterId() defined in MidRegisterNode.
-		String registerId = "r10";
-		// TODO: replace 16 with actual offset from memoryNode
-		out.add(new OpASM(toString(), OpCode.MOV, registerId, memoryNode
+		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(), memoryNode
 				.getFormattedLocationReference()));
 
 		return out;

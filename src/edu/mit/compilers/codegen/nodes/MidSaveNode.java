@@ -52,6 +52,10 @@ public class MidSaveNode extends MidNode {
 		assert saveType == MidSaveNodeType.REGISTER;
 		return registerNode;
 	}
+	
+	public boolean savesRegister() {
+		return saveType == MidSaveNodeType.REGISTER;
+	}
 
 	public long getDecafIntValue() {
 		assert saveType == MidSaveNodeType.INT;
@@ -103,9 +107,7 @@ public class MidSaveNode extends MidNode {
 		String rightOperand;
 		switch (saveType) {
 		case REGISTER:
-			// TODO: have registerNode be able to provide an ID
-			// rightOperand = registerNode.getRegisterId();
-			rightOperand = "r10";
+			rightOperand = registerNode.getRegister().name();
 			break;
 		case INT:
 			rightOperand = "dword " + Long.toString(decafIntValue);
@@ -118,7 +120,8 @@ public class MidSaveNode extends MidNode {
 			assert false : "invalid saveType";
 		}
 
-		out.add(new OpASM(toString(), OpCode.MOV, destination.getFormattedLocationReference(), rightOperand));
+		out.add(new OpASM(toString(), OpCode.MOV, destination
+				.getFormattedLocationReference(), rightOperand));
 
 		return out;
 	}
