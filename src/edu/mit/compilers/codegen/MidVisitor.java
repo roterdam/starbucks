@@ -28,7 +28,6 @@ import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
-import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.ModifyAssignNode;
@@ -75,9 +74,11 @@ public class MidVisitor {
 		MidNodeList out = new MidNodeList();
 		MidMemoryNode returnMemoryNode = null;
 		if (node.hasReturnExpression()) {
-			MidNodeList returnExpressionlist = node.getReturnExpression().convertToMidLevel(symbolTable);
+			MidNodeList returnExpressionlist = node.getReturnExpression()
+					.convertToMidLevel(symbolTable);
 			out.addAll(returnExpressionlist);
-			returnMemoryNode = returnExpressionlist.getSaveNode().getDestinationNode();
+			returnMemoryNode = returnExpressionlist.getSaveNode()
+					.getDestinationNode();
 		}
 		out.add(new MidReturnNode(returnMemoryNode));
 		return out;
@@ -94,8 +95,8 @@ public class MidVisitor {
 			out.addAll(paramList);
 		}
 
-		MidMethodNode methodNode = new MidMethodNode(symbolTable.getMethod(node.getMethodName()),
-				paramMemoryNodes);
+		MidMethodNode methodNode = new MidMethodNode(symbolTable.getMethod(node
+				.getMethodName()), paramMemoryNodes);
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 		out.add(methodNode);
 		out.add(tempDeclNode);
@@ -236,21 +237,23 @@ public class MidVisitor {
 	// }
 
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		ValuedMidNodeList valuedList = MidShortCircuitVisitor.valuedHelper(node.getExpression(), symbolTable);
+		ValuedMidNodeList valuedList = MidShortCircuitVisitor.valuedHelper(node
+				.getExpression(), symbolTable);
 		MidNodeList instrList = valuedList.getList();
 		MidLoadNode loadNode = new MidLoadNode(valuedList.getReturnNode());
-		MidSaveNode saveNode = new MidSaveNode(loadNode, symbolTable.getVar(node.getLocation().getText()));
-		
+		MidSaveNode saveNode = new MidSaveNode(loadNode,
+				symbolTable.getVar(node.getLocation().getText()));
+
 		MidNodeList nodeList = new MidNodeList();
 		nodeList.addAll(instrList);
 		nodeList.add(loadNode);
 		nodeList.add(saveNode);
 		return nodeList;
 	}
-	
-	
-	public static MidNodeList visit(PLUS_ASSIGNNode node, MidSymbolTable symbolTable) {
-		return modifyAssignHelper(node, symbolTable, MidPlusNode.class);	
+
+	public static MidNodeList visit(PLUS_ASSIGNNode node,
+			MidSymbolTable symbolTable) {
+		return modifyAssignHelper(node, symbolTable, MidPlusNode.class);
 	}
 
 	public static MidNodeList visit(MINUS_ASSIGNNode node,
@@ -346,16 +349,21 @@ public class MidVisitor {
 
 		MidNodeList outputList = node.getBlockNode()
 				.convertToMidLevel(symbolTable);
+		if (!(outputList.getTail() instanceof MidReturnNode)) {
+			outputList.add(new MidReturnNode(null));
+		}
 		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(),
 				node.getReturnType(), outputList);
 
 		return out;
 	}
-	
-	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable, boolean needsNewScope) {
+
+	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable,
+			boolean needsNewScope) {
 		MidNodeList outputList = new MidNodeList();
 		// New symbol table for the new method scope.
-		MidSymbolTable blockSymbolTable = needsNewScope ? new MidSymbolTable(symbolTable) : symbolTable;
+		MidSymbolTable blockSymbolTable = needsNewScope ? new MidSymbolTable(
+				symbolTable) : symbolTable;
 		for (DecafNode statement : node.getStatementNodes()) {
 			outputList.addAll(statement.convertToMidLevel(blockSymbolTable));
 		}
@@ -429,8 +437,9 @@ public class MidVisitor {
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 
-		MidNodeList statementList = node.getBlockNode().convertToMidLevelSpecial(newSymbolTable);
-		
+		MidNodeList statementList = node.getBlockNode()
+				.convertToMidLevelSpecial(newSymbolTable);
+
 		INT_LITERALNode intLiteralNode = new INT_LITERALNode();
 		intLiteralNode.setText("1");
 		intLiteralNode.initializeValue();
@@ -472,13 +481,17 @@ public class MidVisitor {
 		MidLabelNode bodyLabel = MidLabelManager.getLabel(LabelType.WHILE_BODY);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.ELIHW);
 		MidJumpNode loopJump = new MidJumpNode(startLabel);
-		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable, startLabel, endLabel);
-		
-		ExpressionNode logicNode = node.getWhileTerminateNode().getExpressionNode();
-		MidNodeList branchList = logicNode.shortCircuit(newSymbolTable, bodyLabel, endLabel);
-		
-		MidNodeList bodyList = node.getBlockNode().convertToMidLevelSpecial(newSymbolTable);
-		
+		MidSymbolTable newSymbolTable = new MidSymbolTable(symbolTable,
+				startLabel, endLabel);
+
+		ExpressionNode logicNode = node.getWhileTerminateNode()
+				.getExpressionNode();
+		MidNodeList branchList = logicNode
+				.shortCircuit(newSymbolTable, bodyLabel, endLabel);
+
+		MidNodeList bodyList = node.getBlockNode()
+				.convertToMidLevelSpecial(newSymbolTable);
+
 		outputList.add(startLabel);
 		outputList.addAll(branchList);
 		outputList.add(bodyLabel);

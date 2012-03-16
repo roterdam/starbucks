@@ -60,7 +60,7 @@ public class MidMethodDeclNode extends MidNode {
 		// have local and temp decls NOT allocate any more space.
 		int stackVars = 0;
 		out.add(new OpASM(name, OpASM.OpCode.ENTER, Integer.toString(stackVars)
-				+ " * " + AsmVisitor.ADDRESS_SIZE_STRING, ""));
+				+ " * " + AsmVisitor.ADDRESS_SIZE_STRING, "0"));
 
 		out.addAll(nodeList.toASM());
 

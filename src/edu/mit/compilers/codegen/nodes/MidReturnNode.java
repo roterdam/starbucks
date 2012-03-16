@@ -16,10 +16,12 @@ public class MidReturnNode extends MidNode {
 	public MidReturnNode(MidMemoryNode returnValue) {
 		this.returnValue = returnValue;
 	}
-
+	
+	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM("Error: Needs to do more in MidReturnNode", OpASM.OpCode.RET));
+		out.add(new OpASM(OpASM.OpCode.LEAVE));
+		out.add(new OpASM(OpASM.OpCode.RET));
 		return out;
 	}
 }

@@ -213,7 +213,7 @@ public class MidNodeList implements List<MidNode> {
 		assert getTail() instanceof MidSaveNode : toString();
 		return (MidSaveNode) getTail();
 	}
-
+	
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 		
