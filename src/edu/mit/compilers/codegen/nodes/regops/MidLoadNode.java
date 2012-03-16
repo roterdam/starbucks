@@ -23,10 +23,11 @@ public class MidLoadNode extends MidRegisterNode {
 		int mid = className.lastIndexOf('.') + 1;
 		return "<" + className.substring(mid) + ": " + getName() + ">";
 	}
-	
+
 	@Override
 	public String toDotSyntax() {
-		return super.toDotSyntax() + hashCode() + " -> " + memoryNode.hashCode() + " [style=dotted];\n";
+		return super.toDotSyntax() + memoryNode.hashCode() + " -> "
+				+ hashCode() + " [style=dotted,color=orange];\n";
 	}
 
 }
