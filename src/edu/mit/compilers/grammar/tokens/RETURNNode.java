@@ -51,5 +51,4 @@ public class RETURNNode extends DecafNode {
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
 	}
-	
 }
