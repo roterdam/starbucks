@@ -105,7 +105,7 @@ public class MidSaveNode extends MidNode {
 		case REGISTER:
 			// TODO: have registerNode be able to provide an ID
 			// rightOperand = registerNode.getRegisterId();
-			rightOperand = "r10";
+			rightOperand = null;
 			break;
 		case INT:
 			rightOperand = "dword " + Long.toString(decafIntValue);
