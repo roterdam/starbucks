@@ -308,8 +308,7 @@ public class MidVisitor {
 			MidSymbolTable symbolTable) {
 		
 		MidNodeList outputList = node.getBlockNode().convertToMidLevel(symbolTable);
-		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), node.getReturnType(), outputList,
-				symbolTable);
+		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), node.getReturnType(), outputList);
 
 		return out;
 	}

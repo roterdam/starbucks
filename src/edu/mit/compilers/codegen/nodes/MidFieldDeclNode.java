@@ -20,4 +20,5 @@ public class MidFieldDeclNode extends MidMemoryNode {
 		int mid = className.lastIndexOf('.') + 1;
 		return "<" + className.substring(mid) + ": " + name + ">";
 	}
+	
 }

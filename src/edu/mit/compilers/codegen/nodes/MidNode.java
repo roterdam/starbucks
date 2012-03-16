@@ -15,7 +15,8 @@ public class MidNode {
 	public String toString() {
 		return "<" + getNodeClass() + ">";
 	}
-	public String getNodeClass(){
+
+	public String getNodeClass() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
 		return className.substring(mid);
@@ -23,5 +24,13 @@ public class MidNode {
 
 	public String toASM() {
 		return "TOASM";
+	}
+
+	/**
+	 * Declares node. Override in child class and add on to return string to
+	 * make other connections.
+	 */
+	public String toDotSyntax() {
+		return hashCode() + " [label=\"" + toString() + "\"];\n";
 	}
 }
