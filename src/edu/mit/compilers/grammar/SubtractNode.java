@@ -1,5 +1,6 @@
 package edu.mit.compilers.grammar;
 
+import antlr.CommonAST;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;

@@ -308,7 +308,7 @@ public class MidVisitor {
 			MidSymbolTable symbolTable) {
 		
 		MidNodeList outputList = node.getBlockNode().convertToMidLevel(symbolTable);
-		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), outputList);
+		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(), node.getReturnType(), outputList);
 
 		return out;
 	}
@@ -511,7 +511,7 @@ public class MidVisitor {
 		MidNodeList ifList = node.getBlockNode().convertToMidLevel(symbolTable);
 		MidNodeList elseList = new MidNodeList();
 		if(node.getElseBlock() != null)
-			elseList = node.getElseBlock().convertToMidLevel(symbolTable);
+			elseList = node.getElseBlock().getBlockNode().convertToMidLevel(symbolTable);
 		else
 			elseList = new MidNodeList();
 		
@@ -536,7 +536,7 @@ public class MidVisitor {
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
-		return rightShortList;
+		return nodeList;
 	}
 	public static MidNodeList shortCircuit(ANDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		MidNodeList nodeList = new MidNodeList();
@@ -546,7 +546,7 @@ public class MidVisitor {
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
-		return rightShortList;
+		return nodeList;
 	}
 	public static MidNodeList shortCircuit(BANGNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		MidNodeList nodeList = node.shortCircuit(symbolTable, falseLabel, trueLabel);
@@ -574,24 +574,14 @@ public class MidVisitor {
 			Class<? extends MidJumpNode> c){
 		MidNodeList nodeList = new MidNodeList();
 		
-		MidNodeList leftInstr;
-		MidNodeList rightInstr;
-		MidLoadNode leftLoad;
-		MidLoadNode rightLoad;
+		ValuedMidNodeList valuedLeft = valuedHelper(node.getLeftOperand(), symbolTable);
+		ValuedMidNodeList valuedRight = valuedHelper(node.getRightOperand(), symbolTable);
+
+		MidNodeList leftInstr = valuedLeft.getList();
+		MidLoadNode leftLoad = new MidLoadNode(valuedLeft.getReturnNode());
+		MidNodeList rightInstr = valuedRight.getList();
+		MidLoadNode rightLoad  = new MidLoadNode(valuedRight.getReturnNode());
 		
-		if(node.getLeftOperand().getMidVarType() == VarType.INT){
-			leftInstr = node.getLeftOperand().convertToMidLevel(symbolTable);
-			leftLoad = new MidLoadNode(leftInstr.getSaveNode().getDestinationNode());
-			rightInstr = node.getRightOperand().convertToMidLevel(symbolTable);
-			rightLoad = new MidLoadNode(rightInstr.getSaveNode().getDestinationNode());
-		}else {
-			ValuedMidNodeList valuedLeftMidLevelNode = valuedHelper(node.getLeftOperand(), symbolTable);
-			ValuedMidNodeList valuedRightMidLevelNode = valuedHelper(node.getRightOperand(), symbolTable);
-			leftInstr = valuedLeftMidLevelNode.getList();
-			leftLoad = new MidLoadNode(valuedLeftMidLevelNode.getReturnNode());
-			rightInstr = valuedRightMidLevelNode.getList();
-			rightLoad = new MidLoadNode(valuedRightMidLevelNode.getReturnNode());
-		}
 		MidCompareNode compareNode = new MidCompareNode(leftLoad, rightLoad);
 		try {
 			MidJumpNode jumpTrue = c.getConstructor(MidLabelNode.class).newInstance(trueLabel);
@@ -689,7 +679,6 @@ public class MidVisitor {
 		
 		MidNodeList nodeList = new MidNodeList();
 		
-		nodeList.add(declNode);
 		nodeList.add(loadNode);
 		nodeList.add(tempNode);
 		nodeList.add(zeroNode);
@@ -700,7 +689,12 @@ public class MidVisitor {
 		return nodeList;
 	}
 	// Returns true or false
-	private static ValuedMidNodeList valuedHelper(ExpressionNode expressionNode, MidSymbolTable symbolTable){
+	private static ValuedMidNodeList valuedHelper(ExpressionNode node, MidSymbolTable symbolTable){
+		if(node.getMidVarType(symbolTable) == VarType.INT){
+			MidNodeList instrList = node.convertToMidLevel(symbolTable);
+			MidMemoryNode memoryNode = instrList.getSaveNode().getDestinationNode();
+			return new ValuedMidNodeList(instrList, memoryNode);
+		}
 		MidLabelNode trueLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidLabelNode falseLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.SHORT);
@@ -710,7 +704,7 @@ public class MidVisitor {
 		MidSaveNode saveFalseNode = new MidSaveNode(false, declNode);
 		
 		MidNodeList nodeList = new MidNodeList();
-		MidNodeList branchList = expressionNode.shortCircuit(symbolTable, trueLabel, falseLabel);
+		MidNodeList branchList = node.shortCircuit(symbolTable, trueLabel, falseLabel);
 		nodeList.add(declNode);
 		nodeList.addAll(branchList);
 		nodeList.add(trueLabel);

@@ -1,5 +1,6 @@
 package edu.mit.compilers.grammar;
 
+import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
 
@@ -10,5 +11,8 @@ public class BooleanNode extends ExpressionNode {
 	public VarType getReturnType(Scope scope) {
 		return VarType.BOOLEAN;
 	}
-
+	@Override
+	public VarType getMidVarType(MidSymbolTable symbolTable){
+		return VarType.BOOLEAN;
+	}
 }

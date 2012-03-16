@@ -19,8 +19,9 @@ public abstract class ExpressionNode extends DecafNode {
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
-	public VarType getMidVarType(){
+	public abstract VarType getMidVarType(MidSymbolTable symbolTable);
+	/*{
 		assert false : "This needs to be implemented for all the subcalsses";
 		return null;
-	}
+	}*/
 }

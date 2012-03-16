@@ -21,4 +21,9 @@ public class ELSENode extends DecafNode {
 		return returnChecker.visit(this);
 	}
 	
+	public BLOCKNode getBlockNode(){
+		assert getChild(0) instanceof BLOCKNode;
+		return (BLOCKNode) this.getChild(0);
+	}
+	
 }

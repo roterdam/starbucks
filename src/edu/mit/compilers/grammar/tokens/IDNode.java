@@ -3,6 +3,7 @@ package edu.mit.compilers.grammar.tokens;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
+import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
@@ -72,6 +73,17 @@ public class IDNode extends ExpressionNode {
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
+	}
+	
+	// FIXME: HACK. Pretend the variable is int, since we can just load it.
+	@Override
+	public VarType getMidVarType(MidSymbolTable symbolTable){
+		return VarType.INT;
+	}
+	
+	@Override
+	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
 
 }

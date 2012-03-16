@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.Scope.BlockType;
@@ -32,7 +35,10 @@ public class IFNode extends DecafNode {
 		}
 		return null;
 	}
-	
+	@Override
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
+		return MidVisitor.visit(this, symbolTable);
+	}
 	@Override
 	public void validateChildren(Scope scope) {
 		assert getNumberOfChildren() == 2 || getNumberOfChildren() == 3;
