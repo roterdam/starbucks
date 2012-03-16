@@ -19,9 +19,7 @@ public class MidReturnNode extends MidNode {
 
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(OpASM.OpCode.RET, 
-						new String[] {}, 
-							"Error: Needs to do more in MidReturnNode"));
+		out.add(new OpASM("Error: Needs to do more in MidReturnNode", OpASM.OpCode.RET));
 		return out;
 	}
 }

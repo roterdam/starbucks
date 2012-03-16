@@ -30,9 +30,7 @@ public class MidNode {
 
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(OpASM.OpCode.NOP, 
-						new String[] {}, 
-							"Error: IMPLEMENT toASM for " + this.getNodeClass()));
+		out.add(new OpASM("Error: IMPLEMENT toASM for " + this.getNodeClass(), OpASM.OpCode.NOP));
 		return out;
 	}
 

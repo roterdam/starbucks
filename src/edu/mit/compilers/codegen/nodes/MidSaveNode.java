@@ -1,5 +1,10 @@
 package edu.mit.compilers.codegen.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 /**
@@ -82,8 +87,39 @@ public class MidSaveNode extends MidNode {
 		String out = super.toDotSyntax() + hashCode() + " -> "
 				+ destination.hashCode() + " [style=dotted,color=green];\n";
 		if (saveType == MidSaveNodeType.REGISTER) {
-			out += registerNode.hashCode() + " -> " + hashCode() + " [style=dotted,color=green];\n";
+			out += registerNode.hashCode() + " -> " + hashCode()
+					+ " [style=dotted,color=green];\n";
 		}
+		return out;
+	}
+
+	@Override
+	public List<ASM> toASM() {
+
+		List<ASM> out = new ArrayList<ASM>();
+
+		String rightOperand;
+		switch (saveType) {
+		case REGISTER:
+			// TODO: have registerNode be able to provide an ID
+			// rightOperand = registerNode.getRegisterId();
+			rightOperand = "r10";
+			break;
+		case INT:
+			rightOperand = "dword " + Long.toString(decafIntValue);
+			break;
+		case BOOLEAN:
+			rightOperand = "dword " + ((decafBooleanValue) ? "1" : "0");
+			break;
+		default:
+			rightOperand = null;
+			assert false : "invalid saveType";
+		}
+
+		// TODO: Have 803123 replaced by actual offset from destinationNode.
+		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
+				"[rbp - 803123]", rightOperand));
+
 		return out;
 	}
 }

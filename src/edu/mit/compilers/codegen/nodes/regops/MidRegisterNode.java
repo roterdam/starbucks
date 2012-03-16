@@ -17,5 +17,7 @@ abstract public class MidRegisterNode extends MidNode {
 	public String getName() {
 		return name;
 	}
+	
+	
 
 }
