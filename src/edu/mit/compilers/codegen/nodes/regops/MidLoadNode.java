@@ -3,7 +3,9 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.LocAndASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.nodes.MidMemoryNode;
 
@@ -41,12 +43,16 @@ public class MidLoadNode extends MidRegisterNode {
 		List<ASM> out = new ArrayList<ASM>();
 		
 		// TODO: replace with actual getRegisterId() defined in MidRegisterNode.
-		String registerId = "r10";
+		
+		LocAndASM mem = MemoryManager.getRegister(getMemoryNode().getName());
 		// TODO: replace 16 with actual offset from memoryNode
-		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
-				registerId, "[rbp-16]"));
+		this.setRegisterId(mem.location);
+		out.addAll(mem.ASM);
+		//out.add(new OpASM(toString(), OpASM.OpCode.MOV, mem.location, "[rbp-16]"));
 
 		return out;
 	}
+	
+	
 	
 }

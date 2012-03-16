@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
@@ -103,7 +104,7 @@ public class MidSaveNode extends MidNode {
 		case REGISTER:
 			// TODO: have registerNode be able to provide an ID
 			// rightOperand = registerNode.getRegisterId();
-			rightOperand = "r10";
+			rightOperand = registerNode.getRegisterId();
 			break;
 		case INT:
 			rightOperand = "dword " + Long.toString(decafIntValue);
@@ -118,7 +119,10 @@ public class MidSaveNode extends MidNode {
 
 		// TODO: Have 803123 replaced by actual offset from destinationNode.
 		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
-				"[rbp - 803123]", rightOperand));
+				MemoryManager.getVarLocation(destination.getName()), rightOperand));
+		
+		MemoryManager.returnRegister("r10");
+		MemoryManager.returnRegister("r11");
 
 		return out;
 	}
