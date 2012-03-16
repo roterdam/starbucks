@@ -1,12 +1,10 @@
 package edu.mit.compilers.codegen.nodes;
 
-import edu.mit.compilers.crawler.VarType;
-
 public class MidFieldArrayDeclNode extends MidFieldDeclNode {
 	private long length;
 
-	public MidFieldArrayDeclNode(String name, long length, VarType type) {
-		super(name, type);
+	public MidFieldArrayDeclNode(String name, long length) {
+		super(name);
 		this.length = length;
 	}
 

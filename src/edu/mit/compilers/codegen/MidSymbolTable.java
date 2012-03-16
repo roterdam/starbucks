@@ -131,7 +131,7 @@ public class MidSymbolTable {
 
 		out.append(rootName + " -> " + rootName + "_fields;\n");
 		for (String field : localVars.keySet()) {
-			out.append(rootName + "_fields [label=\"fields\"];\n");
+			out.append(rootName + "_fields [label=\"fields\"]");
 			out.append(rootName + "_fields -> " + rootName + "_" + field
 					+ ";\n");
 			out.append(rootName + "_" + field + " [label=\"" + field + "\"];\n");

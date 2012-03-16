@@ -29,8 +29,8 @@ import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
-import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.grammar.DeclNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.SubtractNode;
@@ -74,6 +74,7 @@ import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
+import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
 
 public class MidVisitor {
 
@@ -88,7 +89,7 @@ public class MidVisitor {
 		MidNodeList outputList = new MidNodeList();
 
 		String name = node.getIDNode().getText();
-		MidParamDeclNode paramNode = new MidParamDeclNode(name, node.getVarType());
+		MidParamDeclNode paramNode = new MidParamDeclNode(name);
 		outputList.add(paramNode);
 
 		symbolTable.addVar(name, paramNode);
@@ -103,7 +104,7 @@ public class MidVisitor {
 				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
 
-	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node, MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c, VarType outputType){
+	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node, MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c ){
 
 		try {
 			MidNodeList[] preLists = partialVisit(node, symbolTable);
@@ -118,7 +119,7 @@ public class MidVisitor {
 			out.add(leftLoadNode);
 			out.add(rightLoadNode);
 			out.add(binNode);
-			MidTempDeclNode dest = new MidTempDeclNode(outputType);
+			MidTempDeclNode dest = new MidTempDeclNode();
 			out.add(dest);
 			out.add(new MidSaveNode(binNode, dest));
 
@@ -140,27 +141,27 @@ public class MidVisitor {
 	}
 	
 	public static MidNodeList visit(DIVIDENode node, MidSymbolTable symbolTable) {
-		return visitBinaryOpHelper(node, symbolTable, MidDivideNode.class, VarType.INT);
+		return visitBinaryOpHelper(node, symbolTable, MidDivideNode.class);
 	}
 	
 	public static MidNodeList visit(TIMESNode node, MidSymbolTable symbolTable) {
-		return visitBinaryOpHelper(node, symbolTable, MidTimesNode.class, VarType.INT);
+		return visitBinaryOpHelper(node, symbolTable, MidTimesNode.class);
 	}
 	
 	public static MidNodeList visit(SubtractNode node, MidSymbolTable symbolTable) {
-		return visitBinaryOpHelper(node, symbolTable, MidMinusNode.class, VarType.INT);
+		return visitBinaryOpHelper(node, symbolTable, MidMinusNode.class);
 	}
 	
 	public static MidNodeList visit(PLUSNode node, MidSymbolTable symbolTable) {
-		return visitBinaryOpHelper(node, symbolTable, MidPlusNode.class, VarType.INT);
+		return visitBinaryOpHelper(node, symbolTable, MidPlusNode.class);
 	}
 	
 	public static MidNodeList visit(MODNode node, MidSymbolTable symbolTable) {
-		return visitBinaryOpHelper(node, symbolTable, MidModNode.class, VarType.INT);
+		return visitBinaryOpHelper(node, symbolTable, MidModNode.class);
 	}
 	
 	
-	public static MidNodeList visitUnaryOpHelper(SingleOperandNode node, MidSymbolTable symbolTable, Class<? extends MidUnaryRegNode> c, VarType outputType){
+	public static MidNodeList visitUnaryOpHelper(SingleOperandNode node, MidSymbolTable symbolTable, Class<? extends MidUnaryRegNode> c ){
 
 		try {
 			MidNodeList nodeList = node.getOperand().convertToMidLevel(symbolTable);
@@ -173,7 +174,7 @@ public class MidVisitor {
 			out.addAll(nodeList);
 			out.add(loadNode);
 			out.add(unaryNode);
-			MidTempDeclNode dest = new MidTempDeclNode(outputType);
+			MidTempDeclNode dest = new MidTempDeclNode();
 			out.add(dest);
 			out.add(new MidSaveNode(unaryNode, dest));
 			return out;
@@ -195,7 +196,8 @@ public class MidVisitor {
 	}
 	
 	public static MidNodeList visit(UnaryMinusNode node, MidSymbolTable symbolTable) {
-		return visitUnaryOpHelper(node, symbolTable, MidNegNode.class, VarType.INT);
+
+		return visitUnaryOpHelper(node, symbolTable, MidNegNode.class);
 	}
 	
 //	public static MidNodeList visit(BANGNode node, MidSymbolTable symbolTable){
@@ -267,7 +269,7 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(INT_LITERALNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		MidTempDeclNode dest = new MidTempDeclNode(VarType.INT);
+		MidTempDeclNode dest = new MidTempDeclNode();
 		out.add(dest);
 		out.add(new MidSaveNode(node.getValue(), dest));
 		return out;
@@ -275,7 +277,7 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(TRUENode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		MidTempDeclNode dest = new MidTempDeclNode(VarType.BOOLEAN);
+		MidTempDeclNode dest = new MidTempDeclNode();
 		out.add(dest);
 		out.add(new MidSaveNode(true, dest));
 		return out;
@@ -283,7 +285,7 @@ public class MidVisitor {
 	
 	public static MidNodeList visit(FALSENode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
-		MidTempDeclNode dest = new MidTempDeclNode(VarType.BOOLEAN);
+		MidTempDeclNode dest = new MidTempDeclNode();
 		out.add(dest);
 		out.add(new MidSaveNode(false, dest));
 		return out;
@@ -293,7 +295,7 @@ public class MidVisitor {
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable){
 		MidNodeList out = new MidNodeList();
 		MidLoadNode loadNode = new MidLoadNode(symbolTable.getVar(node.getText()));
-		MidTempDeclNode tempNode = new MidTempDeclNode(loadNode.getType());
+		MidTempDeclNode tempNode = new MidTempDeclNode();
 		out.add(loadNode);
 		out.add(tempNode);
 		out.add(new MidSaveNode(loadNode, tempNode));
@@ -451,7 +453,7 @@ public class MidVisitor {
 		String name = node.getIDNode().getText();
 		switch (node.getVarType()) {
 		case INT: case BOOLEAN :
-			MidLocalVarDeclNode declNode = new MidLocalVarDeclNode(name, node.getVarType());
+			MidLocalVarDeclNode declNode = new MidLocalVarDeclNode(name);
 			symbolTable.addVar(name, declNode);
 			nodeList.add(declNode);
 			break;
@@ -468,13 +470,13 @@ public class MidVisitor {
 		String name = node.getIDNode().getText();
 		switch (node.getVarType()) {
 		case BOOLEAN_ARRAY:
-			return new MidFieldArrayDeclNode(name, node.getArrayLength(), VarType.BOOLEAN);
+			return new MidFieldArrayDeclNode(name, node.getArrayLength());
 		case INT_ARRAY:
-			return new MidFieldArrayDeclNode(name, node.getArrayLength(), VarType.INT);
+			return new MidFieldArrayDeclNode(name, node.getArrayLength());
 		case INT:
-			return new MidFieldDeclNode(name, VarType.INT);
+			return new MidFieldDeclNode(name);
 		case BOOLEAN:
-			return new MidFieldDeclNode(name, VarType.BOOLEAN);
+			return new MidFieldDeclNode(name);
 		default:
 			assert false : "Unexpected varType";
 			return null;
@@ -670,7 +672,7 @@ public class MidVisitor {
 	public static MidNodeList shortCircuit(IDNode node, MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		MidMemoryNode declNode = symbolTable.getVar(node.getText());
 		MidLoadNode loadNode = new MidLoadNode(declNode);
-		MidMemoryNode tempNode = new MidTempDeclNode(VarType.INT);
+		MidMemoryNode tempNode = new MidTempDeclNode();
 		MidSaveNode zeroNode = new MidSaveNode(false, tempNode);
 		MidLoadNode zeroLoadNode = new MidLoadNode(tempNode);
 		MidCompareNode compareNode = new MidCompareNode(loadNode, zeroLoadNode);
@@ -695,7 +697,7 @@ public class MidVisitor {
 		MidLabelNode falseLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
-		MidTempDeclNode declNode = new MidTempDeclNode(VarType.BOOLEAN);
+		MidTempDeclNode declNode = new MidTempDeclNode();
 		MidSaveNode saveTrueNode = new MidSaveNode(true, declNode);
 		MidSaveNode saveFalseNode = new MidSaveNode(false, declNode);
 		

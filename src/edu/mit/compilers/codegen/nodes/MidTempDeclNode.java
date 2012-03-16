@@ -1,15 +1,14 @@
 package edu.mit.compilers.codegen.nodes;
 
 import edu.mit.compilers.codegen.MidLabelManager;
-import edu.mit.compilers.crawler.VarType;
 
 public class MidTempDeclNode extends MidMemoryNode {
 	private String name;
 
 	static int nodeNum = 0;
 
-	public MidTempDeclNode(VarType type) {
-		super(type);
+	public MidTempDeclNode() {
+		super();
 		// generate a random temp id
 		this.name = "t" + MidLabelManager.getNewId();
 	}

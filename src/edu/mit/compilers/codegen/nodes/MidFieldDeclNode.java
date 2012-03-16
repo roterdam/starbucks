@@ -1,15 +1,13 @@
 package edu.mit.compilers.codegen.nodes;
 
-import edu.mit.compilers.crawler.VarType;
-
 public class MidFieldDeclNode extends MidMemoryNode {
 	private String name;
 
 	// TODO: When we get to implementing space allocation, array subclass knows
 	// to do it differently.
 
-	public MidFieldDeclNode(String name, VarType type) {
-		super(type);
+	public MidFieldDeclNode(String name) {
+		super();
 		this.name = name;
 	}
 
