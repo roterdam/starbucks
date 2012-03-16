@@ -74,6 +74,11 @@ public class INT_LITERALNode extends ExpressionNode {
 	}
 	
 	@Override
+	public VarType getMidVarType(MidSymbolTable symbolTable){
+		return VarType.INT;
+	}
+	
+	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}

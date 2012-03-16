@@ -3,6 +3,7 @@ package edu.mit.compilers.grammar.tokens;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.crawler.MethodDecl;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
@@ -35,6 +36,11 @@ public class METHOD_CALLNode extends ExpressionNode {
 		assert scope.getMethods().containsKey(getMethodName());
 		MethodDecl method = scope.getMethods().get(getMethodName());
 		return method.getReturnType();
+	}
+	
+	@Override
+	public VarType getMidVarType(MidSymbolTable symbolTable){
+		return symbolTable.getMethod(getMethodName()).getMidVarType();
 	}
 	
 	@Override
