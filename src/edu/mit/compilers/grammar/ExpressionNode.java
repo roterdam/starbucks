@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar;
 
 import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidShortCircuitVisitor;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.codegen.ValuedMidNodeList;
@@ -17,7 +18,7 @@ public abstract class ExpressionNode extends DecafNode {
 		return MidVisitor.visit(this, symbolTable);
 	}
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
-		return MidVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
+		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
 	public abstract VarType getMidVarType(MidSymbolTable symbolTable);
 	/*{
