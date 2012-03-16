@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidShortCircuitVisitor;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
@@ -54,5 +55,9 @@ public class METHOD_CALLNode extends ExpressionNode {
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
+	}
+	
+	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
+		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
 }
