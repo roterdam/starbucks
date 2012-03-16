@@ -43,12 +43,16 @@ public class MidLoadNode extends MidRegisterNode {
 		
 		// TODO: replace with actual getRegisterId() defined in MidRegisterNode.
 		String registerId = "r10";
+<<<<<<< HEAD
 		out.add(new OpASM(toString(), OpCode.MOV,
 				registerId, memoryNode.getFormattedLocationReference()));
+=======
+		// TODO: replace 16 with actual offset from memoryNode
+		out.add(new OpASM(toString(), OpASM.OpCode.MOV,
+				registerId, "[rbp-16]"));
+>>>>>>> parent of 8065334... a begining of a memory manager
 
 		return out;
 	}
-	
-	
 	
 }
