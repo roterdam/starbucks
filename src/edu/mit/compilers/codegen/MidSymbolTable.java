@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
-import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+import edu.mit.compilers.codegen.nodes.MidNode;
 
 public class MidSymbolTable {
 
@@ -24,7 +25,8 @@ public class MidSymbolTable {
 	}
 
 	// Breakable.
-	public MidSymbolTable(MidSymbolTable p, MidLabelNode continueLabel, MidLabelNode breakLabel) {
+	public MidSymbolTable(MidSymbolTable p, MidLabelNode continueLabel,
+			MidLabelNode breakLabel) {
 		this.parent = p;
 		this.continueLabel = continueLabel;
 		this.breakLabel = breakLabel;
@@ -47,6 +49,7 @@ public class MidSymbolTable {
 			return null;
 		}
 	}
+
 	public MidLabelNode getContinueLabel() {
 		if (continueLabel != null) {
 			return continueLabel;
@@ -57,6 +60,7 @@ public class MidSymbolTable {
 			return null;
 		}
 	}
+
 	public void addVar(String id, MidMemoryNode var) {
 		localVars.put(id, var);
 	}
@@ -66,10 +70,10 @@ public class MidSymbolTable {
 	 */
 	public MidMemoryNode getVar(String v) {
 		if (localVars.containsKey(v)) {
-			assert localVars.get(v) != null: v;
+			assert localVars.get(v) != null : v;
 			return localVars.get(v);
 		} else if (parent != null) {
-			assert parent.getVar(v) != null: v;
+			assert parent.getVar(v) != null : v;
 			return parent.getVar(v);
 		} else {
 			assert false : "Variables should be declared. Semantic Checker, what up?";
@@ -123,24 +127,33 @@ public class MidSymbolTable {
 	 *            child symbol tables. Also prints the digraph statement.
 	 * @return
 	 */
-	public String toDotSyntax(String rootName, boolean topLevel) {
+	public String toDotSyntax(boolean topLevel) {
 		StringBuilder out = new StringBuilder();
 		if (topLevel) {
 			out.append("digraph MidLevelIR {\n");
 		}
 
-		out.append(rootName + " -> " + rootName + "_fields;\n");
-		for (String field : localVars.keySet()) {
-			out.append(rootName + "_fields [label=\"fields\"]");
-			out.append(rootName + "_fields -> " + rootName + "_" + field
-					+ ";\n");
-			out.append(rootName + "_" + field + " [label=\"" + field + "\"];\n");
+		String rootName = Integer.toString(hashCode());
+		out.append(rootName + " [label=\"PROGRAM\"]");
+
+		// Weird hack because rootName is an int, i.e. 12345, so 12345_fields is
+		// treated by dot as two names. So we need to do 12345000 or 12345999
+		// (as in the below case) to trick it into seeing one name.
+		String fieldsNodeName = rootName + "000";
+		out.append(rootName + " -> " + fieldsNodeName + ";\n");
+		out.append(fieldsNodeName + " [label=\"fields\"]");
+		for (String fieldName : localVars.keySet()) {
+			MidNode fieldNode = localVars.get(fieldName);
+			out.append(fieldNode.toDotSyntax());
+			out.append(fieldsNodeName + " -> " + fieldNode.hashCode() + ";\n");
 		}
 
 		if (topLevel) {
-			out.append(rootName + " -> " + rootName + "_methods;\n");
+			String methodsNodeName = rootName + "999";
+			out.append(rootName + " -> " + methodsNodeName + ";\n");
+			out.append(methodsNodeName + " [label=\"methods\"];\n");
 			for (String method : methods.keySet()) {
-				out.append(rootName + "_methods -> " + method + ";\n");
+				out.append(methodsNodeName + " -> " + method + ";\n");
 				out.append(methods.get(method).toDotSyntax(method));
 			}
 		}

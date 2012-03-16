@@ -19,13 +19,8 @@ public class MidNodeList implements List<MidNode> {
 	 */
 	public boolean add(MidNode object) {
 		assert object != null : "Don't add null to the list!";
-		assert object.getNextNode() == null : "Don't add things that are already in lists!"; // this
-																								// is
-																								// not
-																								// an
-																								// all
-																								// encompassing
-																								// assert
+		// this is not an all encompassing assert
+		assert object.getNextNode() == null : "Don't add things that are already in lists!";
 		if (tail == null) {
 			head = object;
 			tail = head;
@@ -188,29 +183,25 @@ public class MidNodeList implements List<MidNode> {
 		return sb.toString();
 	}
 
-	private String getUniqueName(String rootName, int i) {
-		return rootName + i;
-	}
-
 	/**
 	 * Only returns the relevant part of the graph, not the entire dot file.
 	 */
 	public String toDotSyntax(String rootName) {
 		StringBuilder out = new StringBuilder();
 
-		MidNode head = getHead();
-		if (head == null)
-			return rootName + " -> " + hashCode() + ";\n" + hashCode() + " [label=\"EMPTY\"];\n";
-		String prefix = rootName + " -> ";
-		for (int i = 0; i < size(); i++) {
-			assert head != null : "why you got null.. iterating over " + size()
-					+ " elements. stuck at " + i;
-			out.append(prefix);
-			out.append(getUniqueName(rootName, i) + ";\n");
-			out.append(getUniqueName(rootName, i) + "[label=\""
-					+ head.toString() + "\"];\n");
-			head = head.getNextNode();
-			prefix = getUniqueName(rootName, i) + " -> ";
+		if (isEmpty()) {
+			return rootName + " -> " + hashCode() + ";\n" + hashCode()
+					+ " [label=\"EMPTY\"];\n";
+		}
+
+		String previousNode = rootName;
+		// for (int i = 0; i < size(); i++) {
+		for (MidNode node : this) {
+			assert node != null : "Why you got null.. iterating over " + size()
+					+ " elements.";
+			out.append(node.toDotSyntax());
+			out.append(previousNode + " -> " + node.hashCode() + " [color=blue];\n");
+			previousNode = Integer.toString(node.hashCode());
 		}
 
 		return out.toString();
