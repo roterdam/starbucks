@@ -576,22 +576,32 @@ public class MidVisitor {
 			Class<? extends MidJumpNode> c){
 		MidNodeList nodeList = new MidNodeList();
 		
-		ValuedMidNodeList valuedLeftMidLevelNode = node.getLeftOperand().getValuedMidLevel(symbolTable);
-		ValuedMidNodeList valuedRightMidLevelNode = node.getRightOperand().getValuedMidLevel(symbolTable);
+		MidNodeList leftInstr;
+		MidNodeList rightInstr;
+		MidLoadNode leftLoad;
+		MidLoadNode rightLoad;
 		
-		MidMemoryNode leftDeclNode = valuedLeftMidLevelNode.getReturnNode();
-		MidMemoryNode rightDeclNode = valuedRightMidLevelNode.getReturnNode();
-		
-		MidLoadNode leftLoadNode = new MidLoadNode(leftDeclNode);
-		MidLoadNode rightLoadNode = new MidLoadNode(rightDeclNode);
-		MidCompareNode compareNode = new MidCompareNode(leftLoadNode, rightLoadNode);
+		if(node.getLeftOperand().getMidVarType() == VarType.INT){
+			leftInstr = node.getLeftOperand().convertToMidLevel(symbolTable);
+			leftLoad = new MidLoadNode(leftInstr.getSaveNode().getDestinationNode());
+			rightInstr = node.getRightOperand().convertToMidLevel(symbolTable);
+			rightLoad = new MidLoadNode(rightInstr.getSaveNode().getDestinationNode());
+		}else {
+			ValuedMidNodeList valuedLeftMidLevelNode = valuedHelper(node.getLeftOperand(), symbolTable);
+			ValuedMidNodeList valuedRightMidLevelNode = valuedHelper(node.getRightOperand(), symbolTable);
+			leftInstr = valuedLeftMidLevelNode.getList();
+			leftLoad = new MidLoadNode(valuedLeftMidLevelNode.getReturnNode());
+			rightInstr = valuedRightMidLevelNode.getList();
+			rightLoad = new MidLoadNode(valuedRightMidLevelNode.getReturnNode());
+		}
+		MidCompareNode compareNode = new MidCompareNode(leftLoad, rightLoad);
 		try {
 			MidJumpNode jumpTrue = c.getConstructor(MidLabelNode.class).newInstance(trueLabel);
 			MidJumpNode jumpFalse = new MidJumpNode(falseLabel);
-			nodeList.addAll(valuedLeftMidLevelNode.getList());
-			nodeList.addAll(valuedRightMidLevelNode.getList());
-			nodeList.add(leftLoadNode);
-			nodeList.add(rightLoadNode);
+			nodeList.addAll(leftInstr);
+			nodeList.addAll(rightInstr);
+			nodeList.add(leftLoad);
+			nodeList.add(rightLoad);
 			nodeList.add(compareNode);
 			nodeList.add(jumpTrue);
 			nodeList.add(jumpFalse);
@@ -712,11 +722,6 @@ public class MidVisitor {
 		nodeList.add(saveFalseNode);
 		nodeList.add(jumpEndNode);
 		return new ValuedMidNodeList(nodeList, declNode);
-	}
-	public static ValuedMidNodeList visitValued(ExpressionNode expressionNode,
-			MidSymbolTable symbolTable) {
-		assert false : "Every expression subclass should implement this, returning a short circuit or an expression evaluation";
-		return null;
 	}
 	
 }
