@@ -74,11 +74,10 @@ public class MidVisitor {
 		MidNodeList out = new MidNodeList();
 		MidMemoryNode returnMemoryNode = null;
 		if (node.hasReturnExpression()) {
-			MidNodeList returnExpressionlist = node.getReturnExpression()
-					.convertToMidLevel(symbolTable);
-			out.addAll(returnExpressionlist);
-			returnMemoryNode = returnExpressionlist.getSaveNode()
-					.getDestinationNode();
+			ValuedMidNodeList returnValuedExpressionList = MidShortCircuitVisitor
+					.valuedHelper(node.getReturnExpression(), symbolTable);
+			out.addAll(returnValuedExpressionList.getList());
+			returnMemoryNode = returnValuedExpressionList.getReturnNode();
 		}
 		out.add(new MidReturnNode(returnMemoryNode));
 		return out;
@@ -567,22 +566,22 @@ public class MidVisitor {
 		nodeList.add(fiLabel);
 		return nodeList;
 	}
-	
+
 	public static MidSymbolTable createMidLevelIR(CLASSNode node) {
 		MidSymbolTable symbolTable = new MidSymbolTable();
-		
+
 		for (FIELD_DECLNode fieldNode : node.getFieldNodes()) {
 			MidFieldDeclNode midFieldNode = visitFieldDecl(fieldNode, symbolTable);
 			symbolTable.addVar(midFieldNode.getName(), midFieldNode);
 		}
-		
+
 		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
 			MidMethodDeclNode midMethodNode = visitMethodDecl(methodNode, symbolTable);
 			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
 		}
-		
+
 		MemoryManager.assignStorage(symbolTable);
-		
+
 		return symbolTable;
 	}
 }

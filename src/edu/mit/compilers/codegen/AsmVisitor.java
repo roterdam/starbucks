@@ -78,4 +78,5 @@ public class AsmVisitor {
 		out.add(new OpASM(OpCode.GLOBAL, "main"));
 		return out;
 	}
+	
 }
