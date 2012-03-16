@@ -18,7 +18,7 @@ echo "Compiling $1"
 nasm -f elf64 $1 -o ${OUTNAME}.o
 
 echo "Resetting ${PLAYGROUND}"
-ssh -i ${PEM} ubuntu@${HOST} "rm -rf ${PLAYGROUND};mkdir ${PLAYGROUND}"
+ssh -i ${PEM} ubuntu@${HOST} "rm ${PLAYGROUND}/*"
 
 echo "Uploading compiled ${OUTNAME}.o to ${PLAYGROUND}"
 scp -i ${PEM} ${OUTNAME}.o ubuntu@${HOST}:${PLAYGROUND}/
@@ -26,7 +26,7 @@ scp -i ${PEM} ${OUTNAME}.o ubuntu@${HOST}:${PLAYGROUND}/
 echo "Linking and running. Binary results:"
 echo ""
 echo "=== START OUTPUT ==="
-ssh -i ${PEM} ubuntu@${HOST} "cd ${PLAYGROUND}; gcc -o ${OUTNAME} ${OUTNAME}.o; chmod +x ${OUTNAME}; ./${OUTNAME}"
+ssh -i ${PEM} ubuntu@${HOST} "cd ${PLAYGROUND}; gcc -g -o ${OUTNAME} ${OUTNAME}.o; chmod +x ${OUTNAME}; ./${OUTNAME}"
 echo "==== END OUTPUT ===="
 echo ""
 echo "Cleaning up .o files"
