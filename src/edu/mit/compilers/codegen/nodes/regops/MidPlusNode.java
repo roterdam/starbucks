@@ -15,6 +15,7 @@ public class MidPlusNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 	}
 
+	@Override
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.ADD);		
 	}

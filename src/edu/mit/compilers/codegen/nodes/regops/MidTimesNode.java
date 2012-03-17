@@ -13,6 +13,7 @@ public class MidTimesNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 	}
 
+	@Override
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.IMUL);		
 	}

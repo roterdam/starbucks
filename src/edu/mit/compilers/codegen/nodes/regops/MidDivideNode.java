@@ -13,6 +13,7 @@ public class MidDivideNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 	}
 
+	@Override
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.IDIV);		
 	}
