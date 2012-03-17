@@ -56,6 +56,7 @@ public class MemoryManager {
 			// Reset the localStackSize.
 			localStackSize = 0;
 			for (MidNode m : methodDeclNode.getNodeList()) {
+				System.out.println("memman looking at " + m.toString());
 				if (m instanceof MidLocalMemoryNode) {
 					localStackSize += ADDRESS_SIZE;
 					((MidMemoryNode) m).setRawLocationReference(Integer
@@ -70,6 +71,8 @@ public class MemoryManager {
 						((MidRegisterNode) m).setRegister(allocTempRegister());
 					}
 				} else if (m instanceof MidSaveNode) {
+					System.out.println("ROGER");
+					System.out.println(((MidSaveNode) m).savesRegister());
 					if (((MidSaveNode) m).savesRegister()) {
 						deallocTempRegister(((MidSaveNode) m).getRefNode()
 								.getRegister());
