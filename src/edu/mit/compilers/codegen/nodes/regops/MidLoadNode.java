@@ -38,9 +38,13 @@ public class MidLoadNode extends MidRegisterNode {
 
 	@Override
 	public List<ASM> toASM() {
+		return toASM(false);
+	}
+
+	public List<ASM> toASM(boolean loadPointer) {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(), memoryNode
-				.getFormattedLocationReference()));
+		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
+				memoryNode.getFormattedLocationReference()));
 		return out;
 	}
 
