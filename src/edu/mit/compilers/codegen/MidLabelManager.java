@@ -6,8 +6,9 @@ import java.util.Map;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 
 public class MidLabelManager {
-	@SuppressWarnings("serial")
 	private static MidLabelNode divZeroLabel = new MidLabelNode("DIVZERO");
+	
+	@SuppressWarnings("serial")
 	private static Map<LabelType, Integer> tracker = new HashMap<LabelType, Integer>(){{
 		for (LabelType type : LabelType.values()) {
 			this.put(type, 0);

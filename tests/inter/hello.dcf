@@ -1,0 +1,14 @@
+class Program {
+    void main(){
+       int i;
+       int j;
+       boolean a;
+       boolean b;
+       boolean c;
+       if(a || (b && c)){
+           i+=1;
+       }else{
+           j+=1;
+       }
+    }
+}

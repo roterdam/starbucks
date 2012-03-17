@@ -1,0 +1,8 @@
+class Program {
+   void main(){
+       int i,j,k,a;
+       i = j/k;
+       a = 0;
+   }
+}
+       
