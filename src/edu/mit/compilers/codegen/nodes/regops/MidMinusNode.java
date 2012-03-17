@@ -13,7 +13,6 @@ public class MidMinusNode extends MidBinaryRegNode {
 
 	@Override
 	public List<ASM> toASM() {
-		assert false : "This is wrong.";
 		return super.toASM(OpCode.SUB);
 	}
 
