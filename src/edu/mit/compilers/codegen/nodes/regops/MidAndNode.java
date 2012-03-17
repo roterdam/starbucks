@@ -11,7 +11,6 @@ import edu.mit.compilers.codegen.asm.OpCode;
 
 public class MidAndNode extends MidBinaryRegNode {
 
-
 	public MidAndNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
 	}
