@@ -21,7 +21,7 @@ public class MidCalloutNode extends MidNode {
 	}
 
 	public List<ASM> toASM() {
-		return AsmVisitor.methodCall(name, params);
+		return AsmVisitor.methodCall(name, params, true);
 	}
 
 }

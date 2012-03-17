@@ -27,9 +27,9 @@ public class MemoryManager {
 	@SuppressWarnings("serial")
 	public static Map<Reg, Boolean> registerAvailabilityMap = new HashMap<Reg, Boolean>() {
 		{
-			for (Reg r : Reg.values()) {
-				put(r, true);
-			}
+			// Only allow R10 and R11
+			put(Reg.R10, true);
+			put(Reg.R11, true);
 		}
 	};
 
@@ -61,12 +61,17 @@ public class MemoryManager {
 					((MidMemoryNode) m).setRawLocationReference(Integer
 							.toString(localStackSize));
 				} else if (m instanceof MidRegisterNode) {
+					// We dealloc before alloc in order to allow a register node
+					// to save to itself.
+					for (Reg r : ((MidRegisterNode) m).getOperandRegisters()) {
+						deallocTempRegister(r);
+					}
 					if (!((MidRegisterNode) m).hasRegister()) {
-						((MidRegisterNode) m).setRegister(allocRegister());
+						((MidRegisterNode) m).setRegister(allocTempRegister());
 					}
 				} else if (m instanceof MidSaveNode) {
 					if (((MidSaveNode) m).savesRegister()) {
-						deallocRegister(((MidSaveNode) m).getRefNode()
+						deallocTempRegister(((MidSaveNode) m).getRefNode()
 								.getRegister());
 					}
 				}
@@ -75,28 +80,21 @@ public class MemoryManager {
 		}
 	}
 
-	private static Reg allocRegister() {
+	public static Reg allocTempRegister() {
 		for (Reg r : registerAvailabilityMap.keySet()) {
 			if (registerAvailabilityMap.get(r)) {
 				registerAvailabilityMap.put(r, false);
+				System.out.println("1234 Allocating " + r.name());
 				return r;
 			}
 		}
 		// TODO: make this not possible.
 		throw new RuntimeException("Ran out of registers somehow! WTF.");
 	}
-	
-	public static Reg getTempRegister() {
-		// TODO: alternate between r10 and r11.
-		return Reg.R10;
-	}
 
-	private static void deallocRegister(Reg r) {
+	private static void deallocTempRegister(Reg r) {
+		System.out.println("1234 Deallocating " + r.name());
 		registerAvailabilityMap.put(r, true);
 	}
-	
-	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX, Reg.RCX,
-			Reg.R8, Reg.R9 };
 
-	
 }

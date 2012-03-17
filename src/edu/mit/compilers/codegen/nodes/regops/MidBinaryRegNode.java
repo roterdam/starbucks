@@ -6,6 +6,7 @@ import java.util.List;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.codegen.Reg;
 
 public abstract class MidBinaryRegNode extends MidRegisterNode {
 
@@ -45,7 +46,15 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new OpASM(toString(), op, this.getLeftOperand().getRegister().name(),
 				this.getRightOperand().getRegister().name()));
-		return out;		
+		return out;
+	}
+		
+	@Override
+	public List<Reg> getOperandRegisters() {
+		List<Reg> out = new ArrayList<Reg>();
+		out.add(leftOperand.getRegister());
+		out.add(rightOperand.getRegister());
+		return out;
 	}
 
 }

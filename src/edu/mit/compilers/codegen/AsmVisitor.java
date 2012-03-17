@@ -13,6 +13,7 @@ import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class AsmVisitor {
@@ -94,21 +95,6 @@ public class AsmVisitor {
 				+ stringLabelCount++;
 	}
 
-	public static List<ASM> generatePrintln(String text) {
-		// TODO: merge this with generateMethodCall
-		externCalls.add("printf");
-
-		MidFieldDeclNode node = addStringLiteral(text);
-
-		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(String.format("start of printf %s", text),
-				OpCode.MOV, Reg.RDI.name(), node
-						.getFormattedLocationReference(true)));
-		out.add(new OpASM(OpCode.MOV, Reg.RAX.name(), "0"));
-		out.add(new OpASM(OpCode.CALL, "printf"));
-		return out;
-	}
-
 	/**
 	 * Register a string literal, returns a MidFieldDeclNode to use in
 	 * MidVisitor calls.
@@ -116,7 +102,7 @@ public class AsmVisitor {
 	 * @param text
 	 * @return
 	 */
-	public static MidFieldDeclNode addStringLiteral(String text) {
+	public static MidStringDeclNode addStringLiteral(String text) {
 		String labelText = labelSafeString(text);
 		dataSection.add(new LabelASM("", labelText));
 		// asciiBuilder converts all strings to comma-separated list of ascii to
@@ -132,30 +118,38 @@ public class AsmVisitor {
 		dataSection.add(new OpASM("`" + text + "`", OpCode.DB, asciiBuilder
 				.toString()));
 
-		MidFieldDeclNode out = new MidFieldDeclNode(labelText);
+		MidStringDeclNode out = new MidStringDeclNode(labelText);
 		out.setRawLocationReference(labelText);
 		return out;
 	}
 
-	public static List<ASM> methodCall(String name, List<MidMemoryNode> params) {
+	public static List<ASM> methodCall(String name, List<MidMemoryNode> params, boolean extern) {
+		if (extern) {
+			externCalls.add(name);
+		}
 		List<ASM> out = new ArrayList<ASM>();
 		// Begin calling convention, place as many nodes in registers as
 		// possible.
+		Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX, Reg.RCX,
+				Reg.R8, Reg.R9 };
+
 		for (int i = 0; i < params.size(); i++) {
 			MidLoadNode paramNode = new MidLoadNode(params.get(i));
-			if (i < MemoryManager.paramRegisters.length) {
+			if (i < paramRegisters.length) {
 				// Want to set the register.
-				paramNode.setRegister(MemoryManager.paramRegisters[i]);
+				paramNode.setRegister(paramRegisters[i]);
 				out.addAll(paramNode.toASM());
 			} else {
-				paramNode.setRegister(MemoryManager.getTempRegister());
+				paramNode.setRegister(MemoryManager.allocTempRegister());
 				out.addAll(paramNode.toASM());
 				out.add(new OpASM(String.format("push param %d onto stack", i),
 						OpCode.PUSH, paramNode.getRegister().name()));
 			}
 		}
+		// Always set RAX to 0.
+		out.add(new OpASM(OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.CALL, name));
-		int stackParams = params.size() - MemoryManager.paramRegisters.length;
+		int stackParams = params.size() - paramRegisters.length;
 		if (stackParams > 0) {
 			out.add(new OpASM("clean up params", OpCode.MOV, Reg.RSP.name(),
 					String.format("[ %s - %d ]", Reg.RSP.name(), stackParams
