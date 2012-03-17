@@ -28,8 +28,8 @@ public class MemoryManager {
 	public static Map<Reg, Boolean> registerAvailabilityMap = new HashMap<Reg, Boolean>() {
 		{
 			// Only allow R10 and R11
-			put (Reg.R10, true);
-			put (Reg.R11, true);
+			put(Reg.R10, true);
+			put(Reg.R11, true);
 		}
 	};
 
@@ -61,6 +61,11 @@ public class MemoryManager {
 					((MidMemoryNode) m).setRawLocationReference(Integer
 							.toString(localStackSize));
 				} else if (m instanceof MidRegisterNode) {
+					// We dealloc before alloc in order to allow a register node
+					// to save to itself.
+					for (Reg r : ((MidRegisterNode) m).getOperandRegisters()) {
+						deallocTempRegister(r);
+					}
 					if (!((MidRegisterNode) m).hasRegister()) {
 						((MidRegisterNode) m).setRegister(allocTempRegister());
 					}
@@ -79,6 +84,7 @@ public class MemoryManager {
 		for (Reg r : registerAvailabilityMap.keySet()) {
 			if (registerAvailabilityMap.get(r)) {
 				registerAvailabilityMap.put(r, false);
+				System.out.println("1234 Allocating " + r.name());
 				return r;
 			}
 		}
@@ -87,8 +93,8 @@ public class MemoryManager {
 	}
 
 	private static void deallocTempRegister(Reg r) {
+		System.out.println("1234 Deallocating " + r.name());
 		registerAvailabilityMap.put(r, true);
 	}
 
-	
 }

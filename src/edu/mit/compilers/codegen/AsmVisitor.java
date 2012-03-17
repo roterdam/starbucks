@@ -95,21 +95,6 @@ public class AsmVisitor {
 				+ stringLabelCount++;
 	}
 
-	public static List<ASM> generatePrintln(String text) {
-		// TODO: merge this with generateMethodCall
-		externCalls.add("printf");
-
-		MidStringDeclNode node = addStringLiteral(text);
-
-		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(String.format("start of printf %s", text),
-				OpCode.MOV, Reg.RDI.name(), node
-						.getFormattedLocationReference()));
-		out.add(new OpASM(OpCode.MOV, Reg.RAX.name(), "0"));
-		out.add(new OpASM(OpCode.CALL, "printf"));
-		return out;
-	}
-
 	/**
 	 * Register a string literal, returns a MidFieldDeclNode to use in
 	 * MidVisitor calls.
@@ -138,7 +123,10 @@ public class AsmVisitor {
 		return out;
 	}
 
-	public static List<ASM> methodCall(String name, List<MidMemoryNode> params) {
+	public static List<ASM> methodCall(String name, List<MidMemoryNode> params, boolean extern) {
+		if (extern) {
+			externCalls.add(name);
+		}
 		List<ASM> out = new ArrayList<ASM>();
 		// Begin calling convention, place as many nodes in registers as
 		// possible.

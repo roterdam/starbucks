@@ -1,5 +1,10 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.mit.compilers.codegen.Reg;
+
 public abstract class MidBinaryRegNode extends MidRegisterNode {
 
 	private MidRegisterNode leftOperand;
@@ -31,6 +36,14 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 		String out = super.toDotSyntax();
 		out += leftOperand.hashCode() + " -> " + hashCode() + " [style=dotted,color=maroon];\n";
 		out += rightOperand.hashCode() + " -> " + hashCode() + " [style=dotted,color=maroon];\n";
+		return out;
+	}
+	
+	@Override
+	public List<Reg> getOperandRegisters() {
+		List<Reg> out = new ArrayList<Reg>();
+		out.add(leftOperand.getRegister());
+		out.add(rightOperand.getRegister());
 		return out;
 	}
 

@@ -70,7 +70,6 @@ public class MidMethodDeclNode extends MidNode {
 		out.add(new LabelASM("ENTERING " + this.getName(), this.getName()));
 		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(localStackSize), "0"));
 
-		out.addAll(AsmVisitor.generatePrintln(String.format("entering %s", name)));
 		out.addAll(nodeList.toASM());
 
 		return out;
