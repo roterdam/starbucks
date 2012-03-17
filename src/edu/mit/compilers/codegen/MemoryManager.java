@@ -61,7 +61,9 @@ public class MemoryManager {
 					((MidMemoryNode) m).setRawLocationReference(Integer
 							.toString(localStackSize));
 				} else if (m instanceof MidRegisterNode) {
-					((MidRegisterNode) m).setRegister(allocRegister());
+					if (!((MidRegisterNode) m).hasRegister()) {
+						((MidRegisterNode) m).setRegister(allocRegister());
+					}
 				} else if (m instanceof MidSaveNode) {
 					if (((MidSaveNode) m).savesRegister()) {
 						deallocRegister(((MidSaveNode) m).getRefNode()
@@ -82,6 +84,11 @@ public class MemoryManager {
 		}
 		// TODO: make this not possible.
 		throw new RuntimeException("Ran out of registers somehow! WTF.");
+	}
+	
+	public static Reg getTempRegister() {
+		// TODO: alternate between r10 and r11.
+		return Reg.R10;
 	}
 
 	private static void deallocRegister(Reg r) {

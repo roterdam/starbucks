@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes.memory;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 
 /**
@@ -16,7 +17,7 @@ abstract public class MidLocalMemoryNode extends MidMemoryNode {
 	
 	@Override
 	public String getFormattedLocationReference() {
-		return "[ rbp - " + rawLocationReference + " ]";
+		return String.format("[ %s - %s ]", Reg.RBP.name(), rawLocationReference);
 	}
 	
 	@Override

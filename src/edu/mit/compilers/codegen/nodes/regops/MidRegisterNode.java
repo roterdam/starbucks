@@ -10,7 +10,7 @@ import edu.mit.compilers.codegen.nodes.MidNode;
 abstract public class MidRegisterNode extends MidNode {
 	
 	String name;
-	private Reg register;
+	private Reg register = null;
 	
 	public MidRegisterNode() {
 		name = "reg" + MidLabelManager.getNewId();
@@ -26,6 +26,10 @@ abstract public class MidRegisterNode extends MidNode {
 	
 	public Reg getRegister() {
 		return register;
+	}
+	
+	public boolean hasRegister() {
+		return register != null;
 	}
 	
 }
