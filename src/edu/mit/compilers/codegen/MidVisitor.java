@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMethodNode;
 import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldArrayDeclNode;
@@ -151,7 +152,22 @@ public class MidVisitor {
 				node.getLeftOperand().convertToMidLevel(symbolTable),
 				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
-
+	//TODO: finish implementing
+	public static MidNodeList errorOnDivide(MidLoadNode operandNode){
+		MidTempDeclNode zeroNode = new MidTempDeclNode();
+		MidSaveNode saveNode = new MidSaveNode(0, zeroNode);
+		MidLoadNode loadNode = new MidLoadNode(zeroNode);
+		MidCompareNode compareNode = new MidCompareNode(operandNode, loadNode);
+		MidJumpNode jumpNode = new MidJumpEQNode(MidLabelManager.getDivideByZeroLabel());
+		
+		MidNodeList instrList = new MidNodeList();
+		instrList.add(zeroNode);
+		instrList.add(saveNode);
+		instrList.add(loadNode);
+		instrList.add(compareNode);
+		instrList.add(jumpNode);
+		return instrList;
+	}
 	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node,
 			MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c) {
 
@@ -163,6 +179,7 @@ public class MidVisitor {
 					.getSaveNode().getDestinationNode());
 			MidLoadNode rightLoadNode = new MidLoadNode(preLists[1]
 					.getSaveNode().getDestinationNode());
+			
 			MidBinaryRegNode binNode;
 			binNode = c.getConstructor(MidLoadNode.class, MidLoadNode.class)
 					.newInstance(leftLoadNode, rightLoadNode);
@@ -170,6 +187,10 @@ public class MidVisitor {
 			out.addAll(preLists[1]);
 			out.add(leftLoadNode);
 			out.add(rightLoadNode);
+			//FIXME: .class? eh.
+			if(c == MidDivideNode.class){
+				out.addAll(errorOnDivide(rightLoadNode));
+			}
 			out.add(binNode);
 			MidTempDeclNode dest = new MidTempDeclNode();
 			out.add(dest);
@@ -357,6 +378,7 @@ public class MidVisitor {
 	}
 
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable) {
+		//TODO: handle array index access.
 		MidNodeList out = new MidNodeList();
 		MidLoadNode loadNode = new MidLoadNode(symbolTable.getVar(node
 				.getText()));
