@@ -22,7 +22,13 @@ public class MidNodeList implements List<MidNode> {
 	public boolean add(MidNode object) {
 		assert object != null : "Don't add null to the list!";
 		// this is not an all encompassing assert
-		assert object.getNextNode() == null : "Don't add things that are already in lists!";
+		assert object.getNextNode() == null : "Don't add things that are already in lists: "
+				+ object.toString()
+				+ "\nalready has next="
+				+ object.getNextNode().toString()
+				+ "\n(list:"
+				+ toString()
+				+ ")";
 		if (tail == null) {
 			head = object;
 			tail = head;
@@ -202,7 +208,8 @@ public class MidNodeList implements List<MidNode> {
 			assert node != null : "Why you got null.. iterating over " + size()
 					+ " elements.";
 			out.append(node.toDotSyntax());
-			out.append(previousNode + " -> " + node.hashCode() + " [color=blue];\n");
+			out.append(previousNode + " -> " + node.hashCode()
+					+ " [color=blue];\n");
 			previousNode = Integer.toString(node.hashCode());
 		}
 
@@ -213,11 +220,11 @@ public class MidNodeList implements List<MidNode> {
 		assert getTail() instanceof MidSaveNode : toString();
 		return (MidSaveNode) getTail();
 	}
-	
+
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		
-		for (MidNode node : this){
+
+		for (MidNode node : this) {
 			out.addAll(node.toASM());
 		}
 

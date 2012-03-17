@@ -10,18 +10,18 @@ import edu.mit.compilers.crawler.VarType;
 
 @SuppressWarnings("serial")
 public abstract class ExpressionNode extends DecafNode {
-	public abstract VarType getReturnType(Scope scope);
 	
+	public abstract VarType getReturnType(Scope scope);
+
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		//System.out.println("EXPRESSION NODE'S CONVERT IS CALLED.");
 		return MidVisitor.visit(this, symbolTable);
 	}
-	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
-		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
+
+	public MidNodeList shortCircuit(MidSymbolTable symbolTable,
+			MidLabelNode trueLabel, MidLabelNode falseLabel) {
+		return MidShortCircuitVisitor
+				.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
+
 	public abstract VarType getMidVarType(MidSymbolTable symbolTable);
-	/*{
-		assert false : "This needs to be implemented for all the subcalsses";
-		return null;
-	}*/
 }

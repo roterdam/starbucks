@@ -12,7 +12,7 @@ abstract public class MidMemoryNode extends MidNode {
 		super();
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -22,7 +22,7 @@ abstract public class MidMemoryNode extends MidNode {
 	 * different depending on the type of node.
 	 * Fields: `labelname`
 	 * Registers: `r10`
-	 * Stack: `8` (formatted as [rbp - 8])
+	 * Stack: `8` (formatted as [RBP - 8])
 	 * 
 	 * @param rawLocationReference
 	 */

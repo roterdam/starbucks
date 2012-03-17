@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
@@ -18,15 +19,18 @@ public class MidMethodDeclNode extends MidNode {
 	// Stores the number of lines needed for the local stack.
 	private int localStackSize;
 
-	public MidMethodDeclNode(String name, VarType varType, MidNodeList nodeList) {
+	public MidMethodDeclNode(String name, VarType varType) {
 		super();
 		this.name = name;
-		this.nodeList = nodeList;
 		this.varType = varType;
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public void setNodeList(MidNodeList nodeList) {
+		this.nodeList = nodeList;
 	}
 
 	public MidNodeList getNodeList() {
@@ -64,9 +68,9 @@ public class MidMethodDeclNode extends MidNode {
 		List<ASM> out = new ArrayList<ASM>();
 
 		out.add(new LabelASM("ENTERING " + this.getName(), this.getName()));
-
 		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(localStackSize), "0"));
 
+		out.addAll(AsmVisitor.generatePrintln(String.format("entering %s", name)));
 		out.addAll(nodeList.toASM());
 
 		return out;

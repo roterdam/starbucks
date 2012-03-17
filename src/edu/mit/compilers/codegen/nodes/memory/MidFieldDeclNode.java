@@ -25,7 +25,26 @@ public class MidFieldDeclNode extends MidMemoryNode {
 
 	@Override
 	public String getFormattedLocationReference() {
-		return String.format("[ %s ]", rawLocationReference);
+		return getFormattedLocationReference(false);
+	}
+
+	/**
+	 * Get the location reference.
+	 * 
+	 * @param asPointer
+	 *            Set to true if you want a pointer, not the actual data.
+	 * @return
+	 */
+	public String getFormattedLocationReference(boolean asPointer) {
+		String format;
+		assert rawLocationReference != null : "rawLocationReference is null!";
+		// Adding brackets evaluates to the _data at that address_
+		if (asPointer) {
+			format = "%s";
+		} else {
+			format = "[ %s ]";
+		}
+		return String.format(format, rawLocationReference);
 	}
 
 }
