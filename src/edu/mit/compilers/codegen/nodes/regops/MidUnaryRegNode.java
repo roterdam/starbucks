@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.Reg;
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.OpASM;
+import edu.mit.compilers.codegen.asm.OpCode;
 
 public abstract class MidUnaryRegNode extends MidRegisterNode {
 
@@ -28,6 +31,12 @@ public abstract class MidUnaryRegNode extends MidRegisterNode {
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		out.add(operand.getRegister());
+		return out;
+	}
+
+	public List<ASM> toASM(OpCode op) {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new OpASM(toString(), op, this.getOperand().getRegister().name()));
 		return out;
 	}
 	
