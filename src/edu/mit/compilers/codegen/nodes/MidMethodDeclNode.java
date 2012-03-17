@@ -18,15 +18,18 @@ public class MidMethodDeclNode extends MidNode {
 	// Stores the number of lines needed for the local stack.
 	private int localStackSize;
 
-	public MidMethodDeclNode(String name, VarType varType, MidNodeList nodeList) {
+	public MidMethodDeclNode(String name, VarType varType) {
 		super();
 		this.name = name;
-		this.nodeList = nodeList;
 		this.varType = varType;
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public void setNodeList(MidNodeList nodeList) {
+		this.nodeList = nodeList;
 	}
 
 	public MidNodeList getNodeList() {

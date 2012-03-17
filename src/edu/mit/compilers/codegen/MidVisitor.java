@@ -340,23 +340,6 @@ public class MidVisitor {
 		return out;
 	}
 
-	/**
-	 * Special method returns a MidMethodDeclNode instead of the usual List.
-	 */
-	public static MidMethodDeclNode visitMethodDecl(METHOD_DECLNode node,
-			MidSymbolTable symbolTable) {
-
-		MidNodeList outputList = node.getBlockNode()
-				.convertToMidLevel(symbolTable);
-		if (!(outputList.getTail() instanceof MidReturnNode)) {
-			outputList.add(new MidReturnNode(null));
-		}
-		MidMethodDeclNode out = new MidMethodDeclNode(node.getId(),
-				node.getReturnType(), outputList);
-
-		return out;
-	}
-
 	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable,
 			boolean needsNewScope) {
 		MidNodeList outputList = new MidNodeList();
@@ -567,6 +550,19 @@ public class MidVisitor {
 		return nodeList;
 	}
 
+	/**
+	 * Special method sets the output list on the MidMethodDeclNode.
+	 */
+	public static void visitMethodDecl(MidMethodDeclNode node, BLOCKNode block,
+			MidSymbolTable symbolTable) {
+
+		MidNodeList outputList = block.convertToMidLevel(symbolTable);
+		if (!(outputList.getTail() instanceof MidReturnNode)) {
+			outputList.add(new MidReturnNode(null));
+		}
+		node.setNodeList(outputList);
+	}
+
 	public static MidSymbolTable createMidLevelIR(CLASSNode node) {
 		MidSymbolTable symbolTable = new MidSymbolTable();
 
@@ -576,8 +572,10 @@ public class MidVisitor {
 		}
 
 		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
-			MidMethodDeclNode midMethodNode = visitMethodDecl(methodNode, symbolTable);
+			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(
+					methodNode.getId(), methodNode.getReturnType());
 			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
+			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
 		}
 
 		MemoryManager.assignStorage(symbolTable);
