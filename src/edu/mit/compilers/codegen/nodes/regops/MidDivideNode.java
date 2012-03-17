@@ -11,6 +11,7 @@ public class MidDivideNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 	}
 
+	@Override
 	public List<ASM> toASM() {
 		assert false : "This doesn't work.";
 		return super.toASM(OpCode.IDIV);
