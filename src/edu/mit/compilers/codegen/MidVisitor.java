@@ -92,7 +92,9 @@ public class MidVisitor {
 				assert false : "STRING_LITERALNode or ExpressionNode expected, found: " + n.getClass();
 			}
 		}
-		out.add(new MidCalloutNode(node.getName(), paramNodes));
+		// removes the " " from the DecafNode
+		String methodName = node.getName().substring(1, node.getName().length()-1);
+		out.add(new MidCalloutNode(methodName, paramNodes));
 		return out;
 	}
 
