@@ -12,7 +12,7 @@ abstract public class MidMemoryNode extends MidNode {
 		super();
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

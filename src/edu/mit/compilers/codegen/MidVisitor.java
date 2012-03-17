@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
+import edu.mit.compilers.codegen.nodes.MidCalloutNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMethodNode;
@@ -39,6 +40,7 @@ import edu.mit.compilers.grammar.expressions.SingleOperandNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.BLOCKNode;
 import edu.mit.compilers.grammar.tokens.BREAKNode;
+import edu.mit.compilers.grammar.tokens.CALLOUTNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.CONTINUENode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
@@ -58,6 +60,7 @@ import edu.mit.compilers.grammar.tokens.PARAM_DECLNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
 import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.RETURNNode;
+import edu.mit.compilers.grammar.tokens.STRING_LITERALNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.TRUENode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
@@ -68,6 +71,28 @@ public class MidVisitor {
 	public static MidNodeList visit(DecafNode node, MidSymbolTable symbolTable) {
 		assert false : "Implement convertToMidLevel in " + node.getClass();
 		return new MidNodeList();
+	}
+
+	public static MidNodeList visit(CALLOUTNode node, MidSymbolTable symbolTable) {
+		MidNodeList out = new MidNodeList();
+		List<DecafNode> argNodes = node.getArgs();
+		List<MidMemoryNode> paramNodes = new ArrayList<MidMemoryNode>();
+		for (int i = 0; i < argNodes.size(); i++) {
+			DecafNode n = argNodes.get(i);
+			if (n instanceof STRING_LITERALNode) {
+				MidFieldDeclNode stringDeclNode = AsmVisitor.addStringLiteral(n
+						.getText());
+				paramNodes.add(stringDeclNode);
+			} else if (n instanceof ExpressionNode) {
+				MidNodeList expList = n.convertToMidLevel(symbolTable);
+				out.addAll(expList);
+				paramNodes.add(expList.getSaveNode().getDestinationNode());
+			} else {
+				assert false : "STRING_LITERALNode or ExpressionNode expected, found: " + n.getClass();
+			}
+		}
+		out.add(new MidCalloutNode(node.getName(), paramNodes));
+		return out;
 	}
 
 	public static MidNodeList visit(RETURNNode node, MidSymbolTable symbolTable) {

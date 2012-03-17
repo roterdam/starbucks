@@ -94,5 +94,9 @@ public class MemoryManager {
 	private static void deallocRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
 	}
+	
+	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX, Reg.RCX,
+			Reg.R8, Reg.R9 };
 
+	
 }
