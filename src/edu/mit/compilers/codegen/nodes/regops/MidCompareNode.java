@@ -16,10 +16,7 @@ public class MidCompareNode extends MidBinaryRegNode {
 	
 	
 	public List<ASM> toASM() {
-		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), OpCode.CMP, this.getLeftOperand().getRegister().name(),
-				this.getRightOperand().getRegister().name()));
-		return out;		
+		return super.toASM(OpCode.CMP);	
 	}
 	
 }
