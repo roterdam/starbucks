@@ -7,19 +7,18 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-
 public class MidCompareNode extends MidBinaryRegNode {
 
 	public MidCompareNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
 	}
-	
-	
+
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), OpCode.CMP, this.getLeftOperand().getRegister().name(),
-				this.getRightOperand().getRegister().name()));
-		return out;		
+		out.add(new OpASM(toString(), OpCode.CMP, this.getLeftOperand()
+				.getRegister().name(), this.getRightOperand().getRegister()
+				.name()));
+		return out;
 	}
-	
+
 }

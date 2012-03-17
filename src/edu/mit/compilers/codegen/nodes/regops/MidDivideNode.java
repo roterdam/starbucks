@@ -5,8 +5,6 @@ import java.util.List;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-
-
 public class MidDivideNode extends MidBinaryRegNode {
 
 	public MidDivideNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
@@ -14,7 +12,8 @@ public class MidDivideNode extends MidBinaryRegNode {
 	}
 
 	public List<ASM> toASM() {
-		return super.toASM(OpCode.IDIV);		
+		assert false : "This doesn't work.";
+		return super.toASM(OpCode.IDIV);
 	}
-	
+
 }
