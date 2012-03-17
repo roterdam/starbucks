@@ -13,11 +13,11 @@ public class MidFieldDeclNode extends MidMemoryNode {
 		super(name);
 	}
 
-	public LabelASM getFieldLabel() {
+	public LabelASM getFieldLabelASM() {
 		return new LabelASM("", rawLocationReference);
 	}
 
-	public OpASM getFieldDeclaration() {
+	public OpASM getFieldDeclarationASM() {
 		// TOOD: resw of different sizes
 		return new OpASM(String.format("placeholder for `%s`", getName()),
 				OpCode.RESW, "1");

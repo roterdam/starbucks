@@ -67,8 +67,8 @@ public class AsmVisitor {
 		for (String fieldName : fieldVars.keySet()) {
 			MidFieldDeclNode fieldNode = (MidFieldDeclNode) fieldVars
 					.get(fieldName);
-			out.add(fieldNode.getFieldLabel());
-			out.add(fieldNode.getFieldDeclaration());
+			out.add(fieldNode.getFieldLabelASM());
+			out.add(fieldNode.getFieldDeclarationASM());
 		}
 		return out;
 	}
