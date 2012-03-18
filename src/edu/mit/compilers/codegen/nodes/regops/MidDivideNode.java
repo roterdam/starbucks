@@ -1,11 +1,20 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
+import java.util.List;
 
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.OpCode;
 
 public class MidDivideNode extends MidBinaryRegNode {
 
 	public MidDivideNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
+	}
+
+	@Override
+	public List<ASM> toASM() {
+		assert false : "This doesn't work.";
+		return super.toASM(OpCode.IDIV);
 	}
 
 }

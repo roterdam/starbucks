@@ -1,5 +1,10 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
+import java.util.List;
+
+import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.asm.OpCode;
+
 
 public class MidTimesNode extends MidBinaryRegNode {
 
@@ -8,5 +13,9 @@ public class MidTimesNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 	}
 
-
+	@Override
+	public List<ASM> toASM() {
+		return super.toASM(OpCode.IMUL);		
+	}
+	
 }

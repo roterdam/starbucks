@@ -9,7 +9,9 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
+import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
 
 /**
  * Handles traversing through code in order to assign memory and register
@@ -28,8 +30,8 @@ public class MemoryManager {
 	public static Map<Reg, Boolean> registerAvailabilityMap = new HashMap<Reg, Boolean>() {
 		{
 			// Only allow R10 and R11
-			put (Reg.R10, true);
-			put (Reg.R11, true);
+			put(Reg.R10, true);
+			put(Reg.R11, true);
 		}
 	};
 
@@ -49,19 +51,27 @@ public class MemoryManager {
 			count++;
 		}
 
-		// Label nodes in each method.
 		Map<String, MidMethodDeclNode> methods = codeRoot.getMethods();
 		for (String methodName : methods.keySet()) {
+//			System.out.println("METHOD: " + methodName);
+			deallocAllRegisters();
 			MidMethodDeclNode methodDeclNode = methods.get(methodName);
 			// Reset the localStackSize.
 			localStackSize = 0;
 			for (MidNode m : methodDeclNode.getNodeList()) {
+//				System.out.println("  MemMan: " + m.toString());
 				if (m instanceof MidLocalMemoryNode) {
 					localStackSize += ADDRESS_SIZE;
 					((MidMemoryNode) m).setRawLocationReference(Integer
 							.toString(localStackSize));
-				} else if (m instanceof MidRegisterNode) {
-					if (!((MidRegisterNode) m).hasRegister()) {
+				} else if (m instanceof RegisterOpNode) {
+					// We dealloc before alloc in order to allow a register node
+					// to save to itself.
+					for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
+						deallocTempRegister(r);
+					}
+					if (m instanceof MidRegisterNode
+							&& !((MidRegisterNode) m).hasRegister()) {
 						((MidRegisterNode) m).setRegister(allocTempRegister());
 					}
 				} else if (m instanceof MidSaveNode) {
@@ -78,17 +88,25 @@ public class MemoryManager {
 	public static Reg allocTempRegister() {
 		for (Reg r : registerAvailabilityMap.keySet()) {
 			if (registerAvailabilityMap.get(r)) {
+//				System.out.println("  alloc " + r.name());
 				registerAvailabilityMap.put(r, false);
+//				System.out.println("  " + registerAvailabilityMap.toString());
 				return r;
 			}
 		}
-		// TODO: make this not possible.
-		throw new RuntimeException("Ran out of registers somehow! WTF.");
+		throw new RuntimeException("Ran out of registers somehow!.");
 	}
 
 	private static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
+//		System.out.println("  dealloc " + r.name());
+//		System.out.println("  " + registerAvailabilityMap.toString());
 	}
 
-	
+	private static void deallocAllRegisters() {
+		for (Reg r : registerAvailabilityMap.keySet()) {
+			deallocTempRegister(r);
+		}
+	}
+
 }

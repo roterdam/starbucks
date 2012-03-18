@@ -7,7 +7,7 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 
 public class MidLabelManager {
 	private static MidLabelNode divZeroLabel = new MidLabelNode("DIVZERO");
-	
+	private static MidLabelNode divOutOfBoundsLabel = new MidLabelNode("OUTOFBOUNDS");
 	@SuppressWarnings("serial")
 	private static Map<LabelType, Integer> tracker = new HashMap<LabelType, Integer>(){{
 		for (LabelType type : LabelType.values()) {
@@ -25,6 +25,9 @@ public class MidLabelManager {
 	}
 	public static MidLabelNode getDivideByZeroLabel(){
 		return divZeroLabel;
+	}
+	public static MidLabelNode getArrayIndexOutOfBoundsLabel(){
+		return divOutOfBoundsLabel;
 	}
 	private static int count = 0;
 	public static String getNewId() {
