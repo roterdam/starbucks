@@ -6,9 +6,8 @@ import java.util.List;
 import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
-import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
 
-public class MidArrayElementNode extends MidMemoryNode implements RegisterOpNode {
+public class MidArrayElementNode extends MidMemoryNode {
 	MidFieldArrayDeclNode arrayNode;
 	MidLoadNode loadNode;
 
@@ -20,10 +19,17 @@ public class MidArrayElementNode extends MidMemoryNode implements RegisterOpNode
 	}
 
 	@Override
+	public List<Reg> getRegisters(){
+		List<Reg> regList = new ArrayList<Reg>();
+		regList.add(loadNode.getRegister());
+		return regList;
+	}
+	
+	@Override
 	public void setRawLocationReference(String rawLocationReference) {
 		assert false : "Array elements do not get a location. The array does.";
 	}
-
+	
 	@Override
 	public String getFormattedLocationReference() {
 		return String.format("[ %s + %d*%s]",
@@ -31,10 +37,5 @@ public class MidArrayElementNode extends MidMemoryNode implements RegisterOpNode
 				MemoryManager.ADDRESS_SIZE, loadNode.getRegister().name());
 	}
 
-	@Override
-	public List<Reg> getOperandRegisters() {
-		List<Reg> out = new ArrayList<Reg>();
-		out.add(loadNode.getRegister());
-		return out;
-	}
+
 }

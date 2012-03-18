@@ -79,6 +79,9 @@ public class MemoryManager {
 						deallocTempRegister(((MidSaveNode) m).getRefNode()
 								.getRegister());
 					}
+					if (((MidSaveNode) m).savesToArray()) {
+						deallocTempRegister(((MidSaveNode) m).getArrayRegister());
+					}
 				}
 			}
 			methodDeclNode.setLocalStackSize(localStackSize);

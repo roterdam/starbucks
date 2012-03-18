@@ -3,9 +3,11 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
@@ -55,6 +57,14 @@ public class MidSaveNode extends MidNode {
 	
 	public boolean savesRegister() {
 		return saveType == MidSaveNodeType.REGISTER;
+	}
+	
+	public boolean savesToArray() {
+		return destination instanceof MidArrayElementNode;
+	}
+	public Reg getArrayRegister(){
+		assert savesToArray();
+		return ((MidArrayElementNode)destination).getRegisters().get(0);
 	}
 
 	public long getDecafIntValue() {
