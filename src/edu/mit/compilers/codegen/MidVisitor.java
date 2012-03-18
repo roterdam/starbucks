@@ -342,7 +342,7 @@ public class MidVisitor {
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
 		ValuedMidNodeList rightEvalList = MidShortCircuitVisitor.valuedHelper(node
 				.getExpression(), symbolTable);
-		MidNodeList instrList = rightEvalList.getList();
+
 		MidLoadNode loadNode = new MidLoadNode(rightEvalList.getReturnNode());
 		
 		ValuedMidNodeList leftEvalList = getMemoryLocation(node.getLocation(), symbolTable);
@@ -350,9 +350,12 @@ public class MidVisitor {
 				leftEvalList.getReturnNode());
 
 		MidNodeList nodeList = new MidNodeList();
+		
+		MidNodeList instrList = new MidNodeList();
+		nodeList.addAll(rightEvalList.getList());
 		nodeList.addAll(instrList);
-		nodeList.add(loadNode);
 		nodeList.addAll(leftEvalList.getList());
+		nodeList.add(loadNode);
 		nodeList.add(saveNode);
 		return nodeList;
 	}
