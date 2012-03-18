@@ -29,6 +29,7 @@ public class MINUSNode extends DecafNode {
 				} else {
 					childNode.setText("-" + intText);
 				}
+				((INT_LITERALNode) childNode).initializeValue();
 				return childNode;
 			}
 			cleanNode = new UnaryMinusNode();
@@ -39,6 +40,7 @@ public class MINUSNode extends DecafNode {
 		
 		cleanNode = new SubtractNode();
 		cleanNode.setText(getText() + " (B)");
+		cleanNode.setNextSibling(this.getNextSibling());
 		cleanNode.setFirstChild(getFirstChild());
 		return cleanNode;
 	}
