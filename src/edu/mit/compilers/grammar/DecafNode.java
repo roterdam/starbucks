@@ -84,7 +84,8 @@ abstract public class DecafNode extends CommonAST {
 			DecafNode prevChild = child;
 			DecafNode nextChild = child.getNextSibling();
 			while (nextChild != null) {
-				prevChild.setNextSibling(nextChild.clean());
+				nextChild = nextChild.clean(); //clean nextchild
+				prevChild.setNextSibling(nextChild);
 				prevChild = nextChild;
 				nextChild = nextChild.getNextSibling();
 			}

@@ -120,6 +120,7 @@ public class MidSaveNode extends MidNode {
 			rightOperand = registerNode.getRegister().name();
 			break;
 		case INT:
+			
 			rightOperand = Long.toString(decafIntValue);
 			break;
 		case BOOLEAN:
