@@ -101,7 +101,11 @@ public class MidVisitor {
 		}
 		// removes the " " from the DecafNode
 		String methodName = stripQuotes(node.getName());
-		out.add(new MidCalloutNode(methodName, paramNodes));
+		MidCalloutNode midCallOutNode = new MidCalloutNode(methodName, paramNodes);
+		out.add(midCallOutNode);
+		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
+		out.add(tempDeclNode);
+		out.add(new MidSaveNode(midCallOutNode, tempDeclNode));
 		return out;
 	}
 

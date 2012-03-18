@@ -5,8 +5,9 @@ import java.util.List;
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
-public class MidCalloutNode extends MidNode {
+public class MidCalloutNode extends MidRegisterNode {
 
 	String name;
 	List<MidMemoryNode> params;
