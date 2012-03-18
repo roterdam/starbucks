@@ -114,13 +114,13 @@ class Main {
 
 					if (CLI.target == Action.LOWIR
 							|| CLI.target == Action.ASSEMBLY) {
+						
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
 						}
-						
 						
 						if (CLI.target == Action.ASSEMBLY) {
 							System.out.println(AsmVisitor.generate(symbolTable));

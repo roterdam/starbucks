@@ -123,16 +123,17 @@ public class AsmVisitor {
 		return out;
 	}
 
-	public static List<ASM> methodCall(String name, List<MidMemoryNode> params, boolean extern) {
+	private static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI,
+			Reg.RDX, Reg.RCX, Reg.R8, Reg.R9 };
+
+	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
+			boolean extern) {
 		if (extern) {
 			externCalls.add(name);
 		}
 		List<ASM> out = new ArrayList<ASM>();
 		// Begin calling convention, place as many nodes in registers as
 		// possible.
-		Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX, Reg.RCX,
-				Reg.R8, Reg.R9 };
-
 		for (int i = 0; i < params.size(); i++) {
 			MidLoadNode paramNode = new MidLoadNode(params.get(i));
 			if (i < paramRegisters.length) {
@@ -156,6 +157,15 @@ public class AsmVisitor {
 							* MemoryManager.ADDRESS_SIZE)));
 		}
 		return out;
+	}
+
+	public static String paramAccess(int paramOffset) {
+		if (paramOffset < paramRegisters.length) {
+			return paramRegisters[paramOffset].name();
+		} else {
+			return String
+					.format("[ %s + %d*%d + %d]", Reg.RBP, (paramOffset - paramRegisters.length), MemoryManager.ADDRESS_SIZE, MemoryManager.ADDRESS_SIZE * 2);
+		}
 	}
 
 }
