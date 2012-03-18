@@ -500,7 +500,7 @@ public class MidVisitor {
 			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
 			
 			instrList.addAll(exprList.getList());
-			//instrList.addAll(errorList);
+			instrList.addAll(errorList);
 			instrList.add(sizeLoadNode);
 		} else {
 			locNode = symbolTable.getVar(node.getText());

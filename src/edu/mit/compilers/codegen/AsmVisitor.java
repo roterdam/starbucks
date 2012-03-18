@@ -8,15 +8,19 @@ import java.util.Set;
 
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
+import edu.mit.compilers.codegen.asm.LabeledOpASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
+import edu.mit.compilers.codegen.nodes.MidLabelNode;
+import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class AsmVisitor {
+	private static int interruptCounter = 0;
 
 	private static String SYS_EXIT_CODE = "1";
 	private static String SYS_INTERRUPT_CODE = "0x80";
@@ -37,11 +41,22 @@ public class AsmVisitor {
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
-
 		asm.addAll(createBSSSection(symbolTable));
+
+		// Error handler
+		List<ASM> divZero = addInterrupt(
+				MidLabelManager.getDivideByZeroLabel(),
+				"*** RUNTIME ERROR ***: Divide by zero in method \"main\"");
+		List<ASM> indexBounds = addInterrupt(
+				MidLabelManager.getArrayIndexOutOfBoundsLabel(),
+				"*** RUNTIME ERROR ***: Array out of Bounds access in method \"main\"");
+
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
-		asm.addAll(decafHelperSection());
+		asm.addAll(divZero);
+		asm.addAll(indexBounds);
+
+		// asm.addAll(decafHelperSection());
 
 		StringBuilder out = new StringBuilder();
 		for (String extern : externCalls) {
@@ -59,17 +74,26 @@ public class AsmVisitor {
 	}
 
 	/**
-	 * Appends helper text to end of assembly for error handling and other
-	 * miscellaneous Decaf things.
-	 * 
-	 * @param symbolTable
-	 * @return
+	 * Appends helper text to end of assembly for error handling.
 	 */
-	private static List<ASM> decafHelperSection() {
+	private static List<ASM> addInterrupt(MidLabelNode labelNode, String msg) {
+		interruptCounter++;
+
 		List<ASM> out = new ArrayList<ASM>();
-		out.addAll(MidLabelManager.getDivideByZeroLabel().toASM());
-		out.addAll(exitCall(1));
-		out.addAll(MidLabelManager.getArrayIndexOutOfBoundsLabel().toASM());
+
+		String msgLabel = "msg" + interruptCounter;
+		String lenLabel = "len" + interruptCounter;
+		// Add string to header.
+		String outputMessage = String.format("`%s`,0", msg);
+		dataSection.add(new LabeledOpASM(msgLabel, OpCode.DB, outputMessage));
+		dataSection.add(new LabeledOpASM(lenLabel, OpCode.EQU, String.format(
+				"$-%s", msgLabel)));
+		out.addAll(labelNode.toASM());
+		out.add(new OpASM(OpCode.MOV, Reg.RDX.name(), lenLabel));
+		out.add(new OpASM(OpCode.MOV, Reg.RCX.name(), msgLabel));
+		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), "1"));
+		out.add(new OpASM(OpCode.MOV, Reg.RAX.name(), "4"));
+		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
 		out.addAll(exitCall(1));
 		return out;
 	}
@@ -78,7 +102,8 @@ public class AsmVisitor {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new OpASM(String.format("Exit interrupt %d", exitCode),
 				OpCode.MOV, Reg.RAX.name(), SYS_EXIT_CODE));
-		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), Integer.toString(exitCode)));
+		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), Integer
+				.toString(exitCode)));
 		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
 		return out;
 	}
@@ -182,8 +207,9 @@ public class AsmVisitor {
 		if (paramOffset < paramRegisters.length) {
 			return paramRegisters[paramOffset].name();
 		} else {
-			return String
-					.format("[ %s + %d*%d + %d]", Reg.RBP, (paramOffset - paramRegisters.length), MemoryManager.ADDRESS_SIZE, MemoryManager.ADDRESS_SIZE * 2);
+			return String.format("[ %s + %d*%d + %d]", Reg.RBP,
+					(paramOffset - paramRegisters.length),
+					MemoryManager.ADDRESS_SIZE, MemoryManager.ADDRESS_SIZE * 2);
 		}
 	}
 

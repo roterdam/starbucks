@@ -5,7 +5,7 @@ public class OpASM extends ASM {
 	private String comment;
 	private OpCode op;
 	private String[] args;
-
+	
 	public OpASM(String comment, OpCode op, String... args) {
 		this.comment = comment;
 		this.op = op;
