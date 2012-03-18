@@ -13,7 +13,7 @@ public class MidJumpEQNode extends MidJumpNode {
 	}
 	
 	@Override
-	public List<ASM> toASM(OpCode op) {
+	public List<ASM> toASM() {
 		return super.toASM(OpCode.JE);
 	}
 }

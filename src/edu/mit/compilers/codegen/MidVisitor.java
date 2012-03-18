@@ -193,12 +193,14 @@ public class MidVisitor {
 					.newInstance(leftLoadNode, rightLoadNode);
 			MidNodeList out = preLists[0];
 			out.addAll(preLists[1]);
-			out.add(leftLoadNode);
+
 			out.add(rightLoadNode);
 			// FIXME: .class? eh.
 			if (c == MidDivideNode.class) {
 				out.addAll(errorOnDivide(rightLoadNode));
 			}
+			out.add(leftLoadNode);
+
 			out.add(binNode);
 			MidTempDeclNode dest = new MidTempDeclNode();
 			out.add(dest);
@@ -645,8 +647,6 @@ public class MidVisitor {
 			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
 			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
 		}
-
-		MemoryManager.assignStorage(symbolTable);
 
 		return symbolTable;
 	}

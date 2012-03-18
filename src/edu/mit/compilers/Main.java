@@ -8,6 +8,7 @@ import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
 import edu.mit.compilers.codegen.AsmVisitor;
+import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
@@ -114,18 +115,20 @@ class Main {
 
 					if (CLI.target == Action.LOWIR
 							|| CLI.target == Action.ASSEMBLY) {
-						
+
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
 						}
-						
+
 						if (CLI.target == Action.ASSEMBLY) {
-							System.out.println(AsmVisitor.generate(symbolTable));
+							MemoryManager.assignStorage(symbolTable);
+							System.out
+									.println(AsmVisitor.generate(symbolTable));
 						}
-						
+
 					}
 				}
 			}
