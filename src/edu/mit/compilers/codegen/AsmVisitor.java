@@ -18,6 +18,9 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class AsmVisitor {
 
+	private static String SYS_EXIT_CODE = "1";
+	private static String SYS_INTERRUPT_CODE = "0x80";
+
 	// Static variable because Strings have to be added to it from within other
 	// code.
 	private static List<ASM> dataSection = createDataSection();;
@@ -29,16 +32,16 @@ public class AsmVisitor {
 	public static String generate(MidSymbolTable symbolTable) {
 
 		List<ASM> asm = new ArrayList<ASM>();
-
-		asm.addAll(createBSSSection(symbolTable));
 		List<ASM> textSection = createTextSection();
 
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
 
+		asm.addAll(createBSSSection(symbolTable));
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
+		asm.addAll(decafHelperSection());
 
 		StringBuilder out = new StringBuilder();
 		for (String extern : externCalls) {
@@ -56,9 +59,35 @@ public class AsmVisitor {
 	}
 
 	/**
+	 * Appends helper text to end of assembly for error handling and other
+	 * miscellaneous Decaf things.
+	 * 
+	 * @param symbolTable
+	 * @return
+	 */
+	private static List<ASM> decafHelperSection() {
+		List<ASM> out = new ArrayList<ASM>();
+		out.addAll(MidLabelManager.getDivideByZeroLabel().toASM());
+		out.addAll(exitCall(1));
+		out.addAll(MidLabelManager.getArrayIndexOutOfBoundsLabel().toASM());
+		out.addAll(exitCall(1));
+		return out;
+	}
+
+	private static List<ASM> exitCall(int exitCode) {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new OpASM(String.format("Exit interrupt %d", exitCode),
+				OpCode.MOV, Reg.RAX.name(), SYS_EXIT_CODE));
+		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), Integer.toString(exitCode)));
+		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
+		return out;
+	}
+
+	/**
 	 * Initializes .bss section with fields. Note that .bss is meant for
 	 * UNINITIALIZED data, as opposed to the .data section.
 	 * 
+	 * @param symbolTable
 	 * @return
 	 */
 	private static List<ASM> createBSSSection(MidSymbolTable symbolTable) {

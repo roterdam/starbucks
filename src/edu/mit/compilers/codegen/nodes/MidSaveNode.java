@@ -110,10 +110,10 @@ public class MidSaveNode extends MidNode {
 			rightOperand = registerNode.getRegister().name();
 			break;
 		case INT:
-			rightOperand = "dword " + Long.toString(decafIntValue);
+			rightOperand = Long.toString(decafIntValue);
 			break;
 		case BOOLEAN:
-			rightOperand = "dword " + ((decafBooleanValue) ? "1" : "0");
+			rightOperand = ((decafBooleanValue) ? "1" : "0");
 			break;
 		default:
 			rightOperand = null;
