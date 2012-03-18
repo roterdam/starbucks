@@ -34,13 +34,14 @@ public class MINUSNode extends DecafNode {
 			}
 			cleanNode = new UnaryMinusNode();
 			cleanNode.setText(getText() + " (U)");
+			cleanNode.setNextSibling(getNextSibling());
 			cleanNode.setFirstChild(childNode);
 			return cleanNode;
 		}
 		
 		cleanNode = new SubtractNode();
 		cleanNode.setText(getText() + " (B)");
-		cleanNode.setNextSibling(this.getNextSibling());
+		cleanNode.setNextSibling(getNextSibling());
 		cleanNode.setFirstChild(getFirstChild());
 		return cleanNode;
 	}
