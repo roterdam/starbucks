@@ -53,13 +53,13 @@ public class MemoryManager {
 
 		Map<String, MidMethodDeclNode> methods = codeRoot.getMethods();
 		for (String methodName : methods.keySet()) {
-//			System.out.println("METHOD: " + methodName);
+			System.out.println("METHOD: " + methodName);
 			deallocAllRegisters();
 			MidMethodDeclNode methodDeclNode = methods.get(methodName);
 			// Reset the localStackSize.
 			localStackSize = 0;
 			for (MidNode m : methodDeclNode.getNodeList()) {
-//				System.out.println("  MemMan: " + m.toString());
+				System.out.println("  MemMan: " + m.toString());
 				if (m instanceof MidLocalMemoryNode) {
 					localStackSize += ADDRESS_SIZE;
 					((MidMemoryNode) m).setRawLocationReference(Integer
@@ -88,9 +88,9 @@ public class MemoryManager {
 	public static Reg allocTempRegister() {
 		for (Reg r : registerAvailabilityMap.keySet()) {
 			if (registerAvailabilityMap.get(r)) {
-//				System.out.println("  alloc " + r.name());
+				System.out.println("  alloc " + r.name());
 				registerAvailabilityMap.put(r, false);
-//				System.out.println("  " + registerAvailabilityMap.toString());
+				System.out.println("  " + registerAvailabilityMap.toString());
 				return r;
 			}
 		}
@@ -99,8 +99,8 @@ public class MemoryManager {
 
 	private static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
-//		System.out.println("  dealloc " + r.name());
-//		System.out.println("  " + registerAvailabilityMap.toString());
+		System.out.println("  dealloc " + r.name());
+		System.out.println("  " + registerAvailabilityMap.toString());
 	}
 
 	private static void deallocAllRegisters() {
