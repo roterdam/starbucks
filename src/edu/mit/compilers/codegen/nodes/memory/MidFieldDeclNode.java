@@ -20,7 +20,7 @@ public class MidFieldDeclNode extends MidMemoryNode {
 	public OpASM getFieldDeclarationASM() {
 		// TOOD: resw of different sizes
 		return new OpASM(String.format("placeholder for `%s`", getName()),
-				OpCode.RESW, Long.toString(getSize()));
+				OpCode.RESW, Long.toString(4 * getSize()));
 	}
 
 	/**

@@ -292,7 +292,7 @@ public class SemanticRules {
 	// the exact same as intint2bool
 	static public void apply(OpIntInt2IntNode node, Scope scope) {
 		// Rule 12
-		assert node.getNumberOfChildren() == 2;
+		assert node.getNumberOfChildren() == 2 : node.toStringTree();
 		assert node.getFirstChild() instanceof ExpressionNode;
 		assert node.getFirstChild().getNextSibling() instanceof ExpressionNode;
 

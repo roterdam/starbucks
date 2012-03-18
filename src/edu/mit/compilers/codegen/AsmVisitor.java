@@ -143,7 +143,7 @@ public class AsmVisitor {
 			prefix = ",";
 		}
 		// Add newline and NULL byte.
-		asciiBuilder.append(prefix + "10,0");
+		asciiBuilder.append(prefix + "0");
 		dataSection.add(new OpASM("`" + text + "`", OpCode.DB, asciiBuilder
 				.toString()));
 
