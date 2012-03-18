@@ -29,6 +29,8 @@ public class MidCompareNode extends MidNode implements RegisterOpNode {
 	@Override
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
+		assert leftOperand.getRegister() != null : "left "+leftOperand.toString()+" has no registers. Child of "+toString();
+		assert rightOperand.getRegister() != null : "right!";
 		out.add(leftOperand.getRegister());
 		out.add(rightOperand.getRegister());
 		return out;

@@ -68,6 +68,7 @@ public class MemoryManager {
 					// We dealloc before alloc in order to allow a register node
 					// to save to itself.
 					for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
+						assert r != null : m+"("+m.getClass()+") is missing registers";
 						deallocTempRegister(r);
 					}
 					if (m instanceof MidRegisterNode

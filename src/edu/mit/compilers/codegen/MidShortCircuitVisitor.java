@@ -222,27 +222,30 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(METHOD_CALLNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		MidNodeList out = new MidNodeList();
+		MidNodeList nodeList = new MidNodeList();
 		MidNodeList methodNodeList = node.convertToMidLevel(symbolTable);
 
 		MidMemoryNode tempNode = new MidTempDeclNode();
 		MidSaveNode trueNode = new MidSaveNode(true, tempNode);
 
-		MidCompareNode compareNode = new MidCompareNode(new MidLoadNode(
-				methodNodeList.getSaveNode().getDestinationNode()),
-				new MidLoadNode(tempNode));
+		MidLoadNode loadMethodNode = new MidLoadNode(methodNodeList.getSaveNode().getDestinationNode());
+		MidLoadNode loadTempNode = new MidLoadNode(tempNode);
+		
+		MidCompareNode compareNode = new MidCompareNode(loadMethodNode,loadTempNode);
 		
 		MidJumpEQNode jumpTrueNode = new MidJumpEQNode(trueLabel);
 		MidJumpNode jumpFalseNode = new MidJumpNode(falseLabel);
 		
-		out.addAll(methodNodeList);
-		out.add(tempNode);
-		out.add(trueNode);
-		out.add(compareNode);
-		out.add(jumpTrueNode);
-		out.add(jumpFalseNode);
+		nodeList.addAll(methodNodeList);
+		nodeList.add(loadMethodNode);
+		nodeList.add(tempNode);
+		nodeList.add(trueNode);
+		nodeList.add(loadTempNode);
+		nodeList.add(compareNode);
+		nodeList.add(jumpTrueNode);
+		nodeList.add(jumpFalseNode);
 		
-		return out;
+		return nodeList;
 	}
 
 	public static MidNodeList shortCircuit(IDNode node,
@@ -281,7 +284,8 @@ public class MidShortCircuitVisitor {
 		MidLabelNode trueLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidLabelNode falseLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidLabelNode endLabel = MidLabelManager.getLabel(LabelType.SHORT);
-		MidJumpNode jumpEndNode = new MidJumpNode(endLabel);
+		MidJumpNode jumpEndNode1 = new MidJumpNode(endLabel);
+		MidJumpNode jumpEndNode2 = new MidJumpNode(endLabel);
 		MidTempDeclNode declNode = new MidTempDeclNode();
 		MidSaveNode saveTrueNode = new MidSaveNode(true, declNode);
 		MidSaveNode saveFalseNode = new MidSaveNode(false, declNode);
@@ -293,10 +297,11 @@ public class MidShortCircuitVisitor {
 		nodeList.addAll(branchList);
 		nodeList.add(trueLabel);
 		nodeList.add(saveTrueNode);
-		nodeList.add(jumpEndNode);
+		nodeList.add(jumpEndNode1);
 		nodeList.add(falseLabel);
 		nodeList.add(saveFalseNode);
-		nodeList.add(jumpEndNode);
+		nodeList.add(jumpEndNode2);
+		nodeList.add(endLabel);
 		return new ValuedMidNodeList(nodeList, declNode);
 	}
 
