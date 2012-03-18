@@ -20,17 +20,22 @@ public class MidFieldDeclNode extends MidMemoryNode {
 	public OpASM getFieldDeclarationASM() {
 		// TOOD: resw of different sizes
 		return new OpASM(String.format("placeholder for `%s`", getName()),
-				OpCode.RESW, "1");
+				OpCode.RESW, Long.toString(getSize()));
 	}
 
 	/**
 	 * Get the location reference. Returns reference to data, not pointer.
 	 */
+	
 	@Override
 	public String getFormattedLocationReference() {
 		assert rawLocationReference != null : "rawLocationReference is null!";
 		// Adding brackets evaluates to the _data at that address_
 		return String.format("[ %s ]", rawLocationReference);
+	}
+	
+	public long getSize(){
+		return 1;
 	}
 
 }

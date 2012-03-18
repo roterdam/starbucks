@@ -13,7 +13,9 @@ import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
+import edu.mit.compilers.codegen.nodes.jumpops.MidJumpLNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidLocalVarDeclNode;
@@ -137,9 +139,9 @@ public class MidVisitor {
 		return out;
 	}
 
+
 	public static MidNodeList visitParam(PARAM_DECLNode node,
 			MidSymbolTable symbolTable, int paramOffset) {
-		// TODO: NEED TO ADD NODE FROM PASSED IN REGISTERS
 		MidNodeList outputList = new MidNodeList();
 
 		String name = node.getIDNode().getText();
@@ -158,8 +160,8 @@ public class MidVisitor {
 				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
 
-	// TODO: finish implementing
-	public static MidNodeList errorOnDivide(MidLoadNode operandNode) {
+
+	public static MidNodeList checkDivideByZeroError(MidLoadNode operandNode) {
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
 		MidSaveNode saveNode = new MidSaveNode(0, zeroNode);
 		MidLoadNode loadNode = new MidLoadNode(zeroNode);
@@ -176,6 +178,36 @@ public class MidVisitor {
 		return instrList;
 	}
 
+	public static MidNodeList checkArrayIndexOutOfBoundsError(MidFieldArrayDeclNode arrayNode, MidLoadNode indexNode){
+		
+		// Check for zero.
+		MidTempDeclNode zeroNode = new MidTempDeclNode();
+		MidSaveNode zeroSaveNode = new MidSaveNode(0, zeroNode);
+		MidLoadNode zeroLoadNode = new MidLoadNode(zeroNode);
+		MidCompareNode zeroCompareNode = new MidCompareNode(indexNode, zeroLoadNode);
+		MidJumpNode zeroJumpNode = new MidJumpLNode(MidLabelManager.getDivideByZeroLabel());
+		
+		// Check for greater than length.
+		MidTempDeclNode lengthNode = new MidTempDeclNode();
+		MidSaveNode lengthSaveNode = new MidSaveNode(arrayNode.getSize(), lengthNode);
+		MidLoadNode lengthLoadNode = new MidLoadNode(lengthNode);
+		MidCompareNode lengthCompareNode = new MidCompareNode(indexNode, lengthLoadNode);
+		MidJumpNode lengthJumpNode = new MidJumpGENode(MidLabelManager.getArrayIndexOutOfBoundsLabel());
+		
+		MidNodeList instrList = new MidNodeList();
+		instrList.add(zeroNode);
+		instrList.add(zeroSaveNode);
+		instrList.add(zeroLoadNode);
+		instrList.add(zeroCompareNode);
+		instrList.add(zeroJumpNode);
+		instrList.add(lengthNode);
+		instrList.add(lengthSaveNode);
+		instrList.add(lengthLoadNode);
+		instrList.add(lengthCompareNode);
+		instrList.add(lengthJumpNode);
+		return instrList;
+	}
+	
 	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node,
 			MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c) {
 
@@ -195,9 +227,9 @@ public class MidVisitor {
 			out.addAll(preLists[1]);
 
 			out.add(rightLoadNode);
-			// FIXME: .class? eh.
-			if (c == MidDivideNode.class) {
-				out.addAll(errorOnDivide(rightLoadNode));
+			//FIXME: .class? eh.
+			if(c == MidDivideNode.class){
+				out.addAll(checkDivideByZeroError(rightLoadNode));
 			}
 			out.add(leftLoadNode);
 
@@ -294,16 +326,19 @@ public class MidVisitor {
 	// }
 
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		ValuedMidNodeList valuedList = MidShortCircuitVisitor.valuedHelper(node
+		ValuedMidNodeList rightEvalList = MidShortCircuitVisitor.valuedHelper(node
 				.getExpression(), symbolTable);
-		MidNodeList instrList = valuedList.getList();
-		MidLoadNode loadNode = new MidLoadNode(valuedList.getReturnNode());
+		MidNodeList instrList = rightEvalList.getList();
+		MidLoadNode loadNode = new MidLoadNode(rightEvalList.getReturnNode());
+		
+		ValuedMidNodeList leftEvalList = getMemoryLocation(node.getLocation(), symbolTable);
 		MidSaveNode saveNode = new MidSaveNode(loadNode,
-				symbolTable.getVar(node.getLocation().getText()));
+				leftEvalList.getReturnNode());
 
 		MidNodeList nodeList = new MidNodeList();
 		nodeList.addAll(instrList);
 		nodeList.add(loadNode);
+		nodeList.addAll(leftEvalList.getList());
 		nodeList.add(saveNode);
 		return nodeList;
 	}
@@ -388,15 +423,36 @@ public class MidVisitor {
 	}
 
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable) {
-		// TODO: handle array index access.
 		MidNodeList out = new MidNodeList();
-		MidLoadNode loadNode = new MidLoadNode(symbolTable.getVar(node
-				.getText()));
+		
+		ValuedMidNodeList memGetList = getMemoryLocation(node, symbolTable);
+		MidLoadNode loadNode = new MidLoadNode(memGetList.getReturnNode());
 		MidTempDeclNode tempNode = new MidTempDeclNode();
+		
+		out.addAll(memGetList.getList());
 		out.add(loadNode);
 		out.add(tempNode);
 		out.add(new MidSaveNode(loadNode, tempNode));
+		
 		return out;
+	}
+	private static ValuedMidNodeList getMemoryLocation(IDNode node, MidSymbolTable symbolTable){
+		MidNodeList instrList = new MidNodeList();
+		MidMemoryNode locNode;
+		if(node.isArray()){
+			assert symbolTable.getVar(node.getText()) instanceof MidFieldArrayDeclNode : node.getText()+" is an array, but it's not stored as one.";
+			MidFieldArrayDeclNode arrayNode = (MidFieldArrayDeclNode) symbolTable.getVar(node.getText());
+			ValuedMidNodeList exprList = MidShortCircuitVisitor.valuedHelper(node.getExpressionNode(), symbolTable);
+			MidLoadNode loadNode = new MidLoadNode(exprList.getReturnNode());	 // load result of expression.
+			instrList.addAll(exprList.getList());
+			
+			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, loadNode);
+			instrList.addAll(errorList);
+			locNode = new MidArrayElementNode(arrayNode, loadNode);
+		}else {
+			locNode = symbolTable.getVar(node.getText());
+		}
+		return new ValuedMidNodeList(instrList, locNode);
 	}
 
 	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable,

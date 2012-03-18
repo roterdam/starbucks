@@ -6,6 +6,7 @@ abstract public class MidMemoryNode extends MidNode {
 
 	String rawLocationReference;
 
+	// Only used for toString
 	private String name;
 
 	public MidMemoryNode(String name) {
@@ -29,7 +30,10 @@ abstract public class MidMemoryNode extends MidNode {
 	public void setRawLocationReference(String rawLocationReference) {
 		this.rawLocationReference = rawLocationReference;
 	}
-
+	
+	public String getRawLocationReference(){
+		return rawLocationReference;
+	}
 	/**
 	 * Returns location reference, formatted if necessary.
 	 */
