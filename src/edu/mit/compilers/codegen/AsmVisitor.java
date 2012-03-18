@@ -134,18 +134,8 @@ public class AsmVisitor {
 	public static MidStringDeclNode addStringLiteral(String text) {
 		String labelText = labelSafeString(text);
 		dataSection.add(new LabelASM("", labelText));
-		// asciiBuilder converts all strings to comma-separated list of ascii to
-		// escape all text input.
-		StringBuilder asciiBuilder = new StringBuilder();
-		String prefix = "";
-		for (char c : text.toCharArray()) {
-			asciiBuilder.append(String.format(prefix + "%d", (int) c));
-			prefix = ",";
-		}
-		// Add newline and NULL byte.
-		asciiBuilder.append(prefix + "0");
-		dataSection.add(new OpASM("`" + text + "`", OpCode.DB, asciiBuilder
-				.toString()));
+		String outputString = String.format("`%s`,0", text);
+		dataSection.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
 
 		MidStringDeclNode out = new MidStringDeclNode(labelText);
 		out.setRawLocationReference(labelText);
