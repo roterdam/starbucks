@@ -101,7 +101,7 @@ public class MemoryManager {
 		throw new RuntimeException("Ran out of registers somehow!.");
 	}
 
-	private static void deallocTempRegister(Reg r) {
+	public static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
 		LogCenter.debug("  dealloc " + r.name());
 		LogCenter.debug("  " + registerAvailabilityMap.toString());

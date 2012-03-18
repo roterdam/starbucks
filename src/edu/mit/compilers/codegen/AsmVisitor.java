@@ -178,6 +178,8 @@ public class AsmVisitor {
 		List<ASM> out = new ArrayList<ASM>();
 		// Begin calling convention, place as many nodes in registers as
 		// possible.
+		
+		List<ASM> pushStack = new ArrayList<ASM>();
 		for (int i = 0; i < params.size(); i++) {
 			MidLoadNode paramNode = new MidLoadNode(params.get(i));
 			if (i < paramRegisters.length) {
@@ -185,12 +187,23 @@ public class AsmVisitor {
 				paramNode.setRegister(paramRegisters[i]);
 				out.addAll(paramNode.toASM());
 			} else {
-				paramNode.setRegister(MemoryManager.allocTempRegister());
-				out.addAll(paramNode.toASM());
-				out.add(new OpASM(String.format("push param %d onto stack", i),
+				// Push the parameters in reverse order to a list
+				Reg temp = MemoryManager.allocTempRegister();
+				paramNode.setRegister(temp);
+				List<ASM> pushIt = new ArrayList<ASM>();
+				pushIt.addAll(paramNode.toASM());
+				pushIt.add(new OpASM(String.format("push param %d onto stack", i),
 						OpCode.PUSH, paramNode.getRegister().name()));
+				pushStack.addAll(0, pushIt);
+				
+				//FIXME: is this bad to do? (made deallocTempRegister public)
+				MemoryManager.deallocTempRegister(temp);
 			}
 		}
+		// Add the push parameters in reverse order
+		out.addAll(pushStack);
+		
+		
 		// Always set RAX to 0.
 		out.add(new OpASM(OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.CALL, name));
