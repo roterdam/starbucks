@@ -27,7 +27,8 @@ public class MidLoadNode extends MidRegisterNode {
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		return "<" + className.substring(mid) + ": " + getName() + ">";
+		return "<" + className.substring(mid) + ": " + getName() + ","
+				+ memoryNode.toString() + ">";
 	}
 
 	@Override

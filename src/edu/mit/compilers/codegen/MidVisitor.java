@@ -240,7 +240,6 @@ public class MidVisitor {
 			MidBinaryRegNode binNode;
 			binNode = c.getConstructor(MidLoadNode.class, MidLoadNode.class)
 					.newInstance(leftLoadNode, rightLoadNode);
-			
 			MidTempDeclNode dest = new MidTempDeclNode();
 			MidSaveNode saveNode = new MidSaveNode(binNode, dest);
 			
@@ -719,8 +718,6 @@ public class MidVisitor {
 			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
 			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
 		}
-
-		MemoryManager.assignStorage(symbolTable);
 
 		return symbolTable;
 	}

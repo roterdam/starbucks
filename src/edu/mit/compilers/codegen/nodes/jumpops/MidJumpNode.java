@@ -31,7 +31,7 @@ public class MidJumpNode extends MidNode {
 	
 	public List<ASM> toASM(OpCode op) {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), op, this.getLabelNode().toString()));
+		out.add(new OpASM(toString(), op, this.getLabelNode().getName()));
 		return out;
 	}
 	
