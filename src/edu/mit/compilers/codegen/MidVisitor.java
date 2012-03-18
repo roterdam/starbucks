@@ -455,15 +455,21 @@ public class MidVisitor {
 		MidMemoryNode locNode;
 		if(node.isArray()){
 			assert symbolTable.getVar(node.getText()) instanceof MidFieldArrayDeclNode : node.getText()+" is an array, but it's not stored as one.";
+			
+			// Get array decl and compute the index
 			MidFieldArrayDeclNode arrayNode = (MidFieldArrayDeclNode) symbolTable.getVar(node.getText());
 			ValuedMidNodeList exprList = MidShortCircuitVisitor.valuedHelper(node.getExpressionNode(), symbolTable);
-				 // load result of expression.
 			MidMemoryNode exprNode = exprList.getReturnNode();
+			
+			// Make sure the index is not out of bounds
 			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode);
-			instrList.addAll(exprList.getList());
-			instrList.addAll(errorList);
+			
 			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
 			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
+			
+			instrList.addAll(exprList.getList());
+			instrList.addAll(errorList);
+			instrList.add(sizeLoadNode);
 		}else {
 			locNode = symbolTable.getVar(node.getText());
 		}
