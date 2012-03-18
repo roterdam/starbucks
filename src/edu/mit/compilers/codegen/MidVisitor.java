@@ -161,15 +161,21 @@ public class MidVisitor {
 	}
 
 
-	public static MidNodeList checkDivideByZeroError(MidLoadNode operandNode) {
+	public static MidNodeList checkDivideByZeroError(MidMemoryNode operandNode) {
+		
+		MidLoadNode loadOperandNode = new MidLoadNode(operandNode);
+		
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
 		MidSaveNode saveNode = new MidSaveNode(0, zeroNode);
 		MidLoadNode loadNode = new MidLoadNode(zeroNode);
-		MidCompareNode compareNode = new MidCompareNode(operandNode, loadNode);
+		
+		MidCompareNode compareNode = new MidCompareNode(loadOperandNode, loadNode);
 		MidJumpNode jumpNode = new MidJumpEQNode(
 				MidLabelManager.getDivideByZeroLabel());
 
 		MidNodeList instrList = new MidNodeList();
+		
+		instrList.add(loadOperandNode);
 		instrList.add(zeroNode);
 		instrList.add(saveNode);
 		instrList.add(loadNode);
@@ -177,29 +183,33 @@ public class MidVisitor {
 		instrList.add(jumpNode);
 		return instrList;
 	}
-
-	public static MidNodeList checkArrayIndexOutOfBoundsError(MidFieldArrayDeclNode arrayNode, MidLoadNode indexNode){
-		
+	
+	public static MidNodeList checkArrayIndexOutOfBoundsError(MidFieldArrayDeclNode arrayNode, MidMemoryNode indexNode){
 		// Check for zero.
+		MidLoadNode loadIndexNode1 = new MidLoadNode(indexNode);
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
 		MidSaveNode zeroSaveNode = new MidSaveNode(0, zeroNode);
 		MidLoadNode zeroLoadNode = new MidLoadNode(zeroNode);
-		MidCompareNode zeroCompareNode = new MidCompareNode(indexNode, zeroLoadNode);
+		MidCompareNode zeroCompareNode = new MidCompareNode(loadIndexNode1, zeroLoadNode);
 		MidJumpNode zeroJumpNode = new MidJumpLNode(MidLabelManager.getDivideByZeroLabel());
-		
+
 		// Check for greater than length.
+		MidLoadNode loadIndexNode2 = new MidLoadNode(indexNode);
 		MidTempDeclNode lengthNode = new MidTempDeclNode();
 		MidSaveNode lengthSaveNode = new MidSaveNode(arrayNode.getSize(), lengthNode);
 		MidLoadNode lengthLoadNode = new MidLoadNode(lengthNode);
-		MidCompareNode lengthCompareNode = new MidCompareNode(indexNode, lengthLoadNode);
+		MidCompareNode lengthCompareNode = new MidCompareNode(loadIndexNode2, lengthLoadNode);
 		MidJumpNode lengthJumpNode = new MidJumpGENode(MidLabelManager.getArrayIndexOutOfBoundsLabel());
 		
 		MidNodeList instrList = new MidNodeList();
+		
+		instrList.add(loadIndexNode1);
 		instrList.add(zeroNode);
 		instrList.add(zeroSaveNode);
 		instrList.add(zeroLoadNode);
 		instrList.add(zeroCompareNode);
 		instrList.add(zeroJumpNode);
+		instrList.add(loadIndexNode2);
 		instrList.add(lengthNode);
 		instrList.add(lengthSaveNode);
 		instrList.add(lengthLoadNode);
@@ -212,31 +222,38 @@ public class MidVisitor {
 			MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c) {
 
 		try {
-			MidNodeList[] preLists = partialVisit(node, symbolTable);
-			assert preLists.length == 2;
-
-			MidLoadNode leftLoadNode = new MidLoadNode(preLists[0]
-					.getSaveNode().getDestinationNode());
-			MidLoadNode rightLoadNode = new MidLoadNode(preLists[1]
-					.getSaveNode().getDestinationNode());
+			MidNodeList leftList = node.getLeftOperand().convertToMidLevel(symbolTable);
+			MidNodeList rightList = node.getRightOperand().convertToMidLevel(symbolTable);
+			
+			MidMemoryNode leftNode = leftList.getSaveNode().getDestinationNode();
+			MidMemoryNode rightNode = rightList.getSaveNode().getDestinationNode();
+			
+			MidNodeList errorList = new MidNodeList();
+			//FIXME: .class? eh.
+			if(c == MidDivideNode.class){
+				errorList.addAll(checkDivideByZeroError(rightNode));
+			}
+			
+			MidLoadNode leftLoadNode = new MidLoadNode(leftNode);
+			MidLoadNode rightLoadNode = new MidLoadNode(rightNode);
 
 			MidBinaryRegNode binNode;
 			binNode = c.getConstructor(MidLoadNode.class, MidLoadNode.class)
 					.newInstance(leftLoadNode, rightLoadNode);
-			MidNodeList out = preLists[0];
-			out.addAll(preLists[1]);
-			out.add(leftLoadNode);
-			out.add(rightLoadNode);
-			//FIXME: .class? eh.
-			if(c == MidDivideNode.class){
-				out.addAll(checkDivideByZeroError(rightLoadNode));
-			}
-			out.add(binNode);
+			
 			MidTempDeclNode dest = new MidTempDeclNode();
-			out.add(dest);
-			out.add(new MidSaveNode(binNode, dest));
-
-			return out;
+			MidSaveNode saveNode = new MidSaveNode(binNode, dest);
+			
+			MidNodeList instrList = new MidNodeList();
+			instrList.addAll(rightList);
+			instrList.addAll(errorList);
+			instrList.addAll(leftList);
+			instrList.add(leftLoadNode);
+			instrList.add(rightLoadNode);
+			instrList.add(binNode);
+			instrList.add(dest);
+			instrList.add(saveNode);
+			return instrList;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
@@ -441,12 +458,13 @@ public class MidVisitor {
 			assert symbolTable.getVar(node.getText()) instanceof MidFieldArrayDeclNode : node.getText()+" is an array, but it's not stored as one.";
 			MidFieldArrayDeclNode arrayNode = (MidFieldArrayDeclNode) symbolTable.getVar(node.getText());
 			ValuedMidNodeList exprList = MidShortCircuitVisitor.valuedHelper(node.getExpressionNode(), symbolTable);
-			MidLoadNode loadNode = new MidLoadNode(exprList.getReturnNode());	 // load result of expression.
+				 // load result of expression.
+			MidMemoryNode exprNode = exprList.getReturnNode();
+			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode);
 			instrList.addAll(exprList.getList());
-			
-			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, loadNode);
 			instrList.addAll(errorList);
-			locNode = new MidArrayElementNode(arrayNode, loadNode);
+			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
+			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
 		}else {
 			locNode = symbolTable.getVar(node.getText());
 		}
