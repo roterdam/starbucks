@@ -7,10 +7,16 @@ import edu.mit.compilers.grammar.DeclNode;
 
 @SuppressWarnings("serial")
 public class PARAM_DECLNode extends DeclNode {
-	
+
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		return MidVisitor.visit(this, symbolTable);
+		assert false : "Should not be calling this on PARAM_DECLNode without passing in the paramOffset.";
+		return null;
 	}
-	
+
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable,
+			int paramOffset) {
+		return MidVisitor.visitParam(this, symbolTable, paramOffset);
+	}
+
 }

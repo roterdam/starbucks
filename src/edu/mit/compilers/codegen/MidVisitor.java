@@ -139,12 +139,13 @@ public class MidVisitor {
 		return out;
 	}
 
-	public static MidNodeList visit(PARAM_DECLNode node,
-			MidSymbolTable symbolTable) {
+
+	public static MidNodeList visitParam(PARAM_DECLNode node,
+			MidSymbolTable symbolTable, int paramOffset) {
 		MidNodeList outputList = new MidNodeList();
 
 		String name = node.getIDNode().getText();
-		MidParamDeclNode paramNode = new MidParamDeclNode(name);
+		MidParamDeclNode paramNode = new MidParamDeclNode(name, paramOffset);
 		outputList.add(paramNode);
 
 		symbolTable.addVar(name, paramNode);
@@ -458,8 +459,19 @@ public class MidVisitor {
 		// New symbol table for the new method scope.
 		MidSymbolTable blockSymbolTable = needsNewScope ? new MidSymbolTable(
 				symbolTable) : symbolTable;
+		int paramOffset = 0;
 		for (DecafNode statement : node.getStatementNodes()) {
-			outputList.addAll(statement.convertToMidLevel(blockSymbolTable));
+			// PARAM_DECLNode needs paramOffset so memory access patterns can be
+			// determined later. If a better place for tracking this is found,
+			// be my guest.
+			if (statement instanceof PARAM_DECLNode) {
+				((PARAM_DECLNode) statement)
+						.convertToMidLevel(blockSymbolTable, paramOffset);
+				paramOffset++;
+			} else {
+				outputList
+						.addAll(statement.convertToMidLevel(blockSymbolTable));
+			}
 		}
 
 		return outputList;
