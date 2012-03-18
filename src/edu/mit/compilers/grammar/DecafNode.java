@@ -80,14 +80,17 @@ abstract public class DecafNode extends CommonAST {
 		// By default does nothing and propagates call to children.
 		DecafNode child = this.getFirstChild();
 		if (child != null) {
-			this.setFirstChild(child.clean());
-			DecafNode prevChild = child;
 			DecafNode nextChild = child.getNextSibling();
+			this.setFirstChild(child.clean());
+			DecafNode prevChild = this.getFirstChild();
+			prevChild.setNextSibling(nextChild);
 			while (nextChild != null) {
+				DecafNode newNextChild = nextChild.getNextSibling();
 				nextChild = nextChild.clean();
+				nextChild.setNextSibling(newNextChild);
 				prevChild.setNextSibling(nextChild);
 				prevChild = nextChild;
-				nextChild = nextChild.getNextSibling();
+				nextChild = newNextChild;
 			}
 		}
 		return this;
