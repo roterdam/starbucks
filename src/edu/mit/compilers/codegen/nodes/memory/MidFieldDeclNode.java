@@ -22,7 +22,7 @@ public class MidFieldDeclNode extends MidMemoryNode {
 		return new OpASM(
 				String.format("placeholder for `%s`", getName()),
 				OpCode.TIMES,
-				String.format("%ld %s %d", getSize() * FIELD_SIZE, OpCode.DW, FIELD_DEFAULT));
+				String.format("%d %s %d", getSize() * FIELD_SIZE, OpCode.DW, FIELD_DEFAULT));
 	}
 
 	/**
