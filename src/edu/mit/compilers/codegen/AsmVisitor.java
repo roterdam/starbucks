@@ -51,8 +51,8 @@ public class AsmVisitor {
 		}
 
 		// Error handler
-		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), "*** RUNTIME ERROR ***: Divide by zero in method.\n");
-		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), "*** RUNTIME ERROR ***: Array out of bounds access in method.\n");
+		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), "*** RUNTIME ERROR ***: Divide by zero in method.\\n");
+		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), "*** RUNTIME ERROR ***: Array out of bounds access in method.\\n");
 
 		
 		asm.addAll(dataSection);
