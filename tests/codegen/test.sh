@@ -17,7 +17,7 @@ for file in `dirname $0`/input/*.dcf; do
   msg=""
   if runcompiler $file $asm; then
     binary=`tempfile`
-    if gcc -o $binary -L `dirname $0`/lib -l6035 $asm; then
+    if nasm -o ${binary}.o $asm; gcc -o $binary -L `dirname $0`/lib -l6035 ${binary}.o; then
       output=`tempfile`
       if $binary > $output; then
         diffout=`tempfile`
