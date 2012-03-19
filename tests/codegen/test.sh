@@ -14,10 +14,11 @@ fi
 
 for file in `dirname $0`/input/*.dcf; do
   asm=`tempfile --suffix=.s`
+  asmo=`tempfile --suffix=.o`
   msg=""
   if runcompiler $file $asm; then
     binary=`tempfile`
-    if nasm -o ${binary}.o $asm; gcc -o $binary -L `dirname $0`/lib -l6035 ${binary}.o; then
+    if nasm -o $asmo $asm; gcc -o $binary -L `dirname $0`/lib -l6035 $asmo; then
       output=`tempfile`
       if $binary > $output; then
         diffout=`tempfile`
