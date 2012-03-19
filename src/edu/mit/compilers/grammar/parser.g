@@ -242,11 +242,11 @@ rel_expr
   ;
 
 arith_expr_2
-  : arith_expr_1 ((PLUS^ | MINUS^) arith_expr_2)?
+  : arith_expr_1 ((PLUS^ | MINUS^) arith_expr_1)*
   ;
-
+  
 arith_expr_1
-  : not_expr ((TIMES^ | DIVIDE^ | MOD^) arith_expr_1)?
+  : not_expr ((TIMES^ | DIVIDE^ | MOD^) not_expr)*
   ;
 
 not_expr
@@ -280,7 +280,7 @@ bin_op
 
 literal
 	: INT_LITERAL
-  | CHAR_LITERAL
+    | CHAR_LITERAL
 	| TRUE
 	| FALSE
 	;
