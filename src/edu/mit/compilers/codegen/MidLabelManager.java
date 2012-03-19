@@ -6,8 +6,6 @@ import java.util.Map;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 
 public class MidLabelManager {
-	private static MidLabelNode divZeroLabel = new MidLabelNode("DIVZERO");
-	private static MidLabelNode divOutOfBoundsLabel = new MidLabelNode("OUTOFBOUNDS");
 	
 	@SuppressWarnings("serial")
 	private static Map<LabelType, Integer> tracker = new HashMap<LabelType, Integer>(){{
@@ -17,7 +15,7 @@ public class MidLabelManager {
 	}};
 	
 	public enum LabelType {
-		FOR, ROF, WHILE, ELIHW, IF, FI, FOR_NEXT, SHORT, ELSE, WHILE_BODY;
+		FOR, ROF, WHILE, ELIHW, IF, FI, FOR_NEXT, SHORT, ELSE, WHILE_BODY, SKIP;
 	}
 	
 	public static MidLabelNode getLabel(LabelType type) {
@@ -26,14 +24,6 @@ public class MidLabelManager {
 				+ tracker.get(type));
 	}
 
-	public static MidLabelNode getDivideByZeroLabel() {
-		return divZeroLabel;
-	}
-	
-	public static MidLabelNode getArrayIndexOutOfBoundsLabel(){
-		return divOutOfBoundsLabel;
-	}
-	
 	private static int count = 0;
 
 	public static String getNewId() {

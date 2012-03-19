@@ -15,6 +15,7 @@ public class MidSymbolTable {
 	private MidSymbolTable parent;
 	private MidLabelNode continueLabel;
 	private MidLabelNode breakLabel;
+	private MidMemoryNode methodNameNode = null;
 
 	public MidSymbolTable() {
 		this(null, null, null);
@@ -22,6 +23,18 @@ public class MidSymbolTable {
 
 	public MidSymbolTable(MidSymbolTable p) {
 		this(p, null, null);
+	}
+	
+	public MidSymbolTable(MidSymbolTable p, MidMemoryNode methodNameNode) {
+		this(p, null, null);
+		this.methodNameNode = methodNameNode;
+	}
+	
+	public MidMemoryNode getMethodNameNode() {
+		if (methodNameNode == null) {
+			return parent.getMethodNameNode();
+		}
+		return methodNameNode;
 	}
 
 	// Breakable.
