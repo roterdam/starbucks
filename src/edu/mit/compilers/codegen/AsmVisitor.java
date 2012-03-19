@@ -13,7 +13,6 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
-import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
@@ -44,12 +43,8 @@ public class AsmVisitor {
 		asm.addAll(createBSSSection(symbolTable));
 
 		// Error handler
-		List<ASM> divZero = addInterrupt(
-				MidLabelManager.getDivideByZeroLabel(),
-				"*** RUNTIME ERROR ***: Divide by zero in method \"main\"");
-		List<ASM> indexBounds = addInterrupt(
-				MidLabelManager.getArrayIndexOutOfBoundsLabel(),
-				"*** RUNTIME ERROR ***: Array out of Bounds access in method \"main\"");
+		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), "*** RUNTIME ERROR ***: Divide by zero in method.");
+		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), "*** RUNTIME ERROR ***: Array out of bounds access in method.");
 
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
@@ -86,8 +81,8 @@ public class AsmVisitor {
 		// Add string to header.
 		String outputMessage = String.format("`%s`,0", msg);
 		dataSection.add(new LabeledOpASM(msgLabel, OpCode.DB, outputMessage));
-		dataSection.add(new LabeledOpASM(lenLabel, OpCode.EQU, String.format(
-				"$-%s", msgLabel)));
+		dataSection.add(new LabeledOpASM(lenLabel, OpCode.EQU, String
+				.format("$-%s", msgLabel)));
 		out.addAll(labelNode.toASM());
 		out.add(new OpASM(OpCode.MOV, Reg.RDX.name(), lenLabel));
 		out.add(new OpASM(OpCode.MOV, Reg.RCX.name(), msgLabel));
@@ -167,21 +162,19 @@ public class AsmVisitor {
 		return out;
 	}
 
-	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI,
-			Reg.RDX, Reg.RCX, Reg.R8, Reg.R9 };
+	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX,
+			Reg.RCX, Reg.R8, Reg.R9 };
 
-	
 	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
-			boolean extern) {
+			Reg destinationRegister, boolean extern) {
 		if (extern) {
 			externCalls.add(name);
 		}
 		List<ASM> out = new ArrayList<ASM>();
-		
-		
+
 		// Begin calling convention, place as many nodes in registers as
 		// possible.
-		
+
 		List<ASM> pushStack = new ArrayList<ASM>();
 		for (int i = 0; i < params.size(); i++) {
 			MidLoadNode paramNode = new MidLoadNode(params.get(i));
@@ -195,33 +188,35 @@ public class AsmVisitor {
 				paramNode.setRegister(temp);
 				List<ASM> pushIt = new ArrayList<ASM>();
 				pushIt.addAll(paramNode.toASM());
-				pushIt.add(new OpASM(String.format("push param %d onto stack", i),
-						OpCode.PUSH, paramNode.getRegister().name()));
+				pushIt.add(new OpASM(String
+						.format("push param %d onto stack", i), OpCode.PUSH,
+						paramNode.getRegister().name()));
 				pushStack.addAll(0, pushIt);
-				
-				//FIXME: is this bad to do? (made deallocTempRegister public)
+
+				// FIXME: is this bad to do? (made deallocTempRegister public)
 				MemoryManager.deallocTempRegister(temp);
 			}
 		}
 		// Add the push parameters in reverse order
 		out.addAll(pushStack);
-		
+
 		// Always set RAX to 0.
 		out.add(new OpASM(OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.CALL, name));
-		
 
-		
-		// Remove pointers from stack
+		// Remove pointers from stack.
 		int stackParams = params.size() - paramRegisters.length;
 		if (stackParams > 0) {
 			out.add(new OpASM("clean up params", OpCode.MOV, Reg.RSP.name(),
 					String.format("[ %s - %d ]", Reg.RSP.name(), stackParams
 							* MemoryManager.ADDRESS_SIZE)));
 		}
-		
-		
-		//out.add(new OpASM("Leaving!", OpCode.LEAVE));
+
+		// Push RAX into destinationRegister.
+		out.add(new OpASM("Saving results of " + name, OpCode.MOV,
+				destinationRegister.name(), Reg.RAX.name()));
+
+		// out.add(new OpASM("Leaving!", OpCode.LEAVE));
 		return out;
 	}
 

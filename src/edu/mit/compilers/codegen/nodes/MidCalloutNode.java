@@ -22,7 +22,7 @@ public class MidCalloutNode extends MidRegisterNode {
 	}
 
 	public List<ASM> toASM() {
-		return AsmVisitor.methodCall(name, params, true);
+		return AsmVisitor.methodCall(name, params, getRegister(), true);
 	}
 
 }
