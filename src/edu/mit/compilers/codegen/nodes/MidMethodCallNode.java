@@ -7,12 +7,12 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
-public class MidMethodNode extends MidRegisterNode {
+public class MidMethodCallNode extends MidRegisterNode {
 
 	MidMethodDeclNode methodDecl;
 	List<MidMemoryNode> params;
 
-	public MidMethodNode(MidMethodDeclNode methodDecl,
+	public MidMethodCallNode(MidMethodDeclNode methodDecl,
 			List<MidMemoryNode> params) {
 		this.methodDecl = methodDecl;
 		this.params = params;
