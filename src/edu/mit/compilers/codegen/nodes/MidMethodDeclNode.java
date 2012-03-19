@@ -61,13 +61,16 @@ public class MidMethodDeclNode extends MidNode {
 	public VarType getMidVarType() {
 		return varType;
 	}
-	
+
 	public List<ASM> toASM() {
+
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new LabelASM("ENTERING " + this.getName(), this.getName()));		
-		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(localStackSize), "0"));
-		out.addAll(nodeList.toASM());
+
+		out.add(new LabelASM("ENTERING " + this.getName(), this.getName()));
 		
+		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(localStackSize), "0"));
+
+		out.addAll(nodeList.toASM());		
 		return out;
 	}
 
