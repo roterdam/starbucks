@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
@@ -22,6 +23,9 @@ public class MidReturnNode extends MidNode {
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
+		if (returnValue != null){
+			out.add(new OpASM("Setting return value", OpCode.MOV, Reg.RAX.name(), returnValue.getFormattedLocationReference()));
+		}
 		out.add(new OpASM(OpCode.LEAVE));
 		out.add(new OpASM(OpCode.RET));
 		return out;

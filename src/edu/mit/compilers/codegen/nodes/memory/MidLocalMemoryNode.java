@@ -24,6 +24,7 @@ abstract public class MidLocalMemoryNode extends MidMemoryNode {
 	@Override
 	public List<ASM> toASM() {
 		// Don't return any ASM code!
+		// Because we've allocated this in MidMethodDeclNode.
 		return new ArrayList<ASM>();
 	}
 	

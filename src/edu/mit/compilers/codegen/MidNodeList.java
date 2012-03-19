@@ -145,9 +145,17 @@ public class MidNodeList implements List<MidNode> {
 
 	private class LinkedListIterator implements Iterator<MidNode> {
 		MidNode currentNode;
+		
+		class LinkedListHeadNode extends MidNode {
+			@Override
+			public List<Reg> getOperandRegisters() {
+				assert false : "This shouldn't be called, silly.";
+				return null;
+			}
+		}
 
 		public LinkedListIterator() {
-			currentNode = new MidNode();
+			currentNode = new LinkedListHeadNode();
 			currentNode.setNextNode(MidNodeList.this.getHead());
 		}
 

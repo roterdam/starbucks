@@ -167,7 +167,7 @@ public class AsmVisitor {
 		return out;
 	}
 
-	private static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI,
+	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI,
 			Reg.RDX, Reg.RCX, Reg.R8, Reg.R9 };
 
 	
@@ -223,16 +223,6 @@ public class AsmVisitor {
 		
 		//out.add(new OpASM("Leaving!", OpCode.LEAVE));
 		return out;
-	}
-
-	public static String paramAccess(int paramOffset) {
-		if (paramOffset < paramRegisters.length) {
-			return paramRegisters[paramOffset].name();
-		} else {
-			return String.format("[ %s + %d*%d + %d]", Reg.RBP,
-					(paramOffset - paramRegisters.length),
-					MemoryManager.ADDRESS_SIZE, MemoryManager.ADDRESS_SIZE * 2);
-		}
 	}
 
 }

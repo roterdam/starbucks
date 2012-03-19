@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidNodeList;
-import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -62,9 +61,7 @@ public class MidMethodDeclNode extends MidNode {
 	public VarType getMidVarType() {
 		return varType;
 	}
-	private static Reg[] savedRegisters = new Reg[] { Reg.RDI, Reg.RSI,
-		Reg.RDX, Reg.RCX, Reg.R8, Reg.R9};
-	
+
 	public List<ASM> toASM() {
 
 		List<ASM> out = new ArrayList<ASM>();
@@ -73,21 +70,7 @@ public class MidMethodDeclNode extends MidNode {
 		
 		out.add(new OpASM(name, OpCode.ENTER, Integer.toString(localStackSize), "0"));
 
-		
-		// Save registers
-		for(int i=0;i<savedRegisters.length;i++){
-			Reg r = savedRegisters[i];
-			out.add(new OpASM("Save register "+r.name(), OpCode.PUSH, r.name()));
-		}
-		
-		out.addAll(nodeList.toASM());
-
-		// Restore saved registers
-		for(int i=savedRegisters.length-1;i>=0;i--){
-			Reg r = savedRegisters[i];
-			out.add(new OpASM("Restoring register "+r.name(), OpCode.POP, r.name()));
-		}
-		
+		out.addAll(nodeList.toASM());		
 		return out;
 	}
 
