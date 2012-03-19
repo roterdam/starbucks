@@ -1,6 +1,7 @@
 package edu.mit.compilers;
 
 import java.io.DataInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import antlr.Token;
@@ -123,8 +124,7 @@ class Main {
 							System.out.println(symbolTable.toDotSyntax(true));
 						} else if (CLI.target == Action.ASSEMBLY) {
 							MemoryManager.assignStorage(symbolTable);
-							System.out
-									.println(AsmVisitor.generate(symbolTable));
+							writeToOutput(AsmVisitor.generate(symbolTable));
 						}
 
 					}
@@ -136,6 +136,17 @@ class Main {
 			System.out.println(CLI.infile);
 			e.printStackTrace();
 			System.exit(1);
+		}
+	}
+	
+	static private void writeToOutput(String text) {
+		FileOutputStream outStream;
+		try {
+			outStream = new FileOutputStream(CLI.outfile);
+			outStream.write(text.getBytes());
+			outStream.close();
+		} catch (Exception e) {
+			System.out.println(String.format("Could not open file %s for output.", CLI.outfile));
 		}
 	}
 
