@@ -3,12 +3,13 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
 // TODO: make abstract
-public class MidNode {
+public abstract class MidNode {
 	MidNode nextNode;
 
 	public void setNextNode(MidNode node) {
@@ -41,5 +42,9 @@ public class MidNode {
 	 */
 	public String toDotSyntax() {
 		return hashCode() + " [label=\"" + toString() + "\"];\n";
+	}
+
+	public List<Reg> getOperandRegisters() {
+		return new ArrayList<Reg>();
 	}
 }

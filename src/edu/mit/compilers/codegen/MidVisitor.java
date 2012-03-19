@@ -173,8 +173,8 @@ public class MidVisitor {
 
 		MidCompareNode compareNode = new MidCompareNode(loadOperandNode,
 				loadNode);
-		MidJumpNode jumpNode = new MidJumpEQNode(
-				MidLabelManager.getDivideByZeroLabel());
+		MidJumpNode jumpNode = new MidJumpEQNode(MidLabelManager
+				.getDivideByZeroLabel());
 
 		MidNodeList instrList = new MidNodeList();
 
@@ -196,8 +196,8 @@ public class MidVisitor {
 		MidLoadNode zeroLoadNode = new MidLoadNode(zeroNode);
 		MidCompareNode zeroCompareNode = new MidCompareNode(loadIndexNode1,
 				zeroLoadNode);
-		MidJumpNode zeroJumpNode = new MidJumpLNode(
-				MidLabelManager.getArrayIndexOutOfBoundsLabel());
+		MidJumpNode zeroJumpNode = new MidJumpLNode(MidLabelManager
+				.getArrayIndexOutOfBoundsLabel());
 
 		// Check for greater than length.
 		MidLoadNode loadIndexNode2 = new MidLoadNode(indexNode);
@@ -207,8 +207,8 @@ public class MidVisitor {
 		MidLoadNode lengthLoadNode = new MidLoadNode(lengthNode);
 		MidCompareNode lengthCompareNode = new MidCompareNode(loadIndexNode2,
 				lengthLoadNode);
-		MidJumpNode lengthJumpNode = new MidJumpGENode(
-				MidLabelManager.getArrayIndexOutOfBoundsLabel());
+		MidJumpNode lengthJumpNode = new MidJumpGENode(MidLabelManager
+				.getArrayIndexOutOfBoundsLabel());
 
 		MidNodeList instrList = new MidNodeList();
 
@@ -360,8 +360,8 @@ public class MidVisitor {
 
 		ValuedMidNodeList leftEvalList = getMemoryLocation(node.getLocation(),
 				symbolTable);
-		MidSaveNode saveNode = new MidSaveNode(loadNode,
-				leftEvalList.getReturnNode());
+		MidSaveNode saveNode = new MidSaveNode(loadNode, leftEvalList
+				.getReturnNode());
 
 		MidNodeList nodeList = new MidNodeList();
 
@@ -483,7 +483,8 @@ public class MidVisitor {
 		MidMemoryNode locNode;
 		if (node.isArray()) {
 			assert symbolTable.getVar(node.getText()) instanceof MidFieldArrayDeclNode : node
-					.getText() + " is an array, but it's not stored as one.";
+					.getText()
+					+ " is an array, but it's not stored as one.";
 
 			// Get array decl and compute the index
 			MidFieldArrayDeclNode arrayNode = (MidFieldArrayDeclNode) symbolTable
@@ -498,7 +499,7 @@ public class MidVisitor {
 
 			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
 			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
-			
+
 			instrList.addAll(exprList.getList());
 			instrList.addAll(errorList);
 			instrList.add(sizeLoadNode);
@@ -514,19 +515,20 @@ public class MidVisitor {
 		// New symbol table for the new method scope.
 		MidSymbolTable blockSymbolTable = needsNewScope ? new MidSymbolTable(
 				symbolTable) : symbolTable;
+
 		int paramOffset = 0;
 		for (DecafNode statement : node.getStatementNodes()) {
 			// PARAM_DECLNode needs paramOffset so memory access patterns can be
-			// determined later. If a better place for tracking this is found,
-			// be my guest.
+			// determined later when the method the params belong to is called
+			// from somewhere else. If a better place for tracking this is
+			// found, be my guest.
 			if (statement instanceof PARAM_DECLNode) {
-				((PARAM_DECLNode) statement).convertToMidLevel(
-						blockSymbolTable, paramOffset);
+				outputList.addAll(((PARAM_DECLNode) statement).convertToMidLevel(blockSymbolTable, paramOffset));
 				paramOffset++;
 			} else {
-				outputList
-						.addAll(statement.convertToMidLevel(blockSymbolTable));
+				outputList.addAll(statement.convertToMidLevel(blockSymbolTable));
 			}
+
 		}
 
 		return outputList;
@@ -589,10 +591,10 @@ public class MidVisitor {
 				.convertToMidLevel(newSymbolTable);
 		MidSaveNode limitNode = (MidSaveNode) limitList.getSaveNode();
 
-		MidLoadNode iterVarLoadNode = new MidLoadNode(
-				iterVarNode.getDestinationNode());
-		MidLoadNode limitLoadNode = new MidLoadNode(
-				limitNode.getDestinationNode());
+		MidLoadNode iterVarLoadNode = new MidLoadNode(iterVarNode
+				.getDestinationNode());
+		MidLoadNode limitLoadNode = new MidLoadNode(limitNode
+				.getDestinationNode());
 		MidCompareNode compareNode = new MidCompareNode(iterVarLoadNode,
 				limitLoadNode);
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
@@ -714,8 +716,8 @@ public class MidVisitor {
 		MidNodeList ifList = node.getBlockNode().convertToMidLevel(symbolTable);
 		MidNodeList elseList = new MidNodeList();
 		if (node.getElseBlock() != null)
-			elseList = node.getElseBlock().getBlockNode()
-					.convertToMidLevel(symbolTable);
+			elseList = node.getElseBlock().getBlockNode().convertToMidLevel(
+					symbolTable);
 		else
 			elseList = new MidNodeList();
 
@@ -752,8 +754,8 @@ public class MidVisitor {
 		}
 
 		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
-			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(
-					methodNode.getId(), methodNode.getReturnType());
+			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(methodNode
+					.getId(), methodNode.getReturnType());
 			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
 			visitMethodDecl(midMethodNode, methodNode.getBlockNode(),
 					symbolTable);

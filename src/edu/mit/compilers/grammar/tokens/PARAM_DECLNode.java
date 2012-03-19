@@ -10,12 +10,11 @@ public class PARAM_DECLNode extends DeclNode {
 
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		assert false : "Should not be calling this on PARAM_DECLNode without passing in the paramOffset.";
+		assert false : "Don't call this, need to pass in paramOffset.";
 		return null;
 	}
-
-	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable,
-			int paramOffset) {
+	
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable, int paramOffset) {
 		return MidVisitor.visitParam(this, symbolTable, paramOffset);
 	}
 

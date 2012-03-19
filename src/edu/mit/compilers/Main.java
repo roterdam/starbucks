@@ -121,9 +121,7 @@ class Main {
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
-						}
-
-						if (CLI.target == Action.ASSEMBLY) {
+						} else if (CLI.target == Action.ASSEMBLY) {
 							MemoryManager.assignStorage(symbolTable);
 							System.out
 									.println(AsmVisitor.generate(symbolTable));
@@ -133,10 +131,10 @@ class Main {
 				}
 			}
 		} catch (Exception e) {
-			ErrorCenter.reportError(0, 0, "Unrecoverable error. I hope you aren't pro-life because I'm aborting.");
+			ErrorCenter.reportError(0, 0, "Unrecoverable error.");
 			// print the error:
-			//System.out.println(CLI.infile);
-			//e.printStackTrace();
+			System.out.println(CLI.infile);
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
