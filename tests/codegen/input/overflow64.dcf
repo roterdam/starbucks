@@ -10,13 +10,13 @@ class Program {
         f = 9223372036854775807;
         g = e - 1;
         h = f + 1;
-        callout("printf", "%d\n", a);
-        callout("printf", "%d\n", b);
-        callout("printf", "%d\n", c);
-        callout("printf", "%d\n", d);
-        callout("printf", "%d\n", e);
-        callout("printf", "%d\n", f);
-        callout("printf", "%d\n", g);
-        callout("printf", "%d\n", h);
+        callout("printf", "%ld\n", a);
+        callout("printf", "%ld\n", b);
+        callout("printf", "%ld\n", c);
+        callout("printf", "%ld\n", d);
+        callout("printf", "%ld\n", e);
+        callout("printf", "%ld\n", f);
+        callout("printf", "%ld\n", g);
+        callout("printf", "%ld\n", h);
     }
 }
