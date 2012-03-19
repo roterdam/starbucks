@@ -207,9 +207,8 @@ public class AsmVisitor {
 		// Remove pointers from stack.
 		int stackParams = params.size() - paramRegisters.length;
 		if (stackParams > 0) {
-			out.add(new OpASM("clean up params", OpCode.MOV, Reg.RSP.name(),
-					String.format("[ %s - %d ]", Reg.RSP.name(), stackParams
-							* MemoryManager.ADDRESS_SIZE)));
+			out.add(new OpASM("clean up params", OpCode.ADD, Reg.RSP.name(),
+					Integer.toString(stackParams * MemoryManager.ADDRESS_SIZE)));
 		}
 
 		// Push RAX into destinationRegister.
