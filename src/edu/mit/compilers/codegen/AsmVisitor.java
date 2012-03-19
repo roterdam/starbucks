@@ -170,12 +170,15 @@ public class AsmVisitor {
 	private static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI,
 			Reg.RDX, Reg.RCX, Reg.R8, Reg.R9 };
 
+	
 	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
 			boolean extern) {
 		if (extern) {
 			externCalls.add(name);
 		}
 		List<ASM> out = new ArrayList<ASM>();
+		
+		
 		// Begin calling convention, place as many nodes in registers as
 		// possible.
 		
@@ -203,16 +206,22 @@ public class AsmVisitor {
 		// Add the push parameters in reverse order
 		out.addAll(pushStack);
 		
-		
 		// Always set RAX to 0.
 		out.add(new OpASM(OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.CALL, name));
+		
+
+		
+		// Remove pointers from stack
 		int stackParams = params.size() - paramRegisters.length;
 		if (stackParams > 0) {
 			out.add(new OpASM("clean up params", OpCode.MOV, Reg.RSP.name(),
 					String.format("[ %s - %d ]", Reg.RSP.name(), stackParams
 							* MemoryManager.ADDRESS_SIZE)));
 		}
+		
+		
+		//out.add(new OpASM("Leaving!", OpCode.LEAVE));
 		return out;
 	}
 
