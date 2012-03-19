@@ -19,9 +19,10 @@ public class MidFieldDeclNode extends MidMemoryNode {
 	}
 
 	public OpASM getFieldDeclarationASM() {
-		return new OpASM(String.format("placeholder for `%s`", getName()),
-				OpCode.TIMES, Long.toString(getSize() * FIELD_SIZE),
-				String.format("%s %d", OpCode.DW, FIELD_DEFAULT));
+		return new OpASM(
+				String.format("placeholder for `%s`", getName()),
+				OpCode.TIMES,
+				String.format("%ld %s %d", getSize() * FIELD_SIZE, OpCode.DW, FIELD_DEFAULT));
 	}
 
 	/**
