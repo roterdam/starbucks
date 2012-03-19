@@ -6,8 +6,9 @@ import edu.mit.compilers.codegen.asm.OpCode;
 
 public class MidFieldDeclNode extends MidMemoryNode {
 
-	// TODO: When we get to implementing space allocation, array subclass knows
-	// to do it differently.
+	// Size of fields in terms of 16-bit "words".
+	final int FIELD_SIZE = 4;
+	final long FIELD_DEFAULT = 0;
 
 	public MidFieldDeclNode(String name) {
 		super(name);
@@ -18,23 +19,23 @@ public class MidFieldDeclNode extends MidMemoryNode {
 	}
 
 	public OpASM getFieldDeclarationASM() {
-		// TOOD: resw of different sizes
 		return new OpASM(String.format("placeholder for `%s`", getName()),
-				OpCode.RESW, Long.toString(4 * getSize()));
+				OpCode.TIMES, Long.toString(getSize() * FIELD_SIZE),
+				String.format("%s %d", OpCode.DW, FIELD_DEFAULT));
 	}
 
 	/**
 	 * Get the location reference. Returns reference to data, not pointer.
 	 */
-	
+
 	@Override
 	public String getFormattedLocationReference() {
 		assert rawLocationReference != null : "rawLocationReference is null!";
 		// Adding brackets evaluates to the _data at that address_
 		return String.format("[ %s ]", rawLocationReference);
 	}
-	
-	public long getSize(){
+
+	public long getSize() {
 		return 1;
 	}
 
