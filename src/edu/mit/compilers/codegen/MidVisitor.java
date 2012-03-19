@@ -676,6 +676,8 @@ public class MidVisitor {
 			MidLocalVarDeclNode declNode = new MidLocalVarDeclNode(name);
 			symbolTable.addVar(name, declNode);
 			nodeList.add(declNode);
+			// Initialize variable to 0.
+			nodeList.addAll(MidSaveNode.storeValueInMemory(0, declNode));
 			break;
 		default:
 			assert false : "Unexpected varType: " + node.getVarType();
