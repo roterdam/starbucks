@@ -168,7 +168,7 @@ public class MidVisitor {
 		MidLoadNode loadOperandNode = new MidLoadNode(operandNode);
 
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
-		MidSaveNode saveNode = new MidSaveNode(0, zeroNode);
+		MidNodeList saveInstrList = MidSaveNode.storeValueInMemory(0, zeroNode);
 		MidLoadNode loadNode = new MidLoadNode(zeroNode);
 
 		MidCompareNode compareNode = new MidCompareNode(loadOperandNode,
@@ -180,7 +180,7 @@ public class MidVisitor {
 
 		instrList.add(loadOperandNode);
 		instrList.add(zeroNode);
-		instrList.add(saveNode);
+		instrList.addAll(saveInstrList);
 		instrList.add(loadNode);
 		instrList.add(compareNode);
 		instrList.add(jumpNode);
@@ -192,7 +192,7 @@ public class MidVisitor {
 		// Check for zero.
 		MidLoadNode loadIndexNode1 = new MidLoadNode(indexNode);
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
-		MidSaveNode zeroSaveNode = new MidSaveNode(0, zeroNode);
+		MidNodeList zeroSaveInstrList = MidSaveNode.storeValueInMemory(0, zeroNode);
 		MidLoadNode zeroLoadNode = new MidLoadNode(zeroNode);
 		MidCompareNode zeroCompareNode = new MidCompareNode(loadIndexNode1,
 				zeroLoadNode);
@@ -202,8 +202,9 @@ public class MidVisitor {
 		// Check for greater than length.
 		MidLoadNode loadIndexNode2 = new MidLoadNode(indexNode);
 		MidTempDeclNode lengthNode = new MidTempDeclNode();
-		MidSaveNode lengthSaveNode = new MidSaveNode(arrayNode.getSize(),
-				lengthNode);
+		
+		MidNodeList lengthSaveInstrList = MidSaveNode.storeValueInMemory(arrayNode.getSize(), lengthNode);
+
 		MidLoadNode lengthLoadNode = new MidLoadNode(lengthNode);
 		MidCompareNode lengthCompareNode = new MidCompareNode(loadIndexNode2,
 				lengthLoadNode);
@@ -214,13 +215,13 @@ public class MidVisitor {
 
 		instrList.add(loadIndexNode1);
 		instrList.add(zeroNode);
-		instrList.add(zeroSaveNode);
+		instrList.addAll(zeroSaveInstrList);
 		instrList.add(zeroLoadNode);
 		instrList.add(zeroCompareNode);
 		instrList.add(zeroJumpNode);
 		instrList.add(loadIndexNode2);
 		instrList.add(lengthNode);
-		instrList.add(lengthSaveNode);
+		instrList.addAll(lengthSaveInstrList);
 		instrList.add(lengthLoadNode);
 		instrList.add(lengthCompareNode);
 		instrList.add(lengthJumpNode);
@@ -430,8 +431,9 @@ public class MidVisitor {
 			MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
 		MidTempDeclNode dest = new MidTempDeclNode();
+		MidNodeList saveInstrList = MidSaveNode.storeValueInMemory(node.getValue(), dest);
 		out.add(dest);
-		out.add(new MidSaveNode(node.getValue(), dest));
+		out.addAll(saveInstrList);
 		return out;
 	}
 

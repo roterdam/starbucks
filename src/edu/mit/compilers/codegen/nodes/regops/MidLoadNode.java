@@ -38,12 +38,7 @@ public class MidLoadNode extends MidRegisterNode {
 				+ hashCode() + " [style=dotted,color=orange];\n";
 	}
 
-	@Override
 	public List<ASM> toASM() {
-		return toASM(false);
-	}
-
-	public List<ASM> toASM(boolean loadPointer) {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
 				memoryNode.getFormattedLocationReference()));

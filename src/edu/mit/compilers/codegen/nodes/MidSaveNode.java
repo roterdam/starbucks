@@ -3,12 +3,14 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 /**`
@@ -37,12 +39,22 @@ public class MidSaveNode extends MidNode {
 		this.registerNode = refNode;
 		this.saveType = MidSaveNodeType.REGISTER;
 	}
-
+	
+	public static MidNodeList storeValueInMemory(long decafIntValue, MidMemoryNode dest){
+		MidNodeList nodeList = new MidNodeList();
+		MidLoadImmNode loadNode = new MidLoadImmNode(decafIntValue);
+		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
+		nodeList.add(loadNode);
+		nodeList.add(saveNode);
+		return nodeList;
+		
+	}
+	/*
 	public MidSaveNode(long decafIntValue, MidMemoryNode dest) {
 		this(dest);
 		this.decafIntValue = decafIntValue;
 		this.saveType = MidSaveNodeType.INT;
-	}
+	}*/
 
 	public MidSaveNode(boolean decafBooleanValue, MidMemoryNode dest) {
 		this(dest);
