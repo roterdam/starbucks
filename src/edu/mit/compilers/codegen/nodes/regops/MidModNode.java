@@ -24,6 +24,7 @@ public class MidModNode extends MidBinaryRegNode {
 		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand().getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.XOR, RDX, RDX));
 		out.add(new OpASM(toString(), OpCode.IDIV, this.getRightOperand().getRegister().name()));
+		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(), RDX));
 		return out;
 	}
 	
