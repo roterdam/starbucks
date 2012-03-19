@@ -8,8 +8,12 @@ import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidCalloutNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+<<<<<<< HEAD
 import edu.mit.compilers.codegen.nodes.MidMethodNode;
 import edu.mit.compilers.codegen.nodes.MidPrintAndExitNode;
+=======
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
+>>>>>>> bb87360822ff9597162c1034494cf7f8b97a299f
 import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
@@ -141,7 +145,7 @@ public class MidVisitor {
 			out.addAll(paramList);
 		}
 
-		MidMethodNode methodNode = new MidMethodNode(symbolTable.getMethod(node
+		MidMethodCallNode methodNode = new MidMethodCallNode(symbolTable.getMethod(node
 				.getMethodName()), paramMemoryNodes);
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 		out.add(methodNode);
@@ -715,6 +719,8 @@ public class MidVisitor {
 			MidLocalVarDeclNode declNode = new MidLocalVarDeclNode(name);
 			symbolTable.addVar(name, declNode);
 			nodeList.add(declNode);
+			// Initialize variable to 0.
+			nodeList.addAll(MidSaveNode.storeValueInMemory(0, declNode));
 			break;
 		default:
 			assert false : "Unexpected varType: " + node.getVarType();
@@ -807,10 +813,14 @@ public class MidVisitor {
 		divideByZeroMethodDecl.setNodeList(generateDivideByZeroMethod());
 
 		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
-			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(
-					methodNode.getId(), methodNode.getReturnType());
-			symbolTable.addMethod(midMethodNode.getName(), midMethodNode);
-			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
+			String originalMethodName = methodNode.getId();
+			String sanitizedMethodName = MidMethodNameManager.sanitizeUserDefinedMethodName(originalMethodName);
+			
+			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(sanitizedMethodName, methodNode.getReturnType());
+			// Map original name
+			symbolTable.addMethod(originalMethodName, midMethodNode);
+			visitMethodDecl(midMethodNode, methodNode.getBlockNode(),
+					symbolTable);
 		}
 
 		return symbolTable;

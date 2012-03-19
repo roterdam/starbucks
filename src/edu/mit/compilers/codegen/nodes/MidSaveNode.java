@@ -41,6 +41,7 @@ public class MidSaveNode extends MidNode {
 	}
 	
 	public static MidNodeList storeValueInMemory(long decafIntValue, MidMemoryNode dest){
+		//TODO: Optimize by using two mov's instead of a load and mov.
 		MidNodeList nodeList = new MidNodeList();
 		MidLoadImmNode loadNode = new MidLoadImmNode(decafIntValue);
 		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);

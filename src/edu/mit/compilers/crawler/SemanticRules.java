@@ -32,7 +32,7 @@ import edu.mit.compilers.grammar.tokens.RETURNNode;
 import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
 
 public class SemanticRules {
-
+	public static String MAIN = "main";
 	static String REDECLARE_IDENTIFIER = "Cannot redeclare identifier `%1$s`.";
 	static String ID_BEFORE_DECLARATION = "Cannot access identifier `%1$s` before declaration.";
 	static String UNALLOWED_JUMP = "Cannot call `%1$s` from outside a while/for loop.";
@@ -213,10 +213,10 @@ public class SemanticRules {
 
 	static public void finalApply(CLASSNode node, Scope scope) {
 		// Rule 3.
-		if (!scope.getMethods().containsKey("main")) {
+		if (!scope.getMethods().containsKey(MAIN)) {
 			ErrorCenter.reportError(0, 0, MISSING_MAIN);
 		} else {
-			MethodDecl mainDecl = scope.getMethods().get("main");
+			MethodDecl mainDecl = scope.getMethods().get(MAIN);
 			if (mainDecl.getParams().size() != 0) {
 				StringBuilder paramsStringBuilder = new StringBuilder();
 				paramsStringBuilder.append("<");
