@@ -26,7 +26,7 @@ public class AsmVisitor {
 
 	// Static variable because Strings have to be added to it from within other
 	// code.
-	private static List<ASM> dataSection = createDataSection();;
+	private static List<ASM> dataSection = createDataSection();
 	private static Set<String> externCalls = new HashSet<String>();
 
 	private AsmVisitor(MidSymbolTable symbolTable) {
@@ -37,21 +37,28 @@ public class AsmVisitor {
 		List<ASM> asm = new ArrayList<ASM>();
 		List<ASM> textSection = createTextSection();
 
+		// Add fieldNode declarations.
+		Map<String, MidMemoryNode> fieldVars = symbolTable.getLocalVars();
+		for (String fieldName : fieldVars.keySet()) {
+			MidFieldDeclNode fieldNode = (MidFieldDeclNode) fieldVars
+					.get(fieldName);
+			dataSection.add(fieldNode.getFieldLabelASM());
+			dataSection.add(fieldNode.getFieldDeclarationASM());
+		}
+		
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
-		asm.addAll(createBSSSection(symbolTable));
 
 		// Error handler
 		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), "*** RUNTIME ERROR ***: Divide by zero in method.");
 		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), "*** RUNTIME ERROR ***: Array out of bounds access in method.");
 
+		
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
 		asm.addAll(divZero);
 		asm.addAll(indexBounds);
-
-		// asm.addAll(decafHelperSection());
 
 		StringBuilder out = new StringBuilder();
 		for (String extern : externCalls) {
@@ -100,26 +107,6 @@ public class AsmVisitor {
 		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), Integer
 				.toString(exitCode)));
 		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
-		return out;
-	}
-
-	/**
-	 * Initializes .bss section with fields. Note that .bss is meant for
-	 * UNINITIALIZED data, as opposed to the .data section.
-	 * 
-	 * @param symbolTable
-	 * @return
-	 */
-	private static List<ASM> createBSSSection(MidSymbolTable symbolTable) {
-		List<ASM> out = new ArrayList<ASM>();
-		out.add(new SectionASM("bss"));
-		Map<String, MidMemoryNode> fieldVars = symbolTable.getLocalVars();
-		for (String fieldName : fieldVars.keySet()) {
-			MidFieldDeclNode fieldNode = (MidFieldDeclNode) fieldVars
-					.get(fieldName);
-			out.add(fieldNode.getFieldLabelASM());
-			out.add(fieldNode.getFieldDeclarationASM());
-		}
 		return out;
 	}
 
