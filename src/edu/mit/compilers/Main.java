@@ -133,9 +133,11 @@ class Main {
 				}
 			}
 		} catch (Exception e) {
+			ErrorCenter.reportError(0, 0, "Unrecoverable error. I hope you aren't pro-life because I'm aborting.");
 			// print the error:
-			System.out.println(CLI.infile);
-			e.printStackTrace();
+			//System.out.println(CLI.infile);
+			//e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
