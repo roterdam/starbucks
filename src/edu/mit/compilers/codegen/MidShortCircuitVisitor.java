@@ -68,7 +68,7 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(BANGNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		MidNodeList nodeList = node
+		MidNodeList nodeList = node.getOperand()
 				.shortCircuit(symbolTable, falseLabel, trueLabel);
 		return nodeList;
 	}
