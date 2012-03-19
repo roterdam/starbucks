@@ -24,6 +24,9 @@ public class AsmVisitor {
 	private static String SYS_EXIT_CODE = "1";
 	private static String SYS_INTERRUPT_CODE = "0x80";
 
+	static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method.\\n";
+	static final String OUT_OF_BOUNDS_ERROR = "*** RUNTIME ERROR ***: Array out of bounds access in method.\\n";
+
 	// Static variable because Strings have to be added to it from within other
 	// code.
 	private static List<ASM> dataSection = createDataSection();
@@ -45,16 +48,15 @@ public class AsmVisitor {
 			dataSection.add(fieldNode.getFieldLabelASM());
 			dataSection.add(fieldNode.getFieldDeclarationASM());
 		}
-		
+
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
 
 		// Error handler
-		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), "*** RUNTIME ERROR ***: Divide by zero in method.\\n");
-		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), "*** RUNTIME ERROR ***: Array out of bounds access in method.\\n");
+		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), DIVIDE_BY_ZERO_ERROR);
+		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), OUT_OF_BOUNDS_ERROR);
 
-		
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
 		asm.addAll(divZero);
@@ -96,7 +98,7 @@ public class AsmVisitor {
 		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), "1"));
 		out.add(new OpASM(OpCode.MOV, Reg.RAX.name(), "4"));
 		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
-		out.addAll(exitCall(1));
+		out.addAll(exitCall(0));
 		return out;
 	}
 
