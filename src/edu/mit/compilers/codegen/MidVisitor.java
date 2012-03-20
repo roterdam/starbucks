@@ -7,13 +7,9 @@ import java.util.List;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidCalloutNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
-import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
-<<<<<<< HEAD
-import edu.mit.compilers.codegen.nodes.MidMethodNode;
-import edu.mit.compilers.codegen.nodes.MidPrintAndExitNode;
-=======
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
->>>>>>> bb87360822ff9597162c1034494cf7f8b97a299f
+import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+import edu.mit.compilers.codegen.nodes.MidPrintAndExitNode;
 import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
@@ -77,8 +73,8 @@ import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
 
-	public static final String OUT_OF_BOUNDS_METHOD_NAME = "outOfBounds";
-	public static final String DIVIDE_BY_ZERO_NAME = "divideByZero";
+	public static final String OUT_OF_BOUNDS_METHOD_NAME = "starbucks_outOfBounds";
+	public static final String DIVIDE_BY_ZERO_NAME = "starbucks_divideByZero";
 	public static final String OUT_OF_BOUNDS_ERROR = "*** RUNTIME ERROR ***: Array out of bounds access in method.\\n";
 	public static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method.\\n";
 
@@ -145,8 +141,8 @@ public class MidVisitor {
 			out.addAll(paramList);
 		}
 
-		MidMethodCallNode methodNode = new MidMethodCallNode(symbolTable.getMethod(node
-				.getMethodName()), paramMemoryNodes);
+		MidMethodCallNode methodNode = new MidMethodCallNode(
+				symbolTable.getMethod(node.getMethodName()), paramMemoryNodes);
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 		out.add(methodNode);
 		out.add(tempDeclNode);
@@ -192,10 +188,14 @@ public class MidVisitor {
 		MidLabelNode skipErrorEnd = MidLabelManager.getLabel(LabelType.SKIP);
 		MidJumpNode skipErrorNode = new MidJumpNode(skipErrorEnd);
 
+		MidMemoryNode paramDeclNode = symbolTable.getCurrentMethodNameNode();
 		List<MidMemoryNode> divideByZeroParams = new ArrayList<MidMemoryNode>();
-		divideByZeroParams.add(symbolTable.getMethodNameNode());
-		MidMethodNode divideByZeroCall = new MidMethodNode(
-				symbolTable.getMethod(DIVIDE_BY_ZERO_NAME), divideByZeroParams);
+		divideByZeroParams.add(paramDeclNode);
+		MidMethodCallNode divideByZeroCall = new MidMethodCallNode(
+				symbolTable.getStarbucksMethod(DIVIDE_BY_ZERO_NAME),
+				divideByZeroParams);
+		// Set any old register.
+		divideByZeroCall.setRegister(Reg.RAX);
 
 		MidNodeList instrList = new MidNodeList();
 
@@ -208,6 +208,7 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
+		instrList.add(paramDeclNode);
 		instrList.add(divideByZeroCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
@@ -242,11 +243,14 @@ public class MidVisitor {
 		MidLabelNode skipErrorEnd = MidLabelManager.getLabel(LabelType.SKIP);
 		MidJumpNode skipErrorNode = new MidJumpNode(skipErrorEnd);
 
+		MidMemoryNode paramDeclNode = symbolTable.getCurrentMethodNameNode();
 		List<MidMemoryNode> outOfBoundsParams = new ArrayList<MidMemoryNode>();
-		outOfBoundsParams.add(symbolTable.getMethodNameNode());
-		MidMethodNode outOfBoundsCall = new MidMethodNode(
-				symbolTable.getMethod(OUT_OF_BOUNDS_METHOD_NAME),
+		outOfBoundsParams.add(paramDeclNode);
+		MidMethodCallNode outOfBoundsCall = new MidMethodCallNode(
+				symbolTable.getStarbucksMethod(OUT_OF_BOUNDS_METHOD_NAME),
 				outOfBoundsParams);
+		// Set any old register.
+		outOfBoundsCall.setRegister(Reg.RAX);
 
 		MidNodeList instrList = new MidNodeList();
 
@@ -265,6 +269,7 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
+		instrList.add(paramDeclNode);
 		instrList.add(outOfBoundsCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
@@ -553,6 +558,16 @@ public class MidVisitor {
 	}
 
 	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable,
+			boolean needsNewScope, String methodName) {
+		MidSymbolTable blockSymbolTable = new MidSymbolTable(symbolTable);
+		blockSymbolTable.setCurrentMethodNameNode(AsmVisitor
+				.addStringLiteral(methodName));
+		// Calls the rest of the code, but doesn't require creating a new scope
+		// since we did it here.
+		return visit(node, blockSymbolTable, false);
+	}
+
+	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable,
 			boolean needsNewScope) {
 		MidNodeList outputList = new MidNodeList();
 		// New symbol table for the new method scope.
@@ -784,7 +799,8 @@ public class MidVisitor {
 	public static void visitMethodDecl(MidMethodDeclNode node, BLOCKNode block,
 			MidSymbolTable symbolTable) {
 
-		MidNodeList outputList = block.convertToMidLevel(symbolTable);
+		MidNodeList outputList = block.convertToMidLevel(symbolTable, node
+				.getName());
 		if (!(outputList.getTail() instanceof MidReturnNode)) {
 			outputList.add(new MidReturnNode(null));
 		}
@@ -803,24 +819,25 @@ public class MidVisitor {
 		MidMethodDeclNode outOfBoundsMethodDecl = new MidMethodDeclNode(
 				OUT_OF_BOUNDS_METHOD_NAME, VarType.VOID);
 		symbolTable
-				.addMethod(outOfBoundsMethodDecl.getName(), outOfBoundsMethodDecl);
+				.addStarbucksMethod(outOfBoundsMethodDecl.getName(), outOfBoundsMethodDecl);
 		outOfBoundsMethodDecl.setNodeList(generateOutOfBoundsMethod());
 
 		MidMethodDeclNode divideByZeroMethodDecl = new MidMethodDeclNode(
 				DIVIDE_BY_ZERO_NAME, VarType.VOID);
 		symbolTable
-				.addMethod(divideByZeroMethodDecl.getName(), divideByZeroMethodDecl);
+				.addStarbucksMethod(divideByZeroMethodDecl.getName(), divideByZeroMethodDecl);
 		divideByZeroMethodDecl.setNodeList(generateDivideByZeroMethod());
 
 		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
 			String originalMethodName = methodNode.getId();
-			String sanitizedMethodName = MidMethodNameManager.sanitizeUserDefinedMethodName(originalMethodName);
-			
-			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(sanitizedMethodName, methodNode.getReturnType());
+			String sanitizedMethodName = MidMethodNameManager
+					.sanitizeUserDefinedMethodName(originalMethodName);
+
+			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(
+					sanitizedMethodName, methodNode.getReturnType());
 			// Map original name
 			symbolTable.addMethod(originalMethodName, midMethodNode);
-			visitMethodDecl(midMethodNode, methodNode.getBlockNode(),
-					symbolTable);
+			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
 		}
 
 		return symbolTable;
@@ -833,13 +850,16 @@ public class MidVisitor {
 	private static MidNodeList generateDivideByZeroMethod() {
 		return generateHelper(DIVIDE_BY_ZERO_ERROR);
 	}
-		
+
 	private static MidNodeList generateHelper(String errorText) {
 		MidNodeList instrList = new MidNodeList();
-		// Name isn't really necessary, avoiding declaring unnecessary constants.
+		// Name isn't really necessary, avoiding declaring unnecessary
+		// constants.
 		MidParamDeclNode methodParam = new MidParamDeclNode("", 0);
-		MidMemoryNode errorStringLocation = AsmVisitor.addStringLiteral(errorText);
-		MidPrintAndExitNode printNode = new MidPrintAndExitNode(errorStringLocation, methodParam);
+		MidMemoryNode errorStringLocation = AsmVisitor
+				.addStringLiteral(errorText);
+		MidPrintAndExitNode printNode = new MidPrintAndExitNode(
+				errorStringLocation, methodParam);
 		instrList.add(methodParam);
 		instrList.add(printNode);
 		return instrList;

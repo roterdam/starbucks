@@ -50,6 +50,9 @@ public class AsmVisitor {
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
+		for (String methodName : symbolTable.getStarbucksMethods().keySet()) {
+			textSection.addAll(symbolTable.getStarbucksMethod(methodName).toASM());
+		}
 
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
