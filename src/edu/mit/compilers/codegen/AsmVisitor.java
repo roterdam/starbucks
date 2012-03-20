@@ -15,6 +15,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.crawler.SemanticRules;
 
 public class AsmVisitor {
 	public static String PRINTF = "printf";
@@ -23,6 +24,7 @@ public class AsmVisitor {
 	// Static variable because Strings have to be added to it from within other
 	// code.
 	private static List<ASM> dataSection = createDataSection();
+	private static List<ASM> readOnlySection = createReadOnlySection();
 	private static Set<String> externCalls = new HashSet<String>();
 
 	private AsmVisitor(MidSymbolTable symbolTable) {
@@ -50,6 +52,7 @@ public class AsmVisitor {
 		}
 
 		asm.addAll(dataSection);
+		asm.addAll(readOnlySection);
 		asm.addAll(textSection);
 
 		StringBuilder out = new StringBuilder();
@@ -63,9 +66,6 @@ public class AsmVisitor {
 		return out.toString();
 	}
 
-	public void addToDataSection(ASM asm) {
-		dataSection.add(asm);
-	}
 
 	public static List<ASM> exitCall(int exitCode) {
 		List<ASM> out = new ArrayList<ASM>();
@@ -82,10 +82,16 @@ public class AsmVisitor {
 		return out;
 	}
 
+	private static List<ASM> createReadOnlySection() {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new SectionASM("rodata"));
+		return out;
+	}
+	
 	private static List<ASM> createTextSection() {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new SectionASM("text"));
-		out.add(new OpASM(OpCode.GLOBAL, "main"));
+		out.add(new OpASM(OpCode.GLOBAL, SemanticRules.MAIN));
 		return out;
 	}
 
@@ -106,9 +112,9 @@ public class AsmVisitor {
 	 */
 	public static MidStringDeclNode addStringLiteral(String text) {
 		String labelText = labelSafeString(text);
-		dataSection.add(new LabelASM("", labelText));
+		readOnlySection.add(new LabelASM("", labelText));
 		String outputString = String.format("`%s`,0", text);
-		dataSection.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
+		readOnlySection.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
 
 		MidStringDeclNode out = new MidStringDeclNode(labelText);
 		out.setRawLocationReference(labelText);
