@@ -1,9 +1,9 @@
+Testing Field Decl initial value:
 Should print:
 0 0 0 0 0 0 0 0
 Prints:
 0 0 0 0 0 0 0 0
 Should print:
- 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 Prints: 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-
