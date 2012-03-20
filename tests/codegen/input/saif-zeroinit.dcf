@@ -3,10 +3,10 @@ class Program{
    void main(){
       int a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z;
 
-      callout("printf", "Testing Field Decl initial value: \nShould print:\n0 0 0 0 0 0 0 0\nPrints:\n");
+      callout("printf", "Testing Field Decl initial value:\nShould print:\n0 0 0 0 0 0 0 0\nPrints:\n");
       callout("printf", "%d %d %d %d %d %d %d %d\n",A,B,C,D,E,F,G,H);
 
-      callout("printf", "Should print:\n ");
+      callout("printf", "Should print:\n");
       callout("printf", "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n");
       callout("printf", "Prints: \n");
       callout("printf", "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z);
