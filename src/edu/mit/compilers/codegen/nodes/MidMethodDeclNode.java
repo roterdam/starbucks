@@ -12,18 +12,25 @@ import edu.mit.compilers.crawler.VarType;
 
 public class MidMethodDeclNode extends MidNode {
 	private String name;
+	private String userDefinedName;
+	
 	private MidNodeList nodeList;
 	private VarType varType;
 	
 	// Stores the number of lines needed for the local stack.
 	private int localStackSize;
 
-	public MidMethodDeclNode(String name, VarType varType) {
+	public MidMethodDeclNode(String name, String userDefinedName, VarType varType) {
 		super();
 		this.name = name;
+		this.userDefinedName = userDefinedName;
 		this.varType = varType;
 	}
 
+	public String getUserDefinedName(){
+		return userDefinedName;
+	}
+	
 	public String getName() {
 		return name;
 	}

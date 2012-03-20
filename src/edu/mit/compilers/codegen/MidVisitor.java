@@ -73,10 +73,10 @@ import edu.mit.compilers.grammar.tokens.WHILENode;
 
 public class MidVisitor {
 
-	public static final String OUT_OF_BOUNDS_METHOD_NAME = "starbucks_outOfBounds";
-	public static final String DIVIDE_BY_ZERO_NAME = "starbucks_divideByZero";
+	public static final String OUT_OF_BOUNDS_METHOD_NAME = "outOfBounds";
+	public static final String DIVIDE_BY_ZERO_NAME = "divideByZero";
 	public static final String OUT_OF_BOUNDS_ERROR = "*** RUNTIME ERROR ***: Array out of Bounds access in method \"%s\"\\n";
-	public static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method\\n";
+	public static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method \"%s\"\\n";
 
 	public static MidNodeList visit(DecafNode node, MidSymbolTable symbolTable) {
 		assert false : "Implement convertToMidLevel in " + node.getClass();
@@ -800,7 +800,7 @@ public class MidVisitor {
 			MidSymbolTable symbolTable) {
 
 		MidNodeList outputList = block.convertToMidLevel(symbolTable, node
-				.getName());
+				.getUserDefinedName());
 		if (!(outputList.getTail() instanceof MidReturnNode)) {
 			outputList.add(new MidReturnNode(null));
 		}
@@ -816,16 +816,19 @@ public class MidVisitor {
 		}
 
 		// Manually add in methods to handle DBZ and OOB.
+		String sanitizedOutOfBounds = MidMethodNameManager.sanitizeCustomMethodName(OUT_OF_BOUNDS_METHOD_NAME);
 		MidMethodDeclNode outOfBoundsMethodDecl = new MidMethodDeclNode(
-				OUT_OF_BOUNDS_METHOD_NAME, VarType.VOID);
+				sanitizedOutOfBounds, OUT_OF_BOUNDS_METHOD_NAME, VarType.VOID);
 		symbolTable
-				.addStarbucksMethod(outOfBoundsMethodDecl.getName(), outOfBoundsMethodDecl);
+				.addStarbucksMethod(OUT_OF_BOUNDS_METHOD_NAME, outOfBoundsMethodDecl);
 		outOfBoundsMethodDecl.setNodeList(generateOutOfBoundsMethod());
 
+		String sanitizedDivideByZero = MidMethodNameManager.sanitizeCustomMethodName(DIVIDE_BY_ZERO_NAME);
+		
 		MidMethodDeclNode divideByZeroMethodDecl = new MidMethodDeclNode(
-				DIVIDE_BY_ZERO_NAME, VarType.VOID);
+				sanitizedDivideByZero, DIVIDE_BY_ZERO_NAME, VarType.VOID);
 		symbolTable
-				.addStarbucksMethod(divideByZeroMethodDecl.getName(), divideByZeroMethodDecl);
+				.addStarbucksMethod(DIVIDE_BY_ZERO_NAME, divideByZeroMethodDecl);
 		divideByZeroMethodDecl.setNodeList(generateDivideByZeroMethod());
 
 		for (METHOD_DECLNode methodNode : node.getMethodNodes()) {
@@ -834,7 +837,7 @@ public class MidVisitor {
 					.sanitizeUserDefinedMethodName(originalMethodName);
 
 			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(
-					sanitizedMethodName, methodNode.getReturnType());
+					sanitizedMethodName, originalMethodName, methodNode.getReturnType());
 			// Map original name
 			symbolTable.addMethod(originalMethodName, midMethodNode);
 			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
