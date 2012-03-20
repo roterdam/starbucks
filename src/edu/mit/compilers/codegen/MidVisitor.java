@@ -291,7 +291,7 @@ public class MidVisitor {
 
 			MidNodeList errorList = new MidNodeList();
 			// FIXME: .class? eh.
-			if (c == MidDivideNode.class) {
+			if (c == MidDivideNode.class || c == MidModNode.class) {
 				errorList
 						.addAll(checkDivideByZeroError(rightNode, symbolTable));
 			}

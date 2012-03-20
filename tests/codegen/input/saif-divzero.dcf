@@ -1,0 +1,10 @@
+class Program {
+    int a,b,c;
+    void hello(){
+        callout("printf","Hello, I am going to divide by 0.\n");
+        c = a/b;
+    }
+    void main(){
+        hello();
+    }
+}

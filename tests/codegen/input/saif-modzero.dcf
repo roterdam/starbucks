@@ -1,0 +1,11 @@
+class Program {
+    int a,b,c;
+    void hello(){
+        callout("printf","Hello, I am going to mod by 0.\n");
+        c = a%b;
+        callout("printf","%d%%%d = %d",a,b,c);
+    }
+    void main(){
+        hello();
+    }
+}
