@@ -52,6 +52,10 @@ public class BLOCKNode extends DecafNode {
 		super.validate(scope);
 		scope = scope.getParent();
 	}
+
+	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable, String methodName) {
+		return MidVisitor.visit(this, symbolTable, true, methodName);
+	}
 	
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {

@@ -8,24 +8,22 @@ import java.util.Set;
 
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
-import edu.mit.compilers.codegen.asm.LabeledOpASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
-import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class AsmVisitor {
-	private static int interruptCounter = 0;
-
 	private static String SYS_EXIT_CODE = "1";
 	private static String SYS_INTERRUPT_CODE = "0x80";
+	public static String PRINTF = "printf";
 
-	static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method.\\n";
-	static final String OUT_OF_BOUNDS_ERROR = "*** RUNTIME ERROR ***: Array out of bounds access in method.\\n";
+	// The register that is used to store the method name before jumping to an
+	// interrupt.
+	public static final Reg METHOD_NAME_POINTER_REG = Reg.RDI;
 
 	// Static variable because Strings have to be added to it from within other
 	// code.
@@ -52,15 +50,12 @@ public class AsmVisitor {
 		for (String methodName : symbolTable.getMethods().keySet()) {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
-
-		// Error handler
-		List<ASM> divZero = addInterrupt(MidLabelManager.getDivideByZeroLabel(), DIVIDE_BY_ZERO_ERROR);
-		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), OUT_OF_BOUNDS_ERROR);
+		for (String methodName : symbolTable.getStarbucksMethods().keySet()) {
+			textSection.addAll(symbolTable.getStarbucksMethod(methodName).toASM());
+		}
 
 		asm.addAll(dataSection);
 		asm.addAll(textSection);
-		asm.addAll(divZero);
-		asm.addAll(indexBounds);
 
 		StringBuilder out = new StringBuilder();
 		for (String extern : externCalls) {
@@ -77,32 +72,7 @@ public class AsmVisitor {
 		dataSection.add(asm);
 	}
 
-	/**
-	 * Appends helper text to end of assembly for error handling.
-	 */
-	private static List<ASM> addInterrupt(MidLabelNode labelNode, String msg) {
-		interruptCounter++;
-
-		List<ASM> out = new ArrayList<ASM>();
-
-		String msgLabel = "msg" + interruptCounter;
-		String lenLabel = "len" + interruptCounter;
-		// Add string to header.
-		String outputMessage = String.format("`%s`,0", msg);
-		dataSection.add(new LabeledOpASM(msgLabel, OpCode.DB, outputMessage));
-		dataSection.add(new LabeledOpASM(lenLabel, OpCode.EQU, String
-				.format("$-%s", msgLabel)));
-		out.addAll(labelNode.toASM());
-		out.add(new OpASM(OpCode.MOV, Reg.RDX.name(), lenLabel));
-		out.add(new OpASM(OpCode.MOV, Reg.RCX.name(), msgLabel));
-		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), "1"));
-		out.add(new OpASM(OpCode.MOV, Reg.RAX.name(), "4"));
-		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
-		out.addAll(exitCall(0));
-		return out;
-	}
-
-	private static List<ASM> exitCall(int exitCode) {
+	public static List<ASM> exitCall(int exitCode) {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new OpASM(String.format("Exit interrupt %d", exitCode),
 				OpCode.MOV, Reg.RAX.name(), SYS_EXIT_CODE));
