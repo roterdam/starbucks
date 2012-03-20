@@ -50,7 +50,6 @@ import edu.mit.compilers.grammar.tokens.CHAR_LITERALNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.CONTINUENode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
-import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
 import edu.mit.compilers.grammar.tokens.FOR_INITIALIZENode;
@@ -68,7 +67,6 @@ import edu.mit.compilers.grammar.tokens.PLUS_ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.RETURNNode;
 import edu.mit.compilers.grammar.tokens.STRING_LITERALNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
-import edu.mit.compilers.grammar.tokens.TRUENode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
 
@@ -99,9 +97,14 @@ public class MidVisitor {
 						.addStringLiteral(stripQuotes(n.getText()));
 				paramNodes.add(stringDeclNode);
 			} else if (n instanceof ExpressionNode) {
+				/*
 				MidNodeList expList = n.convertToMidLevel(symbolTable);
 				out.addAll(expList);
 				paramNodes.add(expList.getSaveNode().getDestinationNode());
+				*/
+				ValuedMidNodeList expList = MidShortCircuitVisitor.valuedHelper((ExpressionNode)n, symbolTable);
+				out.addAll(expList.getList());
+				paramNodes.add(expList.getReturnNode());
 			} else {
 				assert false : "STRING_LITERALNode or ExpressionNode expected, found: "
 						+ n.getClass();
@@ -137,9 +140,11 @@ public class MidVisitor {
 		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
 
 		for (ExpressionNode paramRoot : node.getParamNodes()) {
-			MidNodeList paramList = paramRoot.convertToMidLevel(symbolTable);
-			paramMemoryNodes.add(paramList.getSaveNode().getDestinationNode());
-			out.addAll(paramList);
+			//MidNodeList paramList = paramRoot.convertToMidLevel(symbolTable);
+			ValuedMidNodeList valuedParamInstrList = MidShortCircuitVisitor.valuedHelper(paramRoot, symbolTable);
+			paramMemoryNodes.add(valuedParamInstrList.getReturnNode());
+			out.addAll(valuedParamInstrList.getList());
+			//out.addAll(paramList);
 		}
 
 		MidMethodCallNode methodNode = new MidMethodCallNode(
@@ -276,6 +281,10 @@ public class MidVisitor {
 		return instrList;
 	}
 
+	// Should be DoubleOperandNodes that do not operate on booleans.
+	// Happens to be enforced by overloading for the ones that do
+	// operate on booleans.
+	
 	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node,
 			MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c) {
 
@@ -352,7 +361,8 @@ public class MidVisitor {
 	public static MidNodeList visit(MODNode node, MidSymbolTable symbolTable) {
 		return visitBinaryOpHelper(node, symbolTable, MidModNode.class);
 	}
-
+	
+	// Only applies to -
 	public static MidNodeList visitUnaryOpHelper(SingleOperandNode node,
 			MidSymbolTable symbolTable, Class<? extends MidUnaryRegNode> c) {
 
@@ -497,6 +507,8 @@ public class MidVisitor {
 		return out;
 	}
 	
+	/*
+	
 	public static MidNodeList visit(TRUENode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
 		MidTempDeclNode dest = new MidTempDeclNode();
@@ -512,7 +524,7 @@ public class MidVisitor {
 		out.add(new MidSaveNode(false, dest));
 		return out;
 	}
-
+	*/
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
 

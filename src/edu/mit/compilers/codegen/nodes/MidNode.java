@@ -8,7 +8,6 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-// TODO: make abstract
 public abstract class MidNode {
 	MidNode nextNode;
 

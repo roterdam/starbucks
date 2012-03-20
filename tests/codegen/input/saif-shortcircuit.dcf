@@ -1,0 +1,95 @@
+class Program {
+    void s(){
+        callout("printf","success\n");
+    }
+    void f(){
+        callout("printf","failure\n");
+    }
+    void tell(boolean a, boolean b, int i){
+        if(a == b){
+            callout("printf","success %d\n", i);
+        }else{
+            callout("printf","failure %d\n", i);
+        }
+    }
+    boolean donteval(boolean x){
+        f();
+        return x;
+    }
+    boolean doeval(boolean x){
+       s();
+       return x;
+    }
+    void main(){
+        int i;
+        boolean b;
+        // Short-circuits can appear in IF, WHILE, and assignments.
+
+        // Callouts can take booleans
+        // Method calls can too.
+        callout("printf","true is 1? %d\n", 1==1);
+        callout("printf","false is 0? %d\n", false);
+ 
+        //IF
+        if(doeval(true) && doeval(1==1) || donteval(false)){
+            s();
+        }else{
+            f();
+        }
+
+        if(doeval(false) || doeval(!false) && doeval(1==2) || (true && doeval(false))){
+            f();
+        }else{
+            s();
+        }
+           
+        if(doeval(true) || donteval(false)){
+            s();
+        }else{
+            f();
+        }
+
+        // WHILE
+        i = 2;
+        while(i%2==0||i%3==0||i%5==0||i%7==0||i%11==0||i%13==0){
+            i+=1;
+        }
+        callout("printf","%d is divisble by a new prime > 13 (17?)\n",i);
+        
+        b = 2-3*4 == -10;
+        callout("printf","b is (1?): %d\n", b);
+        
+        
+        // Simple tests
+        tell(1<=2,true,1);
+        tell(1<=1,true,2);
+        tell(1<=0,false,3);
+        tell(1<2,true,4);
+        tell(1<1,false,5);
+        tell(1<0,false,6);
+        tell(1>=2,false,7);
+        tell(1>=1,true,8);
+        tell(1>=0,true,9);
+        tell(1>2,false,10);
+        tell(1>1,false,11);
+        tell(1>0,true,12);
+        tell(1==1,true,13);
+        tell(1!=1,false,14);
+        tell(1!=0,true,15);
+        tell(1==0,false,16);
+        tell(true==true,true,17);
+        tell(true!=true,false,18);
+        tell(false==false,true,19);
+        tell(false!=false,false,20);
+        tell(!true,false,21);
+        tell(!false,true,22);
+        tell(true&&false,false,23);
+        tell(true&&true,true,24);
+        tell(false&&false,false,25);
+        tell(false&&true,false,26);
+        tell(true||false,true,27);
+        tell(true||true,true,28);
+        tell(false||false,false,29);
+        tell(false||true,true,30);
+    }
+}
