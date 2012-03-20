@@ -208,7 +208,7 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
-		instrList.add(paramDeclNode);
+//		instrList.add(paramDeclNode);
 		instrList.add(divideByZeroCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
@@ -269,7 +269,7 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
-		instrList.add(paramDeclNode);
+//		instrList.add(paramDeclNode);
 		instrList.add(outOfBoundsCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
