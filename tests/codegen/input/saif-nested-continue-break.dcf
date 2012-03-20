@@ -1,0 +1,40 @@
+// Standard Creepiness Rule
+// Poorly implemented to test nested continue/break.
+// so don't judge me bro.
+
+class Program {
+    void main(){
+        int age,me;
+        me = 20;
+        while(true){
+            boolean creepy;
+            age+=1;
+            callout("printf","Hi, I am %d years old. ",age);
+
+            if(age < 7){
+                callout("printf"," > You\'re too young for a relationship. Come back later.\n");
+                continue;
+            }
+            if(age > 30){
+                callout("printf"," > Too old. I think we\'re done here. Bye.");
+                break;
+            }
+
+            creepy = true;
+            for(j=age/2+7;(age-7)*2){
+                if(j == me){
+                    creepy = false;
+                    break;
+                }
+                creepy = true;
+            }
+
+            if(!creepy){
+                callout("printf"," > This is a mutually non-creepy arrangement :)\n");
+            }else{
+                callout("printf"," > This is creepy for at least one of us. Sorry!\n");
+            }
+
+        }
+    }
+}

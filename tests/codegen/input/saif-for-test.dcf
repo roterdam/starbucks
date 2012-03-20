@@ -1,0 +1,11 @@
+class Program {
+    void main(){
+        int j;
+        j = 0;
+        for(i=1;101){
+           callout("printf", "Triangle #%d: %d\n", j+1, i);
+           j+=1;
+           i+=j;
+         }
+     }
+}
