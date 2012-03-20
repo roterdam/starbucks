@@ -17,9 +17,8 @@ import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class AsmVisitor {
-	private static String SYS_EXIT_CODE = "1";
-	private static String SYS_INTERRUPT_CODE = "0x80";
 	public static String PRINTF = "printf";
+	public static String EXIT = "exit";
 
 	// The register that is used to store the method name before jumping to an
 	// interrupt.
@@ -74,11 +73,10 @@ public class AsmVisitor {
 
 	public static List<ASM> exitCall(int exitCode) {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(String.format("Exit interrupt %d", exitCode),
-				OpCode.MOV, Reg.RAX.name(), SYS_EXIT_CODE));
-		out.add(new OpASM(OpCode.MOV, Reg.RBX.name(), Integer
-				.toString(exitCode)));
-		out.add(new OpASM(OpCode.INT, SYS_INTERRUPT_CODE));
+		out.add(new OpASM(String.format("Exit interrupt %d", exitCode), OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
+		out.add(new OpASM(OpCode.XOR, Reg.RDI.name(), Reg.RDI.name()));
+		externCalls.add(EXIT);
+		out.add(new OpASM(OpCode.CALL, EXIT));
 		return out;
 	}
 
