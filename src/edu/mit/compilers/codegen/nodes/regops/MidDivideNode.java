@@ -18,11 +18,9 @@ public class MidDivideNode extends MidBinaryRegNode {
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 		// a/b -> a is dividend, b is divisor (i always forget :[)
-		String RDX = Reg.RDX.name();
 		String RAX = Reg.RAX.name();
-		String RCX = Reg.RCX.name();
 		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand().getRegister().name()));
-		out.add(new OpASM(toString(), OpCode.XOR, RDX, RDX));
+		out.add(new OpASM(toString(), OpCode.CQO));
 		out.add(new OpASM(toString(), OpCode.IDIV, this.getRightOperand().getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(), RAX));
 		return out;

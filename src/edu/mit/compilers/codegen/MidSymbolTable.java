@@ -12,9 +12,11 @@ public class MidSymbolTable {
 
 	private Map<String, MidMemoryNode> localVars;
 	private Map<String, MidMethodDeclNode> methods;
+	private Map<String, MidMethodDeclNode> starbucksMethods;
 	private MidSymbolTable parent;
 	private MidLabelNode continueLabel;
 	private MidLabelNode breakLabel;
+	private MidMemoryNode currentMethodNameNode = null;
 
 	public MidSymbolTable() {
 		this(null, null, null);
@@ -24,6 +26,22 @@ public class MidSymbolTable {
 		this(p, null, null);
 	}
 
+	public MidSymbolTable(MidSymbolTable p, MidMemoryNode methodNameNode) {
+		this(p, null, null);
+		this.currentMethodNameNode = methodNameNode;
+	}
+
+	public void setCurrentMethodNameNode(MidMemoryNode methodNameNode) {
+		this.currentMethodNameNode = methodNameNode;
+	}
+
+	public MidMemoryNode getCurrentMethodNameNode() {
+		if (currentMethodNameNode == null) {
+			return parent.getCurrentMethodNameNode();
+		}
+		return currentMethodNameNode;
+	}
+
 	// Breakable.
 	public MidSymbolTable(MidSymbolTable p, MidLabelNode continueLabel,
 			MidLabelNode breakLabel) {
@@ -31,12 +49,18 @@ public class MidSymbolTable {
 		this.continueLabel = continueLabel;
 		this.breakLabel = breakLabel;
 		this.localVars = new HashMap<String, MidMemoryNode>();
-		this.methods = parent == null ? new HashMap<String, MidMethodDeclNode>()
+		this.methods = (parent == null) ? new HashMap<String, MidMethodDeclNode>()
 				: parent.getMethods();
+		this.starbucksMethods = (parent == null) ? new HashMap<String, MidMethodDeclNode>()
+				: parent.getStarbucksMethods();
 	}
 
 	public Map<String, MidMethodDeclNode> getMethods() {
 		return methods;
+	}
+
+	public Map<String, MidMethodDeclNode> getStarbucksMethods() {
+		return starbucksMethods;
 	}
 
 	public MidLabelNode getBreakLabel() {
@@ -84,7 +108,7 @@ public class MidSymbolTable {
 	public Map<String, MidMemoryNode> getLocalVars() {
 		return localVars;
 	}
-	
+
 	public MidMethodDeclNode getMethod(String method) {
 		assert getMethods().containsKey(method);
 		return getMethods().get(method);
@@ -166,5 +190,20 @@ public class MidSymbolTable {
 			out.append("}");
 		}
 		return out.toString();
+	}
+
+	/**
+	 * Differentiate between "Starbucks" compiler-specific methods and
+	 * user-defined methods.
+	 * 
+	 * @param name
+	 * @param methodDecl
+	 */
+	public void addStarbucksMethod(String name, MidMethodDeclNode methodDecl) {
+		starbucksMethods.put(name, methodDecl);
+	}
+
+	public MidMethodDeclNode getStarbucksMethod(String methodName) {
+		return starbucksMethods.get(methodName);
 	}
 }

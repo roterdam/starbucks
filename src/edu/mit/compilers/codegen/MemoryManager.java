@@ -54,39 +54,47 @@ public class MemoryManager {
 		Map<String, MidMethodDeclNode> methods = codeRoot.getMethods();
 		for (String methodName : methods.keySet()) {
 			LogCenter.debug("METHOD: " + methodName);
-			deallocAllRegisters();
-			MidMethodDeclNode methodDeclNode = methods.get(methodName);
-			// Reset the localStackSize.
-			localStackSize = 0;
-			for (MidNode m : methodDeclNode.getNodeList()) {
-				LogCenter.debug("  MemMan: " + m.toString());
-				if (m instanceof MidLocalMemoryNode) {
-					localStackSize += ADDRESS_SIZE;
-					((MidMemoryNode) m).setRawLocationReference(Integer
-							.toString(localStackSize));
-				} else if (m instanceof RegisterOpNode) {
-					// We dealloc before alloc in order to allow a register node
-					// to save to itself.
-					for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
-						assert r != null : m+"("+m.getClass()+") is missing registers";
-						deallocTempRegister(r);
-					}
-					if (m instanceof MidRegisterNode
-							&& !((MidRegisterNode) m).hasRegister()) {
-						((MidRegisterNode) m).setRegister(allocTempRegister());
-					}
-				} else if (m instanceof MidSaveNode) {
-					if (((MidSaveNode) m).savesRegister()) {
-						deallocTempRegister(((MidSaveNode) m).getRefNode()
-								.getRegister());
-					}
-					if (((MidSaveNode) m).savesToArray()) {
-						deallocTempRegister(((MidSaveNode) m).getArrayRegister());
-					}
+			processMethod(methods.get(methodName));
+		}
+		Map<String, MidMethodDeclNode> starbucksMethods = codeRoot.getStarbucksMethods();
+		for (String methodName : starbucksMethods.keySet()) {
+			LogCenter.debug("STARBUCKS_METHOD: " + methodName);
+			processMethod(starbucksMethods.get(methodName));
+		}
+	}
+	
+	private static void processMethod(MidMethodDeclNode methodDeclNode) {
+		deallocAllRegisters();
+		// Reset the localStackSize.
+		localStackSize = 0;
+		for (MidNode m : methodDeclNode.getNodeList()) {
+			LogCenter.debug("  MemMan: " + m.toString());
+			if (m instanceof MidLocalMemoryNode) {
+				localStackSize += ADDRESS_SIZE;
+				((MidMemoryNode) m).setRawLocationReference(Integer
+						.toString(localStackSize));
+			} else if (m instanceof RegisterOpNode) {
+				// We dealloc before alloc in order to allow a register node
+				// to save to itself.
+				for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
+					assert r != null : m+"("+m.getClass()+") is missing registers";
+					deallocTempRegister(r);
+				}
+				if (m instanceof MidRegisterNode
+						&& !((MidRegisterNode) m).hasRegister()) {
+					((MidRegisterNode) m).setRegister(allocTempRegister());
+				}
+			} else if (m instanceof MidSaveNode) {
+				if (((MidSaveNode) m).savesRegister()) {
+					deallocTempRegister(((MidSaveNode) m).getRefNode()
+							.getRegister());
+				}
+				if (((MidSaveNode) m).savesToArray()) {
+					deallocTempRegister(((MidSaveNode) m).getArrayRegister());
 				}
 			}
-			methodDeclNode.setLocalStackSize(localStackSize);
 		}
+		methodDeclNode.setLocalStackSize(localStackSize);
 	}
 
 	public static Reg allocTempRegister() {
