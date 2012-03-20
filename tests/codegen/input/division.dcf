@@ -1,0 +1,33 @@
+class Program {
+    void main() {
+        int a, b, c, d, e, f, g, h, i, j, k, l, m, n;
+        a = 500 / 5;
+        b = 20 / 9 % 5;
+        c = 20 / 9 % -5;
+        d = -20 / -5;
+        e = 100 % 1;
+        f = 100 % 200;
+        g = -500 / 5;
+        h = -500 / 5 / 5;
+        i = 500 / 5 / 10;
+        j = 500 / -5;
+        k = 9 % 5;
+        l = 5 % -9 % -28 % 2;
+        m = 5 % -9;
+        n = 1000 % 3;
+        callout("printf", "%ld\n", a);
+        callout("printf", "%ld\n", b);
+        callout("printf", "%ld\n", c);
+        callout("printf", "%ld\n", d);
+        callout("printf", "%ld\n", e);
+        callout("printf", "%ld\n", f);
+        callout("printf", "%ld\n", g);
+        callout("printf", "%ld\n", h);
+        callout("printf", "%ld\n", i);
+        callout("printf", "%ld\n", j);
+        callout("printf", "%ld\n", k);
+        callout("printf", "%ld\n", l);
+        callout("printf", "%ld\n", m);
+        callout("printf", "%ld\n", n);
+    }
+}
