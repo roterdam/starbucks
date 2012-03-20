@@ -75,8 +75,8 @@ public class MidVisitor {
 
 	public static final String OUT_OF_BOUNDS_METHOD_NAME = "starbucks_outOfBounds";
 	public static final String DIVIDE_BY_ZERO_NAME = "starbucks_divideByZero";
-	public static final String OUT_OF_BOUNDS_ERROR = "*** RUNTIME ERROR ***: Array out of Bounds access in method \"%s\".\\n";
-	public static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method.\\n";
+	public static final String OUT_OF_BOUNDS_ERROR = "*** RUNTIME ERROR ***: Array out of Bounds access in method \"%s\"\\n";
+	public static final String DIVIDE_BY_ZERO_ERROR = "*** RUNTIME ERROR ***: Divide by zero in method\\n";
 
 	public static MidNodeList visit(DecafNode node, MidSymbolTable symbolTable) {
 		assert false : "Implement convertToMidLevel in " + node.getClass();
