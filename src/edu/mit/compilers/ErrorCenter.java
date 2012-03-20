@@ -52,7 +52,11 @@ public class ErrorCenter {
 			// If both line and col are 0, treat it as a "global" error with no
 			// real context.
 			if (line == 0 && col == 0) {
-				System.out.println("Error in " + filename + ":" + message);
+				if(!filename.equals("")){
+					System.out.println("Error in " + filename + ":" + message);
+				}else{
+					System.out.println(message);
+				}
 				return;
 			}
 			System.out.println("Error at " + filename + ":" + line + "," + col

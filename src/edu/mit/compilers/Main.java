@@ -131,10 +131,10 @@ class Main {
 				}
 			}
 		} catch (Exception e) {
-			ErrorCenter.reportError(0, 0, "Unrecoverable error.");
+			ErrorCenter.reportError(0, 0, "Unrecoverable error: "+e.getMessage());
 			// print the error:
-			System.out.println(CLI.infile);
-			e.printStackTrace();
+			//System.out.println(CLI.infile);
+			//e.printStackTrace();
 			System.exit(1);
 		}
 	}
