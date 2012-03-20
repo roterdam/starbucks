@@ -20,10 +20,6 @@ public class AsmVisitor {
 	public static String PRINTF = "printf";
 	public static String EXIT = "exit";
 
-	// The register that is used to store the method name before jumping to an
-	// interrupt.
-	public static final Reg METHOD_NAME_POINTER_REG = Reg.RDI;
-
 	// Static variable because Strings have to be added to it from within other
 	// code.
 	private static List<ASM> dataSection = createDataSection();
