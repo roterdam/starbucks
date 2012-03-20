@@ -32,7 +32,14 @@ public class CHAR_LITERALNode extends ExpressionNode {
 		case 3:
 			return chars[1];
 		case 4:
-			return chars[2];
+			switch(chars[2]){
+			case 'n':
+				return '\n';
+			case 't':
+				return '\t';
+			default:
+				return chars[2];
+			}
 		default:
 			assert false : "Character should be of the form 'x' or '\\x'.";
 			return 0;

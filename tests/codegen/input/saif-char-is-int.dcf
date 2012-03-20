@@ -1,0 +1,21 @@
+class Program {
+    void main() {
+        int a,b,c,d,e,f,g;
+        a = ' ';
+        b = '\'';
+        c = '\"';
+        d = '\t';
+        e = '\n';
+        f = '~';
+        g = '\\';
+        callout("printf","ASCII CODES!\n");
+        callout("printf","\' \' (%3d): %3d\n",32,a);
+        callout("printf","\'\\\'\'(%3d): %3d\n",39,b);
+        callout("printf","\'\\\"\'(%3d): %3d\n",34,c);
+        callout("printf","\'\\t\'(%3d): %3d\n",9,d);
+        callout("printf","\'\\n\'(%3d): %3d\n",10,e);
+        callout("printf","\'~\' (%3d): %3d\n",126,f);
+        callout("printf","\'\\\\\'(%3d): %3d\n",92,g);
+    }    
+}
+
