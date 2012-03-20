@@ -1,0 +1,15 @@
+class Program {
+    int a,b,c,d;
+    void main(){
+        a = 109;
+        b = 'm';
+        c = 0x6d;
+        d = 0b1101101;
+        callout("printf","mmmm? %d==%d==%d==%d...",a,b,c,d);
+        if(a == b && b == c && c == d){
+            callout("printf","passes the test!\n");
+        }else{
+            callout("printf","failure :(");
+        }
+    }
+}

@@ -57,6 +57,7 @@ public class METHOD_CALLNode extends ExpressionNode {
 		return MidVisitor.visit(this, symbolTable);
 	}
 	
+	@Override
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}

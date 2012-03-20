@@ -6,7 +6,7 @@ import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.tokens.IDNode;
 
 @SuppressWarnings("serial")
-public class DeclNode extends DecafNode {
+public abstract class DeclNode extends DecafNode {
 
 	public IDNode getIDNode() {
 		assert getNumberOfChildren() == 2 : toStringTree();

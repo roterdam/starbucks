@@ -16,7 +16,7 @@ public abstract class ExpressionNode extends DecafNode {
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
 	}
-
+	
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable,
 			MidLabelNode trueLabel, MidLabelNode falseLabel) {
 		return MidShortCircuitVisitor

@@ -46,6 +46,7 @@ import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.BLOCKNode;
 import edu.mit.compilers.grammar.tokens.BREAKNode;
 import edu.mit.compilers.grammar.tokens.CALLOUTNode;
+import edu.mit.compilers.grammar.tokens.CHAR_LITERALNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.CONTINUENode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
@@ -485,6 +486,17 @@ public class MidVisitor {
 		return out;
 	}
 
+	public static MidNodeList visit(CHAR_LITERALNode node,
+			MidSymbolTable symbolTable) {
+		MidNodeList out = new MidNodeList();
+		MidTempDeclNode dest = new MidTempDeclNode();
+		MidNodeList saveInstrList = MidSaveNode.storeValueInMemory(node
+				.getValue(), dest);
+		out.add(dest);
+		out.addAll(saveInstrList);
+		return out;
+	}
+	
 	public static MidNodeList visit(TRUENode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
 		MidTempDeclNode dest = new MidTempDeclNode();

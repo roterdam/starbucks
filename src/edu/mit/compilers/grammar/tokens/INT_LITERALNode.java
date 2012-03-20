@@ -15,8 +15,8 @@ import edu.mit.compilers.grammar.ExpressionNode;
 @SuppressWarnings("serial")
 public class INT_LITERALNode extends ExpressionNode {
 
-	private long value;
-	private boolean isWithinBounds;
+	protected long value;
+	protected boolean isWithinBounds;
 
 	
 	public boolean isWithinBounds() {
@@ -29,6 +29,7 @@ public class INT_LITERALNode extends ExpressionNode {
 	public long getValue() {
 		return value;
 	}
+	
 	public void initializeValue(){
 		// Strip the negative sign to figure out the base.
 		boolean isNegative = getText().startsWith("-");

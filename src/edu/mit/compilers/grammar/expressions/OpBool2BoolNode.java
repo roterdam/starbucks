@@ -6,7 +6,7 @@ import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 
 @SuppressWarnings("serial")
-public class OpBool2BoolNode extends SingleOperandNode {
+public abstract class OpBool2BoolNode extends SingleOperandNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {

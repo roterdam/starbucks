@@ -11,11 +11,6 @@ import edu.mit.compilers.grammar.expressions.OpBoolBool2BoolNode;
 public class ORNode extends OpBoolBool2BoolNode {
 
 	@Override
-	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		return MidVisitor.visit(this, symbolTable);
-	}
-
-	@Override
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}

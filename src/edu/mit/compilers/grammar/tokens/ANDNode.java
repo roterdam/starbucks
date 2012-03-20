@@ -10,11 +10,6 @@ import edu.mit.compilers.grammar.expressions.OpBoolBool2BoolNode;
 
 @SuppressWarnings("serial")
 public class ANDNode extends OpBoolBool2BoolNode {
-
-	@Override
-	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		return MidVisitor.visit(this, symbolTable);
-	}
 	
 	@Override
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){

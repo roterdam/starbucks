@@ -11,11 +11,6 @@ import edu.mit.compilers.grammar.expressions.OpBool2BoolNode;
 public class BANGNode extends OpBool2BoolNode {
 
 	@Override
-	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
-		return MidVisitor.visit(this, symbolTable);
-	}
-
-	@Override
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}

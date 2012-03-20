@@ -10,7 +10,7 @@ import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 
 @SuppressWarnings("serial")
-abstract public class DecafNode extends CommonAST {
+public abstract class DecafNode extends CommonAST {
 	private int line = 0;
 	private int column = 0;
 
