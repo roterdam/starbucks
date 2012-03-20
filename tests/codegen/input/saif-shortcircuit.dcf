@@ -57,6 +57,7 @@ class Program {
         callout("printf","%d is divisble by a new prime > 13 (17?)\n",i);
         
         b = 2-3*4 == -10;
+        b = true;
         callout("printf","b is (1?): %d\n", b);
         
         

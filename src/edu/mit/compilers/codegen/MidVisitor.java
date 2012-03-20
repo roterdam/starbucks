@@ -551,7 +551,7 @@ public class MidVisitor {
 	 * This necessity is a result of dynamic memory access using a register as a
 	 * pointer.
 	 */
-	private static ValuedMidNodeList getMemoryLocation(IDNode node,
+	public static ValuedMidNodeList getMemoryLocation(IDNode node,
 			MidSymbolTable symbolTable) {
 		MidNodeList instrList = new MidNodeList();
 		MidMemoryNode locNode;

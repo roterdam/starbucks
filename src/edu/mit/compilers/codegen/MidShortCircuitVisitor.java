@@ -251,7 +251,10 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(IDNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		MidMemoryNode declNode = symbolTable.getVar(node.getText());
+		
+		ValuedMidNodeList arrayDeclInstrList = MidVisitor.getMemoryLocation(node, symbolTable);
+		MidMemoryNode declNode = arrayDeclInstrList.getReturnNode();
+		//MidMemoryNode declNode = symbolTable.getVar(node.getText());
 		MidLoadNode loadNode = new MidLoadNode(declNode);
 		MidMemoryNode tempNode = new MidTempDeclNode();
 		MidSaveNode zeroNode = new MidSaveNode(false, tempNode);
@@ -261,7 +264,8 @@ public class MidShortCircuitVisitor {
 		MidJumpNode jumpTrueNode = new MidJumpNode(trueLabel);
 
 		MidNodeList nodeList = new MidNodeList();
-
+		
+		nodeList.addAll(arrayDeclInstrList.getList());
 		nodeList.add(loadNode);
 		nodeList.add(tempNode);
 		nodeList.add(zeroNode);

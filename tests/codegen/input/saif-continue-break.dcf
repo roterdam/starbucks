@@ -1,18 +1,18 @@
 class Program {
     void main(){
         int a,b,c,d;
-        callout("printf","Even numbers less than 32 that are not divisible by 3 or 5:\n");
+        callout("printf","Even numbers less than 26 that are not divisible by 3 or 5:\n");
         while(a < 30){
             a += 2;
+            if(a >= 26){
+                callout("printf", "I think we\'re done here.");
+                break;
+            }
             if(a % 3 == 0 || a % 5 == 0){
                 continue;
             }
             b+=1;
             callout("printf","%d. %d\n", b, a);
-            if(a == 26){
-                callout("printf", "I think we\'re done here.");
-                break;
-            }
         }
     }
 }

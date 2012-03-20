@@ -1,0 +1,13 @@
+class Program {
+    boolean a;
+    boolean b[3];
+    void main(){
+        b[0] = false;
+        b[1] = true;
+        b[2] = false;
+        a = true && b[1];
+        callout("printf","a is true (1): %d\n",a);
+        a = true && b[0];
+        callout("printf","a is true (0): %d\n",a);
+    }
+}
