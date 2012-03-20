@@ -17,6 +17,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.crawler.SemanticRules;
 
 public class AsmVisitor {
 	private static int interruptCounter = 0;
@@ -30,6 +31,7 @@ public class AsmVisitor {
 	// Static variable because Strings have to be added to it from within other
 	// code.
 	private static List<ASM> dataSection = createDataSection();
+	private static List<ASM> readOnlySection = createReadOnlySection();
 	private static Set<String> externCalls = new HashSet<String>();
 
 	private AsmVisitor(MidSymbolTable symbolTable) {
@@ -58,6 +60,7 @@ public class AsmVisitor {
 		List<ASM> indexBounds = addInterrupt(MidLabelManager.getArrayIndexOutOfBoundsLabel(), OUT_OF_BOUNDS_ERROR);
 
 		asm.addAll(dataSection);
+		asm.addAll(readOnlySection);
 		asm.addAll(textSection);
 		asm.addAll(divZero);
 		asm.addAll(indexBounds);
@@ -73,10 +76,6 @@ public class AsmVisitor {
 		return out.toString();
 	}
 
-	public void addToDataSection(ASM asm) {
-		dataSection.add(asm);
-	}
-
 	/**
 	 * Appends helper text to end of assembly for error handling.
 	 */
@@ -89,8 +88,8 @@ public class AsmVisitor {
 		String lenLabel = "len" + interruptCounter;
 		// Add string to header.
 		String outputMessage = String.format("`%s`,0", msg);
-		dataSection.add(new LabeledOpASM(msgLabel, OpCode.DB, outputMessage));
-		dataSection.add(new LabeledOpASM(lenLabel, OpCode.EQU, String
+		readOnlySection.add(new LabeledOpASM(msgLabel, OpCode.DB, outputMessage));
+		readOnlySection.add(new LabeledOpASM(lenLabel, OpCode.EQU, String
 				.format("$-%s", msgLabel)));
 		out.addAll(labelNode.toASM());
 		out.add(new OpASM(OpCode.MOV, Reg.RDX.name(), lenLabel));
@@ -118,10 +117,16 @@ public class AsmVisitor {
 		return out;
 	}
 
+	private static List<ASM> createReadOnlySection() {
+		List<ASM> out = new ArrayList<ASM>();
+		out.add(new SectionASM("rodata"));
+		return out;
+	}
+	
 	private static List<ASM> createTextSection() {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new SectionASM("text"));
-		out.add(new OpASM(OpCode.GLOBAL, "main"));
+		out.add(new OpASM(OpCode.GLOBAL, SemanticRules.MAIN));
 		return out;
 	}
 
@@ -142,9 +147,9 @@ public class AsmVisitor {
 	 */
 	public static MidStringDeclNode addStringLiteral(String text) {
 		String labelText = labelSafeString(text);
-		dataSection.add(new LabelASM("", labelText));
+		readOnlySection.add(new LabelASM("", labelText));
 		String outputString = String.format("`%s`,0", text);
-		dataSection.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
+		readOnlySection.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
 
 		MidStringDeclNode out = new MidStringDeclNode(labelText);
 		out.setRawLocationReference(labelText);
