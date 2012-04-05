@@ -1,7 +1,9 @@
 package edu.mit.compilers.opt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
@@ -49,6 +51,8 @@ public class Block {
 		b.addPredecessor(this);
 	}
 
+	private static Map<MidNode, Block> blockCache = new HashMap<MidNode, Block>();
+
 	public static Block makeBlock(MidNode n) {
 		if (n == null) {
 			return null;
@@ -56,6 +60,9 @@ public class Block {
 		if (n instanceof MidJumpNode) {
 			MidJumpNode jumpNode = (MidJumpNode) n;
 			return makeBlock(jumpNode.getLabelNode());
+		}
+		if (blockCache.containsKey(n)) {
+			return blockCache.get(n);
 		}
 		Block b = new Block(n);
 		MidNode lastNonJump = n;
@@ -69,6 +76,7 @@ public class Block {
 		if (nextNode != null) {
 			b.addSuccessor(makeBlock(nextNode.getNextNode()));
 		}
+		blockCache.put(n, b);
 		return b;
 	}
 
