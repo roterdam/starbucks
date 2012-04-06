@@ -147,6 +147,7 @@ public class CLI {
 				if (!hit) {
 					extraopts.addElement(args[i]);
 				}
+				context = 0;
 			} else if (context == 2) {
 				outfile = args[i];
 				context = 0;
