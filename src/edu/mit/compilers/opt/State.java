@@ -7,8 +7,10 @@ public interface State<T> {
 	 * start of the program or the end, depending on whether it's forward or
 	 * backwards.
 	 */
-	public State<T> getInitialState();
+	public T getInitialState();
 	
-	public State<T> getBottomState();
+	public T getBottomState();
 
+	public T join(State<T> s);
+		
 }

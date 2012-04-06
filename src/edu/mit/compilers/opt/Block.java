@@ -22,14 +22,6 @@ public class Block {
 		successors = new ArrayList<Block>();
 	}
 	
-	public Block(String s) {
-		this.s = s;
-	}
-	
-	public String print(){
-		return s;
-	}
-
 	public MidNode getHead() {
 		return head;
 	}
@@ -99,5 +91,9 @@ public class Block {
 	
 	public static List<Block> getBlocks(){
 		return new ArrayList<Block>();
+	}
+	
+	public static Block getFirstBlock() {
+		return getBlocks().get(0);
 	}
 }
