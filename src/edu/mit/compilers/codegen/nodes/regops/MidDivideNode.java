@@ -8,7 +8,7 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-public class MidDivideNode extends MidBinaryRegNode {
+public class MidDivideNode extends MidArithmeticNode {
 
 	public MidDivideNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);

@@ -6,7 +6,7 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
 
-public class MidTimesNode extends MidBinaryRegNode {
+public class MidTimesNode extends MidArithmeticNode {
 
 
 	public MidTimesNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
