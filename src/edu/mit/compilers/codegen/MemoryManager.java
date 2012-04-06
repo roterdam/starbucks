@@ -86,7 +86,7 @@ public class MemoryManager {
 				}
 			} else if (m instanceof MidSaveNode) {
 				if (((MidSaveNode) m).savesRegister()) {
-					deallocTempRegister(((MidSaveNode) m).getRefNode()
+					deallocTempRegister(((MidSaveNode) m).getRegNode()
 							.getRegister());
 				}
 				if (((MidSaveNode) m).savesToArray()) {

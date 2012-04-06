@@ -63,7 +63,7 @@ public class MidSaveNode extends MidNode {
 		this.saveType = MidSaveNodeType.BOOLEAN;
 	}
 
-	public MidRegisterNode getRefNode() {
+	public MidRegisterNode getRegNode() {
 		assert saveType == MidSaveNodeType.REGISTER;
 		return registerNode;
 	}

@@ -11,6 +11,6 @@ public interface State<T> {
 	
 	public T getBottomState();
 
-	public T join(State<T> s);
+	public T join(T s);
 		
 }
