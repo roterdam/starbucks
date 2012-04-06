@@ -13,8 +13,8 @@ public abstract class MidBinaryRegNode extends MidRegisterNode {
 	private MidRegisterNode leftOperand;
 	private MidRegisterNode rightOperand;
 
-	public MidBinaryRegNode(MidRegisterNode leftOperand,
-			MidRegisterNode rightOperand) {
+	public MidBinaryRegNode(MidLoadNode leftOperand,
+			MidLoadNode rightOperand) {
 		super();
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
