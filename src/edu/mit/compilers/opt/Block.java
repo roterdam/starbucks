@@ -14,11 +14,20 @@ public class Block {
 	private MidNode tail;
 	private List<Block> predecessors;
 	private List<Block> successors;
+	private String s;
 
 	public Block(MidNode h) {
 		this.head = h;
 		predecessors = new ArrayList<Block>();
 		successors = new ArrayList<Block>();
+	}
+	
+	public Block(String s) {
+		this.s = s;
+	}
+	
+	public String print(){
+		return s;
 	}
 
 	public MidNode getHead() {
@@ -80,4 +89,15 @@ public class Block {
 		return b;
 	}
 
+	public List<Block> getPredecessors(){
+		return predecessors;
+	}
+	
+	public List<Block> getSuccessors(){
+		return successors;
+	}
+	
+	public static List<Block> getBlocks(){
+		return new ArrayList<Block>();
+	}
 }
