@@ -14,7 +14,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 /**`
- * Saves referenced register node or literal to memory (the stack?).
+ * Saves referenced register node or literal to memory.
  */
 public class MidSaveNode extends MidNode {
 

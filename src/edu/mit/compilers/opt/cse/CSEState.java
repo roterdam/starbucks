@@ -51,14 +51,13 @@ public class CSEState implements State<CSEState> {
 	 * Numbers a new value for the loaded value if necessary. Regardless,
 	 * returns the value corresponding to the load node's memory reference.
 	 */
-	public Value addVar(MidLoadNode node) {
-		MidMemoryNode m = node.getMemoryNode();
+	public Value addVar(MidMemoryNode node) {
 		Value v;
-		if (!this.varToVal.containsKey(m)) {
+		if (!this.varToVal.containsKey(node)) {
 			v = new Value();
-			this.varToVal.put(m, v);
+			this.varToVal.put(node, v);
 		} else {
-			v = this.varToVal.get(m);
+			v = this.varToVal.get(node);
 		}
 		LogCenter.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", node, v));
 		return v;
