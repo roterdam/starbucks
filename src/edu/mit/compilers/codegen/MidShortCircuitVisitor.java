@@ -114,13 +114,13 @@ public class MidShortCircuitVisitor {
 			MidLabelNode falseLabel, Class<? extends MidJumpNode> c) {
 		MidNodeList nodeList = new MidNodeList();
 
-		ValuedMidNodeList valuedLeft = valuedHelper(node.getLeftOperand(), symbolTable);
-		ValuedMidNodeList valuedRight = valuedHelper(node.getRightOperand(), symbolTable);
+		MidNodeList valuedLeft = valuedHelper(node.getLeftOperand(), symbolTable);
+		MidNodeList valuedRight = valuedHelper(node.getRightOperand(), symbolTable);
 
-		MidNodeList leftInstr = valuedLeft.getList();
-		MidLoadNode leftLoad = new MidLoadNode(valuedLeft.getReturnNode());
-		MidNodeList rightInstr = valuedRight.getList();
-		MidLoadNode rightLoad = new MidLoadNode(valuedRight.getReturnNode());
+		MidNodeList leftInstr = valuedLeft;
+		MidLoadNode leftLoad = new MidLoadNode(valuedLeft.getResultNode());
+		MidNodeList rightInstr = valuedRight;
+		MidLoadNode rightLoad = new MidLoadNode(valuedRight.getResultNode());
 
 		MidCompareNode compareNode = new MidCompareNode(leftLoad, rightLoad);
 		try {
@@ -163,10 +163,8 @@ public class MidShortCircuitVisitor {
 		MidNodeList rightListNode = node.getRightOperand()
 				.convertToMidLevel(symbolTable);
 
-		MidMemoryNode leftDeclNode = leftListNode.getSaveNode()
-				.getDestinationNode();
-		MidMemoryNode rightDeclNode = rightListNode.getSaveNode()
-				.getDestinationNode();
+		MidMemoryNode leftDeclNode = leftListNode.getResultNode();
+		MidMemoryNode rightDeclNode = rightListNode.getResultNode();
 
 		MidLoadNode leftLoadNode = new MidLoadNode(leftDeclNode);
 		MidLoadNode rightLoadNode = new MidLoadNode(rightDeclNode);
@@ -228,7 +226,7 @@ public class MidShortCircuitVisitor {
 		MidMemoryNode tempNode = new MidTempDeclNode();
 		MidSaveNode trueNode = new MidSaveNode(true, tempNode);
 
-		MidLoadNode loadMethodNode = new MidLoadNode(methodNodeList.getSaveNode().getDestinationNode());
+		MidLoadNode loadMethodNode = new MidLoadNode(methodNodeList.getResultNode());
 		MidLoadNode loadTempNode = new MidLoadNode(tempNode);
 		
 		MidCompareNode compareNode = new MidCompareNode(loadMethodNode,loadTempNode);
@@ -252,8 +250,8 @@ public class MidShortCircuitVisitor {
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
 		
-		ValuedMidNodeList arrayDeclInstrList = MidVisitor.getMemoryLocation(node, symbolTable);
-		MidMemoryNode declNode = arrayDeclInstrList.getReturnNode();
+		MidNodeList arrayDeclInstrList = MidVisitor.getMemoryLocation(node, symbolTable);
+		MidMemoryNode declNode = arrayDeclInstrList.getResultNode();
 		//MidMemoryNode declNode = symbolTable.getVar(node.getText());
 		MidLoadNode loadNode = new MidLoadNode(declNode);
 		MidMemoryNode tempNode = new MidTempDeclNode();
@@ -265,7 +263,7 @@ public class MidShortCircuitVisitor {
 
 		MidNodeList nodeList = new MidNodeList();
 		
-		nodeList.addAll(arrayDeclInstrList.getList());
+		nodeList.addAll(arrayDeclInstrList);
 		nodeList.add(loadNode);
 		nodeList.add(tempNode);
 		nodeList.add(zeroNode);
@@ -277,13 +275,13 @@ public class MidShortCircuitVisitor {
 	}
 
 	// Returns true or false
-	static ValuedMidNodeList valuedHelper(ExpressionNode node,
+	static MidNodeList valuedHelper(ExpressionNode node,
 			MidSymbolTable symbolTable) {
 		if (node.getMidVarType(symbolTable) == VarType.INT) {
 			MidNodeList instrList = node.convertToMidLevel(symbolTable);
-			MidMemoryNode memoryNode = instrList.getSaveNode()
-					.getDestinationNode();
-			return new ValuedMidNodeList(instrList, memoryNode);
+			MidMemoryNode memoryNode = instrList.getResultNode();
+			instrList.setResultNode(memoryNode);
+			return instrList;
 		}
 		MidLabelNode trueLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidLabelNode falseLabel = MidLabelManager.getLabel(LabelType.SHORT);
@@ -306,7 +304,9 @@ public class MidShortCircuitVisitor {
 		nodeList.add(saveFalseNode);
 		nodeList.add(jumpEndNode2);
 		nodeList.add(endLabel);
-		return new ValuedMidNodeList(nodeList, declNode);
+		
+		nodeList.setResultNode(declNode);
+		return nodeList;
 	}
 
 	public static MidNodeList shortCircuit(ExpressionNode node,

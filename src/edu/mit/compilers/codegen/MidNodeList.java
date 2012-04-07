@@ -8,12 +8,13 @@ import java.util.ListIterator;
 
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.MidNode;
-import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 public class MidNodeList implements List<MidNode> {
 
 	private MidNode head;
 	private MidNode tail;
+	private MidMemoryNode resultNode;
 	int size;
 
 	/**
@@ -145,7 +146,7 @@ public class MidNodeList implements List<MidNode> {
 
 	private class LinkedListIterator implements Iterator<MidNode> {
 		MidNode currentNode;
-		
+
 		class LinkedListHeadNode extends MidNode {
 			@Override
 			public List<Reg> getOperandRegisters() {
@@ -224,9 +225,13 @@ public class MidNodeList implements List<MidNode> {
 		return out.toString();
 	}
 
-	public MidSaveNode getSaveNode() {
-		assert getTail() instanceof MidSaveNode : toString();
-		return (MidSaveNode) getTail();
+	public void setResultNode(MidMemoryNode resultNode) {
+		this.resultNode = resultNode;
+	}
+
+	public MidMemoryNode getResultNode() {
+		assert resultNode != null;
+		return resultNode;
 	}
 
 	public List<ASM> toASM() {
