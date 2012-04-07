@@ -9,6 +9,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class CALLOUTNode extends ExpressionNode {
@@ -43,6 +44,11 @@ public class CALLOUTNode extends ExpressionNode {
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
+	}
+	
+	@Override
+	public ExpressionNode simplify() {
+		return AlgebraicSimplifier.simplifyExpression(this);
 	}
 
 }

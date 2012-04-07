@@ -8,6 +8,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 /**
  * Careful, this is "3" not "int".
@@ -87,6 +88,11 @@ public class INT_LITERALNode extends ExpressionNode {
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
+	}
+	
+	@Override
+	public ExpressionNode simplify() {
+		return AlgebraicSimplifier.simplifyExpression(this);
 	}
 
 }
