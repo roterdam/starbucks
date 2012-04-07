@@ -3,8 +3,10 @@ package edu.mit.compilers.opt.cse;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Expr;
@@ -51,11 +53,15 @@ public class CSEState implements State<CSEState> {
 	 */
 	public Value addVar(MidLoadNode node) {
 		MidMemoryNode m = node.getMemoryNode();
+		Value v;
 		if (!this.varToVal.containsKey(m)) {
-			Value v = new Value();
+			v = new Value();
 			this.varToVal.put(m, v);
+		} else {
+			v = this.varToVal.get(m);
 		}
-		return this.varToVal.get(m);
+		LogCenter.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", node, v));
+		return v;
 	}
 
 	/**
@@ -64,6 +70,7 @@ public class CSEState implements State<CSEState> {
 	 * following temp variable can store from the same register.
 	 */
 	public void addVarVal(MidSaveNode node, Value v) {
+		LogCenter.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", node, v));
 		MidMemoryNode m = node.getDestinationNode();
 		MidRegisterNode r = node.getRegNode();
 		this.valToReg.put(v, r);
@@ -72,14 +79,18 @@ public class CSEState implements State<CSEState> {
 
 	public Value addExpr(Value v1, Value v2, String nodeClass) {
 		Expr e = new Expr(v1, v2, nodeClass);
+		Value v3;
 		if (!this.exprToVal.containsKey(e)) {
-			Value v = new Value();
-			this.exprToVal.put(e, v);
+			v3 = new Value();
+			this.exprToVal.put(e, v3);
+		} else {
+			v3 = this.exprToVal.get(e);
 		}
-		return this.exprToVal.get(e);
+		LogCenter.debug(String.format("[OPT] Map EXPR->VAL: (%s,%s,%s) -> %s", nodeClass, v1, v2, v3));
+		return v3;
 	}
 
-	public MidSaveNode addTemp(Value v3, MidMemoryNode destinationNode) {
+	public MidSaveNode addTemp(Value v3, MidTempDeclNode destinationNode) {
 		assert !this.valToTemp.containsKey(v3);
 		MidSaveNode m = new MidSaveNode(this.valToReg.get(v3), destinationNode);
 		this.valToTemp.put(v3, m);

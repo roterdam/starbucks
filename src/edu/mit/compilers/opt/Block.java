@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 
@@ -21,7 +22,7 @@ public class Block {
 		predecessors = new ArrayList<Block>();
 		successors = new ArrayList<Block>();
 	}
-	
+
 	public MidNode getHead() {
 		return head;
 	}
@@ -39,6 +40,14 @@ public class Block {
 			return;
 		}
 		predecessors.add(b);
+	}
+
+	public List<Block> getPredecessors() {
+		return predecessors;
+	}
+
+	public List<Block> getSuccessors() {
+		return successors;
 	}
 
 	/**
@@ -81,19 +90,12 @@ public class Block {
 		return b;
 	}
 
-	public List<Block> getPredecessors(){
-		return predecessors;
+	public static List<Block> getAllBlocks(MidNodeList nodeList) {
+		blockCache.clear();
+		// Make block will recursively make all the blocks and save them into
+		// the block cache.
+		makeBlock(nodeList.getHead());
+		return new ArrayList<Block>(blockCache.values());
 	}
-	
-	public List<Block> getSuccessors(){
-		return successors;
-	}
-	
-	public static List<Block> getBlocks(){
-		return new ArrayList<Block>();
-	}
-	
-	public static Block getFirstBlock() {
-		return getBlocks().get(0);
-	}
+
 }

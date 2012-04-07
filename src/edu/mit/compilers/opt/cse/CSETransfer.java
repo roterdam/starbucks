@@ -2,6 +2,7 @@ package edu.mit.compilers.opt.cse;
 
 import java.util.ArrayList;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
@@ -21,6 +22,7 @@ public class CSETransfer implements Transfer<CSEState> {
 
 	@Override
 	public CSEState apply(Block b, CSEState s) {
+		assert s != null : "Input state should not be null.";
 		MidNode node = b.getHead();
 		while (node != null) {
 			// a = x + y
@@ -31,6 +33,7 @@ public class CSETransfer implements Transfer<CSEState> {
 					this.assignments.add((MidSaveNode) node);
 				}
 			}
+			node = node.getNextNode();
 		}
 
 		for (MidSaveNode m : this.assignments) {
@@ -40,22 +43,27 @@ public class CSETransfer implements Transfer<CSEState> {
 			Value v2 = s.addVar(r.getRightOperand());
 			// Value-number the resulting expression.
 			Value v3 = s.addExpr(v1, v2, r.getNodeClass());
-			// Number the assignmented var with the same value.
+			// Number the assigned var with the same value.
 			s.addVarVal(m, v3);
 			// Check if the value is already in a temp.
 			MidSaveNode tempNode = s.getTemp(v3);
 			if (tempNode == null) {
-				// It's not, so create a new temp.
+				// It's not (in a temp), so create a new temp.
 				MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 				tempNode = s.addTemp(v3, tempDeclNode);
-				// Add the temp after the save node.
-				tempNode.insertAfter(m);
+				// Add the temp after the save node. Don't forget the decl node!
+				tempDeclNode.insertAfter(m);
+				tempNode.insertAfter(tempDeclNode);
+				LogCenter.debug("[OPT] Inserting a temp node.");
 			} else {
-				// If the value is already stored in a temp, use that temp instead!
-				// This is the magical optimization step.
-				// We assume tempNode is already in the midNodeList and can be loaded.
-				MidLoadNode loadTempNode = new MidLoadNode(tempNode.getDestinationNode());
-				MidSaveNode newM = new MidSaveNode(loadTempNode, m.getDestinationNode());
+				// If the value is already stored in a temp, use that temp
+				// instead. This is the magical optimization step.
+				// We assume tempNode is already in the midNodeList and can be
+				// loaded.
+				MidLoadNode loadTempNode = new MidLoadNode(
+						tempNode.getDestinationNode());
+				MidSaveNode newM = new MidSaveNode(loadTempNode,
+						m.getDestinationNode());
 				loadTempNode.replace(m);
 				newM.insertAfter(loadTempNode);
 			}
