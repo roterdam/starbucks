@@ -21,8 +21,12 @@ public class CSETransfer implements Transfer<CSEState> {
 	}
 
 	@Override
-	public CSEState apply(Block b, CSEState s) {
-		assert s != null : "Input state should not be null.";
+	public CSEState apply(Block b, CSEState state) {
+		assert state != null : "Input state should not be null.";
+		// TOOD: shouldn't local state be somewhat dependent on the initial
+		// CSEState? new CSELocalState(state)? it should at least know about
+		// temps that map to existing symbol expressions
+		CSELocalState localState = new CSELocalState();
 		MidNode node = b.getHead();
 		while (node != null) {
 			// TODO: Handle unary ops.
@@ -30,6 +34,7 @@ public class CSETransfer implements Transfer<CSEState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
+				LogCenter.debug("[OPT] Processing " + saveNode);
 			}
 			node = node.getNextNode();
 		}
@@ -37,19 +42,21 @@ public class CSETransfer implements Transfer<CSEState> {
 		for (MidSaveNode saveNode : this.assignments) {
 			// a = x
 			if (saveNode.getRegNode() instanceof MidLoadNode) {
-				processSimpleAssignment(saveNode, s);
+				processSimpleAssignment(saveNode, localState);
 			}
+			// a = -x
+			
 			// a = x + y
 			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-				processArithmeticAssignment(saveNode, s);
+				processArithmeticAssignment(saveNode, localState);
 			}
 		}
 
-		// TODO: Does s need modification before returning?
-		return s;
+		// TODO: Does state need modification before returning?
+		return state;
 	}
 
-	private void processSimpleAssignment(MidSaveNode node, CSEState s) {
+	private void processSimpleAssignment(MidSaveNode node, CSELocalState s) {
 		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
 		// b = x;
 		// Get the value of the node to be assigned to, create a new one for it
@@ -77,7 +84,7 @@ public class CSETransfer implements Transfer<CSEState> {
 		}
 	}
 
-	private void processArithmeticAssignment(MidSaveNode node, CSEState s) {
+	private void processArithmeticAssignment(MidSaveNode node, CSELocalState s) {
 		MidArithmeticNode r = (MidArithmeticNode) node.getRegNode();
 		// Value-number left and right operands if necessary.
 		Value v1 = s.addVar(r.getLeftOperand().getMemoryNode());
@@ -108,7 +115,7 @@ public class CSETransfer implements Transfer<CSEState> {
 	}
 
 	private void tempInsertHelper(MidSaveNode tempNode, MidNode originalNode,
-			Value v, CSEState s) {
+			Value v, CSELocalState s) {
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 		tempNode = s.addTemp(v, tempDeclNode);
 		// Add the temp after the save node. Don't forget the decl node!
