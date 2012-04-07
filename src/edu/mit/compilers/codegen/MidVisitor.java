@@ -362,48 +362,22 @@ public class MidVisitor {
 		return visitBinaryOpHelper(node, symbolTable, MidModNode.class);
 	}
 
-	// Only applies to -
-	public static MidNodeList visitUnaryOpHelper(SingleOperandNode node,
-			MidSymbolTable symbolTable, Class<? extends MidUnaryRegNode> c) {
-
-		try {
-			MidNodeList nodeList = node.getOperand()
-					.convertToMidLevel(symbolTable);
-			assert nodeList.size >= 1;
-			MidLoadNode loadNode = new MidLoadNode(nodeList.getMemoryNode());
-			MidUnaryRegNode unaryNode;
-			unaryNode = c.getConstructor(MidLoadNode.class)
-					.newInstance(loadNode);
-
-			MidNodeList out = new MidNodeList();
-			out.addAll(nodeList);
-			out.add(loadNode);
-			out.add(unaryNode);
-			MidTempDeclNode dest = new MidTempDeclNode();
-			out.add(dest);
-			out.add(new MidSaveNode(unaryNode, dest));
-			return out;
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		}
-		assert false : "NO EXCEPTIONS ALLOWED";
-		return null;
-	}
-
 	public static MidNodeList visit(UnaryMinusNode node,
 			MidSymbolTable symbolTable) {
+		MidNodeList nodeList = node.getOperand().convertToMidLevel(symbolTable);
+		assert nodeList.size >= 1;
+		MidLoadNode loadNode = new MidLoadNode(nodeList.getMemoryNode());
+		MidUnaryRegNode unaryNode;
+		unaryNode = new MidNegNode(loadNode);
 
-		return visitUnaryOpHelper(node, symbolTable, MidNegNode.class);
+		MidNodeList out = new MidNodeList();
+		out.addAll(nodeList);
+		out.add(loadNode);
+		out.add(unaryNode);
+		MidTempDeclNode dest = new MidTempDeclNode();
+		out.add(dest);
+		out.add(new MidSaveNode(unaryNode, dest));
+		return out;
 	}
 
 	// public static MidNodeList visit(BANGNode node, MidSymbolTable
