@@ -6,5 +6,7 @@ public abstract class MidArithmeticNode extends MidBinaryRegNode {
 		super(leftOperand, rightOperand);
 		// TODO Auto-generated constructor stub
 	}
+	
+	public abstract boolean isCommutative();
 
 }

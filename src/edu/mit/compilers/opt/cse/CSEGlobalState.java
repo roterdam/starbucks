@@ -42,8 +42,12 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 		// Would potentially expand expr here.
 	}
 	
-	public void killReference(MidMemoryNode node) {
+	public void killReferences(MidMemoryNode node) {
 		
+	}
+	
+	public List<MidMemoryNode> getReferences(GlobalExpr expr) {
+		return exprToRefMap.get(expr);
 	}
 
 }

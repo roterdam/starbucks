@@ -17,5 +17,10 @@ public class MidPlusNode extends MidArithmeticNode {
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.ADD);		
 	}
+
+	@Override
+	public boolean isCommutative() {
+		return true;
+	}
 	
 }

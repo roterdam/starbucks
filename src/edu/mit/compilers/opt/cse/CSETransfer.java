@@ -1,10 +1,12 @@
 package edu.mit.compilers.opt.cse;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -50,7 +52,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			}
 			// a = x + y
 			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-				processArithmeticAssignment(saveNode, localState);
+				processArithmeticAssignment(saveNode, localState, state);
 			}
 		}
 
@@ -92,17 +94,45 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		// TODO: complete unary assignment here, will need new expr.
 	}
 
-	private void processArithmeticAssignment(MidSaveNode node, CSELocalState s) {
+	private void processArithmeticAssignment(MidSaveNode node, CSELocalState s,
+			CSEGlobalState g) {
 		MidArithmeticNode r = (MidArithmeticNode) node.getRegNode();
+		GlobalExpr expr = new GlobalExpr(r, new GlobalExpr(r.getLeftOperand()
+				.getMemoryNode()), new GlobalExpr(r.getRightOperand()
+				.getMemoryNode()), r.isCommutative());
+
+		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
+		if (reusableReferences.size() > 0) {
+			// If there's a reusable reference, reuse it!
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
+			// TODO: are we sure we just take the first one?
+			MidMemoryNode ref = reusableReferences.get(0);
+			MidLoadNode loadTempNode = new MidLoadNode(ref);
+			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
+					node.getDestinationNode());
+			newSaveNode.isOptimization = true;
+			loadTempNode.replace(node);
+			newSaveNode.insertAfter(loadTempNode);
+			// Save destination node as a value.
+			s.addVar(ref);
+			return;
+		}
+
 		// Value-number left and right operands if necessary.
+		// x = a+b, a->v1, b->v2, x->v3, v3->v1+v2
 		Value v1 = s.addVar(r.getLeftOperand().getMemoryNode());
 		Value v2 = s.addVar(r.getRightOperand().getMemoryNode());
 		// Value-number the resulting expression.
 		Value v3 = s.addExpr(v1, v2, r.getNodeClass());
 		// Number the assigned var with the same value.
 		s.addVarVal(node, v3);
-		// Check if the value is already in a temp.
 		MidSaveNode tempNode = s.getTemp(v3);
+
+		// Save reference in global CSE.
+		g.killReferences(node.getDestinationNode());
+		g.genReference(node.getDestinationNode(), expr);
+
+		// Check if the value is already in a temp.
 		if (tempNode == null) {
 			// It's not (in a temp), so create a new temp.
 			tempInsertHelper(tempNode, node, v3, s);
@@ -111,14 +141,14 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
 			// loaded.
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING.");
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING CSE.");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());
-			MidSaveNode newM = new MidSaveNode(loadTempNode,
+			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
-			newM.isOptimization = true;
+			newSaveNode.isOptimization = true;
 			loadTempNode.replace(node);
-			newM.insertAfter(loadTempNode);
+			newSaveNode.insertAfter(loadTempNode);
 		}
 	}
 

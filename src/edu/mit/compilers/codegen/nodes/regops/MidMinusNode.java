@@ -16,4 +16,9 @@ public class MidMinusNode extends MidArithmeticNode {
 		return super.toASM(OpCode.SUB);
 	}
 
+	@Override
+	public boolean isCommutative() {
+		return false;
+	}
+
 }

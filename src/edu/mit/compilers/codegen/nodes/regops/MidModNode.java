@@ -27,5 +27,10 @@ public class MidModNode extends MidArithmeticNode {
 		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(), RDX));
 		return out;
 	}
+
+	@Override
+	public boolean isCommutative() {
+		return false;
+	}
 	
 }
