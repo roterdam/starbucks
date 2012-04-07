@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.asm.OpCode;
 public abstract class MidNode {
 	private MidNode nextNode;
 	private MidNode prevNode;
+	public boolean isOptimization;
 
 	public void setNextNode(MidNode node) {
 		nextNode = node;

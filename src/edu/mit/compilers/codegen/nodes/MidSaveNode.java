@@ -28,27 +28,16 @@ public class MidSaveNode extends MidNode {
 
 	private MidSaveNodeType saveType;
 	private MidMemoryNode destination;
-	// Used to check if this save is part of an optimization.
-	private boolean opt;
 
 	private MidSaveNode(MidMemoryNode dest) {
 		assert dest != null;
 		this.destination = dest;
-		opt = false;
 	}
 
 	public MidSaveNode(MidRegisterNode refNode, MidMemoryNode dest) {
 		this(dest);
 		this.registerNode = refNode;
 		this.saveType = MidSaveNodeType.REGISTER;
-		opt = false;
-	}
-	
-	public MidSaveNode(MidRegisterNode refNode, MidMemoryNode dest, boolean debug) {
-		this(dest);
-		this.registerNode = refNode;
-		this.saveType = MidSaveNodeType.REGISTER;
-		opt = true;
 	}
 	
 	public static MidNodeList storeValueInMemory(long decafIntValue, MidMemoryNode dest){
@@ -154,7 +143,7 @@ public class MidSaveNode extends MidNode {
 			assert false : "invalid saveType";
 		}
 
-		String comment = (opt ? "[opt] " : "") + toString();
+		String comment = (isOptimization ? "[OPT] " : "") + toString();
 		out.add(new OpASM(comment, OpCode.MOV, destination
 				.getFormattedLocationReference(), rightOperand));
 

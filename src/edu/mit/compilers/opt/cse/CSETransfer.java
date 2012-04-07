@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.cse;
 import java.util.ArrayList;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
@@ -102,6 +101,7 @@ public class CSETransfer implements Transfer<CSEState> {
 					tempNode.getDestinationNode());
 			MidSaveNode newM = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
+			newM.isOptimization = true;
 			loadTempNode.replace(node);
 			newM.insertAfter(loadTempNode);
 		}

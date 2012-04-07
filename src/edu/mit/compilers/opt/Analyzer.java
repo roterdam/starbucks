@@ -32,7 +32,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 	private void analyzeMidNodeList(MidNodeList nodeList) {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
-		
+
 		// Set all the outs to bottom
 		for (Block block : worklist) {
 			outHash.put(block, startState.getBottomState());
@@ -43,7 +43,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		assert (n0.getPredecessors().size() == 0);
 		outHash.put(n0, this.transferFunction.apply(n0, startState));
 		worklist.remove(n0);
-		
+
 		while (!worklist.isEmpty()) {
 			Block currentBlock = worklist.remove(0);
 			S in = getInState(currentBlock);
