@@ -98,14 +98,13 @@ public class MidVisitor {
 				paramNodes.add(stringDeclNode);
 			} else if (n instanceof ExpressionNode) {
 				/*
-				 * MidNodeList expList = n.convertToMidLevel(symbolTable);
-				 * out.addAll(expList);
-				 * paramNodes.add(expList.getSaveNode().getDestinationNode());
-				 */
-				MidNodeList expList = MidShortCircuitVisitor
-						.valuedHelper((ExpressionNode) n, symbolTable);
+				MidNodeList expList = n.convertToMidLevel(symbolTable);
 				out.addAll(expList);
-				paramNodes.add(expList.getResultNode());
+				paramNodes.add(expList.getSaveNode().getDestinationNode());
+				*/
+				ValuedMidNodeList expList = MidShortCircuitVisitor.valuedHelper((ExpressionNode)n, symbolTable);
+				out.addAll(expList.getList());
+				paramNodes.add(expList.getReturnNode());
 			} else {
 				assert false : "STRING_LITERALNode or ExpressionNode expected, found: "
 						+ n.getClass();
@@ -119,8 +118,6 @@ public class MidVisitor {
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 		out.add(tempDeclNode);
 		out.add(new MidSaveNode(midCallOutNode, tempDeclNode));
-
-		out.setResultNode(tempDeclNode);
 		return out;
 	}
 
@@ -128,10 +125,10 @@ public class MidVisitor {
 		MidNodeList out = new MidNodeList();
 		MidMemoryNode returnMemoryNode = null;
 		if (node.hasReturnExpression()) {
-			MidNodeList returnValuedExpressionList = MidShortCircuitVisitor
+			ValuedMidNodeList returnValuedExpressionList = MidShortCircuitVisitor
 					.valuedHelper(node.getReturnExpression(), symbolTable);
-			out.addAll(returnValuedExpressionList);
-			returnMemoryNode = returnValuedExpressionList.getResultNode();
+			out.addAll(returnValuedExpressionList.getList());
+			returnMemoryNode = returnValuedExpressionList.getReturnNode();
 		}
 		out.add(new MidReturnNode(returnMemoryNode));
 		return out;
@@ -143,12 +140,11 @@ public class MidVisitor {
 		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
 
 		for (ExpressionNode paramRoot : node.getParamNodes()) {
-			// MidNodeList paramList = paramRoot.convertToMidLevel(symbolTable);
-			MidNodeList valuedParamInstrList = MidShortCircuitVisitor
-					.valuedHelper(paramRoot, symbolTable);
-			paramMemoryNodes.add(valuedParamInstrList.getResultNode());
-			out.addAll(valuedParamInstrList);
-			// out.addAll(paramList);
+			//MidNodeList paramList = paramRoot.convertToMidLevel(symbolTable);
+			ValuedMidNodeList valuedParamInstrList = MidShortCircuitVisitor.valuedHelper(paramRoot, symbolTable);
+			paramMemoryNodes.add(valuedParamInstrList.getReturnNode());
+			out.addAll(valuedParamInstrList.getList());
+			//out.addAll(paramList);
 		}
 
 		MidMethodCallNode methodNode = new MidMethodCallNode(
@@ -158,7 +154,6 @@ public class MidVisitor {
 		out.add(tempDeclNode);
 		out.add(new MidSaveNode(methodNode, tempDeclNode));
 
-		out.setResultNode(tempDeclNode);
 		return out;
 	}
 
@@ -173,6 +168,13 @@ public class MidVisitor {
 		symbolTable.addVar(name, paramNode);
 
 		return outputList;
+	}
+
+	public static MidNodeList[] partialVisit(DoubleOperandNode node,
+			MidSymbolTable symbolTable) {
+		return new MidNodeList[] {
+				node.getLeftOperand().convertToMidLevel(symbolTable),
+				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
 
 	public static MidNodeList checkDivideByZeroError(MidMemoryNode operandNode,
@@ -212,7 +214,7 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
-		// instrList.add(paramDeclNode);
+//		instrList.add(paramDeclNode);
 		instrList.add(divideByZeroCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
@@ -273,7 +275,7 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
-		// instrList.add(paramDeclNode);
+//		instrList.add(paramDeclNode);
 		instrList.add(outOfBoundsCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
@@ -282,6 +284,7 @@ public class MidVisitor {
 	// Should be DoubleOperandNodes that do not operate on booleans.
 	// Happens to be enforced by overloading for the ones that do
 	// operate on booleans.
+	
 	public static MidNodeList visitBinaryOpHelper(DoubleOperandNode node,
 			MidSymbolTable symbolTable, Class<? extends MidBinaryRegNode> c) {
 
@@ -291,8 +294,10 @@ public class MidVisitor {
 			MidNodeList rightList = node.getRightOperand()
 					.convertToMidLevel(symbolTable);
 
-			MidMemoryNode leftNode = leftList.getResultNode();
-			MidMemoryNode rightNode = rightList.getResultNode();
+			MidMemoryNode leftNode = leftList.getSaveNode()
+					.getDestinationNode();
+			MidMemoryNode rightNode = rightList.getSaveNode()
+					.getDestinationNode();
 
 			MidNodeList errorList = new MidNodeList();
 			// FIXME: .class? eh.
@@ -319,8 +324,6 @@ public class MidVisitor {
 			instrList.add(binNode);
 			instrList.add(dest);
 			instrList.add(saveNode);
-
-			instrList.setResultNode(dest);
 			return instrList;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -358,7 +361,7 @@ public class MidVisitor {
 	public static MidNodeList visit(MODNode node, MidSymbolTable symbolTable) {
 		return visitBinaryOpHelper(node, symbolTable, MidModNode.class);
 	}
-
+	
 	// Only applies to -
 	public static MidNodeList visitUnaryOpHelper(SingleOperandNode node,
 			MidSymbolTable symbolTable, Class<? extends MidUnaryRegNode> c) {
@@ -367,7 +370,8 @@ public class MidVisitor {
 			MidNodeList nodeList = node.getOperand()
 					.convertToMidLevel(symbolTable);
 			assert nodeList.size >= 1;
-			MidLoadNode loadNode = new MidLoadNode(nodeList.getResultNode());
+			MidLoadNode loadNode = new MidLoadNode(nodeList.getSaveNode()
+					.getDestinationNode());
 			MidUnaryRegNode unaryNode;
 			unaryNode = c.getConstructor(MidLoadNode.class)
 					.newInstance(loadNode);
@@ -379,8 +383,6 @@ public class MidVisitor {
 			MidTempDeclNode dest = new MidTempDeclNode();
 			out.add(dest);
 			out.add(new MidSaveNode(unaryNode, dest));
-
-			out.setResultNode(dest);
 			return out;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -401,6 +403,7 @@ public class MidVisitor {
 
 	public static MidNodeList visit(UnaryMinusNode node,
 			MidSymbolTable symbolTable) {
+
 		return visitUnaryOpHelper(node, symbolTable, MidNegNode.class);
 	}
 
@@ -410,23 +413,21 @@ public class MidVisitor {
 	// }
 
 	public static MidNodeList visit(ASSIGNNode node, MidSymbolTable symbolTable) {
-		MidNodeList rightEvalList = MidShortCircuitVisitor.valuedHelper(node
-				.getExpression(), symbolTable);
+		ValuedMidNodeList rightEvalList = MidShortCircuitVisitor
+				.valuedHelper(node.getExpression(), symbolTable);
 
-		MidLoadNode loadNode = new MidLoadNode(rightEvalList.getResultNode());
+		MidLoadNode loadNode = new MidLoadNode(rightEvalList.getReturnNode());
 
-		MidNodeList leftEvalList = getMemoryLocation(node.getLocation(), symbolTable);
+		ValuedMidNodeList leftEvalList = getMemoryLocation(node.getLocation(), symbolTable);
 		MidSaveNode saveNode = new MidSaveNode(loadNode,
-				leftEvalList.getResultNode());
+				leftEvalList.getReturnNode());
 
 		MidNodeList nodeList = new MidNodeList();
 
-		nodeList.addAll(rightEvalList);
-		nodeList.addAll(leftEvalList);
+		nodeList.addAll(rightEvalList.getList());
+		nodeList.addAll(leftEvalList.getList());
 		nodeList.add(loadNode);
 		nodeList.add(saveNode);
-
-		nodeList.setResultNode(leftEvalList.getResultNode());
 		return nodeList;
 	}
 
@@ -451,8 +452,8 @@ public class MidVisitor {
 					.getLocation().getText());
 
 			// Load from memory into register and add to left hand side
-			MidLoadNode loadRightNode = new MidLoadNode(
-					rightOperandList.getResultNode());
+			MidLoadNode loadRightNode = new MidLoadNode(rightOperandList
+					.getSaveNode().getDestinationNode());
 			MidLoadNode loadLeftNode = new MidLoadNode(leftOperandNode);
 			MidBinaryRegNode binaryRegNode = nodeClass
 					.getConstructor(MidLoadNode.class, MidLoadNode.class)
@@ -466,8 +467,6 @@ public class MidVisitor {
 			newOperandList.add(loadRightNode);
 			newOperandList.add(binaryRegNode);
 			newOperandList.add(saveRegNode);
-
-			newOperandList.setResultNode(leftOperandNode);
 			return newOperandList;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -494,8 +493,6 @@ public class MidVisitor {
 				.getValue(), dest);
 		out.add(dest);
 		out.addAll(saveInstrList);
-
-		out.setResultNode(dest);
 		return out;
 	}
 
@@ -507,33 +504,40 @@ public class MidVisitor {
 				.getValue(), dest);
 		out.add(dest);
 		out.addAll(saveInstrList);
-
-		out.setResultNode(dest);
+		return out;
+	}
+	
+	/*
+	
+	public static MidNodeList visit(TRUENode node, MidSymbolTable symbolTable) {
+		MidNodeList out = new MidNodeList();
+		MidTempDeclNode dest = new MidTempDeclNode();
+		out.add(dest);
+		out.add(new MidSaveNode(true, dest));
 		return out;
 	}
 
-	/*
-	 * 
-	 * public static MidNodeList visit(TRUENode node, MidSymbolTable
-	 * symbolTable) {
-	 * MidNodeList out = new MidNodeList();
-	 * MidTempDeclNode dest = new MidTempDeclNode();
-	 * out.add(dest);
-	 * out.add(new MidSaveNode(true, dest));
-	 * return out;
-	 * }
-	 * 
-	 * public static MidNodeList visit(FALSENode node, MidSymbolTable
-	 * symbolTable) {
-	 * MidNodeList out = new MidNodeList();
-	 * MidTempDeclNode dest = new MidTempDeclNode();
-	 * out.add(dest);
-	 * out.add(new MidSaveNode(false, dest));
-	 * return out;
-	 * }
-	 */
+	public static MidNodeList visit(FALSENode node, MidSymbolTable symbolTable) {
+		MidNodeList out = new MidNodeList();
+		MidTempDeclNode dest = new MidTempDeclNode();
+		out.add(dest);
+		out.add(new MidSaveNode(false, dest));
+		return out;
+	}
+	*/
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable) {
-		return getMemoryLocation(node, symbolTable);
+		MidNodeList out = new MidNodeList();
+
+		ValuedMidNodeList memGetList = getMemoryLocation(node, symbolTable);
+		MidLoadNode loadNode = new MidLoadNode(memGetList.getReturnNode());
+		MidTempDeclNode tempNode = new MidTempDeclNode();
+
+		out.addAll(memGetList.getList());
+		out.add(loadNode);
+		out.add(tempNode);
+		out.add(new MidSaveNode(loadNode, tempNode));
+
+		return out;
 	}
 
 	/**
@@ -547,7 +551,7 @@ public class MidVisitor {
 	 * This necessity is a result of dynamic memory access using a register as a
 	 * pointer.
 	 */
-	public static MidNodeList getMemoryLocation(IDNode node,
+	public static ValuedMidNodeList getMemoryLocation(IDNode node,
 			MidSymbolTable symbolTable) {
 		MidNodeList instrList = new MidNodeList();
 		MidMemoryNode locNode;
@@ -558,25 +562,23 @@ public class MidVisitor {
 			// Get array decl and compute the index
 			MidFieldArrayDeclNode arrayNode = (MidFieldArrayDeclNode) symbolTable
 					.getVar(node.getText());
-			MidNodeList exprList = MidShortCircuitVisitor.valuedHelper(node
-					.getExpressionNode(), symbolTable);
-			MidMemoryNode exprNode = exprList.getResultNode();
+			ValuedMidNodeList exprList = MidShortCircuitVisitor
+					.valuedHelper(node.getExpressionNode(), symbolTable);
+			MidMemoryNode exprNode = exprList.getReturnNode();
 
 			// Make sure the index is not out of bounds
 			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode, symbolTable);
 
-			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getResultNode());
+			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
 			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
 
-			instrList.addAll(exprList);
+			instrList.addAll(exprList.getList());
 			instrList.addAll(errorList);
 			instrList.add(sizeLoadNode);
 		} else {
 			locNode = symbolTable.getVar(node.getText());
 		}
-
-		instrList.setResultNode(locNode);
-		return instrList;
+		return new ValuedMidNodeList(instrList, locNode);
 	}
 
 	public static MidNodeList visit(BLOCKNode node, MidSymbolTable symbolTable,
@@ -637,9 +639,9 @@ public class MidVisitor {
 
 		MidNodeList assignList = node.getAssignNode()
 				.convertToMidLevel(symbolTable);
+		assignList.getSaveNode();
 		nodeList.addAll(assignList); // 'a=3;'
-
-		nodeList.setResultNode(assignList.getResultNode());
+		nodeList.getSaveNode();
 		return nodeList;
 
 	}
@@ -667,14 +669,16 @@ public class MidVisitor {
 
 		MidNodeList assignList = node.getForInitializeNode()
 				.convertToMidLevel(newSymbolTable);
-		MidMemoryNode iterVarNode = assignList.getResultNode();
+		MidSaveNode iterVarNode = (MidSaveNode) assignList.getSaveNode();
 
 		MidNodeList limitList = node.getForTerminateNode().getExpressionNode()
 				.convertToMidLevel(newSymbolTable);
-		MidMemoryNode limitNode = limitList.getResultNode();
+		MidSaveNode limitNode = (MidSaveNode) limitList.getSaveNode();
 
-		MidLoadNode iterVarLoadNode = new MidLoadNode(iterVarNode);
-		MidLoadNode limitLoadNode = new MidLoadNode(limitNode);
+		MidLoadNode iterVarLoadNode = new MidLoadNode(
+				iterVarNode.getDestinationNode());
+		MidLoadNode limitLoadNode = new MidLoadNode(
+				limitNode.getDestinationNode());
 		MidCompareNode compareNode = new MidCompareNode(iterVarLoadNode,
 				limitLoadNode);
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
@@ -836,17 +840,15 @@ public class MidVisitor {
 		}
 
 		// Manually add in methods to handle DBZ and OOB.
-		String sanitizedOutOfBounds = MidMethodNameManager
-				.sanitizeCustomMethodName(OUT_OF_BOUNDS_METHOD_NAME);
+		String sanitizedOutOfBounds = MidMethodNameManager.sanitizeCustomMethodName(OUT_OF_BOUNDS_METHOD_NAME);
 		MidMethodDeclNode outOfBoundsMethodDecl = new MidMethodDeclNode(
 				sanitizedOutOfBounds, OUT_OF_BOUNDS_METHOD_NAME, VarType.VOID);
 		symbolTable
 				.addStarbucksMethod(OUT_OF_BOUNDS_METHOD_NAME, outOfBoundsMethodDecl);
 		outOfBoundsMethodDecl.setNodeList(generateOutOfBoundsMethod());
 
-		String sanitizedDivideByZero = MidMethodNameManager
-				.sanitizeCustomMethodName(DIVIDE_BY_ZERO_NAME);
-
+		String sanitizedDivideByZero = MidMethodNameManager.sanitizeCustomMethodName(DIVIDE_BY_ZERO_NAME);
+		
 		MidMethodDeclNode divideByZeroMethodDecl = new MidMethodDeclNode(
 				sanitizedDivideByZero, DIVIDE_BY_ZERO_NAME, VarType.VOID);
 		symbolTable
@@ -859,8 +861,7 @@ public class MidVisitor {
 					.sanitizeUserDefinedMethodName(originalMethodName);
 
 			MidMethodDeclNode midMethodNode = new MidMethodDeclNode(
-					sanitizedMethodName, originalMethodName,
-					methodNode.getReturnType());
+					sanitizedMethodName, originalMethodName, methodNode.getReturnType());
 			// Map original name
 			symbolTable.addMethod(originalMethodName, midMethodNode);
 			visitMethodDecl(midMethodNode, methodNode.getBlockNode(), symbolTable);
