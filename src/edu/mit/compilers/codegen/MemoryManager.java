@@ -68,7 +68,7 @@ public class MemoryManager {
 		// Reset the localStackSize.
 		localStackSize = 0;
 		for (MidNode m : methodDeclNode.getNodeList()) {
-			LogCenter.debug("  MemMan: " + m.toString());
+			LogCenter.debug("[MEM] " + m.toString());
 			if (m instanceof MidLocalMemoryNode) {
 				localStackSize += ADDRESS_SIZE;
 				((MidMemoryNode) m).setRawLocationReference(Integer
@@ -100,19 +100,22 @@ public class MemoryManager {
 	public static Reg allocTempRegister() {
 		for (Reg r : registerAvailabilityMap.keySet()) {
 			if (registerAvailabilityMap.get(r)) {
-				LogCenter.debug("  alloc " + r.name());
+				LogCenter.debug("[MEM]  alloc " + r.name());
 				registerAvailabilityMap.put(r, false);
-				LogCenter.debug("  " + registerAvailabilityMap.toString());
+				LogCenter.debug("[MEM]  " + registerAvailabilityMap.toString());
+				LogCenter.debug("[MEM]");
 				return r;
 			}
 		}
+//		return Reg.R9;
 		throw new RuntimeException("Ran out of registers somehow!.");
 	}
 
 	public static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
-		LogCenter.debug("  dealloc " + r.name());
-		LogCenter.debug("  " + registerAvailabilityMap.toString());
+		LogCenter.debug("[MEM]  dealloc " + r.name());
+		LogCenter.debug("[MEM]  " + registerAvailabilityMap.toString());
+		LogCenter.debug("[MEM]");
 	}
 
 	private static void deallocAllRegisters() {
