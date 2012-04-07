@@ -48,17 +48,23 @@ public class CSETransfer implements Transfer<CSEState> {
 		return s;
 	}
 
-	private void processSimpleAssignment(MidSaveNode saveNode, CSEState s) {
+	private void processSimpleAssignment(MidSaveNode node, CSEState s) {
 		// TODO Auto-generated method stub
-		MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
+		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
 		Value v = s.addVar(loadNode.getMemoryNode());
 		MidSaveNode tempNode = s.getTemp(v);
 		// Check if temp node is already in the list.
 		if (tempNode == null) {
 			// If not, add it.
-			tempInsertHelper(tempNode, saveNode, v, s);
+			tempInsertHelper(tempNode, node, v, s);
 		} else {
-			// If yes? TODO figure this part out.
+			// If yes, save it equal to the temp instead.
+			MidLoadNode loadTempNode = new MidLoadNode(
+					tempNode.getDestinationNode());
+			MidSaveNode newM = new MidSaveNode(loadTempNode,
+					node.getDestinationNode());
+			loadTempNode.replace(node);
+			newM.insertAfter(loadTempNode);
 		}
 	}
 
