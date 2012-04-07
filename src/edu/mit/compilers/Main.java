@@ -19,7 +19,7 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
-import edu.mit.compilers.opt.cse.CSEState;
+import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
@@ -128,8 +128,8 @@ class Main {
 						// Run certain optimizations after creating a mid-level
 						// IR.
 						if (isEnabled(OPT_CSE)) {
-							Analyzer<CSEState, CSETransfer> a = new Analyzer<CSEState, CSETransfer>(
-									new CSEState().getInitialState(),
+							Analyzer<CSEGlobalState, CSETransfer> a = new Analyzer<CSEGlobalState, CSETransfer>(
+									new CSEGlobalState().getInitialState(),
 									new CSETransfer());
 							a.analyze(symbolTable);
 						}

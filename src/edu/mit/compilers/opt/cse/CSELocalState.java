@@ -17,7 +17,7 @@ public class CSELocalState {
 
 	Map<MidMemoryNode, Value> varToVal;
 	Map<Value, MidSaveNode> valToTemp;
-	Map<Expr, Value> exprToVal;
+	Map<LocalExpr, Value> exprToVal;
 	// Used to store the register that had the value for a value saved to
 	// memory. DO NOT assume these values persist for more than instruction.
 	// This is purely for temp saving that occurs immediately after saving a
@@ -27,7 +27,7 @@ public class CSELocalState {
 	public CSELocalState() {
 		this.varToVal = new HashMap<MidMemoryNode, Value>();
 		this.valToTemp = new HashMap<Value, MidSaveNode>();
-		this.exprToVal = new HashMap<Expr, Value>();
+		this.exprToVal = new HashMap<LocalExpr, Value>();
 		this.valToReg = new HashMap<Value, MidRegisterNode>();
 	}
 
@@ -63,7 +63,7 @@ public class CSELocalState {
 	}
 
 	public Value addExpr(Value v1, Value v2, String nodeClass) {
-		Expr e = new Expr(v1, v2, nodeClass);
+		LocalExpr e = new LocalExpr(v1, v2, nodeClass);
 		Value v3;
 		if (!this.exprToVal.containsKey(e)) {
 			v3 = new Value();

@@ -8,11 +8,12 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 import edu.mit.compilers.opt.Value;
 
-public class CSETransfer implements Transfer<CSEState> {
+public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidSaveNode> assignments;
 
@@ -21,7 +22,7 @@ public class CSETransfer implements Transfer<CSEState> {
 	}
 
 	@Override
-	public CSEState apply(Block b, CSEState state) {
+	public CSEGlobalState apply(Block b, CSEGlobalState state) {
 		assert state != null : "Input state should not be null.";
 		// TOOD: shouldn't local state be somewhat dependent on the initial
 		// CSEState? new CSELocalState(state)? it should at least know about
@@ -29,7 +30,6 @@ public class CSETransfer implements Transfer<CSEState> {
 		CSELocalState localState = new CSELocalState();
 		MidNode node = b.getHead();
 		while (node != null) {
-			// TODO: Handle unary ops.
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
@@ -45,7 +45,9 @@ public class CSETransfer implements Transfer<CSEState> {
 				processSimpleAssignment(saveNode, localState);
 			}
 			// a = -x
-			
+			if (saveNode.getRegNode() instanceof MidNegNode) {
+				processUnaryAssignment(saveNode, localState);
+			}
 			// a = x + y
 			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
 				processArithmeticAssignment(saveNode, localState);
@@ -82,6 +84,12 @@ public class CSETransfer implements Transfer<CSEState> {
 			loadTempNode.replace(loadNode);
 			saveTempNode.replace(node);
 		}
+	}
+
+	private void processUnaryAssignment(MidSaveNode node,
+			CSELocalState localState) {
+		MidNegNode negNode = (MidNegNode) node.getRegNode();
+		// TODO: complete unary assignment here, will need new expr.
 	}
 
 	private void processArithmeticAssignment(MidSaveNode node, CSELocalState s) {
