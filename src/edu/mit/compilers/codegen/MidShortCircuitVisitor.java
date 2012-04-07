@@ -163,10 +163,8 @@ public class MidShortCircuitVisitor {
 		MidNodeList rightListNode = node.getRightOperand()
 				.convertToMidLevel(symbolTable);
 
-		MidMemoryNode leftDeclNode = leftListNode.getMemoryNode()
-				.getDestinationNode();
-		MidMemoryNode rightDeclNode = rightListNode.getMemoryNode()
-				.getDestinationNode();
+		MidMemoryNode leftDeclNode = leftListNode.getMemoryNode();
+		MidMemoryNode rightDeclNode = rightListNode.getMemoryNode();
 
 		MidLoadNode leftLoadNode = new MidLoadNode(leftDeclNode);
 		MidLoadNode rightLoadNode = new MidLoadNode(rightDeclNode);
@@ -228,14 +226,16 @@ public class MidShortCircuitVisitor {
 		MidMemoryNode tempNode = new MidTempDeclNode();
 		MidSaveNode trueNode = new MidSaveNode(true, tempNode);
 
-		MidLoadNode loadMethodNode = new MidLoadNode(methodNodeList.getMemoryNode().getDestinationNode());
+		MidLoadNode loadMethodNode = new MidLoadNode(
+				methodNodeList.getMemoryNode());
 		MidLoadNode loadTempNode = new MidLoadNode(tempNode);
-		
-		MidCompareNode compareNode = new MidCompareNode(loadMethodNode,loadTempNode);
-		
+
+		MidCompareNode compareNode = new MidCompareNode(loadMethodNode,
+				loadTempNode);
+
 		MidJumpEQNode jumpTrueNode = new MidJumpEQNode(trueLabel);
 		MidJumpNode jumpFalseNode = new MidJumpNode(falseLabel);
-		
+
 		nodeList.addAll(methodNodeList);
 		nodeList.add(loadMethodNode);
 		nodeList.add(tempNode);
@@ -244,17 +244,18 @@ public class MidShortCircuitVisitor {
 		nodeList.add(compareNode);
 		nodeList.add(jumpTrueNode);
 		nodeList.add(jumpFalseNode);
-		
+
 		return nodeList;
 	}
 
 	public static MidNodeList shortCircuit(IDNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		
-		ValuedMidNodeList arrayDeclInstrList = MidVisitor.getMemoryLocation(node, symbolTable);
+
+		ValuedMidNodeList arrayDeclInstrList = MidVisitor
+				.getMemoryLocation(node, symbolTable);
 		MidMemoryNode declNode = arrayDeclInstrList.getReturnNode();
-		//MidMemoryNode declNode = symbolTable.getVar(node.getText());
+		// MidMemoryNode declNode = symbolTable.getVar(node.getText());
 		MidLoadNode loadNode = new MidLoadNode(declNode);
 		MidMemoryNode tempNode = new MidTempDeclNode();
 		MidSaveNode zeroNode = new MidSaveNode(false, tempNode);
@@ -264,7 +265,7 @@ public class MidShortCircuitVisitor {
 		MidJumpNode jumpTrueNode = new MidJumpNode(trueLabel);
 
 		MidNodeList nodeList = new MidNodeList();
-		
+
 		nodeList.addAll(arrayDeclInstrList.getList());
 		nodeList.add(loadNode);
 		nodeList.add(tempNode);
@@ -281,8 +282,7 @@ public class MidShortCircuitVisitor {
 			MidSymbolTable symbolTable) {
 		if (node.getMidVarType(symbolTable) == VarType.INT) {
 			MidNodeList instrList = node.convertToMidLevel(symbolTable);
-			MidMemoryNode memoryNode = instrList.getMemoryNode()
-					.getDestinationNode();
+			MidMemoryNode memoryNode = instrList.getMemoryNode();
 			return new ValuedMidNodeList(instrList, memoryNode);
 		}
 		MidLabelNode trueLabel = MidLabelManager.getLabel(LabelType.SHORT);
