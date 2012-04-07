@@ -18,13 +18,19 @@ import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
+import edu.mit.compilers.opt.Analyzer;
+import edu.mit.compilers.opt.cse.CSEGlobalState;
+import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
 class Main {
+	private static final String OPT_CSE = "cse";
+	private static String[] OPTS = new String[] { OPT_CSE };
+
 	public static void main(String[] args) {
 		try {
-			CLI.parse(args, new String[0]);
+			CLI.parse(args, OPTS);
 			InputStream inputStream = args.length == 0 ? System.in
 					: new java.io.FileInputStream(CLI.infile);
 
@@ -116,9 +122,17 @@ class Main {
 
 					if (CLI.target == Action.LOWIR
 							|| CLI.target == Action.ASSEMBLY) {
-
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
+
+						// Run certain optimizations after creating a mid-level
+						// IR.
+						if (isEnabled(OPT_CSE)) {
+							Analyzer<CSEGlobalState, CSETransfer> a = new Analyzer<CSEGlobalState, CSETransfer>(
+									new CSEGlobalState().getInitialState(),
+									new CSETransfer());
+							a.analyze(symbolTable);
+						}
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
@@ -131,14 +145,32 @@ class Main {
 				}
 			}
 		} catch (Exception e) {
-			ErrorCenter.reportError(0, 0, "Unrecoverable error: "+e.getMessage());
+			ErrorCenter.reportError(0, 0, String
+					.format("Unrecoverable error of %s: %s\nSTACKTRACE:", e
+							.getClass(), e.getMessage()));
+			e.printStackTrace();
 			// print the error:
-			//System.out.println(CLI.infile);
-			//e.printStackTrace();
+			// System.out.println(CLI.infile);
+			// e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
+
+	/**
+	 * Do a linear scan for the optimization and check if it's enabled in
+	 * cliOpts.
+	 */
+	static private boolean isEnabled(String opt) {
+		int optIndex = -1;
+		for (int i = 0; i < OPTS.length; i++) {
+			if (OPTS[i].equals(opt)) {
+				optIndex = i;
+				break;
+			}
+		}
+		return CLI.opts[optIndex];
+	}
+
 	static private void writeToOutput(String text) {
 		FileOutputStream outStream;
 		try {
@@ -146,7 +178,8 @@ class Main {
 			outStream.write(text.getBytes());
 			outStream.close();
 		} catch (Exception e) {
-			System.out.println(String.format("Could not open file %s for output.", CLI.outfile));
+			System.out.println(String
+					.format("Could not open file %s for output.", CLI.outfile));
 		}
 	}
 

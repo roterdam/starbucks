@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 public class MidNodeList implements List<MidNode> {
 
@@ -224,9 +225,9 @@ public class MidNodeList implements List<MidNode> {
 		return out.toString();
 	}
 
-	public MidSaveNode getSaveNode() {
+	public MidMemoryNode getMemoryNode() {
 		assert getTail() instanceof MidSaveNode : toString();
-		return (MidSaveNode) getTail();
+		return ((MidSaveNode) getTail()).getDestinationNode();
 	}
 
 	public List<ASM> toASM() {

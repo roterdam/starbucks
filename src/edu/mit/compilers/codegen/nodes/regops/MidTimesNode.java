@@ -6,7 +6,7 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
 
-public class MidTimesNode extends MidBinaryRegNode {
+public class MidTimesNode extends MidArithmeticNode {
 
 
 	public MidTimesNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
@@ -16,6 +16,11 @@ public class MidTimesNode extends MidBinaryRegNode {
 	@Override
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.IMUL);		
+	}
+
+	@Override
+	public boolean isCommutative() {
+		return true;
 	}
 	
 }

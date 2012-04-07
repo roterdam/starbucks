@@ -8,7 +8,7 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-public class MidDivideNode extends MidBinaryRegNode {
+public class MidDivideNode extends MidArithmeticNode {
 
 	public MidDivideNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
@@ -19,11 +19,19 @@ public class MidDivideNode extends MidBinaryRegNode {
 		List<ASM> out = new ArrayList<ASM>();
 		// a/b -> a is dividend, b is divisor (i always forget :[)
 		String RAX = Reg.RAX.name();
-		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand().getRegister().name()));
+		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand()
+				.getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.CQO));
-		out.add(new OpASM(toString(), OpCode.IDIV, this.getRightOperand().getRegister().name()));
-		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(), RAX));
+		out.add(new OpASM(toString(), OpCode.IDIV, this.getRightOperand()
+				.getRegister().name()));
+		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(),
+				RAX));
 		return out;
+	}
+
+	@Override
+	public boolean isCommutative() {
+		return false;
 	}
 
 }

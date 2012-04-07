@@ -9,16 +9,28 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
 public abstract class MidNode {
-	MidNode nextNode;
+	private MidNode nextNode;
+	private MidNode prevNode;
+	public boolean isOptimization;
 
 	public void setNextNode(MidNode node) {
 		nextNode = node;
+		// Also set a backpointer.
+		nextNode.setPrevNode(this);
 	}
 
 	public MidNode getNextNode() {
 		return nextNode;
 	}
-
+	
+	public void setPrevNode(MidNode node) {
+		prevNode = node;
+	}
+	
+	public MidNode getPrevNode() {
+		return prevNode;
+	}
+	
 	public String toString() {
 		return "<" + getNodeClass() + ">";
 	}
@@ -45,5 +57,19 @@ public abstract class MidNode {
 
 	public List<Reg> getOperandRegisters() {
 		return new ArrayList<Reg>();
+	}
+	
+	public void insertAfter(MidNode n) {
+		MidNode oldNext = n.getNextNode();
+		n.setNextNode(this);
+		this.setNextNode(oldNext);
+		assert n.getNextNode() == this;
+	}
+	
+	public void replace(MidNode n) {
+		MidNode prevNode = n.getPrevNode();
+		prevNode.setNextNode(this);
+		this.setNextNode(n.getNextNode());
+		assert prevNode.getNextNode() == this;
 	}
 }

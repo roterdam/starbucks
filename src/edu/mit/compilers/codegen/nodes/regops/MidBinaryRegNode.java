@@ -10,21 +10,21 @@ import edu.mit.compilers.codegen.asm.OpCode;
 
 public abstract class MidBinaryRegNode extends MidRegisterNode {
 
-	private MidRegisterNode leftOperand;
-	private MidRegisterNode rightOperand;
+	private MidLoadNode leftOperand;
+	private MidLoadNode rightOperand;
 
-	public MidBinaryRegNode(MidRegisterNode leftOperand,
-			MidRegisterNode rightOperand) {
+	public MidBinaryRegNode(MidLoadNode leftOperand,
+			MidLoadNode rightOperand) {
 		super();
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
 	}
 
-	public MidRegisterNode getLeftOperand() {
+	public MidLoadNode getLeftOperand() {
 		return leftOperand;
 	}
 
-	public MidRegisterNode getRightOperand() {
+	public MidLoadNode getRightOperand() {
 		return rightOperand;
 	}
 

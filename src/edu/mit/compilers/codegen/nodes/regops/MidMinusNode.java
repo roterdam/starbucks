@@ -5,7 +5,7 @@ import java.util.List;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-public class MidMinusNode extends MidBinaryRegNode {
+public class MidMinusNode extends MidArithmeticNode {
 
 	public MidMinusNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
@@ -14,6 +14,11 @@ public class MidMinusNode extends MidBinaryRegNode {
 	@Override
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.SUB);
+	}
+
+	@Override
+	public boolean isCommutative() {
+		return false;
 	}
 
 }

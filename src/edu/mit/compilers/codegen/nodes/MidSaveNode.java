@@ -14,7 +14,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 /**`
- * Saves referenced register node or literal to memory (the stack?).
+ * Saves referenced register node or literal to memory.
  */
 public class MidSaveNode extends MidNode {
 
@@ -63,7 +63,7 @@ public class MidSaveNode extends MidNode {
 		this.saveType = MidSaveNodeType.BOOLEAN;
 	}
 
-	public MidRegisterNode getRefNode() {
+	public MidRegisterNode getRegNode() {
 		assert saveType == MidSaveNodeType.REGISTER;
 		return registerNode;
 	}
@@ -133,7 +133,6 @@ public class MidSaveNode extends MidNode {
 			rightOperand = registerNode.getRegister().name();
 			break;
 		case INT:
-			
 			rightOperand = Long.toString(decafIntValue);
 			break;
 		case BOOLEAN:
@@ -144,7 +143,8 @@ public class MidSaveNode extends MidNode {
 			assert false : "invalid saveType";
 		}
 
-		out.add(new OpASM(toString(), OpCode.MOV, destination
+		String comment = (isOptimization ? "[OPT] " : "") + toString();
+		out.add(new OpASM(comment, OpCode.MOV, destination
 				.getFormattedLocationReference(), rightOperand));
 
 		return out;
