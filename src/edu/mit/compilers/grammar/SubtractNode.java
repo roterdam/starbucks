@@ -15,8 +15,8 @@ public class SubtractNode extends OpIntInt2IntNode {
 	}
 
 	@Override
-	public ExpressionNode simplify() {
-		return AlgebraicSimplifier.simplifyExpression(this);
+	public ExpressionNode simplify(MidSymbolTable symbolTable) {
+		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
 	
 }

@@ -64,8 +64,8 @@ public class METHOD_CALLNode extends ExpressionNode {
 	}
 	
 	@Override
-	public ExpressionNode simplify() {
-		return AlgebraicSimplifier.simplifyExpression(this);
+	public ExpressionNode simplify(MidSymbolTable symbolTable) {
+		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
 	
 }

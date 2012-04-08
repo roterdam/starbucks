@@ -41,7 +41,7 @@ public abstract class ExpressionNode extends DecafNode {
 		return MidVisitor.visit(this, symbolTable);
 	}
 	
-	public abstract ExpressionNode simplify();
+	public abstract ExpressionNode simplify(MidSymbolTable symbolTable);
 	
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable,
 			MidLabelNode trueLabel, MidLabelNode falseLabel) {

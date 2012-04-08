@@ -26,8 +26,8 @@ public abstract class OpIntInt2BoolNode extends DoubleOperandNode {
 	}
 	
 	@Override
-	public ExpressionNode simplify() {
-		return AlgebraicSimplifier.simplifyExpression(this);
+	public ExpressionNode simplify(MidSymbolTable symbolTable) {
+		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
 
 }

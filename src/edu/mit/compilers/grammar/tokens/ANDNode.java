@@ -18,8 +18,8 @@ public class ANDNode extends OpBoolBool2BoolNode {
 	}
 	
 	@Override
-	public ExpressionNode simplify() {
-		return AlgebraicSimplifier.simplifyExpression(this);
+	public ExpressionNode simplify(MidSymbolTable symbolTable) {
+		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
 	
 }
