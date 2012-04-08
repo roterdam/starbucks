@@ -53,7 +53,28 @@ public abstract class DecafNode extends CommonAST {
 		}
 		return currentNode;
 	}
-
+	
+	public void replaceChild(int i, DecafNode node){
+		DecafNode predecessorNode = null;
+		DecafNode thisNode = getFirstChild();
+		for(int j = 0; j < i; j++){
+			predecessorNode = thisNode;
+			thisNode = thisNode.getNextSibling();
+		}
+		DecafNode successorNode = thisNode.getNextSibling();
+		
+		if(thisNode == node){
+			// Replacing node with itself, no updates necessary.
+			return;
+		}
+		if(predecessorNode == null){ // Setting firstChild
+			setFirstChild(node);
+		}else {
+			predecessorNode.setNextSibling(node);
+		}
+		node.setNextSibling(successorNode);
+	}
+	
 	public void validate(Scope scope) {
 		applyRules(scope);
 		validateChildren(scope);

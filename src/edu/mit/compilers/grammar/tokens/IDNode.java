@@ -9,6 +9,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class IDNode extends ExpressionNode {
@@ -85,6 +86,11 @@ public class IDNode extends ExpressionNode {
 	@Override
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
+	}
+	
+	@Override
+	public ExpressionNode simplify() {
+		return AlgebraicSimplifier.simplifyExpression(this);
 	}
 
 }
