@@ -1,6 +1,8 @@
 package edu.mit.compilers.opt.cse;
 
-import edu.mit.compilers.codegen.nodes.MidNode;
+import java.util.List;
+
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 /**
  * Note that this is a *symbolic* expression needed for GLOBAL CSE, since
@@ -11,40 +13,17 @@ import edu.mit.compilers.codegen.nodes.MidNode;
  * if (b) { x = 5; c = x+y; t=c; } else { d = x+y; t=d; }
  * e = t;
  */
-public class GlobalExpr {
+public abstract class GlobalExpr {
 
-	private final MidNode node;
-	private final GlobalExpr left;
-	private final GlobalExpr right;
+	@Override
+	public abstract String toString();
+	
+	@Override
+	public abstract boolean equals(Object o);
+	
+	@Override
+	public abstract int hashCode();
 
-	public GlobalExpr(MidNode node) {
-		this.node = node;
-		this.left = null;
-		this.right = null;
-	}
-
-	public GlobalExpr(MidNode node, GlobalExpr left, GlobalExpr right,
-			boolean isCommutative) {
-		this.node = node;
-		if (isCommutative) {
-			if (left.toString().compareTo(right.toString()) <= 0) {
-				this.left = left;
-				this.right = right;
-			} else {
-				this.left = right;
-				this.right = left;
-			}
-		} else {
-			this.left = left;
-			this.right = right;
-		}
-	}
-
-	public String toString() {
-		if (left != null && right != null) {
-			return node.toString() + ":" + left.toString() + "," + right.toString();
-		}
-		return node.toString();
-	}
+	public abstract List<MidMemoryNode> getMemoryNodes();
 
 }

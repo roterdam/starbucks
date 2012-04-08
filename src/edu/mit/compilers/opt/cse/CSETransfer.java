@@ -44,11 +44,11 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		for (MidSaveNode saveNode : this.assignments) {
 			// a = x
 			if (saveNode.getRegNode() instanceof MidLoadNode) {
-				processSimpleAssignment(saveNode, localState);
+				processSimpleAssignment(saveNode, localState, state);
 			}
 			// a = -x
 			if (saveNode.getRegNode() instanceof MidNegNode) {
-				processUnaryAssignment(saveNode, localState);
+				processUnaryAssignment(saveNode, localState, state);
 			}
 			// a = x + y
 			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
@@ -60,8 +60,29 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		return state;
 	}
 
-	private void processSimpleAssignment(MidSaveNode node, CSELocalState s) {
+	private void processSimpleAssignment(MidSaveNode node, CSELocalState s, CSEGlobalState g) {
 		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
+		
+		GlobalExpr expr = new LeafGlobalExpr(
+				loadNode.getMemoryNode());
+		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
+		
+		if (reusableReferences.size() > 0) {
+			// If there's a reusable reference, reuse it!
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
+			// TODO: are we sure we just take the first one?
+			MidMemoryNode ref = reusableReferences.get(0);
+			MidLoadNode loadTempNode = new MidLoadNode(ref);
+			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
+					node.getDestinationNode());
+			newSaveNode.isOptimization = true;
+			loadTempNode.replace(node);
+			newSaveNode.insertAfter(loadTempNode);
+			// Save destination node as a value.
+			s.addVar(ref);
+			return;
+		}
+		
 		// b = x;
 		// Get the value of the node to be assigned to, create a new one for it
 		// if necessary, i.e. x -> v1
@@ -89,17 +110,69 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	}
 
 	private void processUnaryAssignment(MidSaveNode node,
-			CSELocalState localState) {
-		MidNegNode negNode = (MidNegNode) node.getRegNode();
-		// TODO: complete unary assignment here, will need new expr.
+			CSELocalState s, CSEGlobalState g) {
+		MidNegNode r = (MidNegNode) node.getRegNode();
+
+		GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(
+				r.getOperand().getMemoryNode()));
+
+		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
+		
+		if (reusableReferences.size() > 0) {
+			// If there's a reusable reference, reuse it!
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
+			// TODO: are we sure we just take the first one?
+			MidMemoryNode ref = reusableReferences.get(0);
+			MidLoadNode loadTempNode = new MidLoadNode(ref);
+			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
+					node.getDestinationNode());
+			newSaveNode.isOptimization = true;
+			loadTempNode.replace(node);
+			newSaveNode.insertAfter(loadTempNode);
+			// Save destination node as a value.
+			s.addVar(ref);
+			return;
+		}
+
+		// Value-number left and right operands if necessary.
+		// x = a+b, a->v1, b->v2, x->v3, v3->v1+v2
+		Value v1 = s.addVar(r.getOperand().getMemoryNode());
+		// Value-number the resulting expression.
+		Value v3 = s.addUnaryExpr(v1, r);
+		// Number the assigned var with the same value.
+		s.addVarVal(node, v3);
+		MidSaveNode tempNode = s.getTemp(v3);
+
+		// Save reference in global CSE.
+		g.killReferences(node.getDestinationNode());
+		g.genReference(node.getDestinationNode(), expr);
+
+		// Check if the value is already in a temp.
+		if (tempNode == null) {
+			// It's not (in a temp), so create a new temp.
+			tempInsertHelper(tempNode, node, v3, s);
+		} else {
+			// If the value is already stored in a temp, use that temp
+			// instead. This is the magical optimization step.
+			// We assume tempNode is already in the midNodeList and can be
+			// loaded.
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING CSE.");
+			MidLoadNode loadTempNode = new MidLoadNode(
+					tempNode.getDestinationNode());
+			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
+					node.getDestinationNode());
+			newSaveNode.isOptimization = true;
+			loadTempNode.replace(node);
+			newSaveNode.insertAfter(loadTempNode);
+		}
 	}
 
 	private void processArithmeticAssignment(MidSaveNode node, CSELocalState s,
 			CSEGlobalState g) {
 		MidArithmeticNode r = (MidArithmeticNode) node.getRegNode();
-		GlobalExpr expr = new GlobalExpr(r, new GlobalExpr(r.getLeftOperand()
-				.getMemoryNode()), new GlobalExpr(r.getRightOperand()
-				.getMemoryNode()), r.isCommutative());
+		GlobalExpr expr = new BinaryGlobalExpr(r, new LeafGlobalExpr(r
+				.getLeftOperand().getMemoryNode()), new LeafGlobalExpr(r
+				.getRightOperand().getMemoryNode()), r.isCommutative());
 
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
 		if (reusableReferences.size() > 0) {
@@ -123,7 +196,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		Value v1 = s.addVar(r.getLeftOperand().getMemoryNode());
 		Value v2 = s.addVar(r.getRightOperand().getMemoryNode());
 		// Value-number the resulting expression.
-		Value v3 = s.addExpr(v1, v2, r.getNodeClass());
+		Value v3 = s.addBinaryExpr(v1, v2, r);
 		// Number the assigned var with the same value.
 		s.addVarVal(node, v3);
 		MidSaveNode tempNode = s.getTemp(v3);

@@ -6,6 +6,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class CHAR_LITERALNode extends ExpressionNode {
@@ -46,4 +47,9 @@ public class CHAR_LITERALNode extends ExpressionNode {
 		}
 	}
 
+	@Override
+	public ExpressionNode simplify() {
+		return AlgebraicSimplifier.simplifyExpression(this);
+	}
+	
 }

@@ -14,7 +14,7 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 
 	// Note: we use a List<GlobalExpr> here *in case* we want to store multiple
 	// ways of representing a memory node
-	// i.e. a = b+c, d = a-e could produce d = [a-e, b-(c+e)]
+	// i.e. a = b+c, d = a-e could produce d = [a-e, b+c-e)]
 	Map<MidMemoryNode, List<GlobalExpr>> refToExprMap;
 	Map<GlobalExpr, List<MidMemoryNode>> exprToRefMap;
 	Map<MidMemoryNode, List<GlobalExpr>> mentionMap;
@@ -61,7 +61,8 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 						for (MidMemoryNode m2 : thatMemoryNodes) {
 							if (m2 instanceof MidTempDeclNode) {
 								// Link the two temps.
-								((MidTempDeclNode) m1).linkTempDecl((MidTempDeclNode) m2);
+								((MidTempDeclNode) m1)
+										.linkTempDecl((MidTempDeclNode) m2);
 								// Return just one of them.
 								newMemNode = m1;
 								break;
@@ -81,10 +82,51 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
 		// Would potentially expand expr here.
+		List<GlobalExpr> exprs = new ArrayList<GlobalExpr>();
+		exprs.add(expr);
+		refToExprMap.put(node, exprs); // assuming killref already got called?
+
+		for (GlobalExpr e : exprs) {
+			if (!exprToRefMap.containsKey(e))
+				exprToRefMap.put(e, new ArrayList<MidMemoryNode>());
+			exprToRefMap.get(e).add(node);
+
+			for (MidMemoryNode m : expr.getMemoryNodes()) {
+				if (!mentionMap.containsKey(m))
+					mentionMap.put(m, new ArrayList<GlobalExpr>());
+				mentionMap.get(m).add(e);
+			}
+		}
+
 	}
 
+	// TODO function calls need to killreferences to all field decls
+	// TODO (this always gets called before gen reference, so just make them one
+	// method) ?
 	public void killReferences(MidMemoryNode node) {
+		if (mentionMap.containsKey(node)) {
+			// Remove stuff for each expr that is affected by the node.
+			for (GlobalExpr e : mentionMap.get(node)) {
+				// Remove reference to this expr for every mentioned variable
+				for (MidMemoryNode m : e.getMemoryNodes()) {
+					if (mentionMap.containsKey(m))
+						mentionMap.get(m).remove(e);
+				}
 
+				// Remove reference to this expr for every variable it defines
+				if (exprToRefMap.containsKey(e)) { // this should always be
+													// true?
+					for (MidMemoryNode m : exprToRefMap.get(e)) {
+						if (refToExprMap.containsKey(m)) { // this should always
+															// be true?
+							refToExprMap.get(m).remove(e);
+						}
+					}
+					exprToRefMap.remove(e);
+				}
+			}
+
+		}
 	}
 
 	public Map<GlobalExpr, List<MidMemoryNode>> getExpressionsMap() {
@@ -92,7 +134,10 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 	}
 
 	public List<MidMemoryNode> getReferences(GlobalExpr expr) {
-		return exprToRefMap.get(expr);
+		if (exprToRefMap.containsKey(expr)) {
+			return exprToRefMap.get(expr);
+		}
+		return new ArrayList<MidMemoryNode>();
 	}
 
 }

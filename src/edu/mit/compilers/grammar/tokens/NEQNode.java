@@ -13,4 +13,5 @@ public class NEQNode extends OpSameSame2BoolNode {
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
+	
 }
