@@ -1,5 +1,6 @@
 package edu.mit.compilers.opt.cse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +41,59 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 	
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
 		// Would potentially expand expr here.
-	}
-	
-	public void killReferences(MidMemoryNode node) {
+		List<GlobalExpr> exprs = new ArrayList<GlobalExpr>();
+		exprs.add(expr);
+		refToExprMap.put(node, exprs); //assuming killref already got called?
+		
+		for (GlobalExpr e : exprs){
+			if(!exprToRefMap.containsKey(e))
+				exprToRefMap.put(e, new ArrayList<MidMemoryNode>());
+			exprToRefMap.get(e).add(node);
+			
+			for(MidMemoryNode m : expr.getMemoryNodes()){
+				if(!mentionMap.containsKey(m))
+					mentionMap.put(m, new ArrayList<GlobalExpr>());
+				mentionMap.get(m).add(e);
+			}
+		}
+		
+		
 		
 	}
 	
+	
+	// TODO function calls need to killreferences to all field decls
+	// TODO (this always gets called before gen reference, so just make them one method) ?
+	public void killReferences(MidMemoryNode node) {
+		if(mentionMap.containsKey(node)){
+			// Remove stuff for each expr that is affected by the node.
+			for(GlobalExpr e : mentionMap.get(node)){
+				// Remove reference to this expr for every mentioned variable
+				for(MidMemoryNode m : e.getMemoryNodes()){
+					if(mentionMap.containsKey(m))
+						mentionMap.get(m).remove(e);
+				}
+				
+				// Remove reference to this expr for every variable it defines
+				if(exprToRefMap.containsKey(e)){ // this should always be true?
+					for(MidMemoryNode m : exprToRefMap.get(e)){
+						if(refToExprMap.containsKey(m)){  // this should always be true?
+							refToExprMap.get(m).remove(e);
+						}
+					}
+					exprToRefMap.remove(e);
+				}
+			}
+			
+		}
+	}
+	
 	public List<MidMemoryNode> getReferences(GlobalExpr expr) {
-		return exprToRefMap.get(expr);
+		if(exprToRefMap.containsKey(expr)){
+			return exprToRefMap.get(expr);
+		}else {
+			return new ArrayList<MidMemoryNode>();
+		}
 	}
 
 }

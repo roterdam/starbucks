@@ -1,6 +1,10 @@
 package edu.mit.compilers.opt.cse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.codegen.nodes.MidNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 /**
  * Note that this is a *symbolic* expression needed for GLOBAL CSE, since
@@ -45,6 +49,18 @@ public class GlobalExpr {
 			return node.toString() + ":" + left.toString() + "," + right.toString();
 		}
 		return node.toString();
+	}
+
+	public List<MidMemoryNode> getMemoryNodes() {
+		List<MidMemoryNode> nodes = new ArrayList<MidMemoryNode>();
+		if(left != null && right != null){ // not a leaf
+			nodes.addAll(left.getMemoryNodes());
+			nodes.addAll(right.getMemoryNodes());
+		}else {
+			assert node instanceof MidMemoryNode : "Expected MidMemoryNodes. Found "+node.getClass();
+			nodes.add((MidMemoryNode) node);
+		}
+		return nodes;
 	}
 
 }
