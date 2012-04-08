@@ -84,9 +84,25 @@ public class MidVisitor {
 	private static String stripQuotes(String text) {
 		return text.substring(1, text.length() - 1);
 	}
+	
+	public static MidNodeList getPreCalls(ExpressionNode expr, MidSymbolTable symbolTable){
+		MidNodeList instrList = new MidNodeList();
+		for(METHOD_CALLNode callNode : expr.getCallsBeforeExecution())
+			instrList.addAll(callNode.convertToMidLevel(symbolTable));
+		return instrList;
+	}
+	
+	public static MidNodeList getPostCalls(ExpressionNode expr, MidSymbolTable symbolTable){
+		MidNodeList instrList = new MidNodeList();
+		for(METHOD_CALLNode callNode : expr.getCallsAfterExecution())
+			instrList.addAll(callNode.convertToMidLevel(symbolTable));
+		return instrList;
+	}
 
 	public static MidNodeList visit(CALLOUTNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
+		out.addAll(getPreCalls(node, symbolTable));
+		
 		List<DecafNode> argNodes = node.getArgs();
 		List<MidMemoryNode> paramNodes = new ArrayList<MidMemoryNode>();
 		for (int i = 0; i < argNodes.size(); i++) {
@@ -110,6 +126,7 @@ public class MidVisitor {
 						+ n.getClass();
 			}
 		}
+		out.addAll(getPostCalls(node, symbolTable));
 		// removes the " " from the DecafNode
 		String methodName = stripQuotes(node.getName());
 		MidCalloutNode midCallOutNode = new MidCalloutNode(methodName,
@@ -137,6 +154,8 @@ public class MidVisitor {
 	public static MidNodeList visit(METHOD_CALLNode node,
 			MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
+		
+		out.addAll(getPreCalls(node, symbolTable));
 		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
 
 		for (ExpressionNode paramRoot : node.getParamNodes()) {
@@ -147,7 +166,7 @@ public class MidVisitor {
 			out.addAll(valuedParamInstrList.getList());
 			// out.addAll(paramList);
 		}
-
+		out.addAll(getPostCalls(node, symbolTable));
 		MidMethodCallNode methodNode = new MidMethodCallNode(
 				symbolTable.getMethod(node.getMethodName()), paramMemoryNodes);
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
@@ -315,9 +334,11 @@ public class MidVisitor {
 			MidSaveNode saveNode = new MidSaveNode(binNode, dest);
 
 			MidNodeList instrList = new MidNodeList();
+			instrList.addAll(getPreCalls(node, symbolTable));
 			instrList.addAll(rightList);
 			instrList.addAll(errorList);
 			instrList.addAll(leftList);
+			instrList.addAll(getPostCalls(node, symbolTable));
 			instrList.add(leftLoadNode);
 			instrList.add(rightLoadNode);
 			instrList.add(binNode);
@@ -370,9 +391,14 @@ public class MidVisitor {
 		unaryNode = new MidNegNode(loadNode);
 
 		MidNodeList out = new MidNodeList();
+		out.addAll(getPreCalls(node, symbolTable));
 		out.addAll(nodeList);
+		out.addAll(getPostCalls(node, symbolTable));
+		
+		
 		out.add(loadNode);
 		out.add(unaryNode);
+		
 		MidTempDeclNode dest = new MidTempDeclNode();
 		out.add(dest);
 		out.add(new MidSaveNode(unaryNode, dest));
@@ -460,6 +486,10 @@ public class MidVisitor {
 	public static MidNodeList visit(INT_LITERALNode node,
 			MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
+		
+		out.addAll(getPreCalls(node, symbolTable));
+		out.addAll(getPostCalls(node, symbolTable));
+		
 		MidTempDeclNode dest = new MidTempDeclNode();
 		MidNodeList saveInstrList = MidSaveNode.storeValueInMemory(node
 				.getValue(), dest);
@@ -471,6 +501,10 @@ public class MidVisitor {
 	public static MidNodeList visit(CHAR_LITERALNode node,
 			MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
+		
+		out.addAll(getPreCalls(node, symbolTable));
+		out.addAll(getPostCalls(node, symbolTable));
+		
 		MidTempDeclNode dest = new MidTempDeclNode();
 		MidNodeList saveInstrList = MidSaveNode.storeValueInMemory(node
 				.getValue(), dest);
@@ -506,7 +540,9 @@ public class MidVisitor {
 		MidLoadNode loadNode = new MidLoadNode(memGetList.getReturnNode());
 		MidTempDeclNode tempNode = new MidTempDeclNode();
 
+		out.addAll(getPreCalls(node, symbolTable));
 		out.addAll(memGetList.getList());
+		out.addAll(getPostCalls(node, symbolTable));
 		out.add(loadNode);
 		out.add(tempNode);
 		out.add(new MidSaveNode(loadNode, tempNode));

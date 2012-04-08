@@ -41,6 +41,10 @@ public class CALLOUTNode extends ExpressionNode {
 		return args.getArgs();
 	}
 
+	public CALLOUT_ARGSNode getArgsNode(){
+		return (CALLOUT_ARGSNode) getChild(1);
+	}
+	
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);

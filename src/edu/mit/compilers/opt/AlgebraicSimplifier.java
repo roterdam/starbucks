@@ -9,6 +9,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.codegen.StarbucksMethodCallNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldArrayDeclNode;
 import edu.mit.compilers.grammar.BooleanNode;
+import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.UnaryMinusNode;
@@ -98,10 +99,22 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
+	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(UnaryMinusNode node, MidSymbolTable symbolTable) {
-		// TODO is this already taken care of by clean?
-		// Clean happens before SemanticChecker... should this?
-		// It can't. Need to do a second simplify.
+		
+		// Note, this applies to cleaning non-literal expressions that reduce to literal expressions
+		// E.g.: -(a*0+4) --> -(4) --> -4
+		
+		final ExpressionNode expr = node.getOperand();
+		if(expr instanceof INT_LITERALNode){
+			final long exprValue = ((INT_LITERALNode) expr).getValue();
+			return new INT_LITERALNode(){{
+				setText(Long.toString(-exprValue));
+				initializeValue();
+				getCallsBeforeExecution().addAll(expr.getCallsBeforeExecution());
+				getCallsAfterExecution().addAll(expr.getCallsAfterExecution());
+			}};
+		}
 		return node;
 	}
 
@@ -165,12 +178,28 @@ public class AlgebraicSimplifier {
 	}
 
 	public static ExpressionNode simplifyExpression(CALLOUTNode node, MidSymbolTable symbolTable) {
-		// TODO implement
+		List<DecafNode> paramNodes = new ArrayList<DecafNode>();
+		for(DecafNode param : node.getArgs()){
+			if(param instanceof ExpressionNode){
+				paramNodes.add(((ExpressionNode)param).simplify(symbolTable));
+			}else {
+				paramNodes.add(param);
+			}
+		}
+		for(int i=0; i<paramNodes.size(); i++){
+			node.getArgsNode().replaceChild(i, paramNodes.get(i));
+		}
 		return node;
 	}
 
 	public static ExpressionNode simplifyExpression(METHOD_CALLNode node, MidSymbolTable symbolTable) {
-		// TODO implement
+		List<ExpressionNode> paramNodes = new ArrayList<ExpressionNode>();
+		for(ExpressionNode expr : node.getParamNodes()){
+			paramNodes.add(expr.simplify(symbolTable));
+		}
+		for(int i=0; i<paramNodes.size(); i++){
+			node.replaceChild(i+1, paramNodes.get(i));
+		}
 		return node;
 	}
 
@@ -296,10 +325,8 @@ public class AlgebraicSimplifier {
 			} else if (leftOp instanceof INT_LITERALNode) {
 				// Case 3
 				long leftVal = ((INT_LITERALNode) leftOp).getValue();
-				long newVal = Math.abs(leftVal % rightVal); // TODO (this is the
-															// behaviour of our
-															// mod operator,
-															// right?)
+				// TODO (this is the behaviour of our mod operator, right?)
+				long newVal = Math.abs(leftVal % rightVal);
 				INT_LITERALNode newNode = new INT_LITERALNode();
 				newNode.setText(Long.toString(newVal));
 				newNode.initializeValue();
