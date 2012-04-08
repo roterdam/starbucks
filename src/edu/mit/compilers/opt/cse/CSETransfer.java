@@ -123,7 +123,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		Value v1 = s.addVar(r.getLeftOperand().getMemoryNode());
 		Value v2 = s.addVar(r.getRightOperand().getMemoryNode());
 		// Value-number the resulting expression.
-		Value v3 = s.addExpr(v1, v2, r.getNodeClass());
+		Value v3 = s.addExpr(v1, v2, r);
 		// Number the assigned var with the same value.
 		s.addVarVal(node, v3);
 		MidSaveNode tempNode = s.getTemp(v3);
