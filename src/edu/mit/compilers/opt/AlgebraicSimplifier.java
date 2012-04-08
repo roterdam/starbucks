@@ -11,6 +11,7 @@ import edu.mit.compilers.grammar.tokens.BANGNode;
 import edu.mit.compilers.grammar.tokens.CALLOUTNode;
 import edu.mit.compilers.grammar.tokens.CHAR_LITERALNode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
+import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
@@ -18,6 +19,7 @@ import edu.mit.compilers.grammar.tokens.MODNode;
 import edu.mit.compilers.grammar.tokens.ORNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
+import edu.mit.compilers.grammar.tokens.TRUENode;
 
 // WORRIES: function calls need to be called still, even if they get whacked. f(x)*0
 // Function calls can also modify field variables.
@@ -32,6 +34,7 @@ import edu.mit.compilers.grammar.tokens.TIMESNode;
 
 
 public class AlgebraicSimplifier {
+
 	public static ExpressionNode simplifyExpression(SubtractNode node) {
 		// TODO implement
 		return node;
@@ -42,8 +45,26 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 	
+	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(ANDNode node){
-		// TODO implement
+		final BooleanNode leftNode = (BooleanNode) node.getLeftOperand().simplify();
+		final BooleanNode rightNode = (BooleanNode) node.getRightOperand().simplify();
+		if(leftNode instanceof TRUENode){
+			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+			return rightNode;
+		}else if(leftNode instanceof FALSENode || rightNode instanceof FALSENode){
+			return new FALSENode(){{
+				setText("false");
+				getCallsBeforeExecution().addAll(leftNode.getAllCallsDuringExecution());
+				getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			}};
+		}else if(rightNode instanceof TRUENode){
+			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			leftNode.setNextSibling(null);
+			return leftNode;
+		}
+		node.replaceChild(0, node.getLeftOperand().simplify());
+		node.replaceChild(1, node.getRightOperand().simplify());
 		return node;
 	}
 	
@@ -83,17 +104,16 @@ public class AlgebraicSimplifier {
 	}
 	
 	public static ExpressionNode simplifyExpression(OpSameSame2BoolNode node) {
-		// TODO implement
+		node.replaceChild(0, node.getLeftOperand().simplify());
+		node.replaceChild(1, node.getRightOperand().simplify());
 		return node;
 	}
 	
 	public static ExpressionNode simplifyExpression(IDNode node) {
-		// TODO implement
 		return node;
 	}
 	
 	public static ExpressionNode simplifyExpression(BooleanNode node) {
-		// TODO implement
 		return node;
 	}
 	
@@ -103,6 +123,22 @@ public class AlgebraicSimplifier {
 	}
 	
 	public static ExpressionNode simplifyExpression(ORNode node){
+		final BooleanNode leftNode = (BooleanNode) node.getLeftOperand().simplify();
+		final BooleanNode rightNode = (BooleanNode) node.getRightOperand().simplify();
+		if(leftNode instanceof FALSENode){
+			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+			return rightNode;
+		}else if(leftNode instanceof TRUENode || rightNode instanceof TRUENode){
+			return new TRUENode(){{
+				setText("true");
+				getCallsBeforeExecution().addAll(leftNode.getAllCallsDuringExecution());
+				getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			}};
+		}else if(rightNode instanceof FALSENode){
+			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			leftNode.setNextSibling(null);
+			return leftNode;
+		}
 		node.replaceChild(0, node.getLeftOperand().simplify());
 		node.replaceChild(1, node.getRightOperand().simplify());
 		return node;

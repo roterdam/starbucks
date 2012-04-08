@@ -21,6 +21,12 @@ public abstract class ExpressionNode extends DecafNode {
 		callsAfterExecution = new ArrayList<METHOD_CALLNode>();
 	}
 	
+	public List<METHOD_CALLNode> getAllCallsDuringExecution(){
+		List<METHOD_CALLNode> list = new ArrayList<METHOD_CALLNode>();
+		list.addAll(callsBeforeExecution);
+		list.addAll(callsAfterExecution);
+		return list;
+	}
 	public List<METHOD_CALLNode> getCallsBeforeExecution(){
 		return callsBeforeExecution;
 	}
