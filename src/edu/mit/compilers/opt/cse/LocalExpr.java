@@ -1,5 +1,6 @@
 package edu.mit.compilers.opt.cse;
 
+import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.opt.Value;
 
 /**
@@ -10,12 +11,12 @@ public class LocalExpr {
 
 	private Value v1;
 	private Value v2;
-	private String nodeClass;
+	private MidArithmeticNode node;
 
-	public LocalExpr(Value v1, Value v2, String nodeClass) {
+	public LocalExpr(Value v1, Value v2, MidArithmeticNode node) {
 		this.v1 = v1;
 		this.v2 = v2;
-		this.nodeClass = nodeClass;
+		this.node = node;
 	}
 
 	/**
@@ -27,12 +28,16 @@ public class LocalExpr {
 			return false;
 		}
 		LocalExpr e = (LocalExpr) o;
-		// TODO: THIS IS INCORRECT. Non-commutative operations can't assume
-		// swapping order doesn't matter, for example.
-		boolean equalArgs = (e.getV1() == v1 && e.getV2() == v2)
-				|| (e.getV1() == v2 && e.getV2() == v1);
-		return (equalArgs && e.getNodeClass().equals(nodeClass));
+		if (!e.getNodeClass().equals(this.getNodeClass())) {
+			return false;
+		}
+		boolean equalArgs = false;
+		if (node.isCommutative()) {
+			 equalArgs = (e.getV1() == v2 && e.getV2() == v1);
+		}
+		return (equalArgs || (e.getV1() == v1 && e.getV2() == v2));
 	}
+
 
 	@Override
 	public int hashCode() {
@@ -41,7 +46,6 @@ public class LocalExpr {
 
 	public Value getV1() {
 		return v1;
-
 	}
 
 	public Value getV2() {
@@ -49,7 +53,7 @@ public class LocalExpr {
 	}
 
 	public String getNodeClass() {
-		return nodeClass;
+		return node.getNodeClass();
 	}
 
 }

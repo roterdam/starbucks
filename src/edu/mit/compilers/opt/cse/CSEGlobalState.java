@@ -11,7 +11,7 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 
 	// Note: we use a List<GlobalExpr> here *in case* we want to store multiple
 	// ways of representing a memory node
-	// i.e. a = b+c, d = a-e could produce d = [a-e, b-(c+e)]
+	// i.e. a = b+c, d = a-e could produce d = [a-e, b+c-e)]
 	Map<MidMemoryNode, List<GlobalExpr>> refToExprMap;
 	Map<GlobalExpr, List<MidMemoryNode>> exprToRefMap;
 	Map<MidMemoryNode, List<GlobalExpr>> mentionMap;
