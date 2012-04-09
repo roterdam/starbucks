@@ -114,6 +114,7 @@ public class MemoryManager {
 
 	public static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
+		assert r != null : "Why is this register null?";
 		LogCenter.debug("[MEM]  dealloc " + r.name());
 		LogCenter.debug("[MEM]  " + registerAvailabilityMap.toString());
 		LogCenter.debug("[MEM]");
