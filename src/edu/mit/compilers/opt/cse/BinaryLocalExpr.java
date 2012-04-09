@@ -28,20 +28,20 @@ public class BinaryLocalExpr extends LocalExpr {
 			return false;
 		}
 		BinaryLocalExpr e = (BinaryLocalExpr) o;
-		if (!e.getNodeClass().equals(this.getNodeClass())) {
+		if (!e.getNodeClass().equals(getNodeClass())) {
 			return false;
 		}
 		boolean equalArgs = false;
 		if (node.isCommutative()) {
-			 equalArgs = (e.getV1() == v2 && e.getV2() == v1);
+			equalArgs = (e.getV1() == v2 && e.getV2() == v1);
 		}
 		return (equalArgs || (e.getV1() == v1 && e.getV2() == v2));
 	}
 
-
 	@Override
 	public int hashCode() {
-		return node.hashCode() + v1.hashCode() + v2.hashCode();
+		return (getNodeClass().hashCode() * 7919 + v1.hashCode()) * 17389
+				+ v2.hashCode();
 	}
 
 	public Value getV1() {
@@ -52,7 +52,6 @@ public class BinaryLocalExpr extends LocalExpr {
 		return v2;
 	}
 
-	@Override
 	public String getNodeClass() {
 		return node.getNodeClass();
 	}

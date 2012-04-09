@@ -48,8 +48,8 @@ public class MidSaveNode extends MidNode {
 		nodeList.add(loadNode);
 		nodeList.add(saveNode);
 		return nodeList;
-		
 	}
+	
 	/*
 	public MidSaveNode(long decafIntValue, MidMemoryNode dest) {
 		this(dest);

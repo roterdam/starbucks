@@ -56,6 +56,7 @@ public class MemoryManager {
 			LogCenter.debug("METHOD: " + methodName);
 			processMethod(methods.get(methodName));
 		}
+		
 		Map<String, MidMethodDeclNode> starbucksMethods = codeRoot.getStarbucksMethods();
 		for (String methodName : starbucksMethods.keySet()) {
 			LogCenter.debug("STARBUCKS_METHOD: " + methodName);
