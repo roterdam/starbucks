@@ -9,8 +9,10 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
+import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
+import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 import edu.mit.compilers.opt.Value;
@@ -60,13 +62,13 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		return state;
 	}
 
-	private void processSimpleAssignment(MidSaveNode node, CSELocalState s, CSEGlobalState g) {
+	private void processSimpleAssignment(MidSaveNode node, CSELocalState s,
+			CSEGlobalState g) {
 		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
-		
-		GlobalExpr expr = new LeafGlobalExpr(
-				loadNode.getMemoryNode());
+
+		GlobalExpr expr = new LeafGlobalExpr(loadNode.getMemoryNode());
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
-		
+
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
 			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
@@ -82,7 +84,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			s.addVar(ref);
 			return;
 		}
-		
+
 		// b = x;
 		// Get the value of the node to be assigned to, create a new one for it
 		// if necessary, i.e. x -> v1
@@ -109,15 +111,15 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		}
 	}
 
-	private void processUnaryAssignment(MidSaveNode node,
-			CSELocalState s, CSEGlobalState g) {
+	private void processUnaryAssignment(MidSaveNode node, CSELocalState s,
+			CSEGlobalState g) {
 		MidNegNode r = (MidNegNode) node.getRegNode();
 
-		GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(
-				r.getOperand().getMemoryNode()));
+		GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(r
+				.getOperand().getMemoryNode()));
 
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
-		
+
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
 			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
@@ -220,9 +222,23 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-			loadTempNode.replace(node);
+			loadTempNode.insertAfter(node);
 			newSaveNode.insertAfter(loadTempNode);
+			completeDelete(node);
 		}
+	}
+
+	/**
+	 * Deletes a node and all now-useless nodes before it. Assumes saveNode
+	 * saves an arithmetic node.
+	 */
+	private void completeDelete(MidSaveNode saveNode) {
+		saveNode.delete();
+		assert saveNode.getRegNode() instanceof MidArithmeticNode;
+		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
+		arithNode.delete();
+		arithNode.getLeftOperand().delete();
+		arithNode.getRightOperand().delete();
 	}
 
 	private void tempInsertHelper(MidSaveNode tempNode, MidNode originalNode,

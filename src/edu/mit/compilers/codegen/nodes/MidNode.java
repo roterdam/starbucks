@@ -72,4 +72,8 @@ public abstract class MidNode {
 		this.setNextNode(n.getNextNode());
 		assert prevNode.getNextNode() == this;
 	}
+	
+	public void delete() {
+		this.getPrevNode().setNextNode(this.getNextNode());
+	}
 }
