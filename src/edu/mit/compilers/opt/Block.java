@@ -70,10 +70,10 @@ public class Block {
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
-		String out = b.getBlockNum() + " [" + b.getHead() + "]";
+		String out = "" + b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
-			out += "\n[OPT] ";
+			out += "\n";
 			for (int i = 0; i < indent; i++) {
 				out += " ";
 			}

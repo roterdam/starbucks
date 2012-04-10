@@ -53,7 +53,6 @@ public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferen
 		MidNodeList nodeList = new MidNodeList();
 		MidLoadImmNode loadNode = new MidLoadImmNode(decafIntValue);
 		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
-		dest.setConstantValue(decafIntValue);
 		nodeList.add(loadNode);
 		nodeList.add(saveNode);
 		return nodeList;

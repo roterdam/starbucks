@@ -26,13 +26,12 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		assert state != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidSaveNode>();
-		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING "
-				+ b.getHead() + ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
+		LogCenter.debug("[OPT] #\n[OPT] #\n[OPT] #\n[OPT] PROCESSING "
+				+ b.getHead() + ", THE GLOBAL STATE IS:\n[OPT] " + state);
 
 		// TODO: shouldn't local state be somewhat dependent on the initial
 		// CSEState? new CSELocalState(state)? it should at least know about
 		// temps that map to existing symbol expressions
-		// Possibly not, if we look in global state first before doing local opts.
 		CSELocalState localState = new CSELocalState();
 		MidNode node = b.getHead();
 		if (ROOT_NODE == null) {
@@ -43,6 +42,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
+				LogCenter.debug("[OPT] Processing " + saveNode);
 			}
 			if (node == b.getTail()) {
 				break;
@@ -154,8 +154,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-//		g.genReference(node.getDestinationNode(), expr);
-//		g.killReferences(node.getDestinationNode());
+		g.genReference(node.getDestinationNode(), expr);
+		g.killReferences(node.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
@@ -215,11 +215,11 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		// Save reference in global CSE.
 		LogCenter
-				.debug("[OPTJ]\n[OPTJ] SAVING REFERENCE FROM processArithmeticAssignment due to "
+				.debug("[OPTJ] ###\n[OPTJ] SAVING REFERENCE FROM processArithmeticAssignment due to "
 						+ node);
 		LogCenter.debug("[OPTJ] SAVING TO " + node.getDestinationNode());
-//		g.genReference(node.getDestinationNode(), expr);
-//		g.killReferences(node.getDestinationNode());
+		g.genReference(node.getDestinationNode(), expr);
+		g.killReferences(node.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
