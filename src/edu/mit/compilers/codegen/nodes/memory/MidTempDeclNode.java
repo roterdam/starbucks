@@ -23,11 +23,28 @@ public class MidTempDeclNode extends MidLocalMemoryNode {
 
 	@Override
 	public void setRawLocationReference(String rawLocationReference) {
-		super.setRawLocationReference(rawLocationReference);
 		if (linkedTempDecl != null) {
-			assert linkedTempDecl.getRawLocationReference() == null;
-			linkedTempDecl.setRawLocationReference(rawLocationReference);
+			String linkedRef = linkedTempDecl.getRawLocationReference();
+			if (linkedRef == null) {
+				super.setRawLocationReference(rawLocationReference);
+				linkedTempDecl.setRawLocationReference(rawLocationReference);
+			} else {
+				super.setRawLocationReference(linkedRef);
+			}
+		} else {
+			super.setRawLocationReference(rawLocationReference);
 		}
+	}
+
+	@Override
+	public String toDotSyntax() {
+		if (linkedTempDecl != null) {
+			String out = super.toDotSyntax() + hashCode() + " -> "
+					+ linkedTempDecl.hashCode()
+					+ " [style=dotted,color=blue];\n";
+			return out;
+		}
+		return super.toDotSyntax();
 	}
 
 	@Override

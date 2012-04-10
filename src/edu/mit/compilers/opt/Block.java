@@ -1,7 +1,7 @@
 package edu.mit.compilers.opt;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,13 +67,17 @@ public class Block {
 		successors.add(b);
 		b.addPredecessor(this);
 	}
+	
+	public String toString() {
+		return "B" + blockNum + "[" + getHead() + "]";
+	}
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
 		String out = b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
-			out += "\n[OPT] ";
+			out += "\n[FLOW] ";
 			for (int i = 0; i < indent; i++) {
 				out += " ";
 			}
@@ -86,7 +90,7 @@ public class Block {
 		return out;
 	}
 
-	private static Map<MidNode, Block> blockCache = new HashMap<MidNode, Block>();
+	private static Map<MidNode, Block> blockCache = new LinkedHashMap<MidNode, Block>();
 	public static int blockNumCounter = 0;
 
 	public static Block makeBlock(MidNode n) {

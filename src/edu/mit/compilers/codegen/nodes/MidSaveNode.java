@@ -3,7 +3,7 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
@@ -21,7 +21,8 @@ import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
  * `
  * Saves referenced register node or literal to memory.
  */
-public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferenceNode {
+public class MidSaveNode extends MidNode implements RegisterOpNode,
+		ArrayReferenceNode {
 
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
@@ -46,6 +47,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferen
 		if (registerNode instanceof MidLoadNode) {
 			((MidLoadNode) registerNode).recordRegisterOp(this);
 		}
+		registerNode.record(this);
 	}
 
 	public static MidNodeList storeValueInMemory(long decafIntValue,
@@ -59,14 +61,6 @@ public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferen
 		nodeList.add(saveNode);
 		return nodeList;
 	}
-
-	/*
-	 * public MidSaveNode(long decafIntValue, MidMemoryNode dest) {
-	 * this(dest);
-	 * this.decafIntValue = decafIntValue;
-	 * this.saveType = MidSaveNodeType.INT;
-	 * }
-	 */
 
 	public MidSaveNode(boolean decafBooleanValue, MidMemoryNode dest) {
 		this(dest);
@@ -123,7 +117,8 @@ public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferen
 			value = registerNode.getName();
 		}
 		String isArray = usesArrayReference() ? "[A]" : "";
-		return "<" + className.substring(mid) + ": " + value + " " + isArray + ">";
+		return "<" + className.substring(mid) + ": " + value + " " + isArray
+				+ ">";
 	}
 
 	@Override
@@ -174,7 +169,9 @@ public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferen
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		if (registerNode != null) {
-			assert registerNode.getRegister() != null : registerNode;
+			assert registerNode.getRegister() != null : registerNode + " "
+					+ registerNode.hashCode() + " -> " + MemoryManager.temp
+					+ " " + MemoryManager.temp.hashCode();
 			out.add(registerNode.getRegister());
 		}
 		return out;

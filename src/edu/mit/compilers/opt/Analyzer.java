@@ -21,7 +21,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		transferFunction = t;
 		initialize();
 	}
-	
+
 	private void initialize() {
 		outHash = new HashMap<Block, S>();
 	}
@@ -38,7 +38,8 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		initialize();
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
-		LogCenter.debug("[OPT] BLOCK:\n[OPT] "
+		LogCenter
+				.debug("[FLOW] BLOCK:\n[FLOW] "
 						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
@@ -48,16 +49,26 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 		// Do the first node
 		Block n0 = Block.makeBlock(nodeList.getHead());
+		LogCenter.debug("[FLOW] Process " + n0);
 		outHash.put(n0, this.transferFunction.apply(n0, startState));
 		worklist.remove(n0);
 
 		while (!worklist.isEmpty()) {
+			LogCenter.debug("[FLOW]");
 			Block currentBlock = worklist.remove(0);
+			LogCenter.debug("[FLOW] ######################");
+			LogCenter.debug("[FLOW] ######################");
+			LogCenter.debug("[FLOW] ANALYZER IS LOOKING AT " + currentBlock);
+			LogCenter.debug("[FLOW] WL: " + worklist);
 			S in = getInState(currentBlock);
 			S out = this.transferFunction.apply(currentBlock, in);
-			if (out != outHash.get(out)) {
+			if (out.isModified()) {
 				outHash.put(currentBlock, out);
-				// worklist.addAll(currentBlock.getSuccessors());
+				for (Block s : currentBlock.getSuccessors()) {
+					if (!worklist.contains(s)) {
+						worklist.add(s);
+					}
+				}
 			}
 			// TODO: return with less perfect result if it takes a really long
 			// time?
@@ -66,12 +77,10 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 	public S getInState(Block b) {
 		S out = null;
+		LogCenter.debug("[FLOW] Getting in state.");
 		for (Block m : b.getPredecessors()) {
-			if (out == null) {
-				out = outHash.get(m);
-			} else {
-				out = out.join(outHash.get(m));
-			}
+			LogCenter.debug("[FLOW] Using state from " + m);
+			out = outHash.get(m).join(out);
 		}
 		return out;
 	}
