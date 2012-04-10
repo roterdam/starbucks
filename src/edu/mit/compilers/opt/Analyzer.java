@@ -62,7 +62,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			if (out == null) {
 				out = outHash.get(m);
 			} else {
-				out.join(outHash.get(m));
+				out = out.join(outHash.get(m));
 			}
 		}
 		return out;

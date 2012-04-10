@@ -18,7 +18,7 @@ import edu.mit.compilers.opt.Value;
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidSaveNode> assignments;
-	
+
 	public static MidNode ROOT_NODE;
 
 	@Override
@@ -26,6 +26,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		assert state != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidSaveNode>();
+		LogCenter.debug("[OPT] #\n[OPT] #\n[OPT] #\n[OPT] PROCESSING "
+				+ b.getHead() + ", THE GLOBAL STATE IS:\n[OPT] " + state);
 
 		// TODO: shouldn't local state be somewhat dependent on the initial
 		// CSEState? new CSELocalState(state)? it should at least know about
@@ -184,7 +186,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			// If there's a reusable reference, reuse it!
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing " + expr);
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+					+ expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
@@ -208,6 +211,10 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
+		LogCenter
+				.debug("[OPTJ] ###\n[OPTJ] SAVING REFERENCE FROM processArithmeticAssignment due to "
+						+ node);
+		LogCenter.debug("[OPTJ] SAVING TO " + node.getDestinationNode());
 		g.genReference(node.getDestinationNode(), expr);
 		g.killReferences(node.getDestinationNode());
 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
@@ -66,6 +67,7 @@ public class Block {
 		if (n == null) {
 			return null;
 		}
+		LogCenter.debug("[OPT] BLOCK: makeBlock " + n);
 		if (n instanceof MidJumpNode) {
 			MidJumpNode jumpNode = (MidJumpNode) n;
 			return makeBlock(jumpNode.getLabelNode());
@@ -93,6 +95,7 @@ public class Block {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
+		LogCenter.debug("[OPT] BLOCK: Starting getAllBlocks with " + nodeList.getHead());
 		makeBlock(nodeList.getHead());
 		return new ArrayList<Block>(blockCache.values());
 	}
