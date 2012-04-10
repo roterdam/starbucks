@@ -19,25 +19,21 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidSaveNode> assignments;
 
-	public static MidNode ROOT_NODE;
-
 	@Override
 	public CSEGlobalState apply(Block b, CSEGlobalState state) {
 		assert state != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidSaveNode>();
-		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING "
-				+ b.getHead() + ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
+		LogCenter.debug("[OPT]\n[OPT] PROCESSING " + b.getHead()
+				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
 
 		// TODO: shouldn't local state be somewhat dependent on the initial
 		// CSEState? new CSELocalState(state)? it should at least know about
 		// temps that map to existing symbol expressions
-		// Possibly not, if we look in global state first before doing local opts.
+		// Possibly not, if we look in global state first before doing local
+		// opts.
 		CSELocalState localState = new CSELocalState();
 		MidNode node = b.getHead();
-		if (ROOT_NODE == null) {
-			ROOT_NODE = node;
-		}
 		while (true) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
@@ -51,6 +47,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		}
 
 		for (MidSaveNode saveNode : this.assignments) {
+			LogCenter.debug("[OPT]\n[OPT] Processing " + saveNode);
 			// a = x
 			if (saveNode.getRegNode() instanceof MidLoadNode) {
 				processSimpleAssignment(saveNode, localState, state);
@@ -66,6 +63,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		}
 
 		// TODO: Does state need modification before returning?
+		LogCenter.debug("[OPT] FINAL STATE IS " + state);
+		LogCenter.debug("[OPT]");
 		return state;
 	}
 
@@ -78,18 +77,25 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+					+ ref + " -> " + expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-			loadTempNode.replace(node);
-			newSaveNode.insertAfter(loadTempNode);
+//			loadTempNode.replace(node);
+//			newSaveNode.insertAfter(loadTempNode);
 			// Save destination node as a value.
 			s.addVar(ref);
 			return;
+		}
+
+		if (!(loadNode.getMemoryNode() instanceof MidTempDeclNode)) {
+			// Save reference in global CSE only if it references a non-temp node.
+			g.genReference(node.getDestinationNode(), expr);
+			g.killReferences(node.getDestinationNode());
 		}
 
 		// b = x;
@@ -130,15 +136,16 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+					+ ref + " -> " + expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-			loadTempNode.replace(node);
-			newSaveNode.insertAfter(loadTempNode);
+//			loadTempNode.replace(node);
+//			newSaveNode.insertAfter(loadTempNode);
 			// Save destination node as a value.
 			s.addVar(ref);
 			return;
@@ -154,8 +161,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-//		g.genReference(node.getDestinationNode(), expr);
-//		g.killReferences(node.getDestinationNode());
+		g.genReference(node.getDestinationNode(), expr);
+		g.killReferences(node.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
@@ -180,9 +187,13 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	private void processArithmeticAssignment(MidSaveNode node, CSELocalState s,
 			CSEGlobalState g) {
 		MidArithmeticNode r = (MidArithmeticNode) node.getRegNode();
-		GlobalExpr expr = new BinaryGlobalExpr(r, new LeafGlobalExpr(r
-				.getLeftOperand().getMemoryNode()), new LeafGlobalExpr(r
-				.getRightOperand().getMemoryNode()), r.isCommutative());
+		MidMemoryNode nonTempNodeLeft = g.getNonTempMapping(r.getLeftOperand()
+				.getMemoryNode());
+		MidMemoryNode nonTempNodeRight = g.getNonTempMapping(r
+				.getRightOperand().getMemoryNode());
+		GlobalExpr expr = new BinaryGlobalExpr(r, new LeafGlobalExpr(
+				nonTempNodeLeft), new LeafGlobalExpr(nonTempNodeRight),
+				r.isCommutative());
 
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
 		if (reusableReferences.size() > 0) {
@@ -190,7 +201,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
 			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
-					+ expr);
+					+ ref + " -> " + expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
@@ -214,12 +225,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-		LogCenter
-				.debug("[OPTJ]\n[OPTJ] SAVING REFERENCE FROM processArithmeticAssignment due to "
-						+ node);
-		LogCenter.debug("[OPTJ] SAVING TO " + node.getDestinationNode());
-//		g.genReference(node.getDestinationNode(), expr);
-//		g.killReferences(node.getDestinationNode());
+		g.genReference(node.getDestinationNode(), expr);
+		g.killReferences(node.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {

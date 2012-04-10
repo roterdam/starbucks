@@ -64,6 +64,8 @@ public class MemoryManager {
 			processMethod(starbucksMethods.get(methodName));
 		}
 	}
+	
+	public static MidNode temp;
 
 	private static void processMethod(MidMethodDeclNode methodDeclNode) {
 		deallocAllRegisters();
@@ -79,6 +81,7 @@ public class MemoryManager {
 				if (m instanceof RegisterOpNode) {
 					// We dealloc before alloc in order to allow a register node
 					// to save to itself.
+					temp = m;
 					for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
 						assert r != null : m + "(" + m.getClass()
 								+ ") is missing registers";

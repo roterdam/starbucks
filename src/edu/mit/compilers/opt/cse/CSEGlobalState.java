@@ -11,27 +11,30 @@ import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.State;
 
-public class CSEGlobalState implements State<CSEGlobalState> {
+public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	// Note: we use a List<GlobalExpr> here *in case* we want to store multiple
 	// ways of representing a memory node
 	// i.e. a = b+c, d = a-e could produce d = [a-e, b+c-e)]
-	Map<MidMemoryNode, List<GlobalExpr>> refToExprMap;
-	Map<GlobalExpr, List<MidMemoryNode>> exprToRefMap;
-	Map<MidMemoryNode, List<GlobalExpr>> mentionMap;
+	HashMap<MidMemoryNode, List<GlobalExpr>> refToExprMap;
+	HashMap<GlobalExpr, List<MidMemoryNode>> exprToRefMap;
+	HashMap<MidMemoryNode, List<GlobalExpr>> mentionMap;
+	private boolean isModified;
 
 	public CSEGlobalState() {
 		refToExprMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
 		exprToRefMap = new HashMap<GlobalExpr, List<MidMemoryNode>>();
 		mentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
+		isModified = false;
 	}
 
-	public CSEGlobalState(Map<MidMemoryNode, List<GlobalExpr>> refToExprMap,
-			Map<GlobalExpr, List<MidMemoryNode>> exprToRefMap,
-			Map<MidMemoryNode, List<GlobalExpr>> mentionMap) {
-				this.refToExprMap = refToExprMap;
-				this.exprToRefMap = exprToRefMap;
-				this.mentionMap = mentionMap;
+	public CSEGlobalState(
+			HashMap<MidMemoryNode, List<GlobalExpr>> refToExprMap,
+			HashMap<GlobalExpr, List<MidMemoryNode>> exprToRefMap,
+			HashMap<MidMemoryNode, List<GlobalExpr>> mentionMap) {
+		this.refToExprMap = refToExprMap;
+		this.exprToRefMap = exprToRefMap;
+		this.mentionMap = mentionMap;
 	}
 
 	@Override
@@ -45,15 +48,31 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 	}
 
 	@Override
+	public CSEGlobalState clone() {
+		@SuppressWarnings("unchecked")
+		CSEGlobalState out = new CSEGlobalState(
+				(HashMap<MidMemoryNode, List<GlobalExpr>>) refToExprMap.clone(),
+				(HashMap<GlobalExpr, List<MidMemoryNode>>) exprToRefMap.clone(),
+				(HashMap<MidMemoryNode, List<GlobalExpr>>) mentionMap.clone());
+		return out;
+	}
+
+	@Override
 	public CSEGlobalState join(CSEGlobalState s) {
-		LogCenter.debug("[OPTJJ] JOINING " + this + " WITH " + s);
+		LogCenter.debug("[OPT] JOINING " + this);
+		LogCenter.debug("[OPT] WITH " + s);
 		// Take common expressions, only if they're temp vars or equal non-temp
 		// vars.
+		if (s == null) {
+			CSEGlobalState out = this.clone();
+			LogCenter.debug("[OPT] RESULT: " + out);
+			return out;
+		}
 		Set<GlobalExpr> sharedSet = exprToRefMap.keySet();
 		sharedSet.retainAll(s.exprToRefMap.keySet());
-		Map<GlobalExpr, List<MidMemoryNode>> newExprToRefMap = new HashMap<GlobalExpr, List<MidMemoryNode>>();
-		Map<MidMemoryNode, List<GlobalExpr>> newRefToExprMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
-		Map<MidMemoryNode, List<GlobalExpr>> newMentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
+		HashMap<GlobalExpr, List<MidMemoryNode>> newExprToRefMap = new HashMap<GlobalExpr, List<MidMemoryNode>>();
+		HashMap<MidMemoryNode, List<GlobalExpr>> newRefToExprMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
+		HashMap<MidMemoryNode, List<GlobalExpr>> newMentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
 		for (GlobalExpr e : sharedSet) {
 			MidMemoryNode newMemNode = null;
 			List<MidMemoryNode> thisMemoryNodes = exprToRefMap.get(e);
@@ -96,16 +115,18 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 				newMentionMap.put(mem, new ArrayList<GlobalExpr>(eList));
 			}
 		}
-		CSEGlobalState out = new CSEGlobalState(newRefToExprMap, newExprToRefMap, newMentionMap);
-		LogCenter.debug("RESULT: " + out);
+		CSEGlobalState out = new CSEGlobalState(newRefToExprMap,
+				newExprToRefMap, newMentionMap);
+		LogCenter.debug("[OPT] RESULT: " + out);
 		return out;
 	}
 
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
+		isModified = true;
 		LogCenter.debug("[OPTJ] Generating reference " + node + " -> " + expr);
-		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		// Would potentially expand expr here.
 		List<GlobalExpr> exprs = new ArrayList<GlobalExpr>();
 		exprs.add(expr);
@@ -124,11 +145,11 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 				mentionMap.get(m).add(e);
 			}
 		}
-		LogCenter.debug("[OPTJ] AFTER:");
-		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-		LogCenter.debug("[OPTJ] ");
+		// LogCenter.debug("[OPTJ] AFTER:");
+		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		// LogCenter.debug("[OPTJ] ");
 
 	}
 
@@ -136,10 +157,11 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 	// TODO (this always gets called before gen reference, so just make them one
 	// method) ?
 	public void killReferences(MidMemoryNode node) {
+		isModified = true;
 		LogCenter.debug("[OPTJ] Killing references to " + node);
-		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		if (mentionMap.containsKey(node)) {
 			// Remove stuff for each expr that is affected by the node.
 			for (GlobalExpr e : new ArrayList<GlobalExpr>(mentionMap.get(node))) {
@@ -177,11 +199,11 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 			}
 
 		}
-		LogCenter.debug("[OPTJ] AFTER:");
-		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-		LogCenter.debug("[OPTJ] ");
+		// LogCenter.debug("[OPTJ] AFTER:");
+		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		// LogCenter.debug("[OPTJ] ");
 	}
 
 	public Map<GlobalExpr, List<MidMemoryNode>> getExpressionsMap() {
@@ -195,11 +217,42 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 		return new ArrayList<MidMemoryNode>();
 	}
 
+	/**
+	 * When we have expressions like c = a+b, this becomes t1=a, t2=b, c=t1+t2.
+	 * Need to map that to c=a+b, so this looks up t1 => a.
+	 */
+	public MidMemoryNode getNonTempMapping(MidMemoryNode tempNode) {
+		List<GlobalExpr> nonTemps = refToExprMap.get(tempNode);
+		if (nonTemps == null) {
+			return tempNode;
+		}
+		for (GlobalExpr e : nonTemps) {
+			if (e instanceof LeafGlobalExpr) {
+				return ((LeafGlobalExpr) e).getMemoryNode();
+			}
+		}
+		return tempNode;
+	}
+
 	@Override
 	public String toString() {
-		return "CSEGlobalState=> mentionMap: " + mentionMap
-				+ ", refToExprMap: " + refToExprMap + ", exprToRefMap: "
-				+ exprToRefMap;
+		return "CSEGlobalState=> mentionMap:\n[OPT]  " + toMapString(mentionMap)
+				+ "\n[OPT] refToExprMap:\n[OPT]  " + toMapString(refToExprMap)
+				+ "\n[OPT] exprToRefMap:\n[OPT]  " + toMapString(exprToRefMap);
+	}
+	
+	public static <K,V> String toMapString(HashMap<K,V> map) {
+		String out = "{";
+		for (K key : map.keySet()) {
+			out += "\n[OPT]  " + key.toString() + " = " + map.get(key).toString() + ",";
+		}
+		out += "\n[OPT]  }";
+		return out;
+	}
+
+	@Override
+	public boolean isModified() {
+		return isModified;
 	}
 
 }

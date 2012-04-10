@@ -24,6 +24,10 @@ public class LeafGlobalExpr extends GlobalExpr {
 		nodes.add(memNode);
 		return nodes;
 	}
+	
+	public MidMemoryNode getMemoryNode() {
+		return memNode;
+	}
 
 	@Override
 	public boolean equals(Object o) {
