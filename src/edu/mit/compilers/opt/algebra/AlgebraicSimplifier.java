@@ -9,7 +9,6 @@ import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.CheckDivideByZeroNode;
 import edu.mit.compilers.codegen.MidSymbolTable;
-import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.grammar.BooleanNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
@@ -555,8 +554,7 @@ public class AlgebraicSimplifier {
 			} else if (leftOp instanceof INT_LITERALNode) {
 				// Case 3
 				long leftVal = ((INT_LITERALNode) leftOp).getValue();
-				// TODO (this is the behaviour of our mod operator, right?)
-				long newVal = Math.abs(leftVal % rightVal);
+				long newVal = leftVal % rightVal;
 				INT_LITERALNode newNode = new INT_LITERALNode();
 				newNode.setText(Long.toString(newVal));
 				newNode.initializeValue();

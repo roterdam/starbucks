@@ -2,10 +2,13 @@ package edu.mit.compilers.opt.cse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -17,15 +20,15 @@ import edu.mit.compilers.opt.Value;
 
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
-	ArrayList<MidSaveNode> assignments;
+	ArrayList<MidNode> assignments;
 
 	@Override
 	public CSEGlobalState apply(Block b, CSEGlobalState state) {
 		assert state != null : "Input state should not be null.";
 
-		this.assignments = new ArrayList<MidSaveNode>();
-		LogCenter.debug("[OPT]\n[OPT] PROCESSING " + b.getHead()
-				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
+		this.assignments = new ArrayList<MidNode>();
+		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING "
+				+ b.getHead() + ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
 
 		// TODO: shouldn't local state be somewhat dependent on the initial
 		// CSEState? new CSELocalState(state)? it should at least know about
@@ -39,6 +42,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
+			} else if (node instanceof MidMethodCallNode) {
+				this.assignments.add(node);
 			}
 			if (node == b.getTail()) {
 				break;
@@ -46,19 +51,25 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			node = node.getNextNode();
 		}
 
-		for (MidSaveNode saveNode : this.assignments) {
-			LogCenter.debug("[OPT]\n[OPT] Processing " + saveNode);
-			// a = x
-			if (saveNode.getRegNode() instanceof MidLoadNode) {
-				processSimpleAssignment(saveNode, localState, state);
-			}
-			// a = -x
-			if (saveNode.getRegNode() instanceof MidNegNode) {
-				processUnaryAssignment(saveNode, localState, state);
-			}
-			// a = x + y
-			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-				processArithmeticAssignment(saveNode, localState, state);
+		for (MidNode assignmentNode : this.assignments) {
+			LogCenter.debug("[OPT]\n[OPT] Processing " + assignmentNode);
+			if (assignmentNode instanceof MidSaveNode) {
+				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
+				// a = x
+				if (saveNode.getRegNode() instanceof MidLoadNode) {
+					processSimpleAssignment(saveNode, localState, state);
+				}
+				// a = -x
+				if (saveNode.getRegNode() instanceof MidNegNode) {
+					processUnaryAssignment(saveNode, localState, state);
+				}
+				// a = x + y
+				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
+					processArithmeticAssignment(saveNode, localState, state);
+				}
+			} else if (assignmentNode instanceof MidMethodCallNode) {
+				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
+				processMethodCall(methodNode, localState, state);
 			}
 		}
 
@@ -66,6 +77,16 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		LogCenter.debug("[OPT] FINAL STATE IS " + state);
 		LogCenter.debug("[OPT]");
 		return state;
+	}
+
+	private void processMethodCall(MidMethodCallNode methodNode,
+			CSELocalState localState, CSEGlobalState state) {
+		Map<MidMemoryNode, List<GlobalExpr>> refMap = state.getReferenceMap();
+		for (MidMemoryNode node : refMap.keySet()) {
+			if (node instanceof MidFieldDeclNode) {
+				state.killReferences(node);
+			}
+		}
 	}
 
 	private void processSimpleAssignment(MidSaveNode node, CSELocalState s,
@@ -85,15 +106,16 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-//			loadTempNode.replace(node);
-//			newSaveNode.insertAfter(loadTempNode);
+			// loadTempNode.replace(node);
+			// newSaveNode.insertAfter(loadTempNode);
 			// Save destination node as a value.
 			s.addVar(ref);
 			return;
 		}
 
 		if (!(loadNode.getMemoryNode() instanceof MidTempDeclNode)) {
-			// Save reference in global CSE only if it references a non-temp node.
+			// Save reference in global CSE only if it references a non-temp
+			// node.
 			g.genReference(node.getDestinationNode(), expr);
 			g.killReferences(node.getDestinationNode());
 		}
@@ -144,8 +166,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-//			loadTempNode.replace(node);
-//			newSaveNode.insertAfter(loadTempNode);
+			// loadTempNode.replace(node);
+			// newSaveNode.insertAfter(loadTempNode);
 			// Save destination node as a value.
 			s.addVar(ref);
 			return;

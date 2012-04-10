@@ -1,7 +1,7 @@
 #!/bin/sh
 
 runcompiler() {
-  java -jar `dirname $0`/../../dist/Compiler.jar \
+  java -ea -jar `dirname $0`/../../dist/Compiler.jar \
     -target codegen -opt all -o $2 $1
 }
 
@@ -13,11 +13,13 @@ if ! gcc -v 2>&1 |grep -q '^Target: x86_64-linux-gnu'; then
 fi
 
 for file in `dirname $0`/input/*.dcf; do
+  echo ${file}
   asm=`tempfile --suffix=.s`
+  asmo=`tempfile --suffix=.o`
   msg=""
   if runcompiler $file $asm; then
     binary=`tempfile`
-    if gcc -o $binary -L `dirname $0`/lib -l6035 $asm; then
+    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L `dirname $0`/lib -l6035 $asmo; then
       output=`tempfile`
       if $binary > $output; then
         diffout=`tempfile`
