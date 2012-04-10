@@ -39,7 +39,7 @@ public class ComplexCanonicalization extends Canonicalization {
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
 		for(Canonicalization c : terms.keySet()){
 			for(Canonicalization d : x.getTerms().keySet()){
-				Canonicalization prod = c.mult(d);
+				Canonicalization prod = c.mult(d); //At some point a discrete term will be reached.
 				if(!freqs.containsKey(prod)){
 					freqs.put(prod, 0L);
 				}

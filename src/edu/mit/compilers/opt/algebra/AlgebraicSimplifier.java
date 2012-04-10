@@ -740,7 +740,6 @@ public class AlgebraicSimplifier {
 				};
 			}
 		}
-		// TODO: 1 <= 5
 		node.setLeftOperand(leftNode);
 		node.setRightOperand(rightNode);
 		return node;

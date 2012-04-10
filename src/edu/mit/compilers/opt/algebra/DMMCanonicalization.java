@@ -37,9 +37,15 @@ public class DMMCanonicalization extends Canonicalization {
 	public boolean isDiscrete() {
 		return true;
 	}
+	
+	@SuppressWarnings("serial")
 	@Override
 	public Map<Canonicalization, Long> getTerms() {
-		return null;
+		return new HashMap<Canonicalization, Long>() {
+			{
+				put(DMMCanonicalization.this, 1L);
+			}
+		};
 	}
 	
 	public enum DMMType {
@@ -48,8 +54,12 @@ public class DMMCanonicalization extends Canonicalization {
 
 	@Override
 	public boolean equals(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		if(!(o instanceof DMMCanonicalization)){
+			return false;
+		}
+		DMMCanonicalization p = (DMMCanonicalization)o;
+		return c1.equals(p.c1) && c2.equals(p.c2) && op == p.op ||
+		 	c1.equals(p.c2)&& c2.equals(p.c1)&& op == p.op && op == DMMType.MUL;
 	}
 	
 	@Override

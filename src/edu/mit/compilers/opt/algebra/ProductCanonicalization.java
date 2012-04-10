@@ -29,6 +29,12 @@ public class ProductCanonicalization extends Canonicalization {
 		if (x.isDiscrete()) {
 			if(x instanceof ProductCanonicalization){
 				return ((ProductCanonicalization)x).mult(this);
+			}else if(x instanceof UnitLiteralCanonicalization){
+				return ((UnitLiteralCanonicalization)x).mult(this);
+			}else if(x instanceof DMMCanonicalization){
+				return ((DMMCanonicalization)x).mult(this);
+			}else {
+				assert false : x.getClass().toString()+" is unhandled";
 			}
 			return x.mult(this);
 		} else {

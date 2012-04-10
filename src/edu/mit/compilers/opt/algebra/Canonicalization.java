@@ -18,6 +18,7 @@ public abstract class Canonicalization {
 		Canonicalization a = ProductCanonicalization.makeVariable("a");
 		Canonicalization b = ProductCanonicalization.makeVariable("b");
 		Canonicalization c = ProductCanonicalization.makeVariable("c");
+		Canonicalization e = ProductCanonicalization.makeVariable("e");
 		Canonicalization d = a.add(c).add(b);
 		
 		System.out.println(w.equals(d));
@@ -30,6 +31,13 @@ public abstract class Canonicalization {
 		System.out.println(t1);
 		System.out.println(t2);
 		
+		Canonicalization t3 = a.div(b).mult(c).mult(d);
+		Canonicalization t4 = a.div(b).mult(c.mult(d));
+		
+		System.out.println(t3.equals(t4));
+		System.out.println(t3);
+		System.out.println(t4);
+				
 		
 	}
 	public Canonicalization add(Canonicalization x){
