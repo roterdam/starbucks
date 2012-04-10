@@ -587,13 +587,12 @@ public class MidVisitor {
 			// Make sure the index is not out of bounds
 			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode, symbolTable);
 
-//			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
-//			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
-			locNode = exprList.getReturnNode();
+			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
+			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
 
 			instrList.addAll(exprList.getList());
 			instrList.addAll(errorList);
-//			instrList.add(sizeLoadNode);
+			instrList.add(sizeLoadNode);
 		} else {
 			locNode = symbolTable.getVar(node.getText());
 		}

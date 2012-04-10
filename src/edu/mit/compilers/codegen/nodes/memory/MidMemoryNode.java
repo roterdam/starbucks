@@ -1,9 +1,5 @@
 package edu.mit.compilers.codegen.nodes.memory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.MidNode;
 
 abstract public class MidMemoryNode extends MidNode {
@@ -17,14 +13,11 @@ abstract public class MidMemoryNode extends MidNode {
 		super();
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
-	public List<Reg> getRegisters(){
-		return new ArrayList<Reg>();
-	}
+
 	/**
 	 * Sets the location reference for a memory node. Note that this is
 	 * different depending on the type of node.
@@ -37,10 +30,11 @@ abstract public class MidMemoryNode extends MidNode {
 	public void setRawLocationReference(String rawLocationReference) {
 		this.rawLocationReference = rawLocationReference;
 	}
-	
-	public String getRawLocationReference(){
+
+	public String getRawLocationReference() {
 		return rawLocationReference;
 	}
+
 	/**
 	 * Returns location reference, formatted if necessary.
 	 */

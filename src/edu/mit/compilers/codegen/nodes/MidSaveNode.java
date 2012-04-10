@@ -86,7 +86,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 
 	public Reg getArrayRegister() {
 		assert savesToArray();
-		return ((MidArrayElementNode) destination).getRegisters().get(0);
+		return ((MidArrayElementNode) destination).getLoadRegister();
 	}
 
 	public long getDecafIntValue() {
@@ -117,7 +117,8 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 		case REGISTER:
 			value = registerNode.getName();
 		}
-		return "<" + className.substring(mid) + ": " + value + ">";
+		String isArray = savesToArray() ? "[A]" : "";
+		return "<" + className.substring(mid) + ": " + value + " " + isArray + ">";
 	}
 
 	@Override

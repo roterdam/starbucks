@@ -86,17 +86,19 @@ public class MemoryManager {
 						&& !((MidRegisterNode) m).hasRegister()) {
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}
+				if (m instanceof MidSaveNode) {
+					if (((MidSaveNode) m).savesRegister()) {
+						deallocTempRegister(((MidSaveNode) m).getRegNode()
+								.getRegister());
+					}
+					if (((MidSaveNode) m).savesToArray()) {
+						LogCenter.debug("[MEM] deallocating array register of " + m);
+						deallocTempRegister(((MidSaveNode) m).getArrayRegister());
+					}
+				}
 			} else if (m instanceof MidRegisterNode
 					&& !((MidRegisterNode) m).hasRegister()) {
 				((MidRegisterNode) m).setRegister(allocTempRegister());
-			} else if (m instanceof MidSaveNode) {
-				if (((MidSaveNode) m).savesRegister()) {
-					deallocTempRegister(((MidSaveNode) m).getRegNode()
-							.getRegister());
-				}
-				if (((MidSaveNode) m).savesToArray()) {
-					deallocTempRegister(((MidSaveNode) m).getArrayRegister());
-				}
 			}
 		}
 		methodDeclNode.setLocalStackSize(localStackSize);
