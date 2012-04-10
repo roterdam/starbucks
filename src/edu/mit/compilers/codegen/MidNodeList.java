@@ -148,11 +148,6 @@ public class MidNodeList implements List<MidNode> {
 		MidNode currentNode;
 		
 		class LinkedListHeadNode extends MidNode {
-			@Override
-			public List<Reg> getOperandRegisters() {
-				assert false : "This shouldn't be called, silly.";
-				return null;
-			}
 		}
 
 		public LinkedListIterator() {

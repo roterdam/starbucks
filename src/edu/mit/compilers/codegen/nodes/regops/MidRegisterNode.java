@@ -42,9 +42,4 @@ abstract public class MidRegisterNode extends MidNode {
 		return register != null;
 	}
 
-	@Override
-	public List<Reg> getOperandRegisters() {
-		return new ArrayList<Reg>();
-	}
-
 }
