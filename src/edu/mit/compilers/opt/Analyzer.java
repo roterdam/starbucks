@@ -40,7 +40,6 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 		// Do the first node
 		Block n0 = Block.makeBlock(nodeList.getHead());
-		assert (n0.getPredecessors().size() == 0);
 		outHash.put(n0, this.transferFunction.apply(n0, startState));
 		worklist.remove(n0);
 
@@ -50,7 +49,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			S out = this.transferFunction.apply(currentBlock, in);
 			if (out != outHash.get(out)) {
 				outHash.put(currentBlock, out);
-				worklist.addAll(currentBlock.getSuccessors());
+//				worklist.addAll(currentBlock.getSuccessors());
 			}
 			// TODO: return with less perfect result if it takes a really long
 			// time?

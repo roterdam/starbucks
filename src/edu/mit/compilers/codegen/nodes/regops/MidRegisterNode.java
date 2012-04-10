@@ -10,7 +10,7 @@ import edu.mit.compilers.codegen.nodes.MidNode;
 /**
  * Represents an instruction that stores something on a register.
  */
-abstract public class MidRegisterNode extends MidNode implements RegisterOpNode {
+abstract public class MidRegisterNode extends MidNode {
 
 	String name;
 	private Reg register = null;

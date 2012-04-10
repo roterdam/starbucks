@@ -15,10 +15,12 @@ import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 public class MidLoadNode extends MidRegisterNode {
 
 	private MidMemoryNode memoryNode;
+	private List<RegisterOpNode> registerOpNodes;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
 		this.memoryNode = memoryNode;
+		registerOpNodes = new ArrayList<RegisterOpNode>();
 	}
 
 	public MidMemoryNode getMemoryNode() {
@@ -49,6 +51,21 @@ public class MidLoadNode extends MidRegisterNode {
 	public List<Reg> getOperandRegisters() {
 		// Load doesn't use registers, but memory node might.
 		return memoryNode.getRegisters();
+	}
+	
+	public void recordRegisterOp(RegisterOpNode opNode) {
+		registerOpNodes.add(opNode);
+	}
+	
+	public void replaceThisReferences(MidLoadNode newNode) {
+		for (RegisterOpNode opNode : registerOpNodes) {
+			opNode.updateRegisterNode(this, newNode);
+		}
+	}
+	
+	public void replace(MidLoadNode node) {
+		super.replace(node);
+		node.replaceThisReferences(this);
 	}
 
 }

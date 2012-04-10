@@ -63,11 +63,12 @@ public abstract class MidNode {
 		MidNode oldNext = n.getNextNode();
 		n.setNextNode(this);
 		this.setNextNode(oldNext);
-		assert n.getNextNode() == this;
 	}
 	
 	public void replace(MidNode n) {
 		MidNode prevNode = n.getPrevNode();
+		//FIXME: does not work if n is HEAD.
+		assert prevNode != null;
 		prevNode.setNextNode(this);
 		this.setNextNode(n.getNextNode());
 		assert prevNode.getNextNode() == this;

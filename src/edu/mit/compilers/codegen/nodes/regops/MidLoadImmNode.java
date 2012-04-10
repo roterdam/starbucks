@@ -45,4 +45,5 @@ public class MidLoadImmNode extends MidRegisterNode {
 		// LoadImm doesn't use registers
 		return new ArrayList<Reg>();
 	}
+
 }

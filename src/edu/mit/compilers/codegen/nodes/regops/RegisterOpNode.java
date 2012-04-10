@@ -10,5 +10,6 @@ import edu.mit.compilers.codegen.Reg;
 public interface RegisterOpNode {
 	
 	public List<Reg> getOperandRegisters();
+	public void updateRegisterNode(MidLoadNode oldNode, MidLoadNode newNode);
 
 }

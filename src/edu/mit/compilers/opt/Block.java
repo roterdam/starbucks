@@ -15,7 +15,6 @@ public class Block {
 	private MidNode tail;
 	private List<Block> predecessors;
 	private List<Block> successors;
-	private String s;
 
 	public Block(MidNode h) {
 		this.head = h;
@@ -75,6 +74,7 @@ public class Block {
 			return blockCache.get(n);
 		}
 		Block b = new Block(n);
+		blockCache.put(n, b);
 		MidNode lastNonJump = n;
 		MidNode nextNode = n.getNextNode();
 		while (!(nextNode == null || nextNode instanceof MidJumpNode)) {
@@ -86,7 +86,6 @@ public class Block {
 		if (nextNode != null) {
 			b.addSuccessor(makeBlock(nextNode.getNextNode()));
 		}
-		blockCache.put(n, b);
 		return b;
 	}
 

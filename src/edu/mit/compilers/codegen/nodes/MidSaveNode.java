@@ -11,12 +11,15 @@ import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
+import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
 
-/**`
+/**
+ * `
  * Saves referenced register node or literal to memory.
  */
-public class MidSaveNode extends MidNode {
+public class MidSaveNode extends MidNode implements RegisterOpNode {
 
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
@@ -38,10 +41,14 @@ public class MidSaveNode extends MidNode {
 		this(dest);
 		this.registerNode = refNode;
 		this.saveType = MidSaveNodeType.REGISTER;
+		if (registerNode instanceof MidLoadNode) {
+			((MidLoadNode) registerNode).recordRegisterOp(this);
+		}
 	}
-	
-	public static MidNodeList storeValueInMemory(long decafIntValue, MidMemoryNode dest){
-		//TODO: Optimize by using two mov's instead of a load and mov.
+
+	public static MidNodeList storeValueInMemory(long decafIntValue,
+			MidMemoryNode dest) {
+		// TODO: Optimize by using two mov's instead of a load and mov.
 		MidNodeList nodeList = new MidNodeList();
 		MidLoadImmNode loadNode = new MidLoadImmNode(decafIntValue);
 		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
@@ -49,13 +56,14 @@ public class MidSaveNode extends MidNode {
 		nodeList.add(saveNode);
 		return nodeList;
 	}
-	
+
 	/*
-	public MidSaveNode(long decafIntValue, MidMemoryNode dest) {
-		this(dest);
-		this.decafIntValue = decafIntValue;
-		this.saveType = MidSaveNodeType.INT;
-	}*/
+	 * public MidSaveNode(long decafIntValue, MidMemoryNode dest) {
+	 * this(dest);
+	 * this.decafIntValue = decafIntValue;
+	 * this.saveType = MidSaveNodeType.INT;
+	 * }
+	 */
 
 	public MidSaveNode(boolean decafBooleanValue, MidMemoryNode dest) {
 		this(dest);
@@ -67,17 +75,18 @@ public class MidSaveNode extends MidNode {
 		assert saveType == MidSaveNodeType.REGISTER;
 		return registerNode;
 	}
-	
+
 	public boolean savesRegister() {
 		return saveType == MidSaveNodeType.REGISTER;
 	}
-	
+
 	public boolean savesToArray() {
 		return destination instanceof MidArrayElementNode;
 	}
-	public Reg getArrayRegister(){
+
+	public Reg getArrayRegister() {
 		assert savesToArray();
-		return ((MidArrayElementNode)destination).getRegisters().get(0);
+		return ((MidArrayElementNode) destination).getRegisters().get(0);
 	}
 
 	public long getDecafIntValue() {
@@ -149,4 +158,11 @@ public class MidSaveNode extends MidNode {
 
 		return out;
 	}
+
+	@Override
+	public void updateRegisterNode(MidLoadNode oldNode, MidLoadNode newNode) {
+		registerNode = newNode;
+	}
+
+	
 }

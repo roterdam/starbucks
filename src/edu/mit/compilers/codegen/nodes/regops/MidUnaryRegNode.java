@@ -8,7 +8,8 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
-public abstract class MidUnaryRegNode extends MidRegisterNode {
+public abstract class MidUnaryRegNode extends MidRegisterNode implements
+		RegisterOpNode {
 
 	private MidLoadNode operand;
 
@@ -20,7 +21,7 @@ public abstract class MidUnaryRegNode extends MidRegisterNode {
 	public MidLoadNode getOperand() {
 		return operand;
 	}
-	
+
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
@@ -36,8 +37,14 @@ public abstract class MidUnaryRegNode extends MidRegisterNode {
 
 	public List<ASM> toASM(OpCode op) {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), op, this.getOperand().getRegister().name()));
+		out.add(new OpASM(toString(), op, this.getOperand().getRegister()
+				.name()));
 		return out;
 	}
-	
+
+	@Override
+	public void updateRegisterNode(MidLoadNode oldNode, MidLoadNode newNode) {
+		operand = newNode;
+	}
+
 }
