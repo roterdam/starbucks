@@ -1,0 +1,119 @@
+class Program {
+    int a,b,c,d[10],e,f;
+    boolean g,h;
+
+    boolean x(){
+        return true;
+    }
+    int z (){
+        return 2;
+    }
+
+    void y(int x, boolean b){
+        a = x;
+        g = b;
+    }
+
+    void main(){
+        // Subtraction
+        a = 0 - b;
+        a = 5 - 6;
+        a = b - 0;
+ 
+        // Addition
+        a = 0 + b;
+        a = b + 0;
+        a = 2 + 4;
+         
+        // Multiplication
+        a = 3*4;
+        a = 1*b;
+        a = 1*z();
+        a = 0*b;
+        a = 0*z();
+        a = b*1;
+        a = z()*1;
+        a = b*0;
+        a = z()*0;
+
+        // Unary minus
+        a = -(5 - 6);
+
+        // &&
+        g = h && true;
+        g = true && h;
+        g = false && h;
+        g = h && false;
+        g = x() && false; // do nothing
+        g = false && x(); // do nothing
+
+        // ||
+        g = h || true;
+        g = true || h;
+        g = false || h;
+        g = h || false;
+        g = x() || true; // do nothing
+        g = true || x(); // do nothing
+
+        // !
+        g = !false;
+        g = !true;
+        g = !h;
+        g = !x();
+        a = b*c/(d[4]*0)+e; // divide by 0 error
+ 
+        // Callout arguments
+        callout("printf", 2-3, h && true);
+
+        // Method arguments
+        y(2-1,true && true);
+        
+        // IF
+        
+        if(g && true){
+           a = 1-2;
+        }else{
+           a = 0-3;
+        }
+
+        // char literals
+        a = 'z'-'a';
+
+        // Divide
+        a = a/0;
+        a = a/1;
+        a = 12/5;
+        a = 0/a; // put in a div0 check
+        a = 0/z(); // Not yet implemented
+
+        // %
+        a = a % 0;
+        a = a % 1;
+        a = 0 % a; // put in a div0 check
+        a = 0 % z(); // not yet implemented
+ 
+        // Same-same-2-bool
+        g = true && false == (4+3 == 7);
+
+        // Idnode (index out of bounds)
+        a = d[9];
+        a = d[10-1]; //out
+        a = d[12-1]; //out
+        a = d[3-10]; //out
+        a = d[-2];
+        // Same-same-2-bool, int-int-2-bool
+        g = (5==5);
+        g = (5>=7);
+        g = (5<=7);
+        g = (g == true);
+        g = (g == false);
+        g = (true == g);
+        g = (false == g);
+
+        g = (g != true);
+        g = (g != false);
+        g = (true != g);
+        g = (false != g);
+
+    }
+}
