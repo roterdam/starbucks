@@ -82,6 +82,10 @@ public class MemoryManager {
 							+ ") is missing registers";
 					deallocTempRegister(r);
 				}
+				if (m instanceof MidRegisterNode
+						&& !((MidRegisterNode) m).hasRegister()) {
+					((MidRegisterNode) m).setRegister(allocTempRegister());
+				}
 			} else if (m instanceof MidRegisterNode
 					&& !((MidRegisterNode) m).hasRegister()) {
 				((MidRegisterNode) m).setRegister(allocTempRegister());

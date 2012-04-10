@@ -168,10 +168,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		if (registerNode != null) {
+			assert registerNode.getRegister() != null : registerNode;
 			out.add(registerNode.getRegister());
 		}
 		return out;
 	}
 
-	
 }
