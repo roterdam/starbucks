@@ -6,7 +6,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
-import edu.mit.compilers.opt.AlgebraicSimplifier;
+import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class WHILENode extends DecafNode {

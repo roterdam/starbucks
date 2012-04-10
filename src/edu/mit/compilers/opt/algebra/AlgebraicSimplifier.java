@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt;
+package edu.mit.compilers.opt.algebra;
 
 import java.util.ArrayList;
 import java.util.HashMap;

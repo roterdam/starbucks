@@ -6,7 +6,7 @@ import java.util.List;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
-import edu.mit.compilers.opt.AlgebraicSimplifier;
+import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class CLASSNode extends DecafNode {

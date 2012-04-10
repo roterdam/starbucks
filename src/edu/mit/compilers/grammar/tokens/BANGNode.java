@@ -6,7 +6,7 @@ import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.grammar.expressions.OpBool2BoolNode;
-import edu.mit.compilers.opt.AlgebraicSimplifier;
+import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class BANGNode extends OpBool2BoolNode {

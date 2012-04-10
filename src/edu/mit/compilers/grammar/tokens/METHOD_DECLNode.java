@@ -9,7 +9,7 @@ import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
-import edu.mit.compilers.opt.AlgebraicSimplifier;
+import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class METHOD_DECLNode extends DecafNode {

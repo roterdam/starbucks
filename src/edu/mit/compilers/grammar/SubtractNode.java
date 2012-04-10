@@ -4,7 +4,7 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.grammar.expressions.OpIntInt2IntNode;
-import edu.mit.compilers.opt.AlgebraicSimplifier;
+import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class SubtractNode extends OpIntInt2IntNode {
