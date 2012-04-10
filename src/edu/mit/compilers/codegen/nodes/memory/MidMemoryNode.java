@@ -9,9 +9,13 @@ abstract public class MidMemoryNode extends MidNode {
 	// Only used for toString
 	private String name;
 
+	private long constantValue;
+	private boolean isConstant;
+
 	public MidMemoryNode(String name) {
 		super();
 		this.name = name;
+		isConstant = false;
 	}
 
 	public String getName() {
@@ -46,4 +50,37 @@ abstract public class MidMemoryNode extends MidNode {
 		return "<" + className.substring(mid) + ": " + getName() + " >";
 	}
 
+	public void setConstantValue(long decafIntValue) {
+		this.constantValue = decafIntValue;
+		this.isConstant = true;
+	}
+	
+	@Override
+	public int hashCode() {
+		if (isConstant) {
+			return (int) constantValue;
+		}
+		return super.hashCode();
+	}
+	
+	public boolean isConstant() {
+		return isConstant;
+	}
+	
+	public long getConstant() {
+		return constantValue;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof MidMemoryNode)) {
+			return false;
+		}
+		MidMemoryNode oMem = (MidMemoryNode) o;
+		if (isConstant && oMem.isConstant()) {
+			return constantValue == oMem.getConstant();
+		}
+		return super.equals(o);
+	}
+	
 }
