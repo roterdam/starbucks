@@ -1,8 +1,5 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.mit.compilers.codegen.MidLabelManager;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.MidNode;
