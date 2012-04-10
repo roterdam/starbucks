@@ -8,6 +8,7 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
@@ -19,7 +20,7 @@ import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
  * `
  * Saves referenced register node or literal to memory.
  */
-public class MidSaveNode extends MidNode implements RegisterOpNode {
+public class MidSaveNode extends MidNode implements RegisterOpNode, ArrayReferenceNode {
 
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
@@ -80,12 +81,14 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 		return saveType == MidSaveNodeType.REGISTER;
 	}
 
-	public boolean savesToArray() {
+	@Override
+	public boolean usesArrayReference() {
 		return destination instanceof MidArrayElementNode;
 	}
 
+	@Override
 	public Reg getArrayRegister() {
-		assert savesToArray();
+		assert usesArrayReference();
 		return ((MidArrayElementNode) destination).getLoadRegister();
 	}
 
@@ -117,7 +120,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 		case REGISTER:
 			value = registerNode.getName();
 		}
-		String isArray = savesToArray() ? "[A]" : "";
+		String isArray = usesArrayReference() ? "[A]" : "";
 		return "<" + className.substring(mid) + ": " + value + " " + isArray + ">";
 	}
 

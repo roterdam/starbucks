@@ -7,6 +7,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
@@ -74,31 +75,46 @@ public class MemoryManager {
 				localStackSize += ADDRESS_SIZE;
 				((MidMemoryNode) m).setRawLocationReference(Integer
 						.toString(localStackSize));
-			} else if (m instanceof RegisterOpNode) {
-				// We dealloc before alloc in order to allow a register node
-				// to save to itself.
-				for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
-					assert r != null : m + "(" + m.getClass()
-							+ ") is missing registers";
-					deallocTempRegister(r);
+			} else {
+				if (m instanceof RegisterOpNode) {
+					// We dealloc before alloc in order to allow a register node
+					// to save to itself.
+					for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
+						assert r != null : m + "(" + m.getClass()
+								+ ") is missing registers";
+						deallocTempRegister(r);
+					}
+					if (m instanceof MidRegisterNode
+							&& !((MidRegisterNode) m).hasRegister()) {
+						((MidRegisterNode) m).setRegister(allocTempRegister());
+					}
+					if (m instanceof MidSaveNode
+							&& ((MidSaveNode) m).savesRegister()) {
+						deallocTempRegister(((MidSaveNode) m).getRegNode()
+								.getRegister());
+					}
+					if (m instanceof ArrayReferenceNode) {
+						ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
+						if (arrayNode.usesArrayReference()) {
+							LogCenter
+									.debug("[MEM] deallocating array register of "
+											+ m);
+							deallocTempRegister(arrayNode.getArrayRegister());
+						}
+					}
+				}
+				if (m instanceof ArrayReferenceNode) {
+					ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
+					if (arrayNode.usesArrayReference()) {
+						LogCenter.debug("[MEM] deallocating array register of "
+								+ m);
+						deallocTempRegister(arrayNode.getArrayRegister());
+					}
 				}
 				if (m instanceof MidRegisterNode
 						&& !((MidRegisterNode) m).hasRegister()) {
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}
-				if (m instanceof MidSaveNode) {
-					if (((MidSaveNode) m).savesRegister()) {
-						deallocTempRegister(((MidSaveNode) m).getRegNode()
-								.getRegister());
-					}
-					if (((MidSaveNode) m).savesToArray()) {
-						LogCenter.debug("[MEM] deallocating array register of " + m);
-						deallocTempRegister(((MidSaveNode) m).getArrayRegister());
-					}
-				}
-			} else if (m instanceof MidRegisterNode
-					&& !((MidRegisterNode) m).hasRegister()) {
-				((MidRegisterNode) m).setRegister(allocTempRegister());
 			}
 		}
 		methodDeclNode.setLocalStackSize(localStackSize);

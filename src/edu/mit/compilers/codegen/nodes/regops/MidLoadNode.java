@@ -3,15 +3,18 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 /**
  * Loads value from memory.
  */
-public class MidLoadNode extends MidRegisterNode {
+public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
@@ -21,7 +24,7 @@ public class MidLoadNode extends MidRegisterNode {
 		super();
 		this.memoryNode = memoryNode;
 		registerOpNodes = new ArrayList<RegisterOpNode>();
-		if (count == 9) {
+		if (count == 10) {
 //			throw new RuntimeException("Catching this load node: " + toString());
 		}
 		count++;
@@ -34,8 +37,9 @@ public class MidLoadNode extends MidRegisterNode {
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
+		String isArray = usesArrayReference() ? "[A]" : "";
 		return "<" + className.substring(mid) + ": " + getName() + ","
-				+ memoryNode.toString() + ">";
+				+ memoryNode.toString() + " " + isArray + ">";
 	}
 
 	@Override
@@ -64,6 +68,17 @@ public class MidLoadNode extends MidRegisterNode {
 	public void replace(MidLoadNode node) {
 		super.replace(node);
 		node.replaceThisReferences(this);
+	}
+
+	@Override
+	public boolean usesArrayReference() {
+		return memoryNode instanceof MidArrayElementNode;
+	}
+
+	@Override
+	public Reg getArrayRegister() {
+		assert usesArrayReference();
+		return ((MidArrayElementNode) memoryNode).getLoadRegister();
 	}
 
 }
