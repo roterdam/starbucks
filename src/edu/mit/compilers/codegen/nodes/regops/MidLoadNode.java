@@ -3,6 +3,8 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
+
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
@@ -15,11 +17,16 @@ public class MidLoadNode extends MidRegisterNode {
 
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
+	public static int count = 0;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
 		this.memoryNode = memoryNode;
 		registerOpNodes = new ArrayList<RegisterOpNode>();
+		if (count == 9) {
+//			throw new RuntimeException("Catching this load node: " + toString());
+		}
+		count++;
 	}
 
 	public MidMemoryNode getMemoryNode() {

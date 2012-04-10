@@ -108,7 +108,7 @@ class Main {
 					
 					if(CLI.optOn){
 						// Do algebraic simplifications.
-						((CLASSNode) parser.getAST()).simplifyExpressions();
+//						((CLASSNode) parser.getAST()).simplifyExpressions();
 					}
 					
 					if (CLI.visual) {
@@ -152,8 +152,8 @@ class Main {
 			}
 		} catch (Exception e) {
 			ErrorCenter.reportError(0, 0, String
-					.format("Unrecoverable error of %s: %s\nSTACKTRACE:", e
-							.getClass(), e.getMessage()));
+					.format("Unrecoverable error of %s\nSTACKTRACE:", e
+							.getClass()));
 			e.printStackTrace();
 			// print the error:
 			// System.out.println(CLI.infile);

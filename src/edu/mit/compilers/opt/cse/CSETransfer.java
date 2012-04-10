@@ -44,10 +44,10 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				this.assignments.add(saveNode);
 				LogCenter.debug("[OPT] Processing " + saveNode);
 			}
-			node = node.getNextNode();
 			if (node == b.getTail()) {
 				break;
 			}
+			node = node.getNextNode();
 		}
 
 		for (MidSaveNode saveNode : this.assignments) {
