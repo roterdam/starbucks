@@ -12,5 +12,7 @@ public interface State<T> {
 	public T getBottomState();
 
 	public T join(T s);
+	
+	public boolean isModified();
 		
 }

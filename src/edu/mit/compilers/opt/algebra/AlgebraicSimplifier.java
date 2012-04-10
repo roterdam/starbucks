@@ -25,17 +25,23 @@ import edu.mit.compilers.grammar.tokens.CHAR_LITERALNode;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.grammar.tokens.DIVIDENode;
 import edu.mit.compilers.grammar.tokens.ELSENode;
+import edu.mit.compilers.grammar.tokens.EQNode;
 import edu.mit.compilers.grammar.tokens.FALSENode;
 import edu.mit.compilers.grammar.tokens.FIELD_DECLNode;
 import edu.mit.compilers.grammar.tokens.FORNode;
 import edu.mit.compilers.grammar.tokens.FOR_TERMINATENode;
+import edu.mit.compilers.grammar.tokens.GTENode;
+import edu.mit.compilers.grammar.tokens.GTNode;
 import edu.mit.compilers.grammar.tokens.IDNode;
 import edu.mit.compilers.grammar.tokens.IFNode;
 import edu.mit.compilers.grammar.tokens.IF_CLAUSENode;
 import edu.mit.compilers.grammar.tokens.INT_LITERALNode;
+import edu.mit.compilers.grammar.tokens.LTENode;
+import edu.mit.compilers.grammar.tokens.LTNode;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 import edu.mit.compilers.grammar.tokens.METHOD_DECLNode;
 import edu.mit.compilers.grammar.tokens.MODNode;
+import edu.mit.compilers.grammar.tokens.NEQNode;
 import edu.mit.compilers.grammar.tokens.ORNode;
 import edu.mit.compilers.grammar.tokens.PLUSNode;
 import edu.mit.compilers.grammar.tokens.RETURNNode;
@@ -388,6 +394,11 @@ public class AlgebraicSimplifier {
 							.addAll(opNode.getCallsAfterExecution());
 				}
 			};
+		} else if(opNode instanceof BANGNode) {
+			ExpressionNode replNode = ((BANGNode)opNode).getOperand();
+			replNode.getCallsBeforeExecution().addAll(0, opNode.getCallsBeforeExecution());
+			replNode.getCallsAfterExecution().addAll(opNode.getCallsAfterExecution());
+			return replNode;
 		}
 		return node;
 	}
@@ -591,13 +602,66 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
+	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(OpSameSame2BoolNode node,
 			MidSymbolTable symbolTable) {
-		// TODO: handle BoolBool2Bool --> x == true, and x == false,
-		// handle IntInt2Bool --> 7 == 7, 3+4 == 7,
-		// and !=
-		node.replaceChild(0, node.getLeftOperand().simplify(symbolTable));
-		node.replaceChild(1, node.getRightOperand().simplify(symbolTable));
+		
+		final ExpressionNode leftNode = node.getLeftOperand().simplify(symbolTable);
+		final ExpressionNode rightNode = node.getRightOperand().simplify(symbolTable);
+		
+		
+		if(leftNode instanceof TRUENode && node instanceof EQNode || leftNode instanceof FALSENode && node instanceof NEQNode){
+			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+			return rightNode;
+			//Case 1, true == expr() --> expr(), and false != expr() --> expr()
+		}else if(rightNode instanceof TRUENode && node instanceof EQNode || rightNode instanceof FALSENode && node instanceof NEQNode){
+			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			leftNode.setNextSibling(null);
+			return leftNode;
+			//Case 2, expr() == true --> expr(), and expr() != false --> expr();
+		}else if(leftNode instanceof FALSENode && node instanceof EQNode || leftNode instanceof TRUENode && node instanceof NEQNode){
+			//Case 3, false == expr() --> !expr(), and true != expr() --> !expr()
+			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+			return new BANGNode(){{
+				setText("!");
+				setFirstChild(rightNode);
+			}}.simplify(symbolTable);
+		}else if(rightNode instanceof FALSENode && node instanceof EQNode || rightNode instanceof TRUENode && node instanceof NEQNode){
+			//Case 4, expr() == false --> !expr(), and expr() != true --> !expr()
+			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			leftNode.setNextSibling(null);
+			return new BANGNode(){{
+				setText("!");
+				setFirstChild(leftNode);
+			}}.simplify(symbolTable);
+			
+		}else if(leftNode instanceof INT_LITERALNode && rightNode instanceof INT_LITERALNode){
+			boolean eq = ((INT_LITERALNode)leftNode).getValue() == ((INT_LITERALNode)rightNode).getValue();
+			boolean ret = eq && node instanceof EQNode;
+			if(ret){
+				return new TRUENode() {
+					{
+						setText("true");
+						getCallsBeforeExecution()
+								.addAll(leftNode.getAllCallsDuringExecution());
+						getCallsAfterExecution()
+								.addAll(rightNode.getAllCallsDuringExecution());
+					}
+				};
+			}else{
+				return new FALSENode() {
+					{
+						setText("false");
+						getCallsBeforeExecution()
+								.addAll(leftNode.getAllCallsDuringExecution());
+						getCallsAfterExecution()
+								.addAll(rightNode.getAllCallsDuringExecution());
+					}
+				};
+			}
+		}
+		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
+		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
 		return node;
 	}
 
@@ -630,12 +694,55 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
+	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(OpIntInt2BoolNode node,
 			MidSymbolTable symbolTable) {
 
+		final ExpressionNode leftNode = node.getLeftOperand().simplify(symbolTable);
+		final ExpressionNode rightNode = node.getRightOperand().simplify(symbolTable);
+		
+		if(leftNode instanceof INT_LITERALNode && rightNode instanceof INT_LITERALNode){
+			long leftVal = ((INT_LITERALNode)leftNode).getValue();
+			long rightVal =  ((INT_LITERALNode)rightNode).getValue();
+			
+			boolean ret = false;
+			if(node instanceof LTNode){
+				ret = leftVal < rightVal;
+			}else if(node instanceof LTENode){
+				ret = leftVal <= rightVal;
+			}else if(node instanceof GTNode){
+				ret = leftVal > rightVal;
+			}else if(node instanceof GTENode){
+				ret = leftVal >= rightVal;
+			}else {
+				assert false : "There are no other intint2bools";
+			}
+			
+			if(ret){
+				return new TRUENode() {
+					{
+						setText("true");
+						getCallsBeforeExecution()
+								.addAll(leftNode.getAllCallsDuringExecution());
+						getCallsAfterExecution()
+								.addAll(rightNode.getAllCallsDuringExecution());
+					}
+				};
+			}else{
+				return new FALSENode() {
+					{
+						setText("false");
+						getCallsBeforeExecution()
+								.addAll(leftNode.getAllCallsDuringExecution());
+						getCallsAfterExecution()
+								.addAll(rightNode.getAllCallsDuringExecution());
+					}
+				};
+			}
+		}
 		// TODO: 1 <= 5
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(leftNode);
+		node.setRightOperand(rightNode);
 		return node;
 	}
 

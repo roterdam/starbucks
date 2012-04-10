@@ -10,6 +10,10 @@ public abstract class SingleOperandNode extends ExpressionNode {
 		return (ExpressionNode) getChild(0);
 	}
 	
+	public void setOperand(ExpressionNode x) {
+		replaceChild(0, x);
+	}
+	
 	@Override
 	public boolean hasMethodCalls() {
 		return getOperand().hasMethodCalls();
