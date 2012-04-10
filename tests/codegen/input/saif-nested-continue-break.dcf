@@ -16,7 +16,7 @@ class Program {
                 continue;
             }
             if(age > 30){
-                callout("printf"," > Too old. I think we\'re done here. Bye.");
+                callout("printf"," > Too old. I think we\'re done here. Bye.\n");
                 break;
             }
 

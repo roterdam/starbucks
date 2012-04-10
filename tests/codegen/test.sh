@@ -2,7 +2,7 @@
 
 runcompiler() {
   java -jar `dirname $0`/../../dist/Compiler.jar \
-    -target codegen -opt all -o $2 $1
+    -opt all -target codegen -o $2 $1
 }
 
 fail=0
@@ -13,6 +13,7 @@ if ! gcc -v 2>&1 |grep -q '^Target: x86_64-linux-gnu'; then
 fi
 
 for file in `dirname $0`/input/*.dcf; do
+  echo ${file}
   asm=`tempfile --suffix=.s`
   asmo=`tempfile --suffix=.o`
   msg=""
