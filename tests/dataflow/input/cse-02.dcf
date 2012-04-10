@@ -6,12 +6,13 @@ class Program {
   void main() {
     int a, b, c;
 
-    a = get_int(2);
-    b = get_int(3);
-    c = 0;
+    a = 2;
+    c = 5;
+    callout("printf", "%d\n", c);
+    b = 1;
 
-    c = (a + b) * (a + b);
-
+    callout("printf", "%d\n", a);
+    //callout("printf", "%d\n", b);
     callout("printf", "%d\n", c);
   }
 }
