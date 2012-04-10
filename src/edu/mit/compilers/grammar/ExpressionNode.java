@@ -11,15 +11,25 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
+import edu.mit.compilers.opt.Canonicalization;
 
 @SuppressWarnings("serial")
 public abstract class ExpressionNode extends DecafNode {
 	private List<DecafNode> callsBeforeExecution;
 	private List<DecafNode> callsAfterExecution;
+	private Canonicalization canonicalization;
 	public ExpressionNode(){
 		callsBeforeExecution = new ArrayList<DecafNode>();
 		callsAfterExecution = new ArrayList<DecafNode>();
 	}
+	
+	public Canonicalization getCanonicalization(){
+		return canonicalization;
+	}
+	public void setCanonicalization(Canonicalization c){
+		canonicalization = c;
+	}
+	
 	public abstract boolean hasMethodCalls();
 	
 	public List<DecafNode> getAllCallsDuringExecution(){

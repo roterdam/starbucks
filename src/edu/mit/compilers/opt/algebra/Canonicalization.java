@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.algebra;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.mit.compilers.opt.algebra.DMMCanonicalization;
 import edu.mit.compilers.opt.algebra.DMMCanonicalization.DMMType;
 
 public abstract class Canonicalization {
@@ -21,7 +20,7 @@ public abstract class Canonicalization {
 		Canonicalization e = ProductCanonicalization.makeVariable("e");
 		Canonicalization d = a.add(c).add(b);
 		
-		System.out.println(w.equals(d));
+		//System.out.println(w.equals(d));
 		
 		
 		Canonicalization t1 = x.add(y).mult(z);

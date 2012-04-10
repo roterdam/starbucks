@@ -7,11 +7,13 @@ public class DMMCanonicalization extends Canonicalization {
 	protected Canonicalization c1;
 	protected Canonicalization c2;
 	private DMMType op;
+	
 	public DMMCanonicalization(Canonicalization c1, Canonicalization c2, DMMType op){
 		this.c1 = c1;
 		this.c2 = c2;
 		this.op = op;
 	}
+	
 	@Override
 	public Canonicalization add(Canonicalization x) {
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
