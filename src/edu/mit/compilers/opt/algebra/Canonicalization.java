@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.algebra;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.mit.compilers.opt.algebra.DMMCanonicalization;
 import edu.mit.compilers.opt.algebra.DMMCanonicalization.DMMType;
 
 public abstract class Canonicalization {
@@ -20,15 +19,29 @@ public abstract class Canonicalization {
 		Canonicalization c = ProductCanonicalization.makeVariable("c");
 		Canonicalization d = a.add(c).add(b);
 		
-		System.out.println(w.equals(d));
+		//System.out.println(w.equals(d));
 		
 		
 		Canonicalization t1 = x.add(y).mult(z);
 		Canonicalization t2 = x.mult(z).add(z.mult(y));
 		
-		System.out.println(t1.equals(t2));
-		System.out.println(t1);
-		System.out.println(t2);
+		//System.out.println(t1.equals(t2));
+		//System.out.println(t1);
+		//System.out.println(t2);
+		
+		// a/b * c * d vs a/b * (c * d)
+		DMMCanonicalization ab = new DMMCanonicalization(x, y, DMMType.DIV); // x / y
+		DMMCanonicalization abdup = new DMMCanonicalization(x, y, DMMType.DIV); // x / y
+		DMMCanonicalization ba = new DMMCanonicalization(y, x, DMMType.DIV); // y / x
+		DMMCanonicalization abc = new DMMCanonicalization(ab, z, DMMType.MUL);
+		DMMCanonicalization cab = new DMMCanonicalization(z, ab, DMMType.MUL);
+		DMMCanonicalization abcb = new DMMCanonicalization(abc, b, DMMType.MUL); // 
+		DMMCanonicalization cb = new DMMCanonicalization(b, c, DMMType.MUL);
+		DMMCanonicalization abpcb = new DMMCanonicalization(ab, cb, DMMType.MUL);
+		System.out.println(abcb);
+		System.out.println(abpcb);
+		System.out.println(abpcb.equals(abcb));
+		
 		
 		
 	}

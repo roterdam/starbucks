@@ -7,11 +7,13 @@ public class DMMCanonicalization extends Canonicalization {
 	protected Canonicalization c1;
 	protected Canonicalization c2;
 	private DMMType op;
+	
 	public DMMCanonicalization(Canonicalization c1, Canonicalization c2, DMMType op){
 		this.c1 = c1;
 		this.c2 = c2;
 		this.op = op;
 	}
+	
 	@Override
 	public Canonicalization add(Canonicalization x) {
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
@@ -37,9 +39,13 @@ public class DMMCanonicalization extends Canonicalization {
 	public boolean isDiscrete() {
 		return true;
 	}
+	
+	@SuppressWarnings("serial")
 	@Override
 	public Map<Canonicalization, Long> getTerms() {
-		return null;
+		return new HashMap<Canonicalization, Long>(){{
+			put(DMMCanonicalization.this, 1L);
+		}};
 	}
 	
 	public enum DMMType {
@@ -48,8 +54,32 @@ public class DMMCanonicalization extends Canonicalization {
 
 	@Override
 	public boolean equals(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!(o instanceof DMMCanonicalization)) {
+			return false;
+		}
+		
+		DMMCanonicalization canon = (DMMCanonicalization) o;
+		boolean equal = false;
+		System.out.println("***");
+		System.out.println(c1);
+		System.out.println(canon.getC1());
+		System.out.println(canon.getC2());
+		if (op == DMMType.MUL) {
+			equal = canon.getC2().equals(c1) && canon.getC1().equals(c2) && canon.getOp().equals(op);
+		}
+		return (equal || canon.getC1().equals(c1) && canon.getC2().equals(c2) && canon.getOp().equals(op));
+	}
+	
+	public Canonicalization getC1() {
+		return this.c1;
+	}
+	
+	public Canonicalization getC2() {
+		return this.c2;
+	}
+	
+	public DMMType getOp() {
+		return this.op;
 	}
 	
 	@Override
