@@ -37,7 +37,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		if (ROOT_NODE == null) {
 			ROOT_NODE = node;
 		}
-		while (node != null) {
+		while (true) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
@@ -45,6 +45,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				LogCenter.debug("[OPT] Processing " + saveNode);
 			}
 			node = node.getNextNode();
+			if (node == b.getTail()) {
+				break;
+			}
 		}
 
 		for (MidSaveNode saveNode : this.assignments) {

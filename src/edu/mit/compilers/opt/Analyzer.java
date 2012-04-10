@@ -19,6 +19,10 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 	public Analyzer(S s, T t) {
 		startState = s;
 		transferFunction = t;
+		initialize();
+	}
+	
+	private void initialize() {
 		outHash = new HashMap<Block, S>();
 	}
 
@@ -31,6 +35,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 	}
 
 	private void analyzeMidNodeList(MidNodeList nodeList) {
+		initialize();
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		LogCenter.debug("[BLOCK]\n"
