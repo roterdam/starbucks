@@ -3,7 +3,6 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
@@ -54,22 +53,23 @@ public abstract class MidNode {
 	public String toDotSyntax() {
 		return hashCode() + " [label=\"" + toString() + "\"];\n";
 	}
-
-	public List<Reg> getOperandRegisters() {
-		return new ArrayList<Reg>();
-	}
 	
 	public void insertAfter(MidNode n) {
 		MidNode oldNext = n.getNextNode();
 		n.setNextNode(this);
 		this.setNextNode(oldNext);
-		assert n.getNextNode() == this;
 	}
 	
 	public void replace(MidNode n) {
 		MidNode prevNode = n.getPrevNode();
+		//FIXME: does not work if n is HEAD.
+		assert prevNode != null;
 		prevNode.setNextNode(this);
 		this.setNextNode(n.getNextNode());
 		assert prevNode.getNextNode() == this;
+	}
+	
+	public void delete() {
+		this.getPrevNode().setNextNode(this.getNextNode());
 	}
 }

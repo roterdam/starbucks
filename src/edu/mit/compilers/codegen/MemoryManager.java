@@ -18,7 +18,6 @@ import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
  * locations.
  */
 public class MemoryManager {
-
 	// How many bytes each address takes. Use for calculating offsets!
 	// Note that it's 8, not 4, in 64-bit since 8*8bytes = 64 bits.
 	public static final int ADDRESS_SIZE = 8;
@@ -56,13 +55,15 @@ public class MemoryManager {
 			LogCenter.debug("METHOD: " + methodName);
 			processMethod(methods.get(methodName));
 		}
-		Map<String, MidMethodDeclNode> starbucksMethods = codeRoot.getStarbucksMethods();
+
+		Map<String, MidMethodDeclNode> starbucksMethods = codeRoot
+				.getStarbucksMethods();
 		for (String methodName : starbucksMethods.keySet()) {
 			LogCenter.debug("STARBUCKS_METHOD: " + methodName);
 			processMethod(starbucksMethods.get(methodName));
 		}
 	}
-	
+
 	private static void processMethod(MidMethodDeclNode methodDeclNode) {
 		deallocAllRegisters();
 		// Reset the localStackSize.
@@ -77,13 +78,17 @@ public class MemoryManager {
 				// We dealloc before alloc in order to allow a register node
 				// to save to itself.
 				for (Reg r : ((RegisterOpNode) m).getOperandRegisters()) {
-					assert r != null : m+"("+m.getClass()+") is missing registers";
+					assert r != null : m + "(" + m.getClass()
+							+ ") is missing registers";
 					deallocTempRegister(r);
 				}
 				if (m instanceof MidRegisterNode
 						&& !((MidRegisterNode) m).hasRegister()) {
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}
+			} else if (m instanceof MidRegisterNode
+					&& !((MidRegisterNode) m).hasRegister()) {
+				((MidRegisterNode) m).setRegister(allocTempRegister());
 			} else if (m instanceof MidSaveNode) {
 				if (((MidSaveNode) m).savesRegister()) {
 					deallocTempRegister(((MidSaveNode) m).getRegNode()
@@ -107,12 +112,13 @@ public class MemoryManager {
 				return r;
 			}
 		}
-//		return Reg.R9;
+		// return Reg.R9;
 		throw new RuntimeException("Ran out of registers somehow!.");
 	}
 
 	public static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
+		assert r != null : "Why is this register null?";
 		LogCenter.debug("[MEM]  dealloc " + r.name());
 		LogCenter.debug("[MEM]  " + registerAvailabilityMap.toString());
 		LogCenter.debug("[MEM]");

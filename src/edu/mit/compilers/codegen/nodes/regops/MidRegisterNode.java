@@ -1,8 +1,5 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.mit.compilers.codegen.MidLabelManager;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -10,7 +7,7 @@ import edu.mit.compilers.codegen.nodes.MidNode;
 /**
  * Represents an instruction that stores something on a register.
  */
-abstract public class MidRegisterNode extends MidNode implements RegisterOpNode {
+abstract public class MidRegisterNode extends MidNode {
 
 	String name;
 	private Reg register = null;
@@ -40,11 +37,6 @@ abstract public class MidRegisterNode extends MidNode implements RegisterOpNode 
 	 */
 	public boolean hasRegister() {
 		return register != null;
-	}
-
-	@Override
-	public List<Reg> getOperandRegisters() {
-		return new ArrayList<Reg>();
 	}
 
 }

@@ -10,32 +10,38 @@ import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 
 public class MidCompareNode extends MidNode implements RegisterOpNode {
-	
+
 	private MidRegisterNode leftOperand;
 	private MidRegisterNode rightOperand;
 
 	public MidCompareNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
+		assert leftOperand != null : "Left operand is null.";
+		assert rightOperand != null : "Left operand is null.";
 		this.leftOperand = leftOperand;
 		this.rightOperand = rightOperand;
+		leftOperand.recordRegisterOp(this);
+		rightOperand.recordRegisterOp(this);
 	}
 
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), OpCode.CMP, leftOperand.getRegister().name(),
-				rightOperand.getRegister().name()));
+		out.add(new OpASM(toString(), OpCode.CMP, leftOperand.getRegister()
+				.name(), rightOperand.getRegister().name()));
 		return out;
 	}
 
 	@Override
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
-		assert leftOperand.getRegister() != null : "left "+leftOperand.toString()+" has no registers. Child of "+toString();
-		assert rightOperand.getRegister() != null : "right!";
+		assert leftOperand.getRegister() != null : "Left operand register is null: "
+				+ leftOperand;
+		assert rightOperand.getRegister() != null : "Right operand register is null: "
+				+ rightOperand;
 		out.add(leftOperand.getRegister());
 		out.add(rightOperand.getRegister());
 		return out;
 	}
-	
+
 	public String toDotSyntax() {
 		String out = super.toDotSyntax();
 		out += leftOperand.hashCode() + " -> " + hashCode()
@@ -43,6 +49,16 @@ public class MidCompareNode extends MidNode implements RegisterOpNode {
 		out += rightOperand.hashCode() + " -> " + hashCode()
 				+ " [style=dotted,color=maroon];\n";
 		return out;
+	}
+
+	@Override
+	public void updateRegisterNode(MidLoadNode oldNode, MidLoadNode newNode) {
+		if (oldNode == leftOperand) {
+			leftOperand = newNode;
+		}
+		if (oldNode == rightOperand) {
+			rightOperand = newNode;
+		}
 	}
 
 }

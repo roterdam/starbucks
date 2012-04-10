@@ -8,7 +8,6 @@ import edu.mit.compilers.codegen.asm.OpCode;
 
 public class MidNegNode extends MidUnaryRegNode {
 
-
 	public MidNegNode(MidLoadNode operand) {
 		super(operand);
 	}

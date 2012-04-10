@@ -3,7 +3,6 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
@@ -15,10 +14,12 @@ import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 public class MidLoadNode extends MidRegisterNode {
 
 	private MidMemoryNode memoryNode;
+	private List<RegisterOpNode> registerOpNodes;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
 		this.memoryNode = memoryNode;
+		registerOpNodes = new ArrayList<RegisterOpNode>();
 	}
 
 	public MidMemoryNode getMemoryNode() {
@@ -45,10 +46,19 @@ public class MidLoadNode extends MidRegisterNode {
 		return out;
 	}
 	
-	@Override
-	public List<Reg> getOperandRegisters() {
-		// Load doesn't use registers, but memory node might.
-		return memoryNode.getRegisters();
+	public void recordRegisterOp(RegisterOpNode opNode) {
+		registerOpNodes.add(opNode);
+	}
+	
+	public void replaceThisReferences(MidLoadNode newNode) {
+		for (RegisterOpNode opNode : registerOpNodes) {
+			opNode.updateRegisterNode(this, newNode);
+		}
+	}
+	
+	public void replace(MidLoadNode node) {
+		super.replace(node);
+		node.replaceThisReferences(this);
 	}
 
 }

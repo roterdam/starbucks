@@ -18,19 +18,23 @@ import edu.mit.compilers.opt.Value;
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidSaveNode> assignments;
-
-	public CSETransfer() {
-		this.assignments = new ArrayList<MidSaveNode>();
-	}
+	
+	public static MidNode ROOT_NODE;
 
 	@Override
 	public CSEGlobalState apply(Block b, CSEGlobalState state) {
 		assert state != null : "Input state should not be null.";
-		// TOOD: shouldn't local state be somewhat dependent on the initial
+
+		this.assignments = new ArrayList<MidSaveNode>();
+
+		// TODO: shouldn't local state be somewhat dependent on the initial
 		// CSEState? new CSELocalState(state)? it should at least know about
 		// temps that map to existing symbol expressions
 		CSELocalState localState = new CSELocalState();
 		MidNode node = b.getHead();
+		if (ROOT_NODE == null) {
+		ROOT_NODE = node;
+		}
 		while (node != null) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
@@ -60,13 +64,13 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		return state;
 	}
 
-	private void processSimpleAssignment(MidSaveNode node, CSELocalState s, CSEGlobalState g) {
+	private void processSimpleAssignment(MidSaveNode node, CSELocalState s,
+			CSEGlobalState g) {
 		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
-		
-		GlobalExpr expr = new LeafGlobalExpr(
-				loadNode.getMemoryNode());
+
+		GlobalExpr expr = new LeafGlobalExpr(loadNode.getMemoryNode());
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
-		
+
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
 			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
@@ -82,7 +86,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			s.addVar(ref);
 			return;
 		}
-		
+
 		// b = x;
 		// Get the value of the node to be assigned to, create a new one for it
 		// if necessary, i.e. x -> v1
@@ -95,7 +99,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		if (tempNode == null) {
 			// If not, add it.
 			// b = x; t1 = b;
-			tempInsertHelper(tempNode, node, v, s);
+			tempInsertHelper(node, v, s);
 		} else {
 			// If yes, we can use the temp instead of the value.
 			// b = t1;
@@ -103,21 +107,22 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					tempNode.getDestinationNode());
 			MidSaveNode saveTempNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
-			// Replace both the save node and the load node before it.
+			// Insert both the save node and the load node before deleting the
+			// old save node.
 			loadTempNode.replace(loadNode);
 			saveTempNode.replace(node);
 		}
 	}
 
-	private void processUnaryAssignment(MidSaveNode node,
-			CSELocalState s, CSEGlobalState g) {
+	private void processUnaryAssignment(MidSaveNode node, CSELocalState s,
+			CSEGlobalState g) {
 		MidNegNode r = (MidNegNode) node.getRegNode();
 
-		GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(
-				r.getOperand().getMemoryNode()));
+		GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(r
+				.getOperand().getMemoryNode()));
 
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
-		
+
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
 			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
@@ -150,7 +155,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
 			// It's not (in a temp), so create a new temp.
-			tempInsertHelper(tempNode, node, v3, s);
+			tempInsertHelper(node, v3, s);
 		} else {
 			// If the value is already stored in a temp, use that temp
 			// instead. This is the magical optimization step.
@@ -184,8 +189,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-			loadTempNode.replace(node);
+			loadTempNode.insertAfter(node);
 			newSaveNode.insertAfter(loadTempNode);
+			completeDelete(node);
 			// Save destination node as a value.
 			s.addVar(ref);
 			return;
@@ -208,7 +214,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
 			// It's not (in a temp), so create a new temp.
-			tempInsertHelper(tempNode, node, v3, s);
+			tempInsertHelper(node, v3, s);
 		} else {
 			// If the value is already stored in a temp, use that temp
 			// instead. This is the magical optimization step.
@@ -220,15 +226,28 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
 			newSaveNode.isOptimization = true;
-			loadTempNode.replace(node);
+			loadTempNode.insertAfter(node);
 			newSaveNode.insertAfter(loadTempNode);
+			completeDelete(node);
 		}
 	}
 
-	private void tempInsertHelper(MidSaveNode tempNode, MidNode originalNode,
-			Value v, CSELocalState s) {
+	/**
+	 * Deletes a node and all now-useless nodes before it. Assumes saveNode
+	 * saves an arithmetic node.
+	 */
+	private void completeDelete(MidSaveNode saveNode) {
+		saveNode.delete();
+		assert saveNode.getRegNode() instanceof MidArithmeticNode;
+		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
+		arithNode.delete();
+		arithNode.getLeftOperand().delete();
+		arithNode.getRightOperand().delete();
+	}
+
+	private void tempInsertHelper(MidNode originalNode, Value v, CSELocalState s) {
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
-		tempNode = s.addTemp(v, tempDeclNode);
+		MidSaveNode tempNode = s.addTemp(v, tempDeclNode);
 		// Add the temp after the save node. Don't forget the decl node!
 		tempDeclNode.insertAfter(originalNode);
 		tempNode.insertAfter(tempDeclNode);
