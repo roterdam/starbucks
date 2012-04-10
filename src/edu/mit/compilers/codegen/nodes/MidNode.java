@@ -54,10 +54,6 @@ public abstract class MidNode {
 	public String toDotSyntax() {
 		return hashCode() + " [label=\"" + toString() + "\"];\n";
 	}
-
-	public List<Reg> getOperandRegisters() {
-		return new ArrayList<Reg>();
-	}
 	
 	public void insertAfter(MidNode n) {
 		MidNode oldNext = n.getNextNode();

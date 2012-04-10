@@ -164,5 +164,14 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 		registerNode = newNode;
 	}
 
+	@Override
+	public List<Reg> getOperandRegisters() {
+		List<Reg> out = new ArrayList<Reg>();
+		if (registerNode != null) {
+			out.add(registerNode.getRegister());
+		}
+		return out;
+	}
+
 	
 }
