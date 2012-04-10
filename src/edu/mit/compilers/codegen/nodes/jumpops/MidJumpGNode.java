@@ -16,5 +16,10 @@ public class MidJumpGNode extends MidJumpNode {
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.JG);
 	}
+	
+	@Override
+	public boolean isConditional() {
+		return true;
+	}
 
 }

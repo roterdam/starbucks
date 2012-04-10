@@ -34,8 +34,13 @@ public class MidJumpNode extends MidNode {
 		out.add(new OpASM(toString(), op, this.getLabelNode().getName()));
 		return out;
 	}
+	
 	public List<ASM> toASM(){
 		return toASM(OpCode.JMP);
+	}
+	
+	public boolean isConditional() {
+		return false;
 	}
 	
 }

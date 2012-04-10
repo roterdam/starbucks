@@ -1,5 +1,6 @@
 package edu.mit.compilers.opt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 	private void analyzeMidNodeList(MidNodeList nodeList) {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
+		LogCenter.debug("[BLOCK]\n"
+						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
 		for (Block block : worklist) {
@@ -49,7 +52,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			S out = this.transferFunction.apply(currentBlock, in);
 			if (out != outHash.get(out)) {
 				outHash.put(currentBlock, out);
-//				worklist.addAll(currentBlock.getSuccessors());
+				// worklist.addAll(currentBlock.getSuccessors());
 			}
 			// TODO: return with less perfect result if it takes a really long
 			// time?

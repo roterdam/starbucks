@@ -16,4 +16,9 @@ public class MidJumpGENode extends MidJumpNode {
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.JGE);
 	}
+
+	@Override
+	public boolean isConditional() {
+		return true;
+	}
 }

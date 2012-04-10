@@ -16,4 +16,10 @@ public class MidJumpEQNode extends MidJumpNode {
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.JE);
 	}
+	
+	@Override
+	public boolean isConditional() {
+		return true;
+	}
+	
 }
