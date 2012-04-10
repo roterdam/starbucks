@@ -1,7 +1,7 @@
 #!/bin/sh
 
 runcompiler() {
-  java -jar `dirname $0`/../../dist/Compiler.jar \
+  java -ea -jar `dirname $0`/../../dist/Compiler.jar \
     -opt all -target codegen -o $2 $1
 }
 
