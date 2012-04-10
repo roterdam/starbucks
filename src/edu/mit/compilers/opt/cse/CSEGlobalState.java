@@ -187,6 +187,10 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 	public Map<GlobalExpr, List<MidMemoryNode>> getExpressionsMap() {
 		return exprToRefMap;
 	}
+	
+	public Map<MidMemoryNode, List<GlobalExpr>> getReferenceMap() {
+		return refToExprMap;
+	}
 
 	public List<MidMemoryNode> getReferences(GlobalExpr expr) {
 		if (exprToRefMap.containsKey(expr)) {

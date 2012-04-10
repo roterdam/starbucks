@@ -2,10 +2,13 @@ package edu.mit.compilers.opt.cse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -17,7 +20,7 @@ import edu.mit.compilers.opt.Value;
 
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
-	ArrayList<MidSaveNode> assignments;
+	ArrayList<MidNode> assignments;
 
 	public static MidNode ROOT_NODE;
 
@@ -25,7 +28,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	public CSEGlobalState apply(Block b, CSEGlobalState state) {
 		assert state != null : "Input state should not be null.";
 
-		this.assignments = new ArrayList<MidSaveNode>();
+		this.assignments = new ArrayList<MidNode>();
 		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING "
 				+ b.getHead() + ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
 
@@ -43,6 +46,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
+			} else if (node instanceof MidMethodCallNode) {
+				this.assignments.add(node);
 			}
 			if (node == b.getTail()) {
 				break;
@@ -50,23 +55,39 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			node = node.getNextNode();
 		}
 
-		for (MidSaveNode saveNode : this.assignments) {
-			// a = x
-			if (saveNode.getRegNode() instanceof MidLoadNode) {
-				processSimpleAssignment(saveNode, localState, state);
-			}
-			// a = -x
-			if (saveNode.getRegNode() instanceof MidNegNode) {
-				processUnaryAssignment(saveNode, localState, state);
-			}
-			// a = x + y
-			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-				processArithmeticAssignment(saveNode, localState, state);
+		for (MidNode assignmentNode : this.assignments) {
+			if (assignmentNode instanceof MidSaveNode) {
+				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
+				// a = x
+				if (saveNode.getRegNode() instanceof MidLoadNode) {
+					processSimpleAssignment(saveNode, localState, state);
+				}
+				// a = -x
+				if (saveNode.getRegNode() instanceof MidNegNode) {
+					processUnaryAssignment(saveNode, localState, state);
+				}
+				// a = x + y
+				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
+					processArithmeticAssignment(saveNode, localState, state);
+				}
+			} else if (assignmentNode instanceof MidMethodCallNode) {
+				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
+				processMethodCall(methodNode, localState, state);
 			}
 		}
 
 		// TODO: Does state need modification before returning?
 		return state;
+	}
+
+	private void processMethodCall(MidMethodCallNode methodNode,
+			CSELocalState localState, CSEGlobalState state) {
+		Map<MidMemoryNode, List<GlobalExpr>> refMap = state.getReferenceMap(); 
+		for (MidMemoryNode node : refMap.keySet()) {
+			if (node instanceof MidFieldDeclNode) {
+				state.killReferences(node);
+			}
+		}
 	}
 
 	private void processSimpleAssignment(MidSaveNode node, CSELocalState s,
