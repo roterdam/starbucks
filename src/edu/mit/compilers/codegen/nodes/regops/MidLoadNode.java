@@ -52,7 +52,7 @@ public class MidLoadNode extends MidRegisterNode {
 	
 	public void replaceThisReferences(MidLoadNode newNode) {
 		for (RegisterOpNode opNode : registerOpNodes) {
-			opNode.updateRegisterNode(this, newNode);
+			opNode.updateLoadNode(this, newNode);
 		}
 	}
 	

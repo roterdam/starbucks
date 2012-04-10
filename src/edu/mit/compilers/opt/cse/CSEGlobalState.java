@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.State;
@@ -84,7 +85,7 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 		// Would potentially expand expr here.
 		List<GlobalExpr> exprs = new ArrayList<GlobalExpr>();
 		exprs.add(expr);
-		refToExprMap.put(node, exprs); // assuming killref already got called?
+		refToExprMap.put(node, exprs);
 
 		for (GlobalExpr e : exprs) {
 			if (!exprToRefMap.containsKey(e))
@@ -97,6 +98,11 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 				mentionMap.get(m).add(e);
 			}
 		}
+		LogCenter.debug("[OPTJ] Generated reference " + node + " -> " + expr);
+		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		LogCenter.debug("[OPTJ] ");
 
 	}
 
@@ -104,29 +110,52 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 	// TODO (this always gets called before gen reference, so just make them one
 	// method) ?
 	public void killReferences(MidMemoryNode node) {
+		LogCenter.debug("[OPTJ] Killing references to " + node);
+		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		if (mentionMap.containsKey(node)) {
 			// Remove stuff for each expr that is affected by the node.
-			for (GlobalExpr e : mentionMap.get(node)) {
-				// Remove reference to this expr for every mentioned variable
+			for (GlobalExpr e : new ArrayList<GlobalExpr>(mentionMap.get(node))) {
+				// Kill the expression e by deleting expression from
+				// expr -> [R] and all R -> expr
+
+				// For every reference m used in the expression
 				for (MidMemoryNode m : e.getMemoryNodes()) {
-					if (mentionMap.containsKey(m))
-						mentionMap.get(m).remove(e);
+					// Remove "e mentions m"
+					if (mentionMap.containsKey(m)) {
+						List<GlobalExpr> mentions = mentionMap.get(m);
+						mentions.remove(e);
+						// If it's empty clear the list completely.
+						if (mentions.size() == 0) {
+							mentionMap.remove(m);
+						}
+					}
 				}
 
 				// Remove reference to this expr for every variable it defines
-				if (exprToRefMap.containsKey(e)) { // this should always be
-													// true?
+				// assert exprToRefMap.containsKey(e);
+				if (exprToRefMap.containsKey(e)) {
 					for (MidMemoryNode m : exprToRefMap.get(e)) {
 						if (refToExprMap.containsKey(m)) { // this should always
 															// be true?
-							refToExprMap.get(m).remove(e);
+							List<GlobalExpr> exprs = refToExprMap.get(m);
+							exprs.remove(e);
+							if (exprs.size() == 0) {
+								refToExprMap.remove(m);
+							}
 						}
 					}
-					exprToRefMap.remove(e);
 				}
+				exprToRefMap.remove(e);
 			}
 
 		}
+		LogCenter.debug("[OPTJ] AFTER:");
+		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		LogCenter.debug("[OPTJ] ");
 	}
 
 	public Map<GlobalExpr, List<MidMemoryNode>> getExpressionsMap() {

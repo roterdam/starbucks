@@ -160,7 +160,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode {
 	}
 
 	@Override
-	public void updateRegisterNode(MidLoadNode oldNode, MidLoadNode newNode) {
+	public void updateLoadNode(MidLoadNode oldNode, MidLoadNode newNode) {
 		registerNode = newNode;
 	}
 

@@ -33,7 +33,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		CSELocalState localState = new CSELocalState();
 		MidNode node = b.getHead();
 		if (ROOT_NODE == null) {
-		ROOT_NODE = node;
+			ROOT_NODE = node;
 		}
 		while (node != null) {
 			if (node instanceof MidSaveNode
@@ -149,8 +149,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-		g.killReferences(node.getDestinationNode());
 		g.genReference(node.getDestinationNode(), expr);
+		g.killReferences(node.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
@@ -182,9 +182,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		List<MidMemoryNode> reusableReferences = g.getReferences(expr);
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE.");
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing " + expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
 					node.getDestinationNode());
@@ -208,8 +208,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-		g.killReferences(node.getDestinationNode());
 		g.genReference(node.getDestinationNode(), expr);
+		g.killReferences(node.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
@@ -240,6 +240,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
+		LogCenter.debug("[OPT] DELETING " + arithNode);
 		arithNode.delete();
 		arithNode.getLeftOperand().delete();
 		arithNode.getRightOperand().delete();

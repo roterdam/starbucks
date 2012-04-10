@@ -28,7 +28,7 @@ public class UnaryGlobalExpr extends GlobalExpr {
 
 	@Override
 	public int hashCode() {
-		return node.hashCode() + expr.hashCode();
+		return node.getNodeClass().hashCode() * 7919 + expr.hashCode();
 	}
 
 	@Override

@@ -62,7 +62,7 @@ public abstract class MidBinaryRegNode extends MidRegisterNode implements Regist
 	}
 	
 	@Override
-	public void updateRegisterNode(MidLoadNode oldNode,
+	public void updateLoadNode(MidLoadNode oldNode,
 			MidLoadNode newNode) {
 		if (oldNode == leftOperand) {
 			leftOperand = newNode;

@@ -62,7 +62,8 @@ public class BinaryGlobalExpr extends GlobalExpr {
 
 	@Override
 	public int hashCode() {
-		return node.hashCode() + left.hashCode() + right.hashCode();
+		return (node.getNodeClass().hashCode() * 7919 + left.hashCode())
+				* 17389 + right.hashCode();
 	}
 
 }
