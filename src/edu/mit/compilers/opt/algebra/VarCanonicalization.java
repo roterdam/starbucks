@@ -1,15 +1,13 @@
 package edu.mit.compilers.opt.algebra;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 public class VarCanonicalization extends Canonicalization {
-	protected long value;
-	public VarCanonicalization(long value) {
-		this.value = value;
+	protected String name;
+	public VarCanonicalization(String name) {
+		this.name = name;
 	}
 	
 	@Override
@@ -17,19 +15,18 @@ public class VarCanonicalization extends Canonicalization {
 		if(!(o instanceof VarCanonicalization)){
 			return false;
 		}
-		return value == ((VarCanonicalization)o).value;
+		return name.equals(((VarCanonicalization)o).name);
 	}
 
 	@Override
 	public Canonicalization add(Canonicalization x) {
-		
-		// TODO Auto-generated method stub
+		assert false : "var is part of a bigger discrete unit.";
 		return null;
 	}
 
 	@Override
 	public Canonicalization mult(Canonicalization x) {
-		// TODO Auto-generated method stub
+		assert false : "var is part of a bigger discrete unit.";
 		return null;
 	}
 
@@ -38,9 +35,15 @@ public class VarCanonicalization extends Canonicalization {
 		return true;
 	}
 	@Override
-	public Map<Canonicalization, Integer> getTerms() {
-		return new HashMap<Canonicalization, Integer>(){{
-			put(VarCanonicalization.this, 1);
+	public Map<Canonicalization, Long> getTerms() {
+		return new HashMap<Canonicalization, Long>(){{
+			put(VarCanonicalization.this, 1L);
 		}};
 	}
+	
+	@Override
+	public String toString(){
+		return name;
+	}
+	
 }

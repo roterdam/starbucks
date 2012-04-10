@@ -14,11 +14,11 @@ public class DMMCanonicalization extends Canonicalization {
 	}
 	@Override
 	public Canonicalization add(Canonicalization x) {
-		Map<Canonicalization, Integer> freqs = new HashMap<Canonicalization, Integer>();
-		freqs.put(this, 1);
+		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
+		freqs.put(this, 1L);
 		for(Canonicalization c : x.getTerms().keySet()){
 			if(!freqs.containsKey(c)){
-				freqs.put(c, 0);
+				freqs.put(c, 0L);
 			}
 			freqs.put(c, freqs.get(c)+x.getTerms().get(c));
 		}
@@ -38,7 +38,7 @@ public class DMMCanonicalization extends Canonicalization {
 		return true;
 	}
 	@Override
-	public Map<Canonicalization, Integer> getTerms() {
+	public Map<Canonicalization, Long> getTerms() {
 		return null;
 	}
 	
@@ -51,4 +51,10 @@ public class DMMCanonicalization extends Canonicalization {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public String toString(){
+		return op.toString()+"< "+c1.toString()+", "+c2.toString()+" >";
+	}
+	
 }
