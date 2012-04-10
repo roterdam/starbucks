@@ -14,25 +14,25 @@ import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
 
 @SuppressWarnings("serial")
 public abstract class ExpressionNode extends DecafNode {
-	private List<METHOD_CALLNode> callsBeforeExecution;
-	private List<METHOD_CALLNode> callsAfterExecution;
+	private List<DecafNode> callsBeforeExecution;
+	private List<DecafNode> callsAfterExecution;
 	public ExpressionNode(){
-		callsBeforeExecution = new ArrayList<METHOD_CALLNode>();
-		callsAfterExecution = new ArrayList<METHOD_CALLNode>();
+		callsBeforeExecution = new ArrayList<DecafNode>();
+		callsAfterExecution = new ArrayList<DecafNode>();
 	}
 	public abstract boolean hasMethodCalls();
 	
-	public List<METHOD_CALLNode> getAllCallsDuringExecution(){
-		List<METHOD_CALLNode> list = new ArrayList<METHOD_CALLNode>();
+	public List<DecafNode> getAllCallsDuringExecution(){
+		List<DecafNode> list = new ArrayList<DecafNode>();
 		list.addAll(callsBeforeExecution);
 		list.addAll(callsAfterExecution);
 		return list;
 	}
-	public List<METHOD_CALLNode> getCallsBeforeExecution(){
+	public List<DecafNode> getCallsBeforeExecution(){
 		return callsBeforeExecution;
 	}
 	
-	public List<METHOD_CALLNode> getCallsAfterExecution(){
+	public List<DecafNode> getCallsAfterExecution(){
 		return callsAfterExecution;
 	}
 	

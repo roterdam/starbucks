@@ -7,9 +7,9 @@ import java.util.Map;
 
 import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.CheckDivideByZeroNode;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
-import edu.mit.compilers.codegen.StarbucksMethodCallNode;
 import edu.mit.compilers.grammar.BooleanNode;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
@@ -494,11 +494,7 @@ public class AlgebraicSimplifier {
 						getCallsBeforeExecution().addAll(
 								leftOp.getAllCallsDuringExecution());
 
-						List<ExpressionNode> params = new ArrayList<ExpressionNode>();
-						params.add(rightOp);
-						StarbucksMethodCallNode divZeroCallNode = new StarbucksMethodCallNode(
-								MidVisitor.DIVIDE_BY_ZERO_NAME, params);
-						getCallsBeforeExecution().add(divZeroCallNode);
+						getCallsBeforeExecution().add(new CheckDivideByZeroNode(rightOp));
 
 						getCallsAfterExecution().addAll(
 								rightOp.getAllCallsDuringExecution());
@@ -574,12 +570,7 @@ public class AlgebraicSimplifier {
 						initializeValue();
 						getCallsBeforeExecution().addAll(
 								leftOp.getAllCallsDuringExecution());
-
-						List<ExpressionNode> params = new ArrayList<ExpressionNode>();
-						params.add(rightOp);
-						StarbucksMethodCallNode divZeroCallNode = new StarbucksMethodCallNode(
-								MidVisitor.DIVIDE_BY_ZERO_NAME, params);
-						getCallsBeforeExecution().add(divZeroCallNode);
+						getCallsBeforeExecution().add(new CheckDivideByZeroNode(rightOp));
 
 						getCallsAfterExecution().addAll(
 								rightOp.getAllCallsDuringExecution());

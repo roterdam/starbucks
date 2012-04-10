@@ -87,14 +87,14 @@ public class MidVisitor {
 	
 	public static MidNodeList getPreCalls(ExpressionNode expr, MidSymbolTable symbolTable){
 		MidNodeList instrList = new MidNodeList();
-		for(METHOD_CALLNode callNode : expr.getCallsBeforeExecution())
+		for(DecafNode callNode : expr.getCallsBeforeExecution())
 			instrList.addAll(callNode.convertToMidLevel(symbolTable));
 		return instrList;
 	}
 	
 	public static MidNodeList getPostCalls(ExpressionNode expr, MidSymbolTable symbolTable){
 		MidNodeList instrList = new MidNodeList();
-		for(METHOD_CALLNode callNode : expr.getCallsAfterExecution())
+		for(DecafNode callNode : expr.getCallsAfterExecution())
 			instrList.addAll(callNode.convertToMidLevel(symbolTable));
 		return instrList;
 	}
@@ -176,7 +176,7 @@ public class MidVisitor {
 
 		return out;
 	}
-
+	
 	public static MidNodeList visitParam(PARAM_DECLNode node,
 			MidSymbolTable symbolTable, int paramOffset) {
 		MidNodeList outputList = new MidNodeList();
@@ -196,7 +196,15 @@ public class MidVisitor {
 				node.getLeftOperand().convertToMidLevel(symbolTable),
 				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
-
+	
+	public static MidNodeList visit(CheckDivideByZeroNode node, MidSymbolTable symbolTable){
+		MidNodeList out = new MidNodeList();
+		MidNodeList exprList = node.getExpression().convertToMidLevel(symbolTable);
+		out.addAll(exprList);
+		out.addAll(checkDivideByZeroError(exprList.getMemoryNode(), symbolTable));
+		return out;
+	}
+	
 	public static MidNodeList checkDivideByZeroError(MidMemoryNode operandNode,
 			MidSymbolTable symbolTable) {
 

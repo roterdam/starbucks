@@ -22,6 +22,7 @@ public class METHOD_CALLNode extends ExpressionNode {
 		return ((METHOD_IDNode) getFirstChild()).getText();
 	}
 	
+	// Only gets called by Semantic Checker
 	public METHOD_IDNode getMethodIdNode() {
 		assert getFirstChild() instanceof METHOD_IDNode;
 		return (METHOD_IDNode) getFirstChild();
