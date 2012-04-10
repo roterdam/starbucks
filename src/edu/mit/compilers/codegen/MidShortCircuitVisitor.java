@@ -38,12 +38,15 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(ORNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		MidNodeList nodeList = new MidNodeList();
 		MidLabelNode rightLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidNodeList rightShortList = node.getRightOperand()
 				.shortCircuit(symbolTable, trueLabel, falseLabel);
 		MidNodeList leftShortList = node.getLeftOperand()
 				.shortCircuit(symbolTable, trueLabel, rightLabel);
+		
+		// ORNodes do not have pre/post ops.
+		MidNodeList nodeList = new MidNodeList();
+		nodeList.addAll(MidVisitor.getPreCalls(node, symbolTable));
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
@@ -53,12 +56,14 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(ANDNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
-		MidNodeList nodeList = new MidNodeList();
 		MidLabelNode rightLabel = MidLabelManager.getLabel(LabelType.SHORT);
 		MidNodeList rightShortList = node.getRightOperand()
 				.shortCircuit(symbolTable, trueLabel, falseLabel);
 		MidNodeList leftShortList = node.getLeftOperand()
 				.shortCircuit(symbolTable, rightLabel, falseLabel);
+
+		// ANDNodes do not have pre/post ops.
+		MidNodeList nodeList = new MidNodeList();
 		nodeList.addAll(leftShortList);
 		nodeList.add(rightLabel);
 		nodeList.addAll(rightShortList);
@@ -68,6 +73,7 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuit(BANGNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
+		// BANGNodes do not have pre/post ops
 		MidNodeList nodeList = node.getOperand()
 				.shortCircuit(symbolTable, falseLabel, trueLabel);
 		return nodeList;
@@ -112,6 +118,8 @@ public class MidShortCircuitVisitor {
 	public static MidNodeList shortCircuitEqHelper(OpSameSame2BoolNode node,
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel, Class<? extends MidJumpNode> c) {
+		
+		// OpSameSame2BoolNodes do not have pre/post ops
 		MidNodeList nodeList = new MidNodeList();
 
 		ValuedMidNodeList valuedLeft = valuedHelper(node.getLeftOperand(), symbolTable);
@@ -156,6 +164,7 @@ public class MidShortCircuitVisitor {
 			OpIntInt2BoolNode node, MidSymbolTable symbolTable,
 			MidLabelNode trueLabel, MidLabelNode falseLabel,
 			Class<? extends MidJumpNode> c) {
+		// OpIntInt2BoolNodes do not have pre/post ops
 		MidNodeList nodeList = new MidNodeList();
 
 		MidNodeList leftListNode = node.getLeftOperand()
@@ -203,6 +212,8 @@ public class MidShortCircuitVisitor {
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
 		MidNodeList nodeList = new MidNodeList();
+		nodeList.addAll(MidVisitor.getPreCalls(node, symbolTable));
+		nodeList.addAll(MidVisitor.getPostCalls(node, symbolTable));
 		MidJumpNode jumpNode = new MidJumpNode(trueLabel);
 		nodeList.add(jumpNode);
 		return nodeList;
@@ -212,6 +223,8 @@ public class MidShortCircuitVisitor {
 			MidSymbolTable symbolTable, MidLabelNode trueLabel,
 			MidLabelNode falseLabel) {
 		MidNodeList nodeList = new MidNodeList();
+		nodeList.addAll(MidVisitor.getPreCalls(node, symbolTable));
+		nodeList.addAll(MidVisitor.getPostCalls(node, symbolTable));
 		MidJumpNode jumpNode = new MidJumpNode(falseLabel);
 		nodeList.add(jumpNode);
 		return nodeList;

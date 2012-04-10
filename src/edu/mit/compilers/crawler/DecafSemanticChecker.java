@@ -11,7 +11,8 @@ public class DecafSemanticChecker {
 		root.clean();
 		
 		scope = new Scope(BlockType.CLASS);
-		root.validate(scope);
+		root.validate(scope); // FIXME: this is calling decaf node's
 		SemanticRules.finalApply(root, scope);
+		
 	}
 }

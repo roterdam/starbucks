@@ -6,6 +6,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class WHILENode extends DecafNode {
@@ -32,5 +33,10 @@ public class WHILENode extends DecafNode {
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 }

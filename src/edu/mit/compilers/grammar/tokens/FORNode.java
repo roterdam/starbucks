@@ -6,6 +6,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class FORNode extends DecafNode {
@@ -42,4 +43,8 @@ public class FORNode extends DecafNode {
 		getBlockNode().validate(scope, BlockType.FOR, getForInitializeNode() );
 	}
 
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
+	}
 }

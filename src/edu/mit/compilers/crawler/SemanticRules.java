@@ -75,7 +75,7 @@ public class SemanticRules {
 	static String INTEGER_OUT_OF_BOUNDS = "Int literal `%1$s` out of bounds.";
 	static String OP_UNARY_MINUS_TYPE_ERROR = "Unary minus operator type error. Expecting `%1$s` found `%2$s`.";
 	static String DOES_NOT_RETURN = "Method `%1$s` might not return a value. Be sure all branching logic results in a return statement.";
-
+	
 	static public void apply(DecafNode node, Scope scope) {
 		//assert false : "apply on DecafNode should not be called, only its children. " + node.toStringTree();
 	}

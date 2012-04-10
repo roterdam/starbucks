@@ -9,6 +9,7 @@ import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class METHOD_DECLNode extends DecafNode {
@@ -66,6 +67,11 @@ public class METHOD_DECLNode extends DecafNode {
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 
 }

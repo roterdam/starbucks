@@ -12,6 +12,7 @@ import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarDecl;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class BLOCKNode extends DecafNode {
@@ -77,6 +78,11 @@ public class BLOCKNode extends DecafNode {
 	@Override
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 
 }

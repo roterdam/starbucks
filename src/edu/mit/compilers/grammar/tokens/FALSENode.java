@@ -19,4 +19,5 @@ public class FALSENode extends BooleanNode {
 	public MidNodeList shortCircuit(MidSymbolTable symbolTable, MidLabelNode trueLabel, MidLabelNode falseLabel){
 		return MidShortCircuitVisitor.shortCircuit(this, symbolTable, trueLabel, falseLabel);
 	}
+	
 }

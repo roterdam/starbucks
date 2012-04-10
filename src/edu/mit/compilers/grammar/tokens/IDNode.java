@@ -55,6 +55,14 @@ public class IDNode extends ExpressionNode {
 		return null;
 	}
 	
+	public void setExpressionNode(ExpressionNode x){
+		if (isArray()){
+			replaceChild(0, x);
+			return;
+		}
+		assert false;
+	}
+	
 	/**
 	 * Returns the ID name if just an INT or BOOLEAN, but includes the index if
 	 * it's an array element. i.e. "a[5]" if applicable.
@@ -91,6 +99,16 @@ public class IDNode extends ExpressionNode {
 	@Override
 	public ExpressionNode simplify(MidSymbolTable symbolTable) {
 		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
+	}
+	
+	@Override
+	public boolean hasMethodCalls() {
+		return false;
+	}
+
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 
 }

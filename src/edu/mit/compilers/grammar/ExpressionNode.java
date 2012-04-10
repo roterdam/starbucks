@@ -20,6 +20,7 @@ public abstract class ExpressionNode extends DecafNode {
 		callsBeforeExecution = new ArrayList<METHOD_CALLNode>();
 		callsAfterExecution = new ArrayList<METHOD_CALLNode>();
 	}
+	public abstract boolean hasMethodCalls();
 	
 	public List<METHOD_CALLNode> getAllCallsDuringExecution(){
 		List<METHOD_CALLNode> list = new ArrayList<METHOD_CALLNode>();
@@ -50,4 +51,9 @@ public abstract class ExpressionNode extends DecafNode {
 	}
 
 	public abstract VarType getMidVarType(MidSymbolTable symbolTable);
+	
+	@Override
+	public void simplifyExpressions(){
+		assert false : "Expressions do not have children expressions, unless it is an IDNode and should override this method.";
+	}
 }

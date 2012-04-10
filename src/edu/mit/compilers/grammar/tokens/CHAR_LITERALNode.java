@@ -52,4 +52,8 @@ public class CHAR_LITERALNode extends ExpressionNode {
 		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
 	
+	@Override
+	public boolean hasMethodCalls() {
+		return false;
+	}
 }

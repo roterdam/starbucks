@@ -127,4 +127,8 @@ public abstract class DecafNode extends CommonAST {
 //		assert false;
 		return MidVisitor.visit(this, symbolTable);
 	}
+	
+	public void simplifyExpressions(){
+		
+	}
 }

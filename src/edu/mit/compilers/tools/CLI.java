@@ -80,6 +80,8 @@ public class CLI {
 	 */
 	public static boolean dot;
 
+	public static boolean optOn;
+	
 	/**
 	 * Sets up default values for all of the result fields. Specifically, sets
 	 * the input and output files to null, the target to DEFAULT, and the extras
@@ -117,7 +119,8 @@ public class CLI {
 		String ext = ".out";
 
 		opts = new boolean[optnames.length];
-
+		optOn = false;
+		
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-debug")) {
 				context = 0;
@@ -128,6 +131,7 @@ public class CLI {
 				dot = true;
 			} else if (args[i].equals("-opt")) {
 				context = 1;
+				optOn = true;
 			} else if (args[i].equals("-o")) {
 				context = 2;
 			} else if (args[i].equals("-target")) {

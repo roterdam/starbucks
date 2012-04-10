@@ -18,5 +18,9 @@ public class WHILE_TERMINATENode extends DecafNode {
 		assert getChild(0) instanceof ExpressionNode;
 		return (ExpressionNode) getChild(0);
 	}
+	
+	public void setExpressionNode(ExpressionNode x) {
+		replaceChild(0, x);
+	}
 
 }

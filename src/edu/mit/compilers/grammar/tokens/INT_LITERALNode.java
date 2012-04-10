@@ -94,5 +94,10 @@ public class INT_LITERALNode extends ExpressionNode {
 	public ExpressionNode simplify(MidSymbolTable symbolTable) {
 		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
+	
+	@Override
+	public boolean hasMethodCalls() {
+		return false;
+	}
 
 }

@@ -9,6 +9,7 @@ import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 
 /**
@@ -27,6 +28,10 @@ public class RETURNNode extends DecafNode {
 		assert getChild(0) instanceof ExpressionNode;
 		return (ExpressionNode) getChild(0);
 	}
+	public void setReturnExpression(ExpressionNode x) {
+		replaceChild(0, x);
+	}
+
 
 	public VarType getReturnType(Scope scope) {
 		if (getFirstChild() != null){
@@ -50,5 +55,10 @@ public class RETURNNode extends DecafNode {
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 }

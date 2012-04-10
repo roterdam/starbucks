@@ -105,6 +105,12 @@ class Main {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
 
+					
+					if(CLI.optOn){
+						// Do algebraic simplifications.
+						((CLASSNode) parser.getAST()).simplifyExpressions();
+					}
+					
 					if (CLI.visual) {
 						// For debugging.
 						System.out

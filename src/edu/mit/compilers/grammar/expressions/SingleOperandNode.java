@@ -9,5 +9,10 @@ public abstract class SingleOperandNode extends ExpressionNode {
 		assert getChild(0) instanceof ExpressionNode;
 		return (ExpressionNode) getChild(0);
 	}
+	
+	@Override
+	public boolean hasMethodCalls() {
+		return getOperand().hasMethodCalls();
+	}
 
 }

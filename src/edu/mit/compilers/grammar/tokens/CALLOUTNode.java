@@ -55,4 +55,14 @@ public class CALLOUTNode extends ExpressionNode {
 		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
 
+	@Override
+	public boolean hasMethodCalls() {
+		return true;
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
+	}
+
 }

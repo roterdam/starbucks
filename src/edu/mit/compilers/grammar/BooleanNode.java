@@ -21,4 +21,9 @@ public abstract class BooleanNode extends ExpressionNode {
 	public ExpressionNode simplify(MidSymbolTable symbolTable) {
 		return AlgebraicSimplifier.simplifyExpression(this, symbolTable);
 	}
+	
+	@Override
+	public boolean hasMethodCalls() {
+		return false;
+	}
 }

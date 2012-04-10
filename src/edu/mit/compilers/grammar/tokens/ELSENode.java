@@ -4,6 +4,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 
 @SuppressWarnings("serial")
@@ -24,6 +25,11 @@ public class ELSENode extends DecafNode {
 	public BLOCKNode getBlockNode(){
 		assert getChild(0) instanceof BLOCKNode;
 		return (BLOCKNode) this.getChild(0);
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 	
 }

@@ -7,6 +7,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.crawler.ValidReturnChecker;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class IFNode extends DecafNode {
@@ -55,6 +56,11 @@ public class IFNode extends DecafNode {
 	@Override
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 	
 }

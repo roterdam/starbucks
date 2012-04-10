@@ -16,6 +16,9 @@ public class IF_CLAUSENode extends DecafNode {
 		return (ExpressionNode) getFirstChild();
 	}
 	
+	public void setExpressionNode(ExpressionNode x){
+		replaceChild(0, x);
+	}
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);

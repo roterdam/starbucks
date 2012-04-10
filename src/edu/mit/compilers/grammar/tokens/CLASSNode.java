@@ -6,6 +6,7 @@ import java.util.List;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
+import edu.mit.compilers.opt.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class CLASSNode extends DecafNode {
@@ -25,6 +26,7 @@ public class CLASSNode extends DecafNode {
 		for (FIELD_DECLNode fieldDeclNode : getFieldNodes()) {
 			fieldDeclNode.validate(scope);
 		}
+		
 		for (METHOD_DECLNode methodDeclNode : getMethodNodes()) {
 			methodDeclNode.validate(scope);
 		}
@@ -58,5 +60,10 @@ public class CLASSNode extends DecafNode {
 			output.add((METHOD_DECLNode) methods.getChild(i));
 		}
 		return output;
+	}
+	
+	@Override
+	public void simplifyExpressions(){
+		AlgebraicSimplifier.visit(this);
 	}
 }
