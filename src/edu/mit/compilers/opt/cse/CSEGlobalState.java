@@ -26,6 +26,14 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 		mentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
 	}
 
+	public CSEGlobalState(Map<MidMemoryNode, List<GlobalExpr>> refToExprMap,
+			Map<GlobalExpr, List<MidMemoryNode>> exprToRefMap,
+			Map<MidMemoryNode, List<GlobalExpr>> mentionMap) {
+				this.refToExprMap = refToExprMap;
+				this.exprToRefMap = exprToRefMap;
+				this.mentionMap = mentionMap;
+	}
+
 	@Override
 	public CSEGlobalState getInitialState() {
 		return new CSEGlobalState();
@@ -38,11 +46,14 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 
 	@Override
 	public CSEGlobalState join(CSEGlobalState s) {
+		LogCenter.debug("[OPTJJ] JOINING " + this + " WITH " + s);
 		// Take common expressions, only if they're temp vars or equal non-temp
 		// vars.
 		Set<GlobalExpr> sharedSet = exprToRefMap.keySet();
 		sharedSet.retainAll(s.exprToRefMap.keySet());
 		Map<GlobalExpr, List<MidMemoryNode>> newExprToRefMap = new HashMap<GlobalExpr, List<MidMemoryNode>>();
+		Map<MidMemoryNode, List<GlobalExpr>> newRefToExprMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
+		Map<MidMemoryNode, List<GlobalExpr>> newMentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
 		for (GlobalExpr e : sharedSet) {
 			MidMemoryNode newMemNode = null;
 			List<MidMemoryNode> thisMemoryNodes = exprToRefMap.get(e);
@@ -76,29 +87,44 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 			assert newMemNode != null;
 			List<MidMemoryNode> newMemNodes = new ArrayList<MidMemoryNode>();
 			newMemNodes.add(newMemNode);
+
 			newExprToRefMap.put(e, newMemNodes);
+			List<GlobalExpr> eList = new ArrayList<GlobalExpr>();
+			eList.add(e);
+			newRefToExprMap.put(newMemNode, eList);
+			for (MidMemoryNode mem : e.getMemoryNodes()) {
+				newMentionMap.put(mem, new ArrayList<GlobalExpr>(eList));
+			}
 		}
-		return null;
+		CSEGlobalState out = new CSEGlobalState(newRefToExprMap, newExprToRefMap, newMentionMap);
+		LogCenter.debug("RESULT: " + out);
+		return out;
 	}
 
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
+		LogCenter.debug("[OPTJ] Generating reference " + node + " -> " + expr);
+		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		// Would potentially expand expr here.
 		List<GlobalExpr> exprs = new ArrayList<GlobalExpr>();
 		exprs.add(expr);
 		refToExprMap.put(node, exprs);
 
 		for (GlobalExpr e : exprs) {
-			if (!exprToRefMap.containsKey(e))
+			if (!exprToRefMap.containsKey(e)) {
 				exprToRefMap.put(e, new ArrayList<MidMemoryNode>());
+			}
 			exprToRefMap.get(e).add(node);
 
 			for (MidMemoryNode m : expr.getMemoryNodes()) {
-				if (!mentionMap.containsKey(m))
+				if (!mentionMap.containsKey(m)) {
 					mentionMap.put(m, new ArrayList<GlobalExpr>());
+				}
 				mentionMap.get(m).add(e);
 			}
 		}
-		LogCenter.debug("[OPTJ] Generated reference " + node + " -> " + expr);
+		LogCenter.debug("[OPTJ] AFTER:");
 		LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
 		LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
 		LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
@@ -167,6 +193,13 @@ public class CSEGlobalState implements State<CSEGlobalState> {
 			return exprToRefMap.get(expr);
 		}
 		return new ArrayList<MidMemoryNode>();
+	}
+
+	@Override
+	public String toString() {
+		return "CSEGlobalState=> mentionMap: " + mentionMap
+				+ ", refToExprMap: " + refToExprMap + ", exprToRefMap: "
+				+ exprToRefMap;
 	}
 
 }
