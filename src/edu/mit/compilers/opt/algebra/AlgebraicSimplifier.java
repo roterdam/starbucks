@@ -544,8 +544,8 @@ public class AlgebraicSimplifier {
 		// node doesn't get removed in algebraic simplification.
 		leftOp.getCallsAfterExecution().add(new PotentialCheckDivideByZeroNode(rightOp, false));
 		
-		node.replaceChild(0, leftOp);
-		node.replaceChild(1, rightOp);
+		node.setLeftOperand(leftOp);
+		node.setRightOperand(rightOp);
 		return node;
 	}
 
@@ -626,8 +626,8 @@ public class AlgebraicSimplifier {
 			}
 		}
 
-		node.replaceChild(0, node.getLeftOperand().simplify(symbolTable));
-		node.replaceChild(1, node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
+		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
 		return node;
 	}
 
