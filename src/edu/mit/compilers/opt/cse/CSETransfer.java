@@ -2,14 +2,11 @@ package edu.mit.compilers.opt.cse;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -84,21 +81,22 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	}
 
 	private void processMethodCall(MidMethodCallNode methodNode,
-			CSELocalState localState, CSEGlobalState readOnly, CSEGlobalState writeOnly) {
+			CSELocalState localState, CSEGlobalState internalState, CSEGlobalState outputState) {
 		localState.clear();
-		writeOnly.clear();
+		outputState.clear();
 	}
 
 	private void processSimpleAssignment(MidSaveNode node, CSELocalState s,
-			CSEGlobalState readOnly, CSEGlobalState writeOnly) {
+			CSEGlobalState internalState, CSEGlobalState outputState) {
 
 		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
 
 		if (!(loadNode.getMemoryNode() instanceof MidTempDeclNode)) {
 			GlobalExpr expr = new LeafGlobalExpr(loadNode.getMemoryNode());
-			writeOnly.genReference(node.getDestinationNode(), expr);
+			outputState.genReference(node.getDestinationNode(), expr);
 		}
-		writeOnly.killReferences(node.getDestinationNode());
+		outputState.killReferences(node.getDestinationNode());
+		internalState.killReferences(node.getDestinationNode());
 
 		// Get the value of the node to be assigned to, create a new one for it
 		// if necessary, i.e. x -> v1
@@ -168,12 +166,12 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	}
 
 	private void processArithmeticAssignment(MidSaveNode saveNode,
-			CSELocalState s, CSEGlobalState readOnly, CSEGlobalState writeOnly) {
+			CSELocalState s, CSEGlobalState internalState, CSEGlobalState outputState) {
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
 
-		MidMemoryNode nonTempLeftNode = writeOnly.getNonTempMapping(r
+		MidMemoryNode nonTempLeftNode = outputState.getNonTempMapping(r
 				.getLeftOperand().getMemoryNode());
-		MidMemoryNode nonTempRightNode = writeOnly.getNonTempMapping(r
+		MidMemoryNode nonTempRightNode = outputState.getNonTempMapping(r
 				.getRightOperand().getMemoryNode());
 		GlobalExpr expr = new BinaryGlobalExpr(r, new LeafGlobalExpr(
 				nonTempLeftNode), new LeafGlobalExpr(nonTempRightNode),
@@ -181,7 +179,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		boolean didGlobalCSE = false;
 
-		List<MidMemoryNode> reusableReferences = readOnly.getReferences(expr);
+		List<MidMemoryNode> reusableReferences = internalState.getReferences(expr);
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
 			// TODO: are we sure we just take the first one?
@@ -210,8 +208,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-		writeOnly.genReference(saveNode.getDestinationNode(), expr);
-		writeOnly.killReferences(saveNode.getDestinationNode());
+		outputState.genReference(saveNode.getDestinationNode(), expr);
+		outputState.killReferences(saveNode.getDestinationNode());
+		internalState.killReferences(saveNode.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {

@@ -137,10 +137,11 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	}
 
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
-//		LogCenter.debug("[OPTJ] Generating reference " + node + " -> " + expr);
-//		 LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-//		 LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-//		 LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		// LogCenter.debug("[OPTJ] Generating reference " + node + " -> " +
+		// expr);
+		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 
 		// Would potentially expand expr here (and loop through them below).
 		refToExprMap.put(node, expr);
@@ -156,11 +157,11 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 			}
 			mentionMap.get(m).add(expr);
 		}
-//		 LogCenter.debug("[OPTJ] AFTER:");
-//		 LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-//		 LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-//		 LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-//		 LogCenter.debug("[OPTJ] ");
+		// LogCenter.debug("[OPTJ] AFTER:");
+		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		// LogCenter.debug("[OPTJ] ");
 	}
 
 	// TODO function calls need to killreferences to all field decls
@@ -172,8 +173,10 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
 		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		if (mentionMap.containsKey(node)) {
+			LogCenter.debug("[OPT] -- Found references to " + node);
 			// Remove stuff for each expr that is affected by the node.
 			for (GlobalExpr e : new ArrayList<GlobalExpr>(mentionMap.get(node))) {
+				LogCenter.debug("[OPT] -- Killing  " + e);
 				// Kill the expression e by deleting expression from
 				// expr -> [R] and all R -> expr
 
@@ -203,12 +206,12 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 				exprToRefMap.remove(e);
 			}
 
+			LogCenter.debug("[OPTJ] AFTER:");
+			LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+			LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+			LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+			LogCenter.debug("[OPTJ] ");
 		}
-		// LogCenter.debug("[OPTJ] AFTER:");
-		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-		// LogCenter.debug("[OPTJ] ");
 	}
 
 	public Map<GlobalExpr, List<MidMemoryNode>> getExpressionsMap() {
@@ -236,13 +239,16 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	 */
 	public MidMemoryNode getNonTempMapping(MidMemoryNode tempNode) {
 		GlobalExpr nonTemp = refToExprMap.get(tempNode);
-		LogCenter.debug("[OPT] LOOKING UP " + tempNode + " AND FOUND " + nonTemp);
-		LogCenter.debug("[OPT] For reference, map was: " + toMapString(refToExprMap));
+		LogCenter.debug("[OPT] LOOKING UP " + tempNode + " AND FOUND "
+				+ nonTemp);
+		LogCenter.debug("[OPT] For reference, map was: "
+				+ toMapString(refToExprMap));
 		if (nonTemp == null) {
 			return tempNode;
 		}
 		if (nonTemp instanceof LeafGlobalExpr) {
-			LogCenter.debug("[OPT] RETURNING " + ((LeafGlobalExpr) nonTemp).getMemoryNode());
+			LogCenter.debug("[OPT] RETURNING "
+					+ ((LeafGlobalExpr) nonTemp).getMemoryNode());
 			return ((LeafGlobalExpr) nonTemp).getMemoryNode();
 		}
 		return tempNode;
