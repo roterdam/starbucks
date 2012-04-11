@@ -39,7 +39,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		LogCenter
-				.debug("[FLOW] BLOCK:\n[FLOW] "
+				.debug("[OPT] BLOCKS:\n[OPT] "
 						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
@@ -48,21 +48,21 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		}
 
 		// Do the first node
-		Block n0 = Block.makeBlock(nodeList.getHead());
-		LogCenter.debug("[FLOW] Process " + n0);
-		outHash.put(n0, this.transferFunction.apply(n0, startState));
+		Block n0 = worklist.get(0);
+		LogCenter.debug("[OPT] Process " + n0);
+		outHash.put(n0, transferFunction.apply(n0, startState.getInitialState()));
 		worklist.remove(n0);
 
 		while (!worklist.isEmpty()) {
-			LogCenter.debug("[FLOW]");
 			Block currentBlock = worklist.remove(0);
-			LogCenter.debug("[FLOW] ######################");
-			LogCenter.debug("[FLOW] ######################");
-			LogCenter.debug("[FLOW] ANALYZER IS LOOKING AT " + currentBlock);
-			LogCenter.debug("[FLOW] WL: " + worklist);
+			LogCenter.debug("[OPT]");
+			LogCenter.debug("[OPT] ######################");
+			LogCenter.debug("[OPT] ######################");
+			LogCenter.debug("[OPT] ANALYZER IS LOOKING AT " + currentBlock);
+			LogCenter.debug("[OPT] WL: " + worklist);
 			S in = getInState(currentBlock);
-			S out = this.transferFunction.apply(currentBlock, in);
-			if (out.isModified()) {
+			S out = transferFunction.apply(currentBlock, in);
+			if (!out.equals(outHash.get(currentBlock))) {
 				outHash.put(currentBlock, out);
 				for (Block s : currentBlock.getSuccessors()) {
 					if (!worklist.contains(s)) {
@@ -77,9 +77,9 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 	public S getInState(Block b) {
 		S out = null;
-		LogCenter.debug("[FLOW] Getting in state.");
+		LogCenter.debug("[OPT] Getting in-state.");
 		for (Block m : b.getPredecessors()) {
-			LogCenter.debug("[FLOW] Using state from " + m);
+			LogCenter.debug("[OPT] Using state from " + m);
 			out = outHash.get(m).join(out);
 		}
 		return out;

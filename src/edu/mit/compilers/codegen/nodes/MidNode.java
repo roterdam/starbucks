@@ -61,15 +61,6 @@ public abstract class MidNode {
 		this.setNextNode(oldNext);
 	}
 	
-	public void replace(MidNode n) {
-		MidNode prevNode = n.getPrevNode();
-		//FIXME: does not work if n is HEAD.
-		assert prevNode != null;
-		prevNode.setNextNode(this);
-		this.setNextNode(n.getNextNode());
-		assert prevNode.getNextNode() == this;
-	}
-	
 	public void delete() {
 		LogCenter.debug("[OPT] DELETING " + this + " (" + hashCode() + ")");
 		this.getPrevNode().setNextNode(this.getNextNode());

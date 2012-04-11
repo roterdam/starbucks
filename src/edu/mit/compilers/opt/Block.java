@@ -69,7 +69,16 @@ public class Block {
 	}
 	
 	public String toString() {
-		return "B" + blockNum + "[" + getHead() + "]";
+		String out = "B" + blockNum + "[" + getHead() + "]";
+		MidNode node = getHead();
+		while (true) {
+			out += "\n  " + node;
+			if (node == getTail()) {
+				break;
+			}
+			node = node.getNextNode();
+		}
+		return out;
 	}
 
 	public static String recursiveToString(Block b, List<Block> visited,
@@ -77,7 +86,7 @@ public class Block {
 		String out = b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
-			out += "\n[FLOW] ";
+			out += "\n[OPT] ";
 			for (int i = 0; i < indent; i++) {
 				out += " ";
 			}

@@ -17,9 +17,9 @@ import edu.mit.compilers.opt.Value;
  */
 public class CSELocalState {
 
-	Map<MidMemoryNode, Value> varToVal;
-	Map<Value, MidSaveNode> valToTemp;
-	Map<LocalExpr, Value> exprToVal;
+	HashMap<MidMemoryNode, Value> varToVal;
+	HashMap<Value, MidSaveNode> valToTemp;
+	HashMap<LocalExpr, Value> exprToVal;
 	// Used to store the register that had the value for a value saved to
 	// memory. DO NOT assume these values persist for more than instruction.
 	// This is purely for temp saving that occurs immediately after saving a
@@ -39,11 +39,11 @@ public class CSELocalState {
 	 */
 	public Value addVar(MidMemoryNode node) {
 		Value v;
-		if (!this.varToVal.containsKey(node)) {
+		if (this.varToVal.containsKey(node)) {
+			v = this.varToVal.get(node);
+		} else {
 			v = new Value();
 			this.varToVal.put(node, v);
-		} else {
-			v = this.varToVal.get(node);
 		}
 		LogCenter
 				.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", node, v));
@@ -55,23 +55,21 @@ public class CSELocalState {
 	 * assignment operations, this also stores the register used so the
 	 * following temp variable can store from the same register.
 	 */
-	public void addVarVal(MidSaveNode node, Value v) {
+	public void addVarVal(MidMemoryNode m, MidRegisterNode r, Value v) {
 		LogCenter
-				.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", node, v));
-		MidMemoryNode m = node.getDestinationNode();
-		MidRegisterNode r = node.getRegNode();
-		this.valToReg.put(v, r);
+				.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", m, v));
 		this.varToVal.put(m, v);
+		this.valToReg.put(v, r);
 	}
 
 	public Value addBinaryExpr(Value v1, Value v2, MidArithmeticNode node) {
 		BinaryLocalExpr e = new BinaryLocalExpr(v1, v2, node);
 		Value v3;
-		if (!this.exprToVal.containsKey(e)) {
+		if (this.exprToVal.containsKey(e)) {
+			v3 = this.exprToVal.get(e);
+		} else {
 			v3 = new Value();
 			this.exprToVal.put(e, v3);
-		} else {
-			v3 = this.exprToVal.get(e);
 		}
 		LogCenter
 				.debug(String
@@ -82,21 +80,22 @@ public class CSELocalState {
 	public Value addUnaryExpr(Value v1, MidUnaryRegNode node) {
 		LocalExpr e = new UnaryLocalExpr(v1, node);
 		Value v2;
-		if (!this.exprToVal.containsKey(e)) {
+		if (this.exprToVal.containsKey(e)) {
+			v2 = this.exprToVal.get(e);
+		} else {
 			v2 = new Value();
 			this.exprToVal.put(e, v2);
-		} else {
-			v2 = this.exprToVal.get(e);
 		}
 		LogCenter
 				.debug(String
-						.format("[OPT] Map EXPR->VAL: (%s,%s,%s) -> %s", node.getNodeClass(), v1, v2, v2));
+						.format("[OPT] Map EXPR->VAL: (%s,%s) -> %s", node.getNodeClass(), v1, v2));
 		return v2;
 	}
 
 	public MidSaveNode addTemp(Value v3, MidTempDeclNode destinationNode) {
 		assert !this.valToTemp.containsKey(v3);
-		MidSaveNode m = new MidSaveNode(this.valToReg.get(v3), destinationNode);
+		MidSaveNode m = new OptSaveNode(this.valToReg.get(v3), destinationNode);
+		LogCenter.debug("[OPT] Saving temp node for later use: " + m + " (" + m.hashCode() + ")");
 		this.valToTemp.put(v3, m);
 		return m;
 	}
@@ -107,6 +106,15 @@ public class CSELocalState {
 	 */
 	public MidSaveNode getTemp(Value v) {
 		return this.valToTemp.get(v);
+	}
+	
+	@Override
+	public String toString() {
+		String out = "CSELocalState:\n";
+		out += "[OPT] varToVal: " + CSEGlobalState.toMapString(varToVal) + "\n";
+		out += "[OPT] valToTemp: " + CSEGlobalState.toMapString(valToTemp) + "\n";
+		out += "[OPT] exprToVal: " + CSEGlobalState.toMapString(exprToVal) + "\n";
+		return out;
 	}
 
 }
