@@ -108,7 +108,7 @@ class Main {
 					
 					if(CLI.optOn){
 						// Do algebraic simplifications.
-						//((CLASSNode) parser.getAST()).simplifyExpressions();
+						((CLASSNode) parser.getAST()).simplifyExpressions();
 					}
 					
 					if (CLI.visual) {
