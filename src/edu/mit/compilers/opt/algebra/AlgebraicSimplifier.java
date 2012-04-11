@@ -679,7 +679,12 @@ public class AlgebraicSimplifier {
 			
 		}else if(leftNode instanceof INT_LITERALNode && rightNode instanceof INT_LITERALNode){
 			boolean eq = ((INT_LITERALNode)leftNode).getValue() == ((INT_LITERALNode)rightNode).getValue();
-			boolean ret = eq && node instanceof EQNode;
+			boolean ret;
+			if(node instanceof EQNode){
+				ret = eq;
+			}else{
+				ret = !eq;
+			}
 			if(ret){
 				return new TRUENode() {
 					{
