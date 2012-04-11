@@ -34,6 +34,8 @@ public class VarCanonicalization extends Canonicalization {
 	public boolean isDiscrete() {
 		return true;
 	}
+	
+	@SuppressWarnings("serial")
 	@Override
 	public Map<Canonicalization, Long> getTerms() {
 		return new HashMap<Canonicalization, Long>(){{

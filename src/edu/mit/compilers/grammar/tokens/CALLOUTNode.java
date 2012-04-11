@@ -1,6 +1,5 @@
 package edu.mit.compilers.grammar.tokens;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidNodeList;

@@ -7,7 +7,6 @@ import java.util.Map;
 
 import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.CheckDivideByZeroNode;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.PotentialCheckDivideByZeroNode;
 import edu.mit.compilers.grammar.BooleanNode;
