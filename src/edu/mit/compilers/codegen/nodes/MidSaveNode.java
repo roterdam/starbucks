@@ -52,14 +52,28 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	}
 
 	public static MidNodeList storeValueInMemory(long decafIntValue,
-			MidMemoryNode dest) {
+			MidTempDeclNode dest) {
 		// TODO: Optimize by using two mov's instead of a load and mov.
 		MidNodeList nodeList = new MidNodeList();
 		MidLoadImmNode loadNode = new MidLoadImmNode(decafIntValue);
 		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
-		if (dest instanceof MidTempDeclNode) {
-			dest.setConstantValue(decafIntValue);
-		}
+		dest.setConstantValue(decafIntValue);
+		nodeList.add(loadNode);
+		nodeList.add(saveNode);
+		return nodeList;
+	}
+	
+	public static MidNodeList storeValueInMemory(long decafIntValue,
+			MidMemoryNode dest) {
+		MidNodeList nodeList = new MidNodeList();
+		MidTempDeclNode tempNode = new MidTempDeclNode();
+		
+		MidNodeList getValList = storeValueInMemory(decafIntValue, tempNode);		
+		MidLoadNode loadNode = new MidLoadNode(getValList.getMemoryNode());
+		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
+
+		nodeList.add(tempNode);
+		nodeList.addAll(getValList);
 		nodeList.add(loadNode);
 		nodeList.add(saveNode);
 		return nodeList;
