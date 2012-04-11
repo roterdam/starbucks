@@ -10,8 +10,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
-import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
-import edu.mit.compilers.opt.Canonicalization;
+import edu.mit.compilers.opt.algebra.Canonicalization;
 
 @SuppressWarnings("serial")
 public abstract class ExpressionNode extends DecafNode {
