@@ -34,7 +34,7 @@ public class UnaryLocalExpr extends LocalExpr {
 
 	@Override
 	public int hashCode() {
-		return node.hashCode() + v1.hashCode();
+		return node.getNodeClass().hashCode() * 7919 + v1.hashCode();
 	}
 
 	public Value getV1() {

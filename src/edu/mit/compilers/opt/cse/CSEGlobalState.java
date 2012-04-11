@@ -16,20 +16,17 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	// Note: we use a List<GlobalExpr> here *in case* we want to store multiple
 	// ways of representing a memory node
 	// i.e. a = b+c, d = a-e could produce d = [a-e, b+c-e)]
-	HashMap<MidMemoryNode, List<GlobalExpr>> refToExprMap;
+	HashMap<MidMemoryNode, GlobalExpr> refToExprMap;
 	HashMap<GlobalExpr, List<MidMemoryNode>> exprToRefMap;
 	HashMap<MidMemoryNode, List<GlobalExpr>> mentionMap;
-	private boolean isModified;
 
 	public CSEGlobalState() {
-		refToExprMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
+		refToExprMap = new HashMap<MidMemoryNode, GlobalExpr>();
 		exprToRefMap = new HashMap<GlobalExpr, List<MidMemoryNode>>();
 		mentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
-		isModified = false;
 	}
 
-	public CSEGlobalState(
-			HashMap<MidMemoryNode, List<GlobalExpr>> refToExprMap,
+	public CSEGlobalState(HashMap<MidMemoryNode, GlobalExpr> refToExprMap,
 			HashMap<GlobalExpr, List<MidMemoryNode>> exprToRefMap,
 			HashMap<MidMemoryNode, List<GlobalExpr>> mentionMap) {
 		this.refToExprMap = refToExprMap;
@@ -49,11 +46,24 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	@Override
 	public CSEGlobalState clone() {
-		@SuppressWarnings("unchecked")
-		CSEGlobalState out = new CSEGlobalState(
-				(HashMap<MidMemoryNode, List<GlobalExpr>>) refToExprMap.clone(),
-				(HashMap<GlobalExpr, List<MidMemoryNode>>) exprToRefMap.clone(),
-				(HashMap<MidMemoryNode, List<GlobalExpr>>) mentionMap.clone());
+		CSEGlobalState out = new CSEGlobalState(deepClone(refToExprMap),
+				deepCloneList(exprToRefMap), deepCloneList(mentionMap));
+		return out;
+	}
+
+	private <K, V> HashMap<K, List<V>> deepCloneList(HashMap<K, List<V>> map) {
+		HashMap<K, List<V>> out = new HashMap<K, List<V>>();
+		for (K key : map.keySet()) {
+			out.put(key, new ArrayList<V>(map.get(key)));
+		}
+		return out;
+	}
+
+	private <K, V> HashMap<K, V> deepClone(HashMap<K, V> map) {
+		HashMap<K, V> out = new HashMap<K, V>();
+		for (K key : map.keySet()) {
+			out.put(key, map.get(key));
+		}
 		return out;
 	}
 
@@ -71,7 +81,7 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		Set<GlobalExpr> sharedSet = exprToRefMap.keySet();
 		sharedSet.retainAll(s.exprToRefMap.keySet());
 		HashMap<GlobalExpr, List<MidMemoryNode>> newExprToRefMap = new HashMap<GlobalExpr, List<MidMemoryNode>>();
-		HashMap<MidMemoryNode, List<GlobalExpr>> newRefToExprMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
+		HashMap<MidMemoryNode, GlobalExpr> newRefToExprMap = new HashMap<MidMemoryNode, GlobalExpr>();
 		HashMap<MidMemoryNode, List<GlobalExpr>> newMentionMap = new HashMap<MidMemoryNode, List<GlobalExpr>>();
 		for (GlobalExpr e : sharedSet) {
 			MidMemoryNode newMemNode = null;
@@ -108,14 +118,14 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 			newMemNodes.add(newMemNode);
 
 			newExprToRefMap.put(e, newMemNodes);
-			List<GlobalExpr> eList = new ArrayList<GlobalExpr>();
-			eList.add(e);
-			newRefToExprMap.put(newMemNode, eList);
+			newRefToExprMap.put(newMemNode, e);
 			for (MidMemoryNode mem : e.getMemoryNodes()) {
 				if (newMentionMap.containsKey(mem)) {
 					List<GlobalExpr> existingList = newMentionMap.get(mem);
 					existingList.add(e);
 				} else {
+					List<GlobalExpr> eList = new ArrayList<GlobalExpr>();
+					eList.add(e);
 					newMentionMap.put(mem, new ArrayList<GlobalExpr>(eList));
 				}
 			}
@@ -127,42 +137,36 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	}
 
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
-		isModified = true;
 		LogCenter.debug("[OPTJ] Generating reference " + node + " -> " + expr);
 		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
 		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
 		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-		// Would potentially expand expr here.
-		List<GlobalExpr> exprs = new ArrayList<GlobalExpr>();
-		exprs.add(expr);
-		refToExprMap.put(node, exprs);
 
-		for (GlobalExpr e : exprs) {
-			if (!exprToRefMap.containsKey(e)) {
-				exprToRefMap.put(e, new ArrayList<MidMemoryNode>());
-			}
-			exprToRefMap.get(e).add(node);
+		// Would potentially expand expr here (and loop through them below).
+		refToExprMap.put(node, expr);
 
-			for (MidMemoryNode m : expr.getMemoryNodes()) {
-				if (!mentionMap.containsKey(m)) {
-					mentionMap.put(m, new ArrayList<GlobalExpr>());
-				}
-				mentionMap.get(m).add(e);
+		if (!exprToRefMap.containsKey(expr)) {
+			exprToRefMap.put(expr, new ArrayList<MidMemoryNode>());
+		}
+		exprToRefMap.get(expr).add(node);
+
+		for (MidMemoryNode m : expr.getMemoryNodes()) {
+			if (!mentionMap.containsKey(m)) {
+				mentionMap.put(m, new ArrayList<GlobalExpr>());
 			}
+			mentionMap.get(m).add(expr);
 		}
 		// LogCenter.debug("[OPTJ] AFTER:");
 		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
 		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
 		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		// LogCenter.debug("[OPTJ] ");
-
 	}
 
 	// TODO function calls need to killreferences to all field decls
 	// TODO (this always gets called before gen reference, so just make them one
 	// method) ?
 	public void killReferences(MidMemoryNode node) {
-		isModified = true;
 		LogCenter.debug("[OPTJ] Killing references to " + node);
 		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
 		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
@@ -190,13 +194,9 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 				// assert exprToRefMap.containsKey(e);
 				if (exprToRefMap.containsKey(e)) {
 					for (MidMemoryNode m : exprToRefMap.get(e)) {
-						if (refToExprMap.containsKey(m)) { // this should always
-															// be true?
-							List<GlobalExpr> exprs = refToExprMap.get(m);
-							exprs.remove(e);
-							if (exprs.size() == 0) {
-								refToExprMap.remove(m);
-							}
+						// this should always be true?
+						if (refToExprMap.containsKey(m)) {
+							refToExprMap.remove(m);
 						}
 					}
 				}
@@ -215,8 +215,12 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		return exprToRefMap;
 	}
 
-	public Map<MidMemoryNode, List<GlobalExpr>> getReferenceMap() {
+	public Map<MidMemoryNode, GlobalExpr> getReferenceMap() {
 		return refToExprMap;
+	}
+
+	public Map<MidMemoryNode, List<GlobalExpr>> getMentionMap() {
+		return mentionMap;
 	}
 
 	public List<MidMemoryNode> getReferences(GlobalExpr expr) {
@@ -231,14 +235,12 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	 * Need to map that to c=a+b, so this looks up t1 => a.
 	 */
 	public MidMemoryNode getNonTempMapping(MidMemoryNode tempNode) {
-		List<GlobalExpr> nonTemps = refToExprMap.get(tempNode);
-		if (nonTemps == null) {
+		GlobalExpr nonTemp = refToExprMap.get(tempNode);
+		if (nonTemp == null) {
 			return tempNode;
 		}
-		for (GlobalExpr e : nonTemps) {
-			if (e instanceof LeafGlobalExpr) {
-				return ((LeafGlobalExpr) e).getMemoryNode();
-			}
+		if (nonTemp instanceof LeafGlobalExpr) {
+			return ((LeafGlobalExpr) nonTemp).getMemoryNode();
 		}
 		return tempNode;
 	}
@@ -262,8 +264,14 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	}
 
 	@Override
-	public boolean isModified() {
-		return isModified;
+	public boolean equals(Object o) {
+		if (!(o instanceof CSEGlobalState)) {
+			return false;
+		}
+		CSEGlobalState global = (CSEGlobalState) o;
+		return (getExpressionsMap().equals(global.getExpressionsMap())
+				&& getReferenceMap().equals(global.getReferenceMap()) && getMentionMap()
+				.equals(global.getMentionMap()));
 	}
 
 }

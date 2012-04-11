@@ -86,7 +86,7 @@ public class Block {
 		String out = b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
-			out += "\n[FLOW] ";
+			out += "\n[OPT] ";
 			for (int i = 0; i < indent; i++) {
 				out += " ";
 			}

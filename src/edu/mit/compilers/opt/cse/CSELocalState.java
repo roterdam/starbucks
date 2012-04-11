@@ -88,7 +88,7 @@ public class CSELocalState {
 		}
 		LogCenter
 				.debug(String
-						.format("[OPT] Map EXPR->VAL: (%s,%s,%s) -> %s", node.getNodeClass(), v1, v2, v2));
+						.format("[OPT] Map EXPR->VAL: (%s,%s) -> %s", node.getNodeClass(), v1, v2));
 		return v2;
 	}
 
