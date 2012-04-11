@@ -1,5 +1,6 @@
 package edu.mit.compilers.grammar.tokens;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidNodeList;
@@ -63,6 +64,16 @@ public class CALLOUTNode extends ExpressionNode {
 	@Override
 	public void simplifyExpressions(){
 		AlgebraicSimplifier.visit(this);
+	}
+	
+	@Override
+	public List<DecafNode> getCallsDuringExecution() {
+		assert false : "Never remove a callout. It changes stuff.";
+		return null;
+		//List<DecafNode> list = new ArrayList<DecafNode>();
+		//list.addAll(getLeftOperand().getAllCallsDuringExecution());
+		//list.addAll(getRightOperand().getAllCallsDuringExecution());
+		//return list;
 	}
 
 }

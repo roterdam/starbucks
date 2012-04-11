@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
@@ -25,5 +28,11 @@ public abstract class BooleanNode extends ExpressionNode {
 	@Override
 	public boolean hasMethodCalls() {
 		return false;
+	}
+	
+	@Override
+	public List<DecafNode> getCallsDuringExecution() {
+		List<DecafNode> list = new ArrayList<DecafNode>();
+		return list;
 	}
 }

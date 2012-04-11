@@ -1,12 +1,11 @@
 package edu.mit.compilers.codegen.nodes.memory;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 
 abstract public class MidMemoryNode extends MidNode {
 
 	String rawLocationReference;
-
+	
 	// Only used for toString
 	private String name;
 
@@ -52,10 +51,8 @@ abstract public class MidMemoryNode extends MidNode {
 	}
 
 	public void setConstantValue(long decafIntValue) {
-		if (this instanceof MidTempDeclNode) {
-			this.constantValue = decafIntValue;
-			this.isConstant = true;
-		}
+		this.constantValue = decafIntValue;
+		this.isConstant = true;
 	}
 	
 	@Override

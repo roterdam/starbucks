@@ -26,9 +26,16 @@ public class ProductCanonicalization extends Canonicalization {
 
 	@Override
 	public Canonicalization mult(Canonicalization x) {
+		if(x == null) return null;
 		if (x.isDiscrete()) {
 			if(x instanceof ProductCanonicalization){
 				return ((ProductCanonicalization)x).mult(this);
+			}else if(x instanceof UnitLiteralCanonicalization){
+				return ((UnitLiteralCanonicalization)x).mult(this);
+			}else if(x instanceof DMMCanonicalization){
+				return ((DMMCanonicalization)x).mult(this);
+			}else {
+				assert false : x.getClass().toString()+" is unhandled";
 			}
 			return x.mult(this);
 		} else {
@@ -43,19 +50,22 @@ public class ProductCanonicalization extends Canonicalization {
 					freqs.remove(prod);
 				}
 			}
-			if (freqs.entrySet().size() == 0) {
+			if (freqs.keySet().size() == 0) {
 				return UnitLiteralCanonicalization.makeLiteral(0);
-			} else if (freqs.entrySet().size() == 1) {
-				Canonicalization c = (Canonicalization) freqs.entrySet()
+			} else if (freqs.keySet().size() == 1) {
+				Canonicalization c = (Canonicalization) freqs.keySet()
 						.toArray()[0];
-				return c.mult(UnitLiteralCanonicalization.makeLiteral(freqs.get(c)));
+				if(freqs.get(c) == 1){
+					return c;
+				}
+				//return c.mult(UnitLiteralCanonicalization.makeLiteral(freqs.get(c)));
 			}
-			return new ComplexCanonicalization(freqs);
+			return new LinearCombinationCanonicalization(freqs);
 		}
 	}
 
 	public Canonicalization mult(ProductCanonicalization x) {
-
+		if(x == null) return null;
 		Map<VarCanonicalization, Long> freqs = new HashMap<VarCanonicalization, Long>();
 		for (VarCanonicalization c : prodTerms.keySet()) {
 			freqs.put(c, prodTerms.get(c));

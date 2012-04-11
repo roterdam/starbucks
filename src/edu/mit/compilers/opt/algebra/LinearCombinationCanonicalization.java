@@ -9,16 +9,14 @@ import java.util.Map;
 //  - c*b*d/a*h*f*g --> b*c*d/a*f*g*h
 //  - b[0] + a[d*c*f] --> a[c*d*f] + b[0]
 
-public class ComplexCanonicalization extends Canonicalization {
-	
-	public static void main(String[] args){
-	}
+public class LinearCombinationCanonicalization extends Canonicalization {
 	
 	protected Map<Canonicalization, Long> terms;
-	public ComplexCanonicalization(Map<Canonicalization, Long> terms){
+	public LinearCombinationCanonicalization(Map<Canonicalization, Long> terms){
 		this.terms = terms;
 	}
 	public Canonicalization add(Canonicalization x){
+		if(x == null) return null;
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
 		for(Canonicalization c : terms.keySet()){
 			freqs.put(c, terms.get(c));
@@ -32,14 +30,15 @@ public class ComplexCanonicalization extends Canonicalization {
 				freqs.remove(c);
 			}
 		}
-		return new ComplexCanonicalization(freqs);
+		return new LinearCombinationCanonicalization(freqs);
 	}
 	
 	public Canonicalization mult(Canonicalization x){
+		if(x == null) return null;
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
 		for(Canonicalization c : terms.keySet()){
 			for(Canonicalization d : x.getTerms().keySet()){
-				Canonicalization prod = c.mult(d);
+				Canonicalization prod = c.mult(d); //At some point a discrete term will be reached.
 				if(!freqs.containsKey(prod)){
 					freqs.put(prod, 0L);
 				}
@@ -57,21 +56,21 @@ public class ComplexCanonicalization extends Canonicalization {
 				}
 			}
 		}
-		if(freqs.entrySet().size() == 0){
+		if(freqs.keySet().size() == 0){
 			return UnitLiteralCanonicalization.makeLiteral(0);
-		}else if(freqs.entrySet().size() == 1){
-			Canonicalization c = (Canonicalization) freqs.entrySet().toArray()[0];
+		}else if(freqs.keySet().size() == 1){
+			Canonicalization c = (Canonicalization) freqs.keySet().toArray()[0];
 			return c.mult(UnitLiteralCanonicalization.makeLiteral(freqs.get(c)));
 		}
-		return new ComplexCanonicalization(freqs);
+		return new LinearCombinationCanonicalization(freqs);
 	}
 		
 	@Override
 	public boolean equals(Object o){
-		if(!(o instanceof ComplexCanonicalization)){
+		if(!(o instanceof LinearCombinationCanonicalization)){
 			return false;
 		}
-		return getTerms().equals(((ComplexCanonicalization)o).getTerms());
+		return getTerms().equals(((LinearCombinationCanonicalization)o).getTerms());
 	}
 	
 	@Override

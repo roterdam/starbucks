@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidShortCircuitVisitor;
 import edu.mit.compilers.codegen.MidSymbolTable;
@@ -8,6 +11,7 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
+import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
@@ -110,5 +114,13 @@ public class IDNode extends ExpressionNode {
 	public void simplifyExpressions(){
 		AlgebraicSimplifier.visit(this);
 	}
-
+	
+	@Override
+	public List<DecafNode> getCallsDuringExecution() {
+		List<DecafNode> list = new ArrayList<DecafNode>();
+		if(isArray()){
+			list.addAll(getExpressionNode().getAllCallsDuringExecution());
+		}
+		return list;
+	}
 }
