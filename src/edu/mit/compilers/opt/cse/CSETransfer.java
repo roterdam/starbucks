@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.cse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
@@ -69,7 +70,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				}
 			} else if (assignmentNode instanceof MidMethodCallNode) {
 				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
-				processMethodCall(methodNode, localState, state);
+				LogCenter.debug(state.getReferenceMap().toString());
+				processMethodCall(methodNode, localState, state, out);
 			}
 		}
 
@@ -81,13 +83,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	}
 
 	private void processMethodCall(MidMethodCallNode methodNode,
-			CSELocalState localState, CSEGlobalState writeState) {
-		Map<MidMemoryNode, GlobalExpr> refMap = writeState.getReferenceMap();
-		for (MidMemoryNode node : refMap.keySet()) {
-			if (node instanceof MidFieldDeclNode) {
-				writeState.killReferences(node);
-			}
-		}
+			CSELocalState localState, CSEGlobalState readOnly, CSEGlobalState writeOnly) {
+		localState.clear();
+		writeOnly.clear();
 	}
 
 	private void processSimpleAssignment(MidSaveNode node, CSELocalState s,
