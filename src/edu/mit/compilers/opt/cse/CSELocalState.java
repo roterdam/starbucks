@@ -17,9 +17,9 @@ import edu.mit.compilers.opt.Value;
  */
 public class CSELocalState {
 
-	Map<MidMemoryNode, Value> varToVal;
-	Map<Value, MidSaveNode> valToTemp;
-	Map<LocalExpr, Value> exprToVal;
+	HashMap<MidMemoryNode, Value> varToVal;
+	HashMap<Value, MidSaveNode> valToTemp;
+	HashMap<LocalExpr, Value> exprToVal;
 	// Used to store the register that had the value for a value saved to
 	// memory. DO NOT assume these values persist for more than instruction.
 	// This is purely for temp saving that occurs immediately after saving a
@@ -94,7 +94,8 @@ public class CSELocalState {
 
 	public MidSaveNode addTemp(Value v3, MidTempDeclNode destinationNode) {
 		assert !this.valToTemp.containsKey(v3);
-		MidSaveNode m = new MidSaveNode(this.valToReg.get(v3), destinationNode);
+		MidSaveNode m = new OptSaveNode(this.valToReg.get(v3), destinationNode);
+		LogCenter.debug("[OPT] Saving temp node for later use: " + m + " (" + m.hashCode() + ")");
 		this.valToTemp.put(v3, m);
 		return m;
 	}
@@ -105,6 +106,15 @@ public class CSELocalState {
 	 */
 	public MidSaveNode getTemp(Value v) {
 		return this.valToTemp.get(v);
+	}
+	
+	@Override
+	public String toString() {
+		String out = "CSELocalState:\n";
+		out += "[OPT] varToVal: " + CSEGlobalState.toMapString(varToVal) + "\n";
+		out += "[OPT] valToTemp: " + CSEGlobalState.toMapString(valToTemp) + "\n";
+		out += "[OPT] exprToVal: " + CSEGlobalState.toMapString(exprToVal) + "\n";
+		return out;
 	}
 
 }

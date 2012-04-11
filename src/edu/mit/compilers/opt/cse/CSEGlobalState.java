@@ -138,9 +138,9 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	public void genReference(MidMemoryNode node, GlobalExpr expr) {
 		LogCenter.debug("[OPTJ] Generating reference " + node + " -> " + expr);
-		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		 LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		 LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		 LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 
 		// Would potentially expand expr here (and loop through them below).
 		refToExprMap.put(node, expr);
@@ -156,11 +156,11 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 			}
 			mentionMap.get(m).add(expr);
 		}
-		// LogCenter.debug("[OPTJ] AFTER:");
-		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-		// LogCenter.debug("[OPTJ] ");
+		 LogCenter.debug("[OPTJ] AFTER:");
+		 LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
+		 LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
+		 LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
+		 LogCenter.debug("[OPTJ] ");
 	}
 
 	// TODO function calls need to killreferences to all field decls
@@ -236,10 +236,13 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	 */
 	public MidMemoryNode getNonTempMapping(MidMemoryNode tempNode) {
 		GlobalExpr nonTemp = refToExprMap.get(tempNode);
+		LogCenter.debug("[OPT] LOOKING UP " + tempNode + " AND FOUND " + nonTemp);
+		LogCenter.debug("[OPT] For reference, map was: " + toMapString(refToExprMap));
 		if (nonTemp == null) {
 			return tempNode;
 		}
 		if (nonTemp instanceof LeafGlobalExpr) {
+			LogCenter.debug("[OPT] RETURNING " + ((LeafGlobalExpr) nonTemp).getMemoryNode());
 			return ((LeafGlobalExpr) nonTemp).getMemoryNode();
 		}
 		return tempNode;
