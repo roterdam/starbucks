@@ -277,4 +277,10 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 				.equals(global.getMentionMap()));
 	}
 
+	public void clear() {
+		this.exprToRefMap.clear();
+		this.mentionMap.clear();
+		this.refToExprMap.clear();
+	}
+
 }

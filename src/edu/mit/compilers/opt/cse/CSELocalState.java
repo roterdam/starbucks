@@ -117,4 +117,10 @@ public class CSELocalState {
 		return out;
 	}
 
+	public void clear() {
+		this.exprToVal.clear();
+		this.valToReg.clear();
+		this.valToTemp.clear();
+	}
+
 }
