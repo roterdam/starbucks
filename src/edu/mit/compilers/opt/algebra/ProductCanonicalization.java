@@ -6,6 +6,12 @@ import java.util.Map;
 public class ProductCanonicalization extends Canonicalization {
 	Map<VarCanonicalization, Long> prodTerms;
 
+	public static Canonicalization makeArray(String v, Canonicalization i){
+		Map<VarCanonicalization, Long> freqs = new HashMap<VarCanonicalization, Long>();
+		freqs.put(new VarCanonicalization(v, i), 1L);
+		return new ProductCanonicalization(freqs);
+	}
+	
 	public static Canonicalization makeVariable(String v){
 		Map<VarCanonicalization, Long> freqs = new HashMap<VarCanonicalization, Long>();
 		freqs.put(new VarCanonicalization(v), 1L);

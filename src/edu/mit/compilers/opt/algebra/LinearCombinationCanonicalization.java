@@ -15,23 +15,6 @@ public class LinearCombinationCanonicalization extends Canonicalization {
 	public LinearCombinationCanonicalization(Map<Canonicalization, Long> terms){
 		this.terms = terms;
 	}
-	public Canonicalization add(Canonicalization x){
-		if(x == null) return null;
-		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
-		for(Canonicalization c : terms.keySet()){
-			freqs.put(c, terms.get(c));
-		}
-		for(Canonicalization c : x.getTerms().keySet()){
-			if(!freqs.containsKey(c)){
-				freqs.put(c, 0L);
-			}
-			freqs.put(c, freqs.get(c) + x.getTerms().get(c));
-			if(freqs.get(c) == 0){
-				freqs.remove(c);
-			}
-		}
-		return new LinearCombinationCanonicalization(freqs);
-	}
 	
 	public Canonicalization mult(Canonicalization x){
 		if(x == null) return null;
@@ -42,14 +25,6 @@ public class LinearCombinationCanonicalization extends Canonicalization {
 				if(!freqs.containsKey(prod)){
 					freqs.put(prod, 0L);
 				}
-				Long myTerms = terms.get(c);
-				assert myTerms != null;
-				Long yourTerms = x.getTerms().get(d);
-				assert yourTerms != null : x.getClass().toString();
-				
-				assert freqs.get(prod) != null;
-				assert prod != null;
-				
 				freqs.put(prod, freqs.get(prod)+terms.get(c)*x.getTerms().get(d));
 				if(freqs.get(prod) == 0){
 					freqs.remove(prod);

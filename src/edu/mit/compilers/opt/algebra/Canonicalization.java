@@ -14,6 +14,9 @@ public abstract class Canonicalization {
 	public static Canonicalization makeVariable(String v){
 		return ProductCanonicalization.makeVariable(v);
 	}
+	public static Canonicalization makeArray(String v, Canonicalization i){
+		return ProductCanonicalization.makeArray(v, i);
+	}
 	public static Canonicalization makeLiteral(long v){
 		return UnitLiteralCanonicalization.makeLiteral(v);
 	}

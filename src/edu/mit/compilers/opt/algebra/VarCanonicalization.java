@@ -6,8 +6,18 @@ import java.util.Map;
 
 public class VarCanonicalization extends Canonicalization {
 	protected String name;
+	protected Canonicalization index;
+	protected boolean isArray;
+	
 	public VarCanonicalization(String name) {
 		this.name = name;
+		this.index = null;
+		this.isArray = false;
+	}
+	public VarCanonicalization(String name, Canonicalization index) {
+		this.name = name;
+		this.index = index;
+		this.isArray = true;
 	}
 	
 	@Override
@@ -15,7 +25,11 @@ public class VarCanonicalization extends Canonicalization {
 		if(!(o instanceof VarCanonicalization)){
 			return false;
 		}
-		return name.equals(((VarCanonicalization)o).name);
+		VarCanonicalization v = (VarCanonicalization)o;
+		if(!name.equals(v.name) || isArray != v.isArray){
+			return false;
+		}
+		return !isArray || index != null && index.equals(v.index); 
 	}
 
 	@Override
@@ -47,5 +61,4 @@ public class VarCanonicalization extends Canonicalization {
 	public String toString(){
 		return name;
 	}
-	
 }
