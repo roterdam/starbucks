@@ -21,14 +21,14 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	ArrayList<MidNode> assignments;
 
 	@Override
-	public CSEGlobalState apply(Block b, CSEGlobalState state) {
-		assert state != null : "Input state should not be null.";
+	public CSEGlobalState apply(Block b, CSEGlobalState inState) {
+		assert inState != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidNode>();
 		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING " + b
-				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + state);
+				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + inState);
 
-		CSEGlobalState out = state.clone();
+		CSEGlobalState outState = inState.clone();
 		CSELocalState localState = new CSELocalState();
 
 		MidNode node = b.getHead();
@@ -37,8 +37,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
-			} else if (node instanceof MidMethodCallNode && !((MidMethodCallNode)node).isStarbucksCall()) {
-				//System.out.println("[PPT] --------------------------------------> OH NO");
+			} else if (node instanceof MidMethodCallNode
+					&& !((MidMethodCallNode) node).isStarbucksCall()) {
+				// System.out.println("[PPT] --------------------------------------> OH NO");
 				this.assignments.add(node);
 			}
 			if (node == b.getTail()) {
@@ -56,32 +57,33 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
 				// a = x
 				if (saveNode.getRegNode() instanceof MidLoadNode) {
-					processSimpleAssignment(saveNode, localState, state, out);
+					processSimpleAssignment(saveNode, localState, inState, outState);
 				}
 				// a = -x
 				if (saveNode.getRegNode() instanceof MidNegNode) {
-					processUnaryAssignment(saveNode, localState, state);
+					processUnaryAssignment(saveNode, localState, inState, outState);
 				}
 				// a = x + y
 				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-					processArithmeticAssignment(saveNode, localState, state, out);
+					processArithmeticAssignment(saveNode, localState, inState, outState);
 				}
 			} else if (assignmentNode instanceof MidMethodCallNode) {
 				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
-				LogCenter.debug(state.getReferenceMap().toString());
-				processMethodCall(methodNode, localState, state, out);
+				LogCenter.debug(inState.getReferenceMap().toString());
+				processMethodCall(methodNode, localState, inState, outState);
 			}
 		}
 
 		// TODO: Does state need modification before returning?
-		LogCenter.debug("[OPT] FINAL STATE IS " + out);
+		LogCenter.debug("[OPT] FINAL STATE IS " + outState);
 		LogCenter.debug("[OPT]");
 
-		return out;
+		return outState;
 	}
 
 	private void processMethodCall(MidMethodCallNode methodNode,
-			CSELocalState localState, CSEGlobalState internalState, CSEGlobalState outputState) {
+			CSELocalState localState, CSEGlobalState internalState,
+			CSEGlobalState outputState) {
 		localState.clear();
 		outputState.clear();
 	}
@@ -106,33 +108,36 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	}
 
 	private void processUnaryAssignment(MidSaveNode saveNode, CSELocalState s,
-			CSEGlobalState g) {
+			CSEGlobalState internalState, CSEGlobalState outputState) {
 		MidNegNode r = (MidNegNode) saveNode.getRegNode();
 
-		// GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(r
-		// .getOperand().getMemoryNode()));
+		MidMemoryNode nonTempNode = outputState.getNonTempMapping(r
+				.getOperand().getMemoryNode());
+		GlobalExpr expr = new UnaryGlobalExpr(r,
+				new LeafGlobalExpr(nonTempNode));
 
-		// List<MidMemoryNode> reusableReferences = g.getReferences(expr);
-		//
-		// if (reusableReferences.size() > 0) {
-		// // If there's a reusable reference, reuse it!
-		// // TODO: are we sure we just take the first one?
-		// MidMemoryNode ref = reusableReferences.get(0);
-		// LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
-		// + ref + " -> " + expr);
-		// MidLoadNode loadTempNode = new MidLoadNode(ref);
-		// MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
-		// node.getDestinationNode());
-		// newSaveNode.isOptimization = true;
-		// // loadTempNode.replace(node);
-		// // newSaveNode.insertAfter(loadTempNode);
-		// // Save destination node as a value.
-		// s.addVar(ref);
-		// return;
-		// }
+		boolean didGlobalCSE = false;
+		List<MidMemoryNode> reusableReferences = internalState
+				.getReferences(expr);
+		if (reusableReferences.size() > 0) {
+			// If there's a reusable reference, reuse it!
+			// TODO: are we sure we just take the first one?
+			MidMemoryNode ref = reusableReferences.get(0);
+			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+					+ ref + " -> " + expr);
+			MidLoadNode loadTempNode = new MidLoadNode(ref);
+			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
+					saveNode.getDestinationNode());
+			newSaveNode.isOptimization = true;
+			loadTempNode.insertAfter(saveNode);
+			newSaveNode.insertAfter(loadTempNode);
+			completeDeleteUnary(saveNode);
 
-		// Value-number left and right operands if necessary.
-		// x = a+b, a->v1, b->v2, x->v3, v3->v1+v2
+			didGlobalCSE = true;
+		}
+
+		// Value-number left operand if necessary.
+		// x = -a, a->v1, v3->-v1
 		Value v1 = s.addVar(r.getOperand().getMemoryNode());
 		// Value-number the resulting expression.
 		Value v3 = s.addUnaryExpr(v1, r);
@@ -141,14 +146,15 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Save reference in global CSE.
-		// g.genReference(node.getDestinationNode(), expr);
-		// g.killReferences(node.getDestinationNode());
+		outputState.genReference(saveNode.getDestinationNode(), expr);
+		outputState.killReferences(saveNode.getDestinationNode());
+		internalState.killReferences(saveNode.getDestinationNode());
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
 			// It's not (in a temp), so create a new temp.
 			addTempNode(saveNode, v3, s);
-		} else {
+		} else if (!didGlobalCSE) {
 			// If the value is already stored in a temp, use that temp
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
@@ -166,7 +172,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	}
 
 	private void processArithmeticAssignment(MidSaveNode saveNode,
-			CSELocalState s, CSEGlobalState internalState, CSEGlobalState outputState) {
+			CSELocalState s, CSEGlobalState internalState,
+			CSEGlobalState outputState) {
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
 
 		MidMemoryNode nonTempLeftNode = outputState.getNonTempMapping(r
@@ -179,7 +186,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		boolean didGlobalCSE = false;
 
-		List<MidMemoryNode> reusableReferences = internalState.getReferences(expr);
+		List<MidMemoryNode> reusableReferences = internalState
+				.getReferences(expr);
 		if (reusableReferences.size() > 0) {
 			// If there's a reusable reference, reuse it!
 			// TODO: are we sure we just take the first one?
