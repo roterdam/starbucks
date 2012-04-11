@@ -94,6 +94,7 @@ public class AlgebraicSimplifier {
 
 	public static void visit(BLOCKNode node) {
 		for (DecafNode statement : node.getStatementNodes()) {
+			LogCenter.debug(" --> "+statement.toString());
 			statement.simplifyExpressions();
 		}
 	}
@@ -153,7 +154,11 @@ public class AlgebraicSimplifier {
 	}
 
 	public static void visit(RETURNNode node) {
+		String oldList = node.toStringList();
 		node.setReturnExpression(node.getReturnExpression().simplify(null));
+
+		LogCenter.debug("[AS] Simplifying " + oldList + " --> "
+				+ node.getReturnExpression().toStringList());
 	}
 
 	@SuppressWarnings("serial")

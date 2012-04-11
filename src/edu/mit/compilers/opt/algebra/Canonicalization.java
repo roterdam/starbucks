@@ -1,5 +1,6 @@
 package edu.mit.compilers.opt.algebra;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,7 +94,12 @@ public abstract class Canonicalization {
 		System.out.println(xx.mult(Canonicalization.makeLiteral(2)));
 		System.out.println(xx.add(xx).equals(xx.mult(Canonicalization.makeLiteral(2))));
 				
-		
+		ArrayList<Integer> xo = new ArrayList<Integer>();
+		xo.add(0);
+		xo.add(1);
+		xo.add(2);
+		xo.addAll(xo);
+		System.out.println(xo);
 	}
 	public Canonicalization add(Canonicalization x){
 		if(x == null) return null;
