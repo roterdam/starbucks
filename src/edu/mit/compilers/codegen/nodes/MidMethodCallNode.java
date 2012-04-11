@@ -11,11 +11,19 @@ public class MidMethodCallNode extends MidRegisterNode {
 
 	MidMethodDeclNode methodDecl;
 	List<MidMemoryNode> params;
+	boolean starbucksCall;
+	
 
 	public MidMethodCallNode(MidMethodDeclNode methodDecl,
-			List<MidMemoryNode> params) {
+			List<MidMemoryNode> params){
+		this(methodDecl, params, false);
+	}
+			
+	public MidMethodCallNode(MidMethodDeclNode methodDecl,
+			List<MidMemoryNode> params, boolean starbucksCall) {
 		this.methodDecl = methodDecl;
 		this.params = params;
+		this.starbucksCall = starbucksCall;
 	}
 
 	@Override
@@ -31,5 +39,9 @@ public class MidMethodCallNode extends MidRegisterNode {
 	@Override
 	public List<ASM> toASM() {
 		return AsmVisitor.methodCall(methodDecl.getName(), params, getRegister(), false);
+	}
+	
+	public boolean isStarbucksCall(){
+		return starbucksCall;
 	}
 }

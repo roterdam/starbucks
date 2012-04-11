@@ -229,7 +229,7 @@ public class MidVisitor {
 		divideByZeroParams.add(paramDeclNode);
 		MidMethodCallNode divideByZeroCall = new MidMethodCallNode(
 				symbolTable.getStarbucksMethod(DIVIDE_BY_ZERO_NAME),
-				divideByZeroParams);
+				divideByZeroParams, true);
 		// Set any old register.
 		divideByZeroCall.setRegister(Reg.RAX);
 

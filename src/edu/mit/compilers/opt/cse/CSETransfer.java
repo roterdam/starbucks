@@ -40,7 +40,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
-			} else if (node instanceof MidMethodCallNode) {
+			} else if (node instanceof MidMethodCallNode && !((MidMethodCallNode)node).isStarbucksCall()) {
+				//System.out.println("[PPT] --------------------------------------> OH NO");
 				this.assignments.add(node);
 			}
 			if (node == b.getTail()) {
