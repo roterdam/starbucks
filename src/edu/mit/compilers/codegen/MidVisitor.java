@@ -204,6 +204,15 @@ public class MidVisitor {
 		out.addAll(checkDivideByZeroError(exprList.getMemoryNode(), symbolTable));
 		return out;
 	}
+	public static MidNodeList visit(PotentialCheckDivideByZeroNode node, MidSymbolTable symbolTable){
+		MidNodeList out = new MidNodeList();
+		if(node.isActive()){
+			MidNodeList exprList = node.getExpression().convertToMidLevel(symbolTable);
+			out.addAll(exprList);
+			out.addAll(checkDivideByZeroError(exprList.getMemoryNode(), symbolTable));
+		}
+		return out;
+	}
 	
 	public static MidNodeList checkDivideByZeroError(MidMemoryNode operandNode,
 			MidSymbolTable symbolTable) {

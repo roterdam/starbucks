@@ -12,6 +12,7 @@ import edu.mit.compilers.crawler.MethodDecl;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
+import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
@@ -79,4 +80,9 @@ public class METHOD_CALLNode extends ExpressionNode {
 		AlgebraicSimplifier.visit(this);
 	}
 
+	@Override
+	public List<DecafNode> getCallsDuringExecution() {
+		assert false : "Never remove a method call. It can change stuff!";
+		return null;
+	}
 }

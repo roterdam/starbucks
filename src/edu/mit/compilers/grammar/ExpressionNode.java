@@ -7,11 +7,11 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidShortCircuitVisitor;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
+import edu.mit.compilers.codegen.PotentialCheckDivideByZeroNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
-import edu.mit.compilers.grammar.tokens.METHOD_CALLNode;
-import edu.mit.compilers.opt.Canonicalization;
+import edu.mit.compilers.opt.algebra.Canonicalization;
 
 @SuppressWarnings("serial")
 public abstract class ExpressionNode extends DecafNode {
@@ -32,12 +32,27 @@ public abstract class ExpressionNode extends DecafNode {
 	
 	public abstract boolean hasMethodCalls();
 	
+	
 	public List<DecafNode> getAllCallsDuringExecution(){
 		List<DecafNode> list = new ArrayList<DecafNode>();
-		list.addAll(callsBeforeExecution);
-		list.addAll(callsAfterExecution);
+		for(DecafNode d: callsBeforeExecution){
+			if(d instanceof PotentialCheckDivideByZeroNode){
+				((PotentialCheckDivideByZeroNode)d).setActive(true);
+			}
+			list.add(d);
+		}
+		list.addAll(getCallsDuringExecution());
+		for(DecafNode d: callsAfterExecution){
+			if(d instanceof PotentialCheckDivideByZeroNode){
+				((PotentialCheckDivideByZeroNode)d).setActive(true);
+			}
+			list.add(d);
+		}
 		return list;
 	}
+	
+	public abstract List<DecafNode> getCallsDuringExecution();
+	
 	public List<DecafNode> getCallsBeforeExecution(){
 		return callsBeforeExecution;
 	}

@@ -1,5 +1,10 @@
 package edu.mit.compilers.grammar.expressions;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.mit.compilers.codegen.PotentialCheckDivideByZeroNode;
+import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 
 @SuppressWarnings("serial")
@@ -27,6 +32,14 @@ public abstract class DoubleOperandNode extends ExpressionNode {
 	public boolean hasMethodCalls() {
 		return getLeftOperand().hasMethodCalls()
 				|| getRightOperand().hasMethodCalls();
+	}
+	
+	@Override
+	public List<DecafNode> getCallsDuringExecution() {
+		List<DecafNode> list = new ArrayList<DecafNode>();
+		list.addAll(getLeftOperand().getAllCallsDuringExecution());
+		list.addAll(getRightOperand().getAllCallsDuringExecution());
+		return list;
 	}
 
 }

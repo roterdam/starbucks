@@ -7,6 +7,50 @@ import edu.mit.compilers.opt.algebra.DMMCanonicalization.DMMType;
 
 public abstract class Canonicalization {
 	
+	public static final Canonicalization NEG_ONE = UnitLiteralCanonicalization.makeLiteral(-1);
+	public static final Canonicalization ZERO =  UnitLiteralCanonicalization.makeLiteral(0);
+	
+	public static Canonicalization makeVariable(String v){
+		return ProductCanonicalization.makeVariable(v);
+	}
+	public static Canonicalization makeLiteral(long v){
+		return UnitLiteralCanonicalization.makeLiteral(v);
+	}
+	
+	public static Canonicalization add(Canonicalization x, Canonicalization y){
+		if(x == null || y == null) return null;
+		return x.add(y);
+	}
+	
+	public static Canonicalization sub(Canonicalization x, Canonicalization y){
+		if(x == null || y == null) return null;
+		return x.sub(y);
+	}
+	
+	public static Canonicalization div(Canonicalization x, Canonicalization y){
+		if(x == null || y == null) return null;
+		return x.div(y);
+	}
+	
+	public static Canonicalization mod(Canonicalization x, Canonicalization y){
+		if(x == null || y == null) return null;
+		return x.mod(y);
+	}
+	
+	public static Canonicalization mult(Canonicalization x, Canonicalization y){
+		if(x == null || y == null) return null;
+		return x.mult(y);
+	}
+	
+	public static Canonicalization inv(Canonicalization x){
+		if(x == null) return null;
+		return x.mult(Canonicalization.NEG_ONE);
+	}
+	public static boolean equals(Canonicalization x, Canonicalization y){
+		if(x == null || y == null) return false;
+		return x.equals(y);
+	}
+	
 	public static void main(String[] args){
 		
 		Canonicalization x = ProductCanonicalization.makeVariable("a");
@@ -20,6 +64,9 @@ public abstract class Canonicalization {
 		Canonicalization e = ProductCanonicalization.makeVariable("e");
 		Canonicalization d = a.add(c).add(b);
 		
+		Canonicalization asa = a.sub(a);
+		System.out.println(asa);
+		System.out.println(asa.equals(ZERO));
 		//System.out.println(w.equals(d));
 		
 		
@@ -36,11 +83,20 @@ public abstract class Canonicalization {
 		System.out.println(t3.equals(t4));
 		System.out.println(t3);
 		System.out.println(t4);
+		
+		
+		
+		System.out.println("===========");
+		Canonicalization xx = a.mult(b).div(c);
+		System.out.println(xx.add(xx));
+		System.out.println(xx.getClass().toString());
+		System.out.println(xx.mult(Canonicalization.makeLiteral(2)));
+		System.out.println(xx.add(xx).equals(xx.mult(Canonicalization.makeLiteral(2))));
 				
 		
 	}
 	public Canonicalization add(Canonicalization x){
-		
+		if(x == null) return null;
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
 		for(Canonicalization c : getTerms().keySet()){
 			freqs.put(c, getTerms().get(c));
@@ -54,27 +110,30 @@ public abstract class Canonicalization {
 				freqs.remove(c);
 			}
 		}
-		if(freqs.entrySet().size() == 0){
+		if(freqs.keySet().size() == 0){
 			return UnitLiteralCanonicalization.makeLiteral(0);
-		}else if(freqs.entrySet().size() == 1){
-			Canonicalization c = (Canonicalization) freqs.entrySet().toArray()[0];
+		}else if(freqs.keySet().size() == 1){
+			Canonicalization c = (Canonicalization) freqs.keySet().toArray()[0];
 			return c.mult(UnitLiteralCanonicalization.makeLiteral(freqs.get(c)));
 		}
 		
-		return new ComplexCanonicalization(freqs);
+		return new LinearCombinationCanonicalization(freqs);
 	}
 	
 	public abstract Canonicalization mult(Canonicalization x);
 	
 	public Canonicalization sub(Canonicalization x){
+		if(x == null) return null;
 		return this.add(x.mult(UnitLiteralCanonicalization.makeLiteral(-1)));
 	}
 	
 	public Canonicalization div(Canonicalization x) {
+		if(x == null) return null;
 		return new DMMCanonicalization(this, x, DMMType.DIV);
 	}
 	
 	public Canonicalization mod(Canonicalization x) {
+		if(x == null) return null;
 		return new DMMCanonicalization(this, x, DMMType.MOD);
 	}
 	

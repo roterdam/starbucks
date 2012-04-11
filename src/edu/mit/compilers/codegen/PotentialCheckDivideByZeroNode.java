@@ -5,11 +5,13 @@ import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 
 @SuppressWarnings("serial")
-public class CheckDivideByZeroNode extends DecafNode {
-	// TODO IMPLEMENT
+public class PotentialCheckDivideByZeroNode extends DecafNode {
+
+	boolean active;
 	private ExpressionNode expr;
-	public CheckDivideByZeroNode(ExpressionNode expr){
+	public PotentialCheckDivideByZeroNode(ExpressionNode expr, boolean active){
 		this.expr = expr;
+		this.active = active;
 	}
 	
 	public ExpressionNode getExpression(){
@@ -30,6 +32,14 @@ public class CheckDivideByZeroNode extends DecafNode {
 	@Override
 	public void simplifyExpressions(){
 		assert false : "StarbucksMethodCalls do not have parameters to simplify.";
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	public boolean isActive(){
+		return active;
 	}
 
 	
