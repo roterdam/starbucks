@@ -155,10 +155,12 @@ public class AlgebraicSimplifier {
 
 	public static void visit(RETURNNode node) {
 		String oldList = node.toStringList();
+		LogCenter.debug("[AS] About to simplify return node "+node.getReturnExpression().toStringList());
 		node.setReturnExpression(node.getReturnExpression().simplify(null));
 
-		LogCenter.debug("[AS] Simplifying " + oldList + " --> "
+		LogCenter.debug("[AS] Simplified" + oldList + " --> "
 				+ node.getReturnExpression().toStringList());
+		
 	}
 
 	@SuppressWarnings("serial")
@@ -219,8 +221,8 @@ public class AlgebraicSimplifier {
 			};
 		}
 
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(leftOp);
+		node.setRightOperand(rightOp);
 		return node;
 	}
 
@@ -233,7 +235,7 @@ public class AlgebraicSimplifier {
 		// TODO case 4: expr(x) - expr(x) --> 0
 		// this is difficult... what about 2*expr(x) - 2*expr(x)
 		// We can use canonicalization of things without function calls!
-
+		LogCenter.debug("[AS] Simplifying this bitch "+node.toStringList());
 		final ExpressionNode leftOp = node.getLeftOperand().simplify(symbolTable);
 		final ExpressionNode rightOp = node.getRightOperand()
 				.simplify(symbolTable);
@@ -291,8 +293,8 @@ public class AlgebraicSimplifier {
 			};
 		}
 
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(leftOp);
+		node.setRightOperand(rightOp);
 		return node;
 	}
 
@@ -327,10 +329,14 @@ public class AlgebraicSimplifier {
 	public static ExpressionNode simplifyExpression(ANDNode node,
 			MidSymbolTable symbolTable) {
 
+		System.out.println("Left before "+node.getLeftOperand().toStringList());
 		final ExpressionNode leftNode = node.getLeftOperand()
 				.simplify(symbolTable);
+		System.out.println("Left after "+leftNode.toStringList());
+		System.out.println("Right before "+node.getRightOperand().toStringList());
 		final ExpressionNode rightNode = node.getRightOperand()
 				.simplify(symbolTable);
+		System.out.println("Right after "+rightNode.toStringList());
 		if (leftNode instanceof TRUENode) {
 			rightNode.getCallsBeforeExecution()
 					.addAll(0, leftNode.getAllCallsDuringExecution());
@@ -352,8 +358,9 @@ public class AlgebraicSimplifier {
 			leftNode.setNextSibling(null);
 			return leftNode;
 		}
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		System.out.println("let's just join the shit");
+		node.setLeftOperand(leftNode);
+		node.setRightOperand(rightNode);
 		return node;
 	}
 
@@ -387,8 +394,8 @@ public class AlgebraicSimplifier {
 			return leftNode;
 		}
 
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(leftNode);
+		node.setRightOperand(rightNode);
 		return node;
 	}
 
@@ -631,14 +638,16 @@ public class AlgebraicSimplifier {
 			}
 		}
 
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(leftOp);
+		node.setRightOperand(rightOp);
 		return node;
 	}
 
 	@SuppressWarnings("serial")
-	public static ExpressionNode simplifyExpression(OpSameSame2BoolNode node,
-			MidSymbolTable symbolTable) {
+	public static ExpressionNode simplifyExpression(final OpSameSame2BoolNode node,
+		MidSymbolTable symbolTable) {
+		
+		String oldRep = node.toStringList();
 		
 		final ExpressionNode leftNode = node.getLeftOperand().simplify(symbolTable);
 		final ExpressionNode rightNode = node.getRightOperand().simplify(symbolTable);
@@ -646,16 +655,21 @@ public class AlgebraicSimplifier {
 		
 		if(leftNode instanceof TRUENode && node instanceof EQNode || leftNode instanceof FALSENode && node instanceof NEQNode){
 			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+			System.out.println(node.toStringList() + "--> "+rightNode.toStringList());
 			return rightNode;
 			//Case 1, true == expr() --> expr(), and false != expr() --> expr()
 		}else if(rightNode instanceof TRUENode && node instanceof EQNode || rightNode instanceof FALSENode && node instanceof NEQNode){
 			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
 			leftNode.setNextSibling(null);
+			System.out.println(node.toStringList() + "--> "+leftNode.toStringList());
+			
 			return leftNode;
 			//Case 2, expr() == true --> expr(), and expr() != false --> expr();
 		}else if(leftNode instanceof FALSENode && node instanceof EQNode || leftNode instanceof TRUENode && node instanceof NEQNode){
 			//Case 3, false == expr() --> !expr(), and true != expr() --> !expr()
 			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+			System.out.println(node.toStringList() + "--> some bang node 1");
+			
 			return new BANGNode(){{
 				setText("!");
 				setFirstChild(rightNode);
@@ -664,6 +678,7 @@ public class AlgebraicSimplifier {
 			//Case 4, expr() == false --> !expr(), and expr() != true --> !expr()
 			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
 			leftNode.setNextSibling(null);
+			System.out.println(node.toStringList() + "--> some bang node 2");
 			return new BANGNode(){{
 				setText("!");
 				setFirstChild(leftNode);
@@ -673,6 +688,7 @@ public class AlgebraicSimplifier {
 			boolean eq = ((INT_LITERALNode)leftNode).getValue() == ((INT_LITERALNode)rightNode).getValue();
 			boolean ret = eq && node instanceof EQNode;
 			if(ret){
+				System.out.println(node.toStringList() + "--> true ");
 				return new TRUENode() {
 					{
 						setText("true");
@@ -685,6 +701,7 @@ public class AlgebraicSimplifier {
 			}else{
 				return new FALSENode() {
 					{
+						System.out.println(node.toStringList() + "--> false");
 						setText("false");
 						getCallsBeforeExecution()
 								.addAll(leftNode.getAllCallsDuringExecution());
@@ -694,8 +711,10 @@ public class AlgebraicSimplifier {
 				};
 			}
 		}
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		String old = node.toStringList();
+		node.setLeftOperand(leftNode);
+		node.setRightOperand(rightNode);
+		System.out.println(node.toStringList() + "--> "+node.toStringList());
 		return node;
 	}
 
@@ -861,8 +880,8 @@ public class AlgebraicSimplifier {
 			}
 		}
 
-		node.setLeftOperand(node.getLeftOperand().simplify(symbolTable));
-		node.setRightOperand(node.getRightOperand().simplify(symbolTable));
+		node.setLeftOperand(leftOp);
+		node.setRightOperand(rightOp);
 		return node;
 	}
 }

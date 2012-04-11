@@ -3,6 +3,7 @@ package edu.mit.compilers.grammar.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.ErrorCenter;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 
@@ -15,7 +16,12 @@ public abstract class DoubleOperandNode extends ExpressionNode {
 	}
 
 	public ExpressionNode getRightOperand() {
-		assert getChild(1) instanceof ExpressionNode;
+		if(getChild(1) == null){
+			ErrorCenter.reportError(this.getLine(), this.getColumn(), "Null child");
+			return null;
+		}
+		assert getChild(1) instanceof ExpressionNode : "I am a "+this.getClass()+" and I have a problem. My right node is "+getChild(1);
+		
 		return (ExpressionNode) getChild(1);
 	}
 
