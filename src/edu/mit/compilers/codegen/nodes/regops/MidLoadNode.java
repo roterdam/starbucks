@@ -66,7 +66,8 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 	}
 	
 	public void replace(MidLoadNode node) {
-		super.replace(node);
+		insertAfter(node);
+		node.delete();
 		node.replaceThisReferences(this);
 	}
 

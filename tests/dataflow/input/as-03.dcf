@@ -1,0 +1,8 @@
+class Program {
+    int a,b,c,d;
+    void main(){
+        a = 5;
+        b = 2*a - (a+a);
+        c = ((a+b)+c)*d-(a*d+d*(b+c));
+    }
+}

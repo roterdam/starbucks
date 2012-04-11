@@ -1,5 +1,8 @@
 package edu.mit.compilers.grammar.tokens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import antlr.Token;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
@@ -7,6 +10,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
+import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
@@ -98,6 +102,12 @@ public class INT_LITERALNode extends ExpressionNode {
 	@Override
 	public boolean hasMethodCalls() {
 		return false;
+	}
+	
+	@Override
+	public List<DecafNode> getCallsDuringExecution() {
+		List<DecafNode> list = new ArrayList<DecafNode>();
+		return list;
 	}
 
 }

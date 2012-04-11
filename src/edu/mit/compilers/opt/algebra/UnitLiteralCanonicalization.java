@@ -9,7 +9,7 @@ public class UnitLiteralCanonicalization extends Canonicalization {
 	public static Canonicalization makeLiteral(long value){
 		Map<Canonicalization, Long> freqs = new HashMap<Canonicalization, Long>();
 		freqs.put(new UnitLiteralCanonicalization(), value);
-		return new ComplexCanonicalization(freqs);
+		return new LinearCombinationCanonicalization(freqs);
 		
 	}
 
@@ -20,11 +20,13 @@ public class UnitLiteralCanonicalization extends Canonicalization {
 
 	@Override
 	public Canonicalization add(Canonicalization x) {
+		if(x == null) return null;
 		return x;
 	}
 
 	@Override
 	public Canonicalization mult(Canonicalization x) {
+		if(x == null) return null;
 		return x;
 	}
 

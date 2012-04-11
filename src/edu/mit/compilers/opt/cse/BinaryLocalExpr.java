@@ -43,6 +43,11 @@ public class BinaryLocalExpr extends LocalExpr {
 		return (getNodeClass().hashCode() * 7919 + v1.hashCode()) * 17389
 				+ v2.hashCode();
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("[OPT] (%s, %s, %s)", getNodeClass(), v1, v2); 
+	}
 
 	public Value getV1() {
 		return v1;

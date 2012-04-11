@@ -197,11 +197,13 @@ public class MidVisitor {
 				node.getRightOperand().convertToMidLevel(symbolTable) };
 	}
 	
-	public static MidNodeList visit(CheckDivideByZeroNode node, MidSymbolTable symbolTable){
+	public static MidNodeList visit(PotentialCheckDivideByZeroNode node, MidSymbolTable symbolTable){
 		MidNodeList out = new MidNodeList();
-		MidNodeList exprList = node.getExpression().convertToMidLevel(symbolTable);
-		out.addAll(exprList);
-		out.addAll(checkDivideByZeroError(exprList.getMemoryNode(), symbolTable));
+		if(node.isActive()){
+			MidNodeList exprList = node.getExpression().convertToMidLevel(symbolTable);
+			out.addAll(exprList);
+			out.addAll(checkDivideByZeroError(exprList.getMemoryNode(), symbolTable));
+		}
 		return out;
 	}
 	
