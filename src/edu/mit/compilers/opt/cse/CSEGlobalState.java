@@ -112,7 +112,12 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 			eList.add(e);
 			newRefToExprMap.put(newMemNode, eList);
 			for (MidMemoryNode mem : e.getMemoryNodes()) {
-				newMentionMap.put(mem, new ArrayList<GlobalExpr>(eList));
+				if (newMentionMap.containsKey(mem)) {
+					List<GlobalExpr> existingList = newMentionMap.get(mem);
+					existingList.add(e);
+				} else {
+					newMentionMap.put(mem, new ArrayList<GlobalExpr>(eList));
+				}
 			}
 		}
 		CSEGlobalState out = new CSEGlobalState(newRefToExprMap,
@@ -209,7 +214,7 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	public Map<GlobalExpr, List<MidMemoryNode>> getExpressionsMap() {
 		return exprToRefMap;
 	}
-	
+
 	public Map<MidMemoryNode, List<GlobalExpr>> getReferenceMap() {
 		return refToExprMap;
 	}
@@ -240,15 +245,17 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	@Override
 	public String toString() {
-		return "CSEGlobalState=> mentionMap:\n[OPT]  " + toMapString(mentionMap)
-				+ "\n[OPT] refToExprMap:\n[OPT]  " + toMapString(refToExprMap)
-				+ "\n[OPT] exprToRefMap:\n[OPT]  " + toMapString(exprToRefMap);
+		return "CSEGlobalState=> mentionMap:\n[OPT]  "
+				+ toMapString(mentionMap) + "\n[OPT] refToExprMap:\n[OPT]  "
+				+ toMapString(refToExprMap) + "\n[OPT] exprToRefMap:\n[OPT]  "
+				+ toMapString(exprToRefMap);
 	}
-	
-	public static <K,V> String toMapString(HashMap<K,V> map) {
+
+	public static <K, V> String toMapString(HashMap<K, V> map) {
 		String out = "{";
 		for (K key : map.keySet()) {
-			out += "\n[OPT]  " + key.toString() + " = " + map.get(key).toString() + ",";
+			out += "\n[OPT]  " + key.toString() + " = "
+					+ map.get(key).toString() + ",";
 		}
 		out += "\n[OPT]  }";
 		return out;
