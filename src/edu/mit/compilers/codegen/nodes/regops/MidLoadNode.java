@@ -25,7 +25,8 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		this.memoryNode = memoryNode;
 		registerOpNodes = new ArrayList<RegisterOpNode>();
 		if (count == 10) {
-//			throw new RuntimeException("Catching this load node: " + toString());
+			// throw new RuntimeException("Catching this load node: " +
+			// toString());
 		}
 		count++;
 	}
@@ -54,17 +55,17 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 				memoryNode.getFormattedLocationReference()));
 		return out;
 	}
-	
+
 	public void recordRegisterOp(RegisterOpNode opNode) {
 		registerOpNodes.add(opNode);
 	}
-	
+
 	public void replaceThisReferences(MidLoadNode newNode) {
 		for (RegisterOpNode opNode : registerOpNodes) {
 			opNode.updateLoadNode(this, newNode);
 		}
 	}
-	
+
 	public void replace(MidLoadNode node) {
 		insertAfter(node);
 		node.delete();
@@ -80,6 +81,10 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 	public Reg getArrayRegister() {
 		assert usesArrayReference();
 		return ((MidArrayElementNode) memoryNode).getLoadRegister();
+	}
+
+	public void updateMemoryNode(MidMemoryNode tempReplacement) {
+		memoryNode = tempReplacement;
 	}
 
 }

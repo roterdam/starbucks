@@ -19,6 +19,8 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
+import edu.mit.compilers.opt.cp.CPState;
+import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.tools.CLI;
@@ -26,7 +28,8 @@ import edu.mit.compilers.tools.CLI.Action;
 
 class Main {
 	private static final String OPT_CSE = "cse";
-	private static String[] OPTS = new String[] { OPT_CSE };
+	private static final String OPT_CP = "cp";
+	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP };
 
 	public static void main(String[] args) {
 		try {
@@ -105,12 +108,11 @@ class Main {
 					DecafSemanticChecker semanticChecker = new DecafSemanticChecker();
 					semanticChecker.crawl((CLASSNode) parser.getAST());
 
-					
-					if(CLI.optOn){
+					if (CLI.optOn) {
 						// Do algebraic simplifications.
 						((CLASSNode) parser.getAST()).simplifyExpressions();
 					}
-					
+
 					if (CLI.visual) {
 						// For debugging.
 						System.out
@@ -137,6 +139,13 @@ class Main {
 							Analyzer<CSEGlobalState, CSETransfer> a = new Analyzer<CSEGlobalState, CSETransfer>(
 									new CSEGlobalState().getInitialState(),
 									new CSETransfer());
+							a.analyze(symbolTable);
+						}
+
+						if (isEnabled(OPT_CP)) {
+							Analyzer<CPState, CPTransfer> a = new Analyzer<CPState, CPTransfer>(
+									new CPState().getInitialState(),
+									new CPTransfer());
 							a.analyze(symbolTable);
 						}
 
