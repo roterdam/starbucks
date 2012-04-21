@@ -1,6 +1,8 @@
 package edu.mit.compilers.opt.cp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
@@ -11,11 +13,11 @@ import edu.mit.compilers.opt.State;
 public class CPState implements State<CPState> {
 
 	private Map<MidTempDeclNode, MidMemoryNode> tempMap;
-	private Map<MidMemoryNode, MidTempDeclNode> mentionMap;
+	private Map<MidMemoryNode, List<MidTempDeclNode>> mentionMap;
 
 	public CPState() {
 		tempMap = new HashMap<MidTempDeclNode, MidMemoryNode>();
-		mentionMap = new HashMap<MidMemoryNode,MidTempDeclNode>();
+		mentionMap = new HashMap<MidMemoryNode, List<MidTempDeclNode>>();
 	}
 
 	@Override
@@ -40,7 +42,12 @@ public class CPState implements State<CPState> {
 			MidMemoryNode sourceNode) {
 		LogCenter.debug("[CPS] Mapping " + tempNode + " to " + sourceNode);
 		tempMap.put(tempNode, sourceNode);
-		mentionMap.put(sourceNode, tempNode);
+		List<MidTempDeclNode> mentions = mentionMap.get(sourceNode);
+		if (mentions == null) {
+			mentions = new ArrayList<MidTempDeclNode>();
+			mentionMap.put(sourceNode, mentions);
+		}
+		mentions.add(tempNode);
 	}
 
 	/**
@@ -49,14 +56,33 @@ public class CPState implements State<CPState> {
 	 * none exist.
 	 */
 	public MidMemoryNode getReplacement(MidTempDeclNode tempNode) {
-		LogCenter.debug("[CPS] Checking if " + tempNode + " maps to anything: " + tempMap.containsKey(tempNode));
+		LogCenter.debug("[CPS] Checking if " + tempNode + " maps to anything: "
+				+ tempMap.containsKey(tempNode));
 		return tempMap.get(tempNode);
 	}
 
 	public void killReferences(MidMemoryNode destinationNode) {
-		MidTempDeclNode tempNode = mentionMap.get(destinationNode);
-		tempMap.remove(tempNode);
+		List<MidTempDeclNode> tempNodes = mentionMap.get(destinationNode);
+		if (tempNodes == null) {
+			return;
+		}
+		for (MidTempDeclNode tempNode : tempNodes) {
+			tempMap.remove(tempNode);
+		}
 		mentionMap.remove(destinationNode);
+	}
+
+	public Map<MidTempDeclNode, MidMemoryNode> getTempMap() {
+		return tempMap;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof CPState)) {
+			return false;
+		}
+		CPState other = (CPState) o;
+		return getTempMap().equals(other.getTempMap());
 	}
 
 }
