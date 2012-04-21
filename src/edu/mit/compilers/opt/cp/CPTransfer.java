@@ -35,9 +35,13 @@ public class CPTransfer implements Transfer<CPState> {
 
 	private void process(CPState s, MidLoadNode loadNode) {
 		LogCenter.debug("[CP] Processing " + loadNode);
-		// If it references a memory node, check to see if we can copy propagate an earlier one.
+		// If it references a memory node, check to see if we can copy propagate
+		// an earlier one.
+		LogCenter.debug("[CP]    "
+				+ (loadNode.getMemoryNode() instanceof MidTempDeclNode));
 		if (loadNode.getMemoryNode() instanceof MidTempDeclNode) {
-			MidTempDeclNode tempNode = (MidTempDeclNode) loadNode.getMemoryNode();
+			MidTempDeclNode tempNode = (MidTempDeclNode) loadNode
+					.getMemoryNode();
 			MidMemoryNode tempReplacement = s.getReplacement(tempNode);
 			if (tempReplacement != null) {
 				loadNode.updateMemoryNode(tempReplacement);
@@ -46,6 +50,7 @@ public class CPTransfer implements Transfer<CPState> {
 	}
 
 	private void process(CPState s, MidSaveNode saveNode) {
+		LogCenter.debug("[CP] Processing " + saveNode);
 		if (saveNode.getDestinationNode() instanceof MidTempDeclNode) {
 			// If it's a temp node, record what it's saving.
 			MidTempDeclNode tempDestination = (MidTempDeclNode) saveNode

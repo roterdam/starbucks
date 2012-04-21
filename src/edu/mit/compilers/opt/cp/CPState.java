@@ -25,7 +25,7 @@ public class CPState implements State<CPState> {
 
 	@Override
 	public CPState getBottomState() {
-		return null;
+		return new CPState();
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class CPState implements State<CPState> {
 	 */
 	public void putTempReference(MidTempDeclNode tempNode,
 			MidMemoryNode sourceNode) {
-		LogCenter.debug("[CP] Mapping " + tempNode + " to " + sourceNode);
+		LogCenter.debug("[CPS] Mapping " + tempNode + " to " + sourceNode);
 		tempMap.put(tempNode, sourceNode);
 		mentionMap.put(sourceNode, tempNode);
 	}
@@ -49,7 +49,7 @@ public class CPState implements State<CPState> {
 	 * none exist.
 	 */
 	public MidMemoryNode getReplacement(MidTempDeclNode tempNode) {
-		LogCenter.debug("Checking if " + tempNode + " maps to anything.");
+		LogCenter.debug("[CPS] Checking if " + tempNode + " maps to anything: " + tempMap.containsKey(tempNode));
 		return tempMap.get(tempNode);
 	}
 
