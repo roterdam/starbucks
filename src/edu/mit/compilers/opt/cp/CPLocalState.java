@@ -10,29 +10,29 @@ import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.State;
 
-public class CPState implements State<CPState> {
+public class CPLocalState implements State<CPLocalState> {
 
 	private Map<MidTempDeclNode, MidMemoryNode> tempMap;
 	private Map<MidMemoryNode, List<MidTempDeclNode>> mentionMap;
 
-	public CPState() {
+	public CPLocalState() {
 		tempMap = new HashMap<MidTempDeclNode, MidMemoryNode>();
 		mentionMap = new HashMap<MidMemoryNode, List<MidTempDeclNode>>();
 	}
 
 	@Override
-	public CPState getInitialState() {
-		return new CPState();
+	public CPLocalState getInitialState() {
+		return new CPLocalState();
 	}
 
 	@Override
-	public CPState getBottomState() {
-		return new CPState();
+	public CPLocalState getBottomState() {
+		return new CPLocalState();
 	}
 
 	@Override
-	public CPState join(CPState s) {
-		return new CPState();
+	public CPLocalState join(CPLocalState s) {
+		return new CPLocalState();
 	}
 
 	/**
@@ -78,10 +78,10 @@ public class CPState implements State<CPState> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof CPState)) {
+		if (!(o instanceof CPLocalState)) {
 			return false;
 		}
-		CPState other = (CPState) o;
+		CPLocalState other = (CPLocalState) o;
 		return getTempMap().equals(other.getTempMap());
 	}
 

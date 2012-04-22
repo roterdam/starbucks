@@ -19,9 +19,11 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
-import edu.mit.compilers.opt.cp.CPState;
+import edu.mit.compilers.opt.LocalAnalyzer;
+import edu.mit.compilers.opt.cp.CPLocalState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
+import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
@@ -136,17 +138,19 @@ class Main {
 						// Run certain optimizations after creating a mid-level
 						// IR.
 						if (isEnabled(OPT_CSE)) {
-							Analyzer<CSEGlobalState, CSETransfer> a = new Analyzer<CSEGlobalState, CSETransfer>(
+							LocalAnalyzer localAnalyzer = new CSELocalAnalyzer();
+							localAnalyzer.analyze(symbolTable);
+							Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 									new CSEGlobalState().getInitialState(),
 									new CSETransfer());
-							a.analyze(symbolTable);
+							analyzer.analyze(symbolTable);
 						}
 
 						if (isEnabled(OPT_CP)) {
-							Analyzer<CPState, CPTransfer> a = new Analyzer<CPState, CPTransfer>(
-									new CPState().getInitialState(),
+							Analyzer<CPLocalState, CPTransfer> analyzer = new Analyzer<CPLocalState, CPTransfer>(
+									new CPLocalState().getInitialState(),
 									new CPTransfer());
-							a.analyze(symbolTable);
+							analyzer.analyze(symbolTable);
 						}
 
 						if (CLI.dot) {
