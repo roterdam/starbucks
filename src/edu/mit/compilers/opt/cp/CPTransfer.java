@@ -93,12 +93,6 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 
 	private void processUse(CPGlobalState outState, MidLoadNode loadNode) {
 		MidMemoryNode refNode = loadNode.getMemoryNode();
-		if (refNode instanceof MidTempDeclNode) {
-			refNode = outState.lookupAlias((MidTempDeclNode) refNode);
-		}
-		if (refNode == null) {
-			return;
-		}
 		MidMemoryNode lookedUpNode = outState.lookupDefinition(refNode);
 		if (lookedUpNode != null) {
 			refNode = lookedUpNode;
@@ -113,10 +107,7 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 			MidMemoryNode refNode = loadNode.getMemoryNode();
 
-			if (saveNode.getDestinationNode() instanceof MidTempDeclNode) {
-				MidTempDeclNode tempNode = (MidTempDeclNode) memNode;
-				outState.saveAlias(tempNode, refNode);
-			} else {
+			if (!(saveNode.getDestinationNode() instanceof MidTempDeclNode)) {
 				outState.saveDefinition(memNode, refNode);
 			}
 

@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.cse;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;

@@ -220,27 +220,6 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		return new ArrayList<MidMemoryNode>();
 	}
 
-	/**
-	 * When we have expressions like c = a+b, this becomes t1=a, t2=b, c=t1+t2.
-	 * Need to map that to c=a+b, so this looks up t1 => a.
-	 */
-	public MidMemoryNode getNonTempMapping(MidMemoryNode tempNode) {
-		GlobalExpr nonTemp = refToExprMap.get(tempNode);
-		LogCenter.debug("[OPT] LOOKING UP " + tempNode + " AND FOUND "
-				+ nonTemp);
-		LogCenter.debug("[OPT] For reference, map was: "
-				+ HashMapUtils.toMapString("OPT", refToExprMap));
-		if (nonTemp == null) {
-			return tempNode;
-		}
-		if (nonTemp instanceof LeafGlobalExpr) {
-			LogCenter.debug("[OPT] RETURNING "
-					+ ((LeafGlobalExpr) nonTemp).getMemoryNode());
-			return ((LeafGlobalExpr) nonTemp).getMemoryNode();
-		}
-		return tempNode;
-	}
-
 	@Override
 	public String toString() {
 		return "CSEGlobalState => mentionMap:\n[OPT]  "

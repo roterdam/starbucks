@@ -98,10 +98,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			CSEGlobalState internalState, CSEGlobalState outputState) {
 		MidNegNode r = (MidNegNode) saveNode.getRegNode();
 
-		MidMemoryNode nonTempNode = outputState.getNonTempMapping(r
-				.getOperand().getMemoryNode());
-		GlobalExpr expr = new UnaryGlobalExpr(r,
-				new LeafGlobalExpr(nonTempNode));
+		GlobalExpr expr = new UnaryGlobalExpr(r, new LeafGlobalExpr(r
+				.getOperand().getMemoryNode()));
 
 		List<MidMemoryNode> reusableReferences = internalState
 				.getReferences(expr);
@@ -132,13 +130,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			CSEGlobalState internalState, CSEGlobalState outputState) {
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
 
-		MidMemoryNode nonTempLeftNode = outputState.getNonTempMapping(r
-				.getLeftOperand().getMemoryNode());
-		MidMemoryNode nonTempRightNode = outputState.getNonTempMapping(r
-				.getRightOperand().getMemoryNode());
-		GlobalExpr expr = new BinaryGlobalExpr(r, new LeafGlobalExpr(
-				nonTempLeftNode), new LeafGlobalExpr(nonTempRightNode),
-				r.isCommutative());
+		GlobalExpr expr = new BinaryGlobalExpr(r, new LeafGlobalExpr(r
+				.getLeftOperand().getMemoryNode()), new LeafGlobalExpr(r
+				.getRightOperand().getMemoryNode()), r.isCommutative());
 
 		List<MidMemoryNode> reusableReferences = internalState
 				.getReferences(expr);
