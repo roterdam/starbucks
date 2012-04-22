@@ -109,7 +109,7 @@ public class CPGlobalState implements State<CPGlobalState> {
 	}
 
 	public void killReferences(MidMemoryNode memNode, boolean followLinkedNode) {
-		LogCenter.debug("[CPJM] Killing references to " + memNode);
+		LogCenter.debug("[CP] Killing references to " + memNode);
 		// Kill references, i.e. clear references to a after a = expr.
 		List<MidMemoryNode> references = mentionMap.get(memNode);
 		if (references != null) {
@@ -135,7 +135,6 @@ public class CPGlobalState implements State<CPGlobalState> {
 		if (followLinkedNode && memNode instanceof MidTempDeclNode) {
 			MidTempDeclNode tempNode = (MidTempDeclNode) memNode;
 			MidTempDeclNode linkedNode = tempNode.getLink();
-			LogCenter.debug("[JM] Temp node has link: " + linkedNode);
 			if (linkedNode != null) {
 				killReferences(linkedNode, false);
 			}

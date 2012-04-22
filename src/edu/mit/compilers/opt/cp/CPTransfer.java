@@ -113,7 +113,6 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 			MidMemoryNode refNode = loadNode.getMemoryNode();
 
-			LogCenter.debug("[JM] PROCESSING " + saveNode);
 			if (saveNode.getDestinationNode() instanceof MidTempDeclNode) {
 				MidTempDeclNode tempNode = (MidTempDeclNode) memNode;
 				outState.saveAlias(tempNode, refNode);
