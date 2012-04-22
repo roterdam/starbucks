@@ -9,6 +9,7 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
+import edu.mit.compilers.opt.HashMapUtils;
 import edu.mit.compilers.opt.State;
 
 public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
@@ -46,24 +47,10 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	@Override
 	public CSEGlobalState clone() {
-		CSEGlobalState out = new CSEGlobalState(deepClone(refToExprMap),
-				deepCloneList(exprToRefMap), deepCloneList(mentionMap));
-		return out;
-	}
-
-	private <K, V> HashMap<K, List<V>> deepCloneList(HashMap<K, List<V>> map) {
-		HashMap<K, List<V>> out = new HashMap<K, List<V>>();
-		for (K key : map.keySet()) {
-			out.put(key, new ArrayList<V>(map.get(key)));
-		}
-		return out;
-	}
-
-	private <K, V> HashMap<K, V> deepClone(HashMap<K, V> map) {
-		HashMap<K, V> out = new HashMap<K, V>();
-		for (K key : map.keySet()) {
-			out.put(key, map.get(key));
-		}
+		CSEGlobalState out = new CSEGlobalState(
+				HashMapUtils.deepClone(refToExprMap),
+				HashMapUtils.deepCloneList(exprToRefMap),
+				HashMapUtils.deepCloneList(mentionMap));
 		return out;
 	}
 
@@ -242,7 +229,7 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		LogCenter.debug("[OPT] LOOKING UP " + tempNode + " AND FOUND "
 				+ nonTemp);
 		LogCenter.debug("[OPT] For reference, map was: "
-				+ toMapString(refToExprMap));
+				+ HashMapUtils.toMapString("OPT", refToExprMap));
 		if (nonTemp == null) {
 			return tempNode;
 		}
@@ -256,20 +243,10 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	@Override
 	public String toString() {
-		return "CSEGlobalState=> mentionMap:\n[OPT]  "
-				+ toMapString(mentionMap) + "\n[OPT] refToExprMap:\n[OPT]  "
-				+ toMapString(refToExprMap) + "\n[OPT] exprToRefMap:\n[OPT]  "
-				+ toMapString(exprToRefMap);
-	}
-
-	public static <K, V> String toMapString(HashMap<K, V> map) {
-		String out = "{";
-		for (K key : map.keySet()) {
-			out += "\n[OPT]  " + key.toString() + " = "
-					+ map.get(key).toString() + ",";
-		}
-		out += "\n[OPT]  }";
-		return out;
+		return "CSEGlobalState => mentionMap:\n[OPT]  "
+				+ HashMapUtils.toMapString("OPT", mentionMap) + "\n[OPT] refToExprMap:\n[OPT]  "
+				+ HashMapUtils.toMapString("OPT", refToExprMap) + "\n[OPT] exprToRefMap:\n[OPT]  "
+				+ HashMapUtils.toMapString("OPT", exprToRefMap);
 	}
 
 	@Override

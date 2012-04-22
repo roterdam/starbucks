@@ -150,10 +150,10 @@ class Main {
 						if (isEnabled(OPT_CP)) {
 							CPLocalAnalyzer localAnalyzer = new CPLocalAnalyzer();
 							localAnalyzer.analyze(symbolTable);
-//							Analyzer<CPGlobalState, CPTransfer> analyzer = new Analyzer<CPGlobalState, CPTransfer>(
-//									new CPGlobalState().getInitialState(),
-//									new CPTransfer());
-//							analyzer.analyze(symbolTable);
+							Analyzer<CPGlobalState, CPTransfer> analyzer = new Analyzer<CPGlobalState, CPTransfer>(
+									new CPGlobalState().getInitialState(),
+									new CPTransfer());
+							analyzer.analyze(symbolTable);
 						}
 
 						if (CLI.dot) {

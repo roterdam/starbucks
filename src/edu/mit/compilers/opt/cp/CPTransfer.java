@@ -6,20 +6,26 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 
+/**
+ * Reaching definition analysis - set of related analyses.
+ */
 public class CPTransfer implements Transfer<CPGlobalState> {
 
-	private ArrayList<MidNode> assignments;
+	private ArrayList<MidNode> nodesOfInterest;
 
 	@Override
 	public CPGlobalState apply(Block b, CPGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
 
-		this.assignments = new ArrayList<MidNode>();
-		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING " + b
-				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + inState);
+		this.nodesOfInterest = new ArrayList<MidNode>();
+		LogCenter.debug("[CP]\n[CP]\n[CP]\n[CP] PROCESSING " + b
+				+ ", THE GLOBAL STATE IS:\n[CP] ##########\n[CP] " + inState);
 
 		CPGlobalState outState = inState.clone();
 
@@ -27,10 +33,12 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 		while (true) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
-				this.assignments.add(node);
+				this.nodesOfInterest.add(node);
+			} else if (node instanceof MidLoadNode) {
+				this.nodesOfInterest.add(node);
 			} else if (node instanceof MidMethodCallNode
 					&& !((MidMethodCallNode) node).isStarbucksCall()) {
-				this.assignments.add(node);
+				this.nodesOfInterest.add(node);
 			}
 			if (node == b.getTail()) {
 				break;
@@ -38,36 +46,58 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			node = node.getNextNode();
 		}
 
-		for (MidNode assignmentNode : this.assignments) {
-			LogCenter.debug("[OPT]\n[OPT] Processing " + assignmentNode);
-//			if (assignmentNode instanceof MidSaveNode) {
-//				if (assignmentNode instanceof OptSaveNode) {
-//					continue;
-//				}
-//				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
-//				// a = x
-//				if (saveNode.getRegNode() instanceof MidLoadNode) {
-//					processSimpleAssignment(saveNode, inState, outState);
-//				}
-//				// a = -x
-//				if (saveNode.getRegNode() instanceof MidNegNode) {
-//					processUnaryAssignment(saveNode, inState, outState);
-//				}
-//				// a = x + y
-//				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-//					processArithmeticAssignment(saveNode, inState, outState);
-//				}
-//			} else if (assignmentNode instanceof MidMethodCallNode) {
-//				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
-//				LogCenter.debug(inState.getReferenceMap().toString());
-//				processMethodCall(methodNode, inState, outState);
-//			}
+		for (MidNode assignmentNode : this.nodesOfInterest) {
+			LogCenter.debug("[CP]\n[CP] Processing " + assignmentNode);
+			if (assignmentNode instanceof MidSaveNode) {
+				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
+				processDefinition(outState, saveNode);
+			} else if (assignmentNode instanceof MidLoadNode) {
+				MidLoadNode loadNode = (MidLoadNode) assignmentNode;
+				processUse(outState, loadNode);
+			} else if (assignmentNode instanceof MidMethodCallNode) {
+				outState.reset();
+			}
 		}
 
-		LogCenter.debug("[OPT] FINAL STATE IS " + outState);
-		LogCenter.debug("[OPT]");
+		LogCenter.debug("[CP] FINAL STATE IS " + outState);
+		LogCenter.debug("[CP]");
 
 		return outState;
+	}
+
+	private void processUse(CPGlobalState outState, MidLoadNode loadNode) {
+		MidMemoryNode refNode = loadNode.getMemoryNode();
+		if (refNode instanceof MidTempDeclNode) {
+			refNode = outState.lookupAlias((MidTempDeclNode) refNode);
+		}
+		if (refNode == null) {
+			return;
+		}
+		MidMemoryNode lookedUpNode = outState.lookupDefinition(refNode);
+		if (lookedUpNode != null) {
+			refNode = lookedUpNode;
+		}
+		loadNode.updateMemoryNode(refNode);
+
+	}
+
+	private void processDefinition(CPGlobalState outState, MidSaveNode saveNode) {
+		// Track what real fields temp nodes correspond to.
+		MidMemoryNode memNode = saveNode.getDestinationNode();
+		if (saveNode.getRegNode() instanceof MidLoadNode) {
+			MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
+			MidMemoryNode refNode = loadNode.getMemoryNode();
+
+			if (saveNode.getDestinationNode() instanceof MidTempDeclNode) {
+				MidTempDeclNode tempNode = (MidTempDeclNode) memNode;
+				outState.saveAlias(tempNode, refNode);
+			} else {
+				outState.saveDefinition(memNode, refNode);
+			}
+
+		}
+
+		outState.killReferences(memNode);
 	}
 
 }

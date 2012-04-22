@@ -19,8 +19,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
 
 /**
- * `
- * Saves referenced register node or literal to memory.
+ * ` Saves referenced register node or literal to memory.
  */
 public class MidSaveNode extends MidNode implements RegisterOpNode,
 		ArrayReferenceNode {
@@ -62,13 +61,13 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		nodeList.add(saveNode);
 		return nodeList;
 	}
-	
+
 	public static MidNodeList storeValueInMemory(long decafIntValue,
 			MidMemoryNode dest) {
 		MidNodeList nodeList = new MidNodeList();
 		MidTempDeclNode tempNode = new MidTempDeclNode();
-		
-		MidNodeList getValList = storeValueInMemory(decafIntValue, tempNode);		
+
+		MidNodeList getValList = storeValueInMemory(decafIntValue, tempNode);
 		MidLoadNode loadNode = new MidLoadNode(getValList.getMemoryNode());
 		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
 
@@ -134,8 +133,8 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 			value = registerNode.getName();
 		}
 		String isArray = usesArrayReference() ? "[A]" : "";
-		return "<" + className.substring(mid) + ": " + value + " " + isArray
-				+ ">";
+		return "<" + className.substring(mid) + ": " + value + " to "
+				+ getDestinationNode().getName() + " " + isArray + ">";
 	}
 
 	@Override
