@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.cp;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -23,7 +24,19 @@ public class CPLocalAnalyzer extends LocalAnalyzer {
 			}
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
-				process(s, (MidSaveNode) node);
+				MidSaveNode saveNode = (MidSaveNode) node;
+				// Skip optimizing array access saves for now.
+				// TODO: perhaps it's optimizeable?
+				boolean skip = false;
+				if (saveNode.getRegNode() instanceof MidLoadNode) {
+					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
+					if (loadNode.getMemoryNode() instanceof MidArrayElementNode) {
+						skip = true;
+					}
+				}
+				if (!skip) {
+					process(s, (MidSaveNode) node);
+				}
 			}
 			if (node == b.getTail()) {
 				break;
