@@ -11,7 +11,7 @@ public class MidTempDeclNode extends MidLocalMemoryNode {
 		// generate a random temp id
 		super("t" + MidLabelManager.getNewId());
 	}
-
+	
 	public void linkTempDecl(MidTempDeclNode node) {
 		registerTempDecl(node);
 		node.registerTempDecl(this);
@@ -19,6 +19,10 @@ public class MidTempDeclNode extends MidLocalMemoryNode {
 
 	public void registerTempDecl(MidTempDeclNode node) {
 		linkedTempDecl = node;
+	}
+	
+	public MidTempDeclNode getLink() {
+		return linkedTempDecl;
 	}
 
 	@Override

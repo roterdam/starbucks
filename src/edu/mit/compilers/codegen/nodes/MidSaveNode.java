@@ -133,7 +133,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 			value = registerNode.getName();
 		}
 		String isArray = usesArrayReference() ? "[A]" : "";
-		return "<" + className.substring(mid) + ": " + value + " to "
+		return "<" + className.substring(mid) + ": " + value + " -> "
 				+ getDestinationNode().getName() + " " + isArray + ">";
 	}
 

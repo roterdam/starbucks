@@ -19,6 +19,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
 	public static int count = 0;
+	private MidMemoryNode oldMemoryNode;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
@@ -39,8 +40,10 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
 		String isArray = usesArrayReference() ? "[A]" : "";
-		return "<" + className.substring(mid) + ": " + getName() + ","
-				+ memoryNode.toString() + " " + isArray + ">";
+		String prefix = isOptimization ? "[OPT] " : "";
+		String oldRef = (oldMemoryNode == null) ? "" : " (" + oldMemoryNode.getName() + ")";
+		return prefix + "<" + className.substring(mid) + ": " + memoryNode.getName() + oldRef
+				+ " -> " + getName() + " " + isArray + ">";
 	}
 
 	@Override
@@ -83,8 +86,12 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		return ((MidArrayElementNode) memoryNode).getLoadRegister();
 	}
 
-	public void updateMemoryNode(MidMemoryNode tempReplacement) {
+	public void updateMemoryNode(MidMemoryNode tempReplacement, boolean isOptimization) {
+		oldMemoryNode = memoryNode;
 		memoryNode = tempReplacement;
+		if (isOptimization) {
+			this.isOptimization = true;
+		}
 	}
-
+	
 }

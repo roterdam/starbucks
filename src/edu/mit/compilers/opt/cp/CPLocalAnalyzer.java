@@ -26,7 +26,7 @@ public class CPLocalAnalyzer extends LocalAnalyzer {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				// Skip optimizing array access saves for now.
-				// TODO: perhaps it's optimizeable?
+				// TODO: perhaps it's optimizeable? Same in CPTransfer.
 				boolean skip = false;
 				if (saveNode.getRegNode() instanceof MidLoadNode) {
 					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
@@ -56,7 +56,7 @@ public class CPLocalAnalyzer extends LocalAnalyzer {
 					.getMemoryNode();
 			MidMemoryNode tempReplacement = s.getReplacement(tempNode);
 			if (tempReplacement != null) {
-				loadNode.updateMemoryNode(tempReplacement);
+				loadNode.updateMemoryNode(tempReplacement, true);
 			}
 		}
 	}
