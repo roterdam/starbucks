@@ -18,18 +18,12 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
-	public static int count = 0;
 	private MidMemoryNode oldMemoryNode;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
 		this.memoryNode = memoryNode;
 		registerOpNodes = new ArrayList<RegisterOpNode>();
-		if (count == 10) {
-			// throw new RuntimeException("Catching this load node: " +
-			// toString());
-		}
-		count++;
 	}
 
 	public MidMemoryNode getMemoryNode() {

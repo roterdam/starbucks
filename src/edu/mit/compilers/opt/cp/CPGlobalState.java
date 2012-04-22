@@ -50,18 +50,24 @@ public class CPGlobalState implements State<CPGlobalState> {
 		if (s == null) {
 			return this.clone();
 		}
+		LogCenter.debug("[CP] #########\n[CP] JOINING STATES: ");
+		LogCenter.debug("[CP] THIS: " + toString());
+		LogCenter.debug("[CP]");
+		LogCenter.debug("[CP] THAT: " + s.toString());
 		CPGlobalState out = new CPGlobalState();
 		HashMap<MidMemoryNode, MidMemoryNode> otherDefinitionMap = s
 				.getDefinitionMap();
 		for (MidMemoryNode m : definitionMap.keySet()) {
 			MidMemoryNode ref = definitionMap.get(m);
 			if (otherDefinitionMap.containsKey(m)
-					&& otherDefinitionMap.get(m) == ref) {
+					&& otherDefinitionMap.get(m).equals(ref)) {
 				out.saveDefinition(m, ref);
 			}
 		}
 		// Purposely leave out the alias map - temps shouldn't persist after the
 		// block.
+		LogCenter.debug("[CP]");
+		LogCenter.debug("[CP] RESULT: " + out.toString() + "\n[CP] #####");
 		return out;
 	}
 
@@ -129,7 +135,7 @@ public class CPGlobalState implements State<CPGlobalState> {
 			return false;
 		}
 		CPGlobalState global = (CPGlobalState) o;
-		return (definitionMap.equals(global.getDefinitionMap())
-				&& mentionMap.equals(global.getMentionMap()));
+		return (definitionMap.equals(global.getDefinitionMap()) && mentionMap
+				.equals(global.getMentionMap()));
 	}
 }

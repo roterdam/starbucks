@@ -1,22 +1,13 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
-import java.util.ArrayList;
-import java.util.List;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 
-import edu.mit.compilers.codegen.asm.ASM;
-import edu.mit.compilers.codegen.asm.OpASM;
-import edu.mit.compilers.codegen.asm.OpCode;
-
-public class MidLoadImmNode extends MidRegisterNode {
+public class MidLoadImmNode extends MidLoadNode {
 	private long value;
-	
-	public MidLoadImmNode(long decafIntValue) {
-		super();
-		this.value = decafIntValue;
-	}
 
-	public long getValue() {
-		return value;
+	public MidLoadImmNode(long decafIntValue) {
+		super(new MidConstantNode("CONS " + decafIntValue, decafIntValue));
+		this.value = decafIntValue;
 	}
 
 	public String toString() {
@@ -28,15 +19,8 @@ public class MidLoadImmNode extends MidRegisterNode {
 
 	@Override
 	public String toDotSyntax() {
-		return super.toDotSyntax() + Long.toString(value) + " -> "
-				+ hashCode() + " [style=dotted,color=orange];\n";
+		return super.toDotSyntax() + Long.toString(value) + " -> " + hashCode()
+				+ " [style=dotted,color=orange];\n";
 	}
 
-	public List<ASM> toASM() {
-		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
-				Long.toString(value)));
-		return out;
-	}
-	
 }
