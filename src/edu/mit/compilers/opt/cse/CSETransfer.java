@@ -33,8 +33,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		while (true) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
-				MidSaveNode saveNode = (MidSaveNode) node;
-				this.assignments.add(saveNode);
+				this.assignments.add(node);
 			} else if (node instanceof MidMethodCallNode
 					&& !((MidMethodCallNode) node).isStarbucksCall()) {
 				this.assignments.add(node);

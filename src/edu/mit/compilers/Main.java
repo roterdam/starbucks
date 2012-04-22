@@ -20,7 +20,8 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.LocalAnalyzer;
-import edu.mit.compilers.opt.cp.CPLocalState;
+import edu.mit.compilers.opt.cp.CPLocalAnalyzer;
+import edu.mit.compilers.opt.cp.CPGlobalState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
@@ -147,10 +148,12 @@ class Main {
 						}
 
 						if (isEnabled(OPT_CP)) {
-							Analyzer<CPLocalState, CPTransfer> analyzer = new Analyzer<CPLocalState, CPTransfer>(
-									new CPLocalState().getInitialState(),
-									new CPTransfer());
-							analyzer.analyze(symbolTable);
+							CPLocalAnalyzer localAnalyzer = new CPLocalAnalyzer();
+							localAnalyzer.analyze(symbolTable);
+//							Analyzer<CPGlobalState, CPTransfer> analyzer = new Analyzer<CPGlobalState, CPTransfer>(
+//									new CPGlobalState().getInitialState(),
+//									new CPTransfer());
+//							analyzer.analyze(symbolTable);
 						}
 
 						if (CLI.dot) {

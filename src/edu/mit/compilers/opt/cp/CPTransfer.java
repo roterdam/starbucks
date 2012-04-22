@@ -1,28 +1,36 @@
 package edu.mit.compilers.opt.cp;
 
+import java.util.ArrayList;
+
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
-import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
-import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 
-public class CPTransfer implements Transfer<CPLocalState> {
+public class CPTransfer implements Transfer<CPGlobalState> {
+
+	private ArrayList<MidNode> assignments;
 
 	@Override
-	public CPLocalState apply(Block b, CPLocalState s) {
-		LogCenter.debug("[CP] APPLYING CP TRANSFER.");
+	public CPGlobalState apply(Block b, CPGlobalState inState) {
+		assert inState != null : "Input state should not be null.";
+
+		this.assignments = new ArrayList<MidNode>();
+		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING " + b
+				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + inState);
+
+		CPGlobalState outState = inState.clone();
+
 		MidNode node = b.getHead();
 		while (true) {
-			if (node instanceof MidLoadNode) {
-				process(s, (MidLoadNode) node);
-			}
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
-				process(s, (MidSaveNode) node);
+				this.assignments.add(node);
+			} else if (node instanceof MidMethodCallNode
+					&& !((MidMethodCallNode) node).isStarbucksCall()) {
+				this.assignments.add(node);
 			}
 			if (node == b.getTail()) {
 				break;
@@ -30,42 +38,36 @@ public class CPTransfer implements Transfer<CPLocalState> {
 			node = node.getNextNode();
 		}
 
-		return new CPLocalState();
-	}
-
-	private void process(CPLocalState s, MidLoadNode loadNode) {
-		LogCenter.debug("[CP] Processing " + loadNode);
-		// If it references a memory node, check to see if we can copy propagate
-		// an earlier one.
-		LogCenter.debug("[CP]    "
-				+ (loadNode.getMemoryNode() instanceof MidTempDeclNode));
-		if (loadNode.getMemoryNode() instanceof MidTempDeclNode) {
-			MidTempDeclNode tempNode = (MidTempDeclNode) loadNode
-					.getMemoryNode();
-			MidMemoryNode tempReplacement = s.getReplacement(tempNode);
-			if (tempReplacement != null) {
-				loadNode.updateMemoryNode(tempReplacement);
-			}
+		for (MidNode assignmentNode : this.assignments) {
+			LogCenter.debug("[OPT]\n[OPT] Processing " + assignmentNode);
+//			if (assignmentNode instanceof MidSaveNode) {
+//				if (assignmentNode instanceof OptSaveNode) {
+//					continue;
+//				}
+//				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
+//				// a = x
+//				if (saveNode.getRegNode() instanceof MidLoadNode) {
+//					processSimpleAssignment(saveNode, inState, outState);
+//				}
+//				// a = -x
+//				if (saveNode.getRegNode() instanceof MidNegNode) {
+//					processUnaryAssignment(saveNode, inState, outState);
+//				}
+//				// a = x + y
+//				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
+//					processArithmeticAssignment(saveNode, inState, outState);
+//				}
+//			} else if (assignmentNode instanceof MidMethodCallNode) {
+//				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
+//				LogCenter.debug(inState.getReferenceMap().toString());
+//				processMethodCall(methodNode, inState, outState);
+//			}
 		}
-	}
 
-	private void process(CPLocalState s, MidSaveNode saveNode) {
-		LogCenter.debug("[CP] Processing " + saveNode);
-		if (saveNode.getDestinationNode() instanceof MidTempDeclNode) {
-			// If it's a temp node, record what it's saving.
-			MidTempDeclNode tempDestination = (MidTempDeclNode) saveNode
-					.getDestinationNode();
-			// Only process save nodes that simply copy memory values, not
-			// expressions.
-			MidRegisterNode regNode = saveNode.getRegNode();
-			if (!(regNode instanceof MidLoadNode)) {
-				return;
-			}
-			MidLoadNode loadNode = (MidLoadNode) regNode;
-			s.putTempReference(tempDestination, loadNode.getMemoryNode());
-		}
-		// Kill references.
-		s.killReferences(saveNode.getDestinationNode());
+		LogCenter.debug("[OPT] FINAL STATE IS " + outState);
+		LogCenter.debug("[OPT]");
+
+		return outState;
 	}
 
 }

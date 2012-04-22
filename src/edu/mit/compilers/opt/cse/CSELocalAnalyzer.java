@@ -44,9 +44,9 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		for (MidNode assignmentNode : this.assignments) {
 			LogCenter.debug("[OPT]\n[OPT] Processing " + assignmentNode);
 			if (assignmentNode instanceof MidSaveNode) {
-				if (assignmentNode instanceof OptSaveNode) {
-					continue;
-				}
+//				if (assignmentNode instanceof OptSaveNode) {
+//					continue;
+//				}
 				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
 				// a = x
 				if (saveNode.getRegNode() instanceof MidLoadNode) {
