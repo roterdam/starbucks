@@ -60,12 +60,12 @@ public abstract class Canonicalization {
 		Canonicalization x = ProductCanonicalization.makeVariable("a");
 		Canonicalization y = ProductCanonicalization.makeVariable("b");
 		Canonicalization z = ProductCanonicalization.makeVariable("c");
-		Canonicalization w = x.add(y).add(z);
+//		Canonicalization w = x.add(y).add(z);
 		
 		Canonicalization a = ProductCanonicalization.makeVariable("a");
 		Canonicalization b = ProductCanonicalization.makeVariable("b");
 		Canonicalization c = ProductCanonicalization.makeVariable("c");
-		Canonicalization e = ProductCanonicalization.makeVariable("e");
+//		Canonicalization e = ProductCanonicalization.makeVariable("e");
 		Canonicalization d = a.add(c).add(b);
 		
 		Canonicalization asa = a.sub(a);

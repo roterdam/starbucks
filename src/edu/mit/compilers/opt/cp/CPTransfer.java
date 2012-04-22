@@ -76,18 +76,6 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 		LogCenter.debug("[CP] FINAL STATE IS " + outState);
 		LogCenter.debug("[CP]");
 
-		// Clear aliases from temps.
-		// If the same temp is used outside this block (probably due to CSE) we
-		// don't want it to be converted to what it refers to in this block.
-		//
-		// i.e. if you have c=a+b; if(z) { d=a+b; } e=a+b;
-		// Then global CSE will have c=a+b; t1=c; if (z) { d=a+b;t1=d } e=t1;
-		// And we don't want e=t1 to be translated to e=c.
-		//
-		// One might say that t1=d should clear the reference to t1. However,
-		// it's actually a different temp var - global CSE only links them to
-		// the same reference later.
-
 		return outState;
 	}
 

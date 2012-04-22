@@ -89,7 +89,7 @@ public class AlgebraicSimplifier {
 	public static void visit(IDNode node) {
 		if (node.isArray()) {
 			node.setExpressionNode(node.getExpressionNode().simplify(null));
-		}		
+		}
 	}
 
 	public static void visit(BLOCKNode node) {
@@ -110,7 +110,7 @@ public class AlgebraicSimplifier {
 		node.getLocation().simplifyExpressions();
 		String oldList = node.getExpression().toStringList();
 		node.setExpression(node.getExpression().simplify(null));
-		
+
 		LogCenter.debug("[AS] Simplifying " + oldList + " --> "
 				+ node.getExpression().toStringList());
 
@@ -153,12 +153,13 @@ public class AlgebraicSimplifier {
 
 	public static void visit(RETURNNode node) {
 		String oldList = node.toStringList();
-		LogCenter.debug("[AS] About to simplify return node "+node.getReturnExpression().toStringList());
+		LogCenter.debug("[AS] About to simplify return node "
+				+ node.getReturnExpression().toStringList());
 		node.setReturnExpression(node.getReturnExpression().simplify(null));
 
 		LogCenter.debug("[AS] Simplified" + oldList + " --> "
 				+ node.getReturnExpression().toStringList());
-		
+
 	}
 
 	@SuppressWarnings("serial")
@@ -169,14 +170,16 @@ public class AlgebraicSimplifier {
 		// Case 2: int(0) + expr(x) --> expr(x)
 		// Case 3: expr(x) + int(0) --> expr(x)
 		// case 4: expr(x) + expr(-x) this is difficult
-		
-		final ExpressionNode leftOp = node.getLeftOperand().simplify(symbolTable);
-		final ExpressionNode rightOp = node.getRightOperand().simplify(symbolTable);
-		
-		Canonicalization retCanonicalization = Canonicalization.add(leftOp.getCanonicalization(), rightOp.getCanonicalization());
+
+		final ExpressionNode leftOp = node.getLeftOperand()
+				.simplify(symbolTable);
+		final ExpressionNode rightOp = node.getRightOperand()
+				.simplify(symbolTable);
+
+		Canonicalization retCanonicalization = Canonicalization.add(leftOp
+				.getCanonicalization(), rightOp.getCanonicalization());
 		node.setCanonicalization(retCanonicalization);
 
-		
 		if (leftOp instanceof INT_LITERALNode) {
 			long leftVal = ((INT_LITERALNode) leftOp).getValue();
 			if (rightOp instanceof INT_LITERALNode) {
@@ -185,7 +188,8 @@ public class AlgebraicSimplifier {
 				long newVal = leftVal + rightVal;
 				INT_LITERALNode newNode = new INT_LITERALNode();
 				newNode.setText(Long.toString(newVal));
-				newNode.setCanonicalization(Canonicalization.makeLiteral(newVal));
+				newNode.setCanonicalization(Canonicalization
+						.makeLiteral(newVal));
 				newNode.initializeValue();
 				// Update pre-post instructions
 				newNode.getCallsBeforeExecution()
@@ -208,7 +212,8 @@ public class AlgebraicSimplifier {
 				leftOp.setNextSibling(null);
 				return leftOp;
 			}
-		}else if(Canonicalization.equals(retCanonicalization, Canonicalization.ZERO)){
+		} else if (Canonicalization
+				.equals(retCanonicalization, Canonicalization.ZERO)) {
 			// Case 4
 			return new INT_LITERALNode() {
 				{
@@ -237,13 +242,15 @@ public class AlgebraicSimplifier {
 		// case 4: expr(x) - expr(x) --> 0
 		// this is difficult... what about 2*expr(x) - 2*expr(x)
 		// We can use canonicalization of things without function calls!
-		final ExpressionNode leftOp = node.getLeftOperand().simplify(symbolTable);
+		final ExpressionNode leftOp = node.getLeftOperand()
+				.simplify(symbolTable);
 		final ExpressionNode rightOp = node.getRightOperand()
 				.simplify(symbolTable);
 
-		Canonicalization retCanonicalization = Canonicalization.sub(leftOp.getCanonicalization(), rightOp.getCanonicalization());
+		Canonicalization retCanonicalization = Canonicalization.sub(leftOp
+				.getCanonicalization(), rightOp.getCanonicalization());
 		node.setCanonicalization(retCanonicalization);
-		
+
 		if (leftOp instanceof INT_LITERALNode) {
 			long leftVal = ((INT_LITERALNode) leftOp).getValue();
 			if (rightOp instanceof INT_LITERALNode) {
@@ -252,14 +259,15 @@ public class AlgebraicSimplifier {
 				long newVal = leftVal - rightVal;
 				INT_LITERALNode newNode = new INT_LITERALNode();
 				newNode.setText(Long.toString(newVal));
-				newNode.setCanonicalization(Canonicalization.makeLiteral(newVal));
+				newNode.setCanonicalization(Canonicalization
+						.makeLiteral(newVal));
 				newNode.initializeValue();
 				// Update pre-post instructions
 				newNode.getCallsBeforeExecution()
 						.addAll(leftOp.getAllCallsDuringExecution());
 				newNode.getCallsAfterExecution()
 						.addAll(rightOp.getAllCallsDuringExecution());
-				
+
 				return newNode;
 			} else if (leftVal == 0) {
 				// Case 2
@@ -268,7 +276,8 @@ public class AlgebraicSimplifier {
 				return new UnaryMinusNode() {
 					{
 						setText("-"); // is this right?
-						setCanonicalization(Canonicalization.inv(rightOp.getCanonicalization()));
+						setCanonicalization(Canonicalization.inv(rightOp
+								.getCanonicalization()));
 						setFirstChild(rightOp);
 					}
 				};
@@ -282,8 +291,9 @@ public class AlgebraicSimplifier {
 				leftOp.setNextSibling(null);
 				return leftOp;
 			}
-		} else if(Canonicalization.equals(retCanonicalization, Canonicalization.ZERO)){
-			//Case 4
+		} else if (Canonicalization
+				.equals(retCanonicalization, Canonicalization.ZERO)) {
+			// Case 4
 			return new INT_LITERALNode() {
 				{
 					setText(Long.toString(0));
@@ -311,8 +321,9 @@ public class AlgebraicSimplifier {
 		// E.g.: -(a*0+4) --> -(4) --> -4
 
 		final ExpressionNode expr = node.getOperand().simplify(symbolTable);
-		final Canonicalization retCanonicalization = Canonicalization.inv(expr.getCanonicalization());
-		
+		final Canonicalization retCanonicalization = Canonicalization.inv(expr
+				.getCanonicalization());
+
 		if (expr instanceof INT_LITERALNode) {
 			final long exprValue = ((INT_LITERALNode) expr).getValue();
 			return new INT_LITERALNode() {
@@ -419,10 +430,12 @@ public class AlgebraicSimplifier {
 							.addAll(opNode.getAllCallsDuringExecution());
 				}
 			};
-		} else if(opNode instanceof BANGNode) {
-			ExpressionNode replNode = ((BANGNode)opNode).getOperand();
-			replNode.getCallsBeforeExecution().addAll(0, opNode.getCallsBeforeExecution());
-			replNode.getCallsAfterExecution().addAll(opNode.getCallsAfterExecution());
+		} else if (opNode instanceof BANGNode) {
+			ExpressionNode replNode = ((BANGNode) opNode).getOperand();
+			replNode.getCallsBeforeExecution()
+					.addAll(0, opNode.getCallsBeforeExecution());
+			replNode.getCallsAfterExecution()
+					.addAll(opNode.getCallsAfterExecution());
 			// Don't need addAll because replNode still has the Operand.
 			return replNode;
 		}
@@ -466,7 +479,8 @@ public class AlgebraicSimplifier {
 		return new INT_LITERALNode() {
 			{
 				setText(Long.toString(node.getValue()));
-				setCanonicalization(Canonicalization.makeLiteral(node.getValue()));
+				setCanonicalization(Canonicalization.makeLiteral(node
+						.getValue()));
 				initializeValue();
 				getCallsBeforeExecution()
 						.addAll(node.getAllCallsDuringExecution());
@@ -495,9 +509,10 @@ public class AlgebraicSimplifier {
 		final ExpressionNode rightOp = node.getRightOperand()
 				.simplify(symbolTable);
 
-		Canonicalization retCanonicalization = Canonicalization.div(leftOp.getCanonicalization(), rightOp.getCanonicalization());
+		Canonicalization retCanonicalization = Canonicalization.div(leftOp
+				.getCanonicalization(), rightOp.getCanonicalization());
 		node.setCanonicalization(retCanonicalization);
-		
+
 		if (rightOp instanceof INT_LITERALNode) {
 			long rightVal = ((INT_LITERALNode) rightOp).getValue();
 
@@ -520,7 +535,8 @@ public class AlgebraicSimplifier {
 				long newVal = leftVal / rightVal;
 				INT_LITERALNode newNode = new INT_LITERALNode();
 				newNode.setText(Long.toString(newVal));
-				newNode.setCanonicalization(Canonicalization.makeLiteral(newVal));
+				newNode.setCanonicalization(Canonicalization
+						.makeLiteral(newVal));
 				newNode.initializeValue();
 				// Update pre-post instructions
 				newNode.getCallsBeforeExecution()
@@ -541,7 +557,8 @@ public class AlgebraicSimplifier {
 								.addAll(leftOp.getAllCallsDuringExecution());
 
 						getCallsBeforeExecution()
-								.add(new PotentialCheckDivideByZeroNode(rightOp, true));
+								.add(new PotentialCheckDivideByZeroNode(
+										rightOp, true));
 
 						getCallsAfterExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
@@ -550,9 +567,9 @@ public class AlgebraicSimplifier {
 			}
 		}
 
-		
-		leftOp.getCallsAfterExecution().add(new PotentialCheckDivideByZeroNode(rightOp, false));
-		
+		leftOp.getCallsAfterExecution().add(new PotentialCheckDivideByZeroNode(
+				rightOp, false));
+
 		node.setLeftOperand(leftOp);
 		node.setRightOperand(rightOp);
 		return node;
@@ -572,10 +589,11 @@ public class AlgebraicSimplifier {
 				.simplify(symbolTable);
 		final ExpressionNode rightOp = node.getRightOperand()
 				.simplify(symbolTable);
-		
-		Canonicalization retCanonicalization = Canonicalization.mod(leftOp.getCanonicalization(), rightOp.getCanonicalization());
+
+		Canonicalization retCanonicalization = Canonicalization.mod(leftOp
+				.getCanonicalization(), rightOp.getCanonicalization());
 		node.setCanonicalization(retCanonicalization);
-		
+
 		if (rightOp instanceof INT_LITERALNode) {
 			long rightVal = ((INT_LITERALNode) rightOp).getValue();
 
@@ -605,7 +623,8 @@ public class AlgebraicSimplifier {
 				long newVal = leftVal % rightVal;
 				INT_LITERALNode newNode = new INT_LITERALNode();
 				newNode.setText(Long.toString(newVal));
-				newNode.setCanonicalization(Canonicalization.makeLiteral(newVal));
+				newNode.setCanonicalization(Canonicalization
+						.makeLiteral(newVal));
 				newNode.initializeValue();
 				// Update pre-post instructions
 				newNode.getCallsBeforeExecution()
@@ -621,12 +640,13 @@ public class AlgebraicSimplifier {
 					{
 						setText("0");
 						setCanonicalization(Canonicalization.ZERO);
-						
+
 						initializeValue();
 						getCallsBeforeExecution()
 								.addAll(leftOp.getAllCallsDuringExecution());
 						getCallsBeforeExecution()
-								.add(new PotentialCheckDivideByZeroNode(rightOp, true));
+								.add(new PotentialCheckDivideByZeroNode(
+										rightOp, true));
 
 						getCallsAfterExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
@@ -641,51 +661,67 @@ public class AlgebraicSimplifier {
 	}
 
 	@SuppressWarnings("serial")
-	public static ExpressionNode simplifyExpression(final OpSameSame2BoolNode node,
-		MidSymbolTable symbolTable) {
-		
-		String oldRep = node.toStringList();
-		
-		final ExpressionNode leftNode = node.getLeftOperand().simplify(symbolTable);
-		final ExpressionNode rightNode = node.getRightOperand().simplify(symbolTable);
-		
-		
-		if(leftNode instanceof TRUENode && node instanceof EQNode || leftNode instanceof FALSENode && node instanceof NEQNode){
-			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
+	public static ExpressionNode simplifyExpression(
+			final OpSameSame2BoolNode node, MidSymbolTable symbolTable) {
+
+		final ExpressionNode leftNode = node.getLeftOperand()
+				.simplify(symbolTable);
+		final ExpressionNode rightNode = node.getRightOperand()
+				.simplify(symbolTable);
+
+		if (leftNode instanceof TRUENode && node instanceof EQNode
+				|| leftNode instanceof FALSENode && node instanceof NEQNode) {
+			rightNode.getCallsBeforeExecution()
+					.addAll(0, leftNode.getAllCallsDuringExecution());
 			return rightNode;
-			//Case 1, true == expr() --> expr(), and false != expr() --> expr()
-		}else if(rightNode instanceof TRUENode && node instanceof EQNode || rightNode instanceof FALSENode && node instanceof NEQNode){
-			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			// Case 1, true == expr() --> expr(), and false != expr() --> expr()
+		} else if (rightNode instanceof TRUENode && node instanceof EQNode
+				|| rightNode instanceof FALSENode && node instanceof NEQNode) {
+			leftNode.getCallsAfterExecution()
+					.addAll(rightNode.getAllCallsDuringExecution());
 			leftNode.setNextSibling(null);
-			
+
 			return leftNode;
-			//Case 2, expr() == true --> expr(), and expr() != false --> expr();
-		}else if(leftNode instanceof FALSENode && node instanceof EQNode || leftNode instanceof TRUENode && node instanceof NEQNode){
-			//Case 3, false == expr() --> !expr(), and true != expr() --> !expr()
-			rightNode.getCallsBeforeExecution().addAll(0, leftNode.getAllCallsDuringExecution());
-			
-			return new BANGNode(){{
-				setText("!");
-				setFirstChild(rightNode);
-			}}.simplify(symbolTable);
-		}else if(rightNode instanceof FALSENode && node instanceof EQNode || rightNode instanceof TRUENode && node instanceof NEQNode){
-			//Case 4, expr() == false --> !expr(), and expr() != true --> !expr()
-			leftNode.getCallsAfterExecution().addAll(rightNode.getAllCallsDuringExecution());
+			// Case 2, expr() == true --> expr(), and expr() != false -->
+			// expr();
+		} else if (leftNode instanceof FALSENode && node instanceof EQNode
+				|| leftNode instanceof TRUENode && node instanceof NEQNode) {
+			// Case 3, false == expr() --> !expr(), and true != expr() -->
+			// !expr()
+			rightNode.getCallsBeforeExecution()
+					.addAll(0, leftNode.getAllCallsDuringExecution());
+
+			return new BANGNode() {
+				{
+					setText("!");
+					setFirstChild(rightNode);
+				}
+			}.simplify(symbolTable);
+		} else if (rightNode instanceof FALSENode && node instanceof EQNode
+				|| rightNode instanceof TRUENode && node instanceof NEQNode) {
+			// Case 4, expr() == false --> !expr(), and expr() != true -->
+			// !expr()
+			leftNode.getCallsAfterExecution()
+					.addAll(rightNode.getAllCallsDuringExecution());
 			leftNode.setNextSibling(null);
-			return new BANGNode(){{
-				setText("!");
-				setFirstChild(leftNode);
-			}}.simplify(symbolTable);
-			
-		}else if(leftNode instanceof INT_LITERALNode && rightNode instanceof INT_LITERALNode){
-			boolean eq = ((INT_LITERALNode)leftNode).getValue() == ((INT_LITERALNode)rightNode).getValue();
+			return new BANGNode() {
+				{
+					setText("!");
+					setFirstChild(leftNode);
+				}
+			}.simplify(symbolTable);
+
+		} else if (leftNode instanceof INT_LITERALNode
+				&& rightNode instanceof INT_LITERALNode) {
+			boolean eq = ((INT_LITERALNode) leftNode).getValue() == ((INT_LITERALNode) rightNode)
+					.getValue();
 			boolean ret;
-			if(node instanceof EQNode){
+			if (node instanceof EQNode) {
 				ret = eq;
-			}else{
+			} else {
 				ret = !eq;
 			}
-			if(ret){
+			if (ret) {
 				return new TRUENode() {
 					{
 						setText("true");
@@ -695,19 +731,17 @@ public class AlgebraicSimplifier {
 								.addAll(rightNode.getAllCallsDuringExecution());
 					}
 				};
-			}else{
-				return new FALSENode() {
-					{
-						setText("false");
-						getCallsBeforeExecution()
-								.addAll(leftNode.getAllCallsDuringExecution());
-						getCallsAfterExecution()
-								.addAll(rightNode.getAllCallsDuringExecution());
-					}
-				};
 			}
+			return new FALSENode() {
+				{
+					setText("false");
+					getCallsBeforeExecution()
+							.addAll(leftNode.getAllCallsDuringExecution());
+					getCallsAfterExecution()
+							.addAll(rightNode.getAllCallsDuringExecution());
+				}
+			};
 		}
-		String old = node.toStringList();
 		node.setLeftOperand(leftNode);
 		node.setRightOperand(rightNode);
 		return node;
@@ -715,8 +749,8 @@ public class AlgebraicSimplifier {
 
 	public static ExpressionNode simplifyExpression(IDNode node,
 			MidSymbolTable symbolTable) {
-		//node.setCanonicalization(Canonicalization.makeVariable(node.getText())); 
-		
+		// node.setCanonicalization(Canonicalization.makeVariable(node.getText()));
+
 		if (node.isArray()) {
 			ExpressionNode expr = node.getExpressionNode()
 					.simplify(symbolTable);
@@ -733,11 +767,11 @@ public class AlgebraicSimplifier {
 				}
 			}
 			node.setExpressionNode(expr);
-			node.setCanonicalization(Canonicalization.makeArray(node.getText(), expr.getCanonicalization()));
+			node.setCanonicalization(Canonicalization.makeArray(node.getText(), expr
+					.getCanonicalization()));
 			return node;
-		}else {
-			node.setCanonicalization(Canonicalization.makeVariable(node.getText()));
 		}
+		node.setCanonicalization(Canonicalization.makeVariable(node.getText()));
 		return node;
 	}
 
@@ -750,27 +784,30 @@ public class AlgebraicSimplifier {
 	public static ExpressionNode simplifyExpression(OpIntInt2BoolNode node,
 			MidSymbolTable symbolTable) {
 
-		final ExpressionNode leftNode = node.getLeftOperand().simplify(symbolTable);
-		final ExpressionNode rightNode = node.getRightOperand().simplify(symbolTable);
-		
-		if(leftNode instanceof INT_LITERALNode && rightNode instanceof INT_LITERALNode){
-			long leftVal = ((INT_LITERALNode)leftNode).getValue();
-			long rightVal =  ((INT_LITERALNode)rightNode).getValue();
-			
+		final ExpressionNode leftNode = node.getLeftOperand()
+				.simplify(symbolTable);
+		final ExpressionNode rightNode = node.getRightOperand()
+				.simplify(symbolTable);
+
+		if (leftNode instanceof INT_LITERALNode
+				&& rightNode instanceof INT_LITERALNode) {
+			long leftVal = ((INT_LITERALNode) leftNode).getValue();
+			long rightVal = ((INT_LITERALNode) rightNode).getValue();
+
 			boolean ret = false;
-			if(node instanceof LTNode){
+			if (node instanceof LTNode) {
 				ret = leftVal < rightVal;
-			}else if(node instanceof LTENode){
+			} else if (node instanceof LTENode) {
 				ret = leftVal <= rightVal;
-			}else if(node instanceof GTNode){
+			} else if (node instanceof GTNode) {
 				ret = leftVal > rightVal;
-			}else if(node instanceof GTENode){
+			} else if (node instanceof GTENode) {
 				ret = leftVal >= rightVal;
-			}else {
+			} else {
 				assert false : "There are no other intint2bools";
 			}
-			
-			if(ret){
+
+			if (ret) {
 				return new TRUENode() {
 					{
 						setText("true");
@@ -780,17 +817,16 @@ public class AlgebraicSimplifier {
 								.addAll(rightNode.getAllCallsDuringExecution());
 					}
 				};
-			}else{
-				return new FALSENode() {
-					{
-						setText("false");
-						getCallsBeforeExecution()
-								.addAll(leftNode.getAllCallsDuringExecution());
-						getCallsAfterExecution()
-								.addAll(rightNode.getAllCallsDuringExecution());
-					}
-				};
 			}
+			return new FALSENode() {
+				{
+					setText("false");
+					getCallsBeforeExecution()
+							.addAll(leftNode.getAllCallsDuringExecution());
+					getCallsAfterExecution()
+							.addAll(rightNode.getAllCallsDuringExecution());
+				}
+			};
 		}
 		node.setLeftOperand(leftNode);
 		node.setRightOperand(rightNode);
@@ -816,9 +852,10 @@ public class AlgebraicSimplifier {
 		final ExpressionNode rightOp = node.getRightOperand()
 				.simplify(symbolTable);
 
-		Canonicalization retCanonicalization = Canonicalization.mult(leftOp.getCanonicalization(), rightOp.getCanonicalization());
+		Canonicalization retCanonicalization = Canonicalization.mult(leftOp
+				.getCanonicalization(), rightOp.getCanonicalization());
 		node.setCanonicalization(retCanonicalization);
-		
+
 		if (leftOp instanceof INT_LITERALNode) {
 			long leftVal = ((INT_LITERALNode) leftOp).getValue();
 			if (rightOp instanceof INT_LITERALNode) {

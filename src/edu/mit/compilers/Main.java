@@ -138,7 +138,6 @@ class Main {
 
 						// Run certain optimizations after creating a mid-level
 						// IR.
-						
 						if (isEnabled(OPT_CSE)) {
 							LocalAnalyzer localAnalyzer = new CSELocalAnalyzer();
 							localAnalyzer.analyze(symbolTable);

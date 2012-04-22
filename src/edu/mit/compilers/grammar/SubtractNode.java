@@ -1,7 +1,5 @@
 package edu.mit.compilers.grammar;
 
-import java.util.List;
-
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;

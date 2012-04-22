@@ -20,8 +20,7 @@ public class BLOCKNode extends DecafNode {
 	public List<DecafNode> getStatementNodes() {
 		List<DecafNode> output = new ArrayList<DecafNode>();
 		for (int i = 0; i < getNumberOfChildren(); i++) {
-			assert getChild(i) instanceof DecafNode;
-			output.add((DecafNode) getChild(i));
+			output.add(getChild(i));
 		}
 		return output;
 	}

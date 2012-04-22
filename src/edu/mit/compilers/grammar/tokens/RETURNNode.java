@@ -11,55 +11,54 @@ import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
-
 /**
  * Careful, this is the "return x;" statement NOT the method return type.
+ * 
  * @author joshma
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class RETURNNode extends DecafNode {
-	
+
 	public boolean hasReturnExpression() {
 		return getChild(0) != null;
 	}
-	
+
 	public ExpressionNode getReturnExpression() {
 		assert getChild(0) instanceof ExpressionNode;
 		return (ExpressionNode) getChild(0);
 	}
+
 	public void setReturnExpression(ExpressionNode x) {
 		replaceChild(0, x);
 	}
 
-
 	public VarType getReturnType(Scope scope) {
-		if (getFirstChild() != null){
+		if (getFirstChild() != null) {
 			assert getFirstChild() instanceof ExpressionNode;
 			return ((ExpressionNode) getFirstChild()).getReturnType(scope);
-		} else {
-			return VarType.VOID;
 		}
+		return VarType.VOID;
 	}
-	
+
 	@Override
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
 	}
-	
+
 	@Override
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}
-	
+
 	@Override
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		return MidVisitor.visit(this, symbolTable);
 	}
-	
+
 	@Override
-	public void simplifyExpressions(){
+	public void simplifyExpressions() {
 		AlgebraicSimplifier.visit(this);
 	}
-	
+
 }

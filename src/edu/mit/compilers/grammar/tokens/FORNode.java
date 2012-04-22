@@ -17,7 +17,7 @@ public class FORNode extends DecafNode {
 	}
 	
 	public ASSIGNNode getAssignNode(){
-		return (ASSIGNNode) getForInitializeNode().getAssignNode();
+		return getForInitializeNode().getAssignNode();
 	}
 	
 	public FOR_TERMINATENode getForTerminateNode(){
