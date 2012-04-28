@@ -20,19 +20,23 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.LocalAnalyzer;
-import edu.mit.compilers.opt.cp.CPLocalAnalyzer;
 import edu.mit.compilers.opt.cp.CPGlobalState;
+import edu.mit.compilers.opt.cp.CPLocalAnalyzer;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
+import edu.mit.compilers.opt.dce.DCEGlobalState;
+import edu.mit.compilers.opt.dce.DCELocalAnalyzer;
+import edu.mit.compilers.opt.dce.DCETransfer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
 class Main {
 	private static final String OPT_CSE = "cse";
 	private static final String OPT_CP = "cp";
-	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP };
+	private static final String OPT_DCE = "dce";
+	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_DCE};
 
 	public static void main(String[] args) {
 		try {
@@ -156,6 +160,15 @@ class Main {
 							analyzer.analyze(symbolTable);
 						}
 
+						if (isEnabled(OPT_DCE)) {
+							DCELocalAnalyzer localAnalyzer = new DCELocalAnalyzer();
+							localAnalyzer.analyze(symbolTable);
+							Analyzer<DCEGlobalState, DCETransfer> analyzer = new Analyzer<DCEGlobalState, DCETransfer>(
+									new DCEGlobalState().getInitialState(),
+									new DCETransfer());
+							analyzer.analyze(symbolTable);
+						}
+						
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
 						} else if (CLI.target == Action.ASSEMBLY) {
