@@ -27,7 +27,6 @@ import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.dce.DCEGlobalState;
-import edu.mit.compilers.opt.dce.DCELocalAnalyzer;
 import edu.mit.compilers.opt.dce.DCETransfer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
@@ -161,12 +160,10 @@ class Main {
 						}
 
 						if (isEnabled(OPT_DCE)) {
-							DCELocalAnalyzer localAnalyzer = new DCELocalAnalyzer();
-							localAnalyzer.analyze(symbolTable);
 							Analyzer<DCEGlobalState, DCETransfer> analyzer = new Analyzer<DCEGlobalState, DCETransfer>(
 									new DCEGlobalState().getInitialState(),
 									new DCETransfer());
-							analyzer.analyze(symbolTable);
+							analyzer.analyzeBackwards(symbolTable);
 						}
 						
 						if (CLI.dot) {

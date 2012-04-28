@@ -154,7 +154,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidNegNode;
 		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
-		LogCenter.debug("[OPT] DELETING " + negNode);
+		LogCenter.debug("[CSE] DELETING " + negNode);
 		negNode.delete();
 		negNode.getOperand().delete();
 	}
@@ -167,7 +167,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
-		LogCenter.debug("[OPT] DELETING " + arithNode);
+		LogCenter.debug("[CSE] DELETING " + arithNode);
 		arithNode.delete();
 		arithNode.getLeftOperand().delete();
 		arithNode.getRightOperand().delete();

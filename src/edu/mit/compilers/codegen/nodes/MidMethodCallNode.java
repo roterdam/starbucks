@@ -35,7 +35,7 @@ public class MidMethodCallNode extends MidRegisterNode {
 		}
 		return out;
 	}
-
+	
 	@Override
 	public List<ASM> toASM() {
 		return AsmVisitor.methodCall(methodDecl.getName(), params, getRegister(), false);
