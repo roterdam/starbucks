@@ -69,12 +69,10 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		node.replaceThisReferences(this);
 	}
 
-	@Override
 	public boolean usesArrayReference() {
 		return memoryNode instanceof MidArrayElementNode;
 	}
 
-	@Override
 	public Reg getArrayRegister() {
 		assert usesArrayReference();
 		return ((MidArrayElementNode) memoryNode).getLoadRegister();

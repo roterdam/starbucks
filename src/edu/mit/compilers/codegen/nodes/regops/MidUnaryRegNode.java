@@ -28,7 +28,6 @@ public abstract class MidUnaryRegNode extends MidRegisterNode implements
 		return "<" + className.substring(mid) + ": " + operand.toString() + ">";
 	}
 
-	@Override
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		out.add(operand.getRegister());
@@ -42,7 +41,6 @@ public abstract class MidUnaryRegNode extends MidRegisterNode implements
 		return out;
 	}
 
-	@Override
 	public void updateLoadNode(MidLoadNode oldNode, MidLoadNode newNode) {
 		operand = newNode;
 	}

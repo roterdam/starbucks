@@ -30,7 +30,6 @@ public class MidCompareNode extends MidNode implements RegisterOpNode {
 		return out;
 	}
 
-	@Override
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		assert leftOperand.getRegister() != null : "Left operand register is null: "
@@ -51,7 +50,6 @@ public class MidCompareNode extends MidNode implements RegisterOpNode {
 		return out;
 	}
 
-	@Override
 	public void updateLoadNode(MidLoadNode oldNode, MidLoadNode newNode) {
 		if (oldNode == leftOperand) {
 			leftOperand = newNode;

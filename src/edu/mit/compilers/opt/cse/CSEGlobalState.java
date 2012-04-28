@@ -35,12 +35,10 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		this.mentionMap = mentionMap;
 	}
 
-	@Override
 	public CSEGlobalState getInitialState() {
 		return new CSEGlobalState();
 	}
 
-	@Override
 	public CSEGlobalState getBottomState() {
 		return new CSEGlobalState();
 	}
@@ -54,7 +52,6 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		return out;
 	}
 
-	@Override
 	public CSEGlobalState join(CSEGlobalState s) {
 		LogCenter.debug("[OPT] JOINING " + this);
 		LogCenter.debug("[OPT] WITH " + s);

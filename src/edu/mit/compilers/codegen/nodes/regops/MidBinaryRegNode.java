@@ -53,7 +53,6 @@ public abstract class MidBinaryRegNode extends MidRegisterNode implements Regist
 		return out;
 	}
 		
-	@Override
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		out.add(leftOperand.getRegister());
@@ -61,7 +60,6 @@ public abstract class MidBinaryRegNode extends MidRegisterNode implements Regist
 		return out;
 	}
 	
-	@Override
 	public void updateLoadNode(MidLoadNode oldNode,
 			MidLoadNode newNode) {
 		if (oldNode == leftOperand) {

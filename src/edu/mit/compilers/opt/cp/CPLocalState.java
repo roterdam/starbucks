@@ -20,17 +20,14 @@ public class CPLocalState implements State<CPLocalState> {
 		mentionMap = new HashMap<MidMemoryNode, List<MidTempDeclNode>>();
 	}
 
-	@Override
 	public CPLocalState getInitialState() {
 		return new CPLocalState();
 	}
 
-	@Override
 	public CPLocalState getBottomState() {
 		return new CPLocalState();
 	}
 
-	@Override
 	public CPLocalState join(CPLocalState s) {
 		return new CPLocalState();
 	}

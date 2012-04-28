@@ -19,7 +19,6 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidNode> assignments;
 
-	@Override
 	public CSEGlobalState apply(Block b, CSEGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
 

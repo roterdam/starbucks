@@ -93,12 +93,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		return saveType == MidSaveNodeType.REGISTER;
 	}
 
-	@Override
 	public boolean usesArrayReference() {
 		return destination instanceof MidArrayElementNode;
 	}
 
-	@Override
 	public Reg getArrayRegister() {
 		assert usesArrayReference();
 		return ((MidArrayElementNode) destination).getLoadRegister();
@@ -176,12 +174,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		return out;
 	}
 
-	@Override
 	public void updateLoadNode(MidLoadNode oldNode, MidLoadNode newNode) {
 		registerNode = newNode;
 	}
 
-	@Override
 	public List<Reg> getOperandRegisters() {
 		List<Reg> out = new ArrayList<Reg>();
 		if (registerNode != null) {

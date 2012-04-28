@@ -20,7 +20,6 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 
 	private ArrayList<MidNode> nodesOfInterest;
 
-	@Override
 	public CPGlobalState apply(Block b, CPGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
 

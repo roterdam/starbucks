@@ -35,17 +35,14 @@ public class CPGlobalState implements State<CPGlobalState> {
 		mentionMap = new HashMap<MidMemoryNode, List<MidMemoryNode>>();
 	}
 
-	@Override
 	public CPGlobalState getInitialState() {
 		return new CPGlobalState();
 	}
 
-	@Override
 	public CPGlobalState getBottomState() {
 		return new CPGlobalState();
 	}
 
-	@Override
 	public CPGlobalState join(CPGlobalState s) {
 		if (s == null) {
 			return this.clone();
