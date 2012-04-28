@@ -150,7 +150,14 @@ public class Block {
 		// Force head to the beginning.
 		out.remove(head);
 		out.add(0, head);
+
 		return out;
+	}
+	
+	public static Block getTailBlock(List<Block> blocks){
+		//Assumption
+		Block head = blocks.get(0);
+		return head;
 	}
 
 }

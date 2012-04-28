@@ -109,7 +109,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			LogCenter.debug("[OPT] ######################");
 			LogCenter.debug("[OPT] ANALYZER IS LOOKING AT " + currentBlock);
 			LogCenter.debug("[OPT] WL: " + worklist);
-			S in = getInState(currentBlock);
+			S in = getInStateBackwards(currentBlock, startState.getBottomState());
 			S out = transferFunction.apply(currentBlock, in);
 			if (!out.equals(outHash.get(currentBlock))) {
 				outHash.put(currentBlock, out);
@@ -124,6 +124,15 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		}
 	}
 	
+	public S getInStateBackwards(Block b, S s) {
+		S out = s;
+		LogCenter.debug("[OPT] Getting in-state.");
+		for (Block m : b.getSuccessors()) {
+			LogCenter.debug("[OPT] Using state from " + m);
+			out = outHash.get(m).join(out);
+		}
+		return out;
+	}
 
 	public S getInState(Block b) {
 		S out = null;

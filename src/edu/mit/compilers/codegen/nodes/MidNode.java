@@ -60,7 +60,7 @@ public abstract class MidNode {
 		n.setNextNode(this);
 		this.setNextNode(oldNext);
 	}
-	
+		
 	public void delete() {
 		LogCenter.debug("[OPT] DELETING " + this + " (" + hashCode() + ")");
 		this.getPrevNode().setNextNode(this.getNextNode());

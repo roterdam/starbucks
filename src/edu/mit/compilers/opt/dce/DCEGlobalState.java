@@ -47,8 +47,6 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 		
 		this.needed.addAll(s.getNeeded());
 		
-		// Purposely leave out the alias map - temps shouldn't persist after the
-		// block.
 		LogCenter.debug("[DCE]");
 		LogCenter.debug("[DCE] RESULT: " + out.toString() + "\n[DCE] #####");
 		return out;
