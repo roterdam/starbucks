@@ -47,10 +47,10 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 		if (s == null) {
 			return this.clone();
 		}
-		LogCenter.debug("[CP] #########\n[CP] JOINING STATES: ");
-		LogCenter.debug("[CP] THIS: " + toString());
-		LogCenter.debug("[CP]");
-		LogCenter.debug("[CP] THAT: " + s.toString());
+		LogCenter.debug("[DCE] #########\n[CP] JOINING STATES: ");
+		LogCenter.debug("[DCE] THIS: " + toString());
+		LogCenter.debug("[DCE]");
+		LogCenter.debug("[DCE] THAT: " + s.toString());
 		DCEGlobalState out = new DCEGlobalState();
 		HashMap<MidMemoryNode, MidMemoryNode> otherDefinitionMap = s
 				.getDefinitionMap();
@@ -63,8 +63,8 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 		}
 		// Purposely leave out the alias map - temps shouldn't persist after the
 		// block.
-		LogCenter.debug("[CP]");
-		LogCenter.debug("[CP] RESULT: " + out.toString() + "\n[CP] #####");
+		LogCenter.debug("[DCE]");
+		LogCenter.debug("[DCE] RESULT: " + out.toString() + "\n[DCE] #####");
 		return out;
 	}
 
@@ -81,7 +81,7 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 	}
 
 	public void killReferences(MidMemoryNode memNode, boolean followLinkedNode) {
-		LogCenter.debug("[CP] Killing references to " + memNode);
+		LogCenter.debug("[DCE] Killing references to " + memNode);
 		// Kill references, i.e. clear references to a after a = expr.
 		List<MidMemoryNode> references = mentionMap.get(memNode);
 		if (references != null) {
@@ -114,16 +114,16 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 	}
 
 	public MidMemoryNode lookupDefinition(MidMemoryNode refNode) {
-		LogCenter.debug("[CP] Looking up definition for " + refNode);
+		LogCenter.debug("[DCE] Looking up definition for " + refNode);
 		return definitionMap.get(refNode);
 	}
 
 	@Override
 	public String toString() {
-		return "CPGlobalState => definitionMap:\n[CP]  "
-				+ HashMapUtils.toMapString("CP", definitionMap)
-				+ "\n[CP] mentionMap:\n[CP]  "
-				+ HashMapUtils.toMapString("CP", mentionMap);
+		return "DCEGlobalState => definitionMap:\n[CP]  "
+				+ HashMapUtils.toMapString("DCE", definitionMap)
+				+ "\n[DCE] mentionMap:\n[DCE]  "
+				+ HashMapUtils.toMapString("DCE", mentionMap);
 	}
 
 	@Override

@@ -24,8 +24,8 @@ public class DCETransfer implements Transfer<DCEGlobalState> {
 		assert inState != null : "Input state should not be null.";
 
 		this.nodesOfInterest = new ArrayList<MidNode>();
-		LogCenter.debug("[CP]\n[CP]\n[CP]\n[CP] PROCESSING " + b
-				+ ", THE GLOBAL STATE IS:\n[CP] ##########\n[CP] " + inState);
+		LogCenter.debug("[DCE]\n[DCE]\n[DCE]\n[DCE] PROCESSING " + b
+				+ ", THE GLOBAL STATE IS:\n[DCE] ##########\n[DCE] " + inState);
 
 		DCEGlobalState outState = inState.clone();
 
@@ -60,7 +60,7 @@ public class DCETransfer implements Transfer<DCEGlobalState> {
 		}
 
 		for (MidNode assignmentNode : this.nodesOfInterest) {
-			LogCenter.debug("[CP]\n[CP] Processing " + assignmentNode);
+			LogCenter.debug("[DCE]\n[DCE] Processing " + assignmentNode);
 			if (assignmentNode instanceof MidSaveNode) {
 				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
 				processDefinition(outState, saveNode);
@@ -72,8 +72,8 @@ public class DCETransfer implements Transfer<DCEGlobalState> {
 			}
 		}
 
-		LogCenter.debug("[CP] FINAL STATE IS " + outState);
-		LogCenter.debug("[CP]");
+		LogCenter.debug("[DCE] FINAL STATE IS " + outState);
+		LogCenter.debug("[DCE]");
 
 		return outState;
 	}
