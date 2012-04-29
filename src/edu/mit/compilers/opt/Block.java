@@ -67,7 +67,7 @@ public class Block {
 		successors.add(b);
 		b.addPredecessor(this);
 	}
-	
+
 	public String toString() {
 		String out = "B" + blockNum + "[" + getHead() + "]";
 		MidNode node = getHead();
@@ -83,17 +83,23 @@ public class Block {
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
+		return recursiveToString("OPT", b, visited, indent);
+	}
+
+	public static String recursiveToString(String prefix, Block b,
+			List<Block> visited, int indent) {
 		String out = b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
-			out += "\n[OPT] ";
+			out += "\n[" + prefix + "] ";
 			for (int i = 0; i < indent; i++) {
 				out += " ";
 			}
 			if (visited.contains(s)) {
 				out += "-> " + s.getBlockNum() + " [" + s.getHead() + "]";
 			} else {
-				out += "-> " + recursiveToString(s, visited, indent + 2);
+				out += "-> "
+						+ recursiveToString(prefix, s, visited, indent + 2);
 			}
 		}
 		return out;
@@ -126,14 +132,16 @@ public class Block {
 		Block newSuc = makeBlock(nextNode);
 		if (newSuc != null) {
 			b.addSuccessor(newSuc);
-			LogCenter.debug("[OPT] Connecting "+b.getHead()+" to " + newSuc.getHead());
+			LogCenter.debug("[OPT] Connecting " + b.getHead() + " to "
+					+ newSuc.getHead());
 		}
 		if (nextNode != null && nextNode instanceof MidJumpNode
 				&& ((MidJumpNode) nextNode).isConditional()) {
 			Block secondSuc = makeBlock(nextNode.getNextNode());
 			if (secondSuc != null) {
 				b.addSuccessor(secondSuc);
-				LogCenter.debug("[OPT] Connecting "+b.getHead()+" to " + secondSuc.getHead());
+				LogCenter.debug("[OPT] Connecting " + b.getHead() + " to "
+						+ secondSuc.getHead());
 			}
 		}
 		return b;
