@@ -69,9 +69,13 @@ public class Block {
 	}
 	
 	public String toString() {
+
 		String out = "B" + blockNum + "[" + getHead() + "]";
 		MidNode node = getHead();
 		while (true) {
+			if (node == null){
+				return "null";
+			}
 			out += "\n  " + node;
 			if (node == getTail()) {
 				break;
@@ -145,19 +149,26 @@ public class Block {
 		// the block cache.
 		LogCenter.debug("[OPT] BLOCK: Starting getAllBlocks with "
 				+ nodeList.getHead());
+		Block tail = new Block(new Temp(), -1);
 		Block head = makeBlock(nodeList.getHead());
+		for (Block b : blockCache.values()){
+			if (b.successors.size() == 0){
+				b.addSuccessor(tail);
+			}
+		}
 		List<Block> out = new ArrayList<Block>(blockCache.values());
 		// Force head to the beginning.
 		out.remove(head);
 		out.add(0, head);
+		out.add(tail);
 
 		return out;
 	}
 	
 	public static Block getTailBlock(List<Block> blocks){
 		//Assumption
-		Block head = blocks.get(0);
-		return head;
+		Block tail = blocks.get(blocks.size()-1);
+		return tail;
 	}
 
 }

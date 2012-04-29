@@ -97,7 +97,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		}
 
 		// Do the first node
-		Block n0 = worklist.get(worklist.size()-1);
+		Block n0 = Block.getTailBlock(worklist);
 		LogCenter.debug("[OPT] Process " + n0);
 		outHash.put(n0, transferFunction.apply(n0, startState.getInitialState()));
 		worklist.remove(n0);
@@ -113,7 +113,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			S out = transferFunction.apply(currentBlock, in);
 			if (!out.equals(outHash.get(currentBlock))) {
 				outHash.put(currentBlock, out);
-				for (Block s : currentBlock.getPredecessors()) {
+				for (Block s : currentBlock.getSuccessors()) {
 					if (!worklist.contains(s)) {
 						worklist.add(s);
 					}
@@ -121,13 +121,15 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			}
 			// TODO: return with less perfect result if it takes a really long
 			// time?
+			
+			//Once things hit fixed point, make things happen.
 		}
 	}
 	
 	public S getInStateBackwards(Block b, S s) {
 		S out = s;
 		LogCenter.debug("[OPT] Getting in-state.");
-		for (Block m : b.getSuccessors()) {
+		for (Block m : b.getPredecessors()) {
 			LogCenter.debug("[OPT] Using state from " + m);
 			out = outHash.get(m).join(out);
 		}

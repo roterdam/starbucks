@@ -1,21 +1,31 @@
 package edu.mit.compilers.opt.dce;
 
 import java.util.HashSet;
+import java.util.List;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCalloutNode;
+import edu.mit.compilers.codegen.nodes.MidNode;
+import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.State;
 
 public class DCEGlobalState implements State<DCEGlobalState> {
 
-	HashSet<MidMemoryNode> needed;
-
+	private HashSet<MidMemoryNode> seeking;
+	private HashSet<MidSaveNode> needed;
+	
 	public DCEGlobalState() {
 		reset();
 	}
 
-	public DCEGlobalState(HashSet<MidMemoryNode> needed) {
+	public DCEGlobalState(HashSet<MidSaveNode> needed) {
 		this.needed = needed;
+		this.seeking = new HashSet<MidMemoryNode>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -24,7 +34,7 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 	}
 
 	public void reset() {
-		needed = new HashSet<MidMemoryNode>();
+		needed = new HashSet<MidSaveNode>();
 	}
 
 	public DCEGlobalState getInitialState() {
@@ -52,40 +62,63 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 		return out;
 	}
 
-	public HashSet<MidMemoryNode> getNeeded() {
+	public HashSet<MidSaveNode> getNeeded() {
 		return needed;
 	}
+	
+	public boolean isNeeded(MidNode midNode) {
+		return needed.contains(midNode);
+	}
 
-	public void addNeeded(MidMemoryNode memNode){
-		needed.add(memNode);
-		System.out.println("Needed list: " + needed.toString());
+	private void addSeeking(MidMemoryNode memNode){
+		seeking.add(memNode);
+		System.out.println("Adding " + memNode.toString());
+		System.out.println("Seeking list: " + needed.toString());
 	}
 	
-	public Boolean isNeeded(MidMemoryNode memNode){
-		System.out.println("Needed list: " + needed.toString());
-		if (needed.contains(memNode)){
-			needed.remove(memNode);
-			return true;
-		} else {
-			return false;
+	private void addSeeking(List<MidMemoryNode> memNodes){
+		seeking.addAll(memNodes);
+		System.out.println("Adding List " + memNodes.toString());
+		System.out.println("Seeking list: " + needed.toString());
+	}
+	
+	private void addSeeking(MidSaveNode saveNode){
+		// a = x
+		if (saveNode.getRegNode() instanceof MidLoadNode) {
+			addSeeking(((MidLoadNode)saveNode.getRegNode()).getMemoryNode());
+		}
+		// a = -x
+		if (saveNode.getRegNode() instanceof MidNegNode) {
+			addSeeking(((MidNegNode)saveNode.getRegNode()).getOperand().getMemoryNode());
+		}
+		// a = x + y
+		if (saveNode.getRegNode() instanceof MidArithmeticNode) {
+
+			addSeeking(((MidArithmeticNode)saveNode.getRegNode()).getLeftOperand().getMemoryNode());
+			addSeeking(((MidArithmeticNode)saveNode.getRegNode()).getRightOperand().getMemoryNode());
+		}	
+	}
+	
+	public void processSaveNode(MidSaveNode saveNode){
+		if (!saveNode.savesRegister() || 
+				(saveNode.getRegNode() instanceof MidLoadNode 
+						&& ((MidLoadNode)saveNode.getRegNode()).getMemoryNode() instanceof MidArrayElementNode )){
+			return;
+		}
+		
+		if (seeking.contains(saveNode.getDestinationNode())){
+			seeking.remove(saveNode.getDestinationNode());
+			addSeeking(saveNode);
+			//Add to needed
+			needed.add(saveNode);
 		}
 	}
 
-//	public void saveDefinition(MidMemoryNode memNode, MidMemoryNode refNode) {
-//		definitionMap.put(memNode, refNode);
-//		List<MidMemoryNode> mentions = mentionMap.get(refNode);
-//		if (mentions == null) {
-//			mentions = new ArrayList<MidMemoryNode>();
-//			mentionMap.put(refNode, mentions);
-//		}
-//		mentions.add(memNode);
-//	}
-//
-//	public MidMemoryNode lookupDefinition(MidMemoryNode refNode) {
-//		LogCenter.debug("[DCE] Looking up definition for " + refNode);
-//		return definitionMap.get(refNode);
-//	}
+	public void processCalloutNode(MidCalloutNode calloutNode){
+		addSeeking(calloutNode.getParams());
+	}
 
+	
 	@Override
 	public String toString() {
 		return "DCEGlobalState => definitionMap:\n[CP]  "

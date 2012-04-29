@@ -20,6 +20,10 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 
 	private ArrayList<MidNode> nodesOfInterest;
 
+	public void cleanUp(Block b, CPGlobalState inState) {
+		return;
+	}
+	
 	public CPGlobalState apply(Block b, CPGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
 
