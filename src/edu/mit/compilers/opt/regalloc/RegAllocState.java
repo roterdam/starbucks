@@ -64,7 +64,7 @@ public class RegAllocState {
 	}
 
 	public void processDefinition(MidSaveNode node,
-			LivenessAnalyzer livenessAnalyzer) {
+			LivenessDoctor livenessAnalyzer) {
 		MidMemoryNode destNode = node.getDestinationNode();
 		List<MidLoadNode> useList = uses.get(destNode);
 		if (useList == null) {
@@ -72,6 +72,19 @@ public class RegAllocState {
 		}
 		uses.remove(destNode);
 		livenessAnalyzer.save(node, useList);
+	}
+
+	public Map<MidMemoryNode, List<MidLoadNode>> getUses() {
+		return uses;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof RegAllocState)) {
+			return false;
+		}
+		RegAllocState otherState = (RegAllocState) o;
+		return getUses().equals(otherState.getUses());
 	}
 
 }

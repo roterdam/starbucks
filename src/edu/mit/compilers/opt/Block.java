@@ -81,17 +81,12 @@ public class Block {
 		return out;
 	}
 
-	public static String recursiveToString(Block b, List<Block> visited,
-			int indent) {
-		return recursiveToString("OPT", b, visited, indent);
-	}
-
-	public static String recursiveToString(String prefix, Block b,
+	public static String recursiveToString(Block b,
 			List<Block> visited, int indent) {
 		String out = b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
-			out += "\n[" + prefix + "] ";
+			out += "\n";
 			for (int i = 0; i < indent; i++) {
 				out += " ";
 			}
@@ -99,7 +94,7 @@ public class Block {
 				out += "-> " + s.getBlockNum() + " [" + s.getHead() + "]";
 			} else {
 				out += "-> "
-						+ recursiveToString(prefix, s, visited, indent + 2);
+						+ recursiveToString(s, visited, indent + 2);
 			}
 		}
 		return out;
@@ -119,7 +114,7 @@ public class Block {
 		if (blockCache.containsKey(n)) {
 			return blockCache.get(n);
 		}
-		LogCenter.debug("[OPT] BLOCK: makeBlock " + n);
+		LogCenter.debug("OPT", "BLOCK: makeBlock " + n);
 		Block b = new Block(n, blockNumCounter++);
 		blockCache.put(n, b);
 		MidNode lastNonJumpLabel = n;
@@ -132,7 +127,7 @@ public class Block {
 		Block newSuc = makeBlock(nextNode);
 		if (newSuc != null) {
 			b.addSuccessor(newSuc);
-			LogCenter.debug("[OPT] Connecting " + b.getHead() + " to "
+			LogCenter.debug("OPT", "Connecting " + b.getHead() + " to "
 					+ newSuc.getHead());
 		}
 		if (nextNode != null && nextNode instanceof MidJumpNode
@@ -140,7 +135,7 @@ public class Block {
 			Block secondSuc = makeBlock(nextNode.getNextNode());
 			if (secondSuc != null) {
 				b.addSuccessor(secondSuc);
-				LogCenter.debug("[OPT] Connecting " + b.getHead() + " to "
+				LogCenter.debug("OPT", "Connecting " + b.getHead() + " to "
 						+ secondSuc.getHead());
 			}
 		}
@@ -151,7 +146,7 @@ public class Block {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
-		LogCenter.debug("[OPT] BLOCK: Starting getAllBlocks with "
+		LogCenter.debug("OPT", "BLOCK: Starting getAllBlocks with "
 				+ nodeList.getHead());
 		Block head = makeBlock(nodeList.getHead());
 		List<Block> out = new ArrayList<Block>(blockCache.values());

@@ -40,7 +40,7 @@ public class CPLocalState implements State<CPLocalState> {
 	 */
 	public void putTempReference(MidTempDeclNode tempNode,
 			MidMemoryNode sourceNode) {
-		LogCenter.debug("[CPS] Mapping " + tempNode + " to " + sourceNode);
+		LogCenter.debug("CP", "Mapping " + tempNode + " to " + sourceNode);
 		tempMap.put(tempNode, sourceNode);
 		List<MidTempDeclNode> mentions = mentionMap.get(sourceNode);
 		if (mentions == null) {
@@ -56,7 +56,7 @@ public class CPLocalState implements State<CPLocalState> {
 	 * none exist.
 	 */
 	public MidMemoryNode getReplacement(MidTempDeclNode tempNode) {
-		LogCenter.debug("[CPS] Checking if " + tempNode + " maps to anything: "
+		LogCenter.debug("CP", "Checking if " + tempNode + " maps to anything: "
 				+ tempMap.containsKey(tempNode));
 		return tempMap.get(tempNode);
 	}

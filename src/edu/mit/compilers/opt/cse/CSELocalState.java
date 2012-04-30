@@ -46,8 +46,8 @@ public class CSELocalState {
 			v = new Value();
 			this.varToVal.put(node, v);
 		}
-		LogCenter
-				.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", node, v));
+		LogCenter.debug("OPT", String
+				.format("Map VAR->VAL : %s -> %s", node, v));
 		return v;
 	}
 
@@ -57,7 +57,7 @@ public class CSELocalState {
 	 * following temp variable can store from the same register.
 	 */
 	public void addVarVal(MidMemoryNode m, MidRegisterNode r, Value v) {
-		LogCenter.debug(String.format("[OPT] Map VAR->VAL : %s -> %s", m, v));
+		LogCenter.debug("OPT", String.format("Map VAR->VAL : %s -> %s", m, v));
 		this.varToVal.put(m, v);
 		this.valToReg.put(v, r);
 	}
@@ -71,8 +71,10 @@ public class CSELocalState {
 			v3 = new Value();
 			this.exprToVal.put(e, v3);
 		}
-		LogCenter.debug(String.format("[OPT] Map EXPR->VAL: (%s,%s,%s) -> %s",
-				node.getNodeClass(), v1, v2, v3));
+		LogCenter
+				.debug("OPT", String
+						.format("Map EXPR->VAL: (%s,%s,%s) -> %s", node
+								.getNodeClass(), v1, v2, v3));
 		return v3;
 	}
 
@@ -85,15 +87,17 @@ public class CSELocalState {
 			v2 = new Value();
 			this.exprToVal.put(e, v2);
 		}
-		LogCenter.debug(String.format("[OPT] Map EXPR->VAL: (%s,%s) -> %s",
-				node.getNodeClass(), v1, v2));
+		LogCenter
+				.debug("OPT", String
+						.format("Map EXPR->VAL: (%s,%s) -> %s", node
+								.getNodeClass(), v1, v2));
 		return v2;
 	}
 
 	public MidSaveNode addTemp(Value v3, MidTempDeclNode destinationNode) {
 		assert !this.valToTemp.containsKey(v3);
 		MidSaveNode m = new OptSaveNode(this.valToReg.get(v3), destinationNode);
-		LogCenter.debug("[OPT] Saving temp node for later use: " + m + " ("
+		LogCenter.debug("OPT", "Saving temp node for later use: " + m + " ("
 				+ m.hashCode() + ")");
 		this.valToTemp.put(v3, m);
 		return m;

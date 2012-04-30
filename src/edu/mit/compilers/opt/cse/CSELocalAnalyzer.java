@@ -20,7 +20,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 
 	@Override
 	protected void transform(Block b) {
-		
+
 		assignments = new ArrayList<MidNode>();
 
 		CSELocalState localState = new CSELocalState();
@@ -42,7 +42,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		}
 
 		for (MidNode assignmentNode : this.assignments) {
-			LogCenter.debug("[OPT]\n[OPT] Processing " + assignmentNode);
+			LogCenter.debug("OPT", "\nProcessing " + assignmentNode);
 			if (assignmentNode instanceof MidSaveNode) {
 				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
 				// a = x
@@ -97,7 +97,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
 			// loaded.
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING CSE (UNARY).");
+			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING CSE (UNARY).");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
@@ -131,9 +131,9 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
 			// loaded.
-			LogCenter.debug("[OPT] " + s.toString());
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING CSE (BINARY).");
-			LogCenter.debug("[OPT] tempNode to replace with: " + tempNode
+			LogCenter.debug("OPT", s.toString());
+			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING CSE (BINARY).");
+			LogCenter.debug("OPT", "tempNode to replace with: " + tempNode
 					+ " (" + tempNode.hashCode() + ")");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());
@@ -154,7 +154,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidNegNode;
 		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
-		LogCenter.debug("[OPT] DELETING " + negNode);
+		LogCenter.debug("OPT", "DELETING " + negNode);
 		negNode.delete();
 		negNode.getOperand().delete();
 	}
@@ -167,7 +167,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
-		LogCenter.debug("[OPT] DELETING " + arithNode);
+		LogCenter.debug("OPT", "DELETING " + arithNode);
 		arithNode.delete();
 		arithNode.getLeftOperand().delete();
 		arithNode.getRightOperand().delete();
@@ -181,7 +181,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 		// Add the temp after the save node. Don't forget the decl node!
 		tempDeclNode.insertAfter(saveNode);
 		newTempNode.insertAfter(tempDeclNode);
-		LogCenter.debug("[OPT] Inserting a temp node: " + newTempNode + " ("
+		LogCenter.debug("OPT", "Inserting a temp node: " + newTempNode + " ("
 				+ newTempNode.hashCode() + ")");
 	}
 

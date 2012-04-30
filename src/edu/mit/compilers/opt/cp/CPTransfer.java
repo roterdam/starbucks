@@ -25,8 +25,8 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 		assert inState != null : "Input state should not be null.";
 
 		this.nodesOfInterest = new ArrayList<MidNode>();
-		LogCenter.debug("[CP]\n[CP]\n[CP]\n[CP] PROCESSING " + b
-				+ ", THE GLOBAL STATE IS:\n[CP] ##########\n[CP] " + inState);
+		LogCenter.debug("CP", "\n\n\nPROCESSING " + b
+				+ ", THE GLOBAL STATE IS:\n##########\n" + inState);
 
 		CPGlobalState outState = inState.clone();
 
@@ -61,7 +61,7 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 		}
 
 		for (MidNode assignmentNode : this.nodesOfInterest) {
-			LogCenter.debug("[CP]\n[CP] Processing " + assignmentNode);
+			LogCenter.debug("CP", "\nProcessing " + assignmentNode);
 			if (assignmentNode instanceof MidSaveNode) {
 				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
 				processDefinition(outState, saveNode);
@@ -73,8 +73,8 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			}
 		}
 
-		LogCenter.debug("[CP] FINAL STATE IS " + outState);
-		LogCenter.debug("[CP]");
+		LogCenter.debug("CP", "FINAL STATE IS " + outState);
+		LogCenter.debug("CP", "");
 
 		return outState;
 	}

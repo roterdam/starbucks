@@ -20,13 +20,13 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.LocalAnalyzer;
-import edu.mit.compilers.opt.cp.CPLocalAnalyzer;
 import edu.mit.compilers.opt.cp.CPGlobalState;
+import edu.mit.compilers.opt.cp.CPLocalAnalyzer;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
-import edu.mit.compilers.opt.regalloc.LivenessAnalyzer;
+import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -159,8 +159,8 @@ class Main {
 						}
 
 						if (isEnabled(OPT_RA)) {
-							LivenessAnalyzer analyzer = new LivenessAnalyzer();
-							analyzer.analyze(symbolTable);
+							RegisterAllocator allocator = new RegisterAllocator(symbolTable);
+							allocator.run();
 						}
 
 						if (CLI.dot) {

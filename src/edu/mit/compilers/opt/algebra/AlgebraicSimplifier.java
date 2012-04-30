@@ -72,7 +72,7 @@ public class AlgebraicSimplifier {
 			if (declNode.getArrayLength() != -1) {
 				arrayLengths.put(declNode.getIDNode().getText(), declNode
 						.getArrayLength());
-				LogCenter.debug("[AS] Array " + declNode.getIDNode().getText()
+				LogCenter.debug("AS", "Array " + declNode.getIDNode().getText()
 						+ "->" + declNode.getArrayLength());
 			}
 		}
@@ -82,7 +82,7 @@ public class AlgebraicSimplifier {
 	}
 
 	public static void visit(METHOD_DECLNode node) {
-		LogCenter.debug("[AS] Simplifying method " + node.getId());
+		LogCenter.debug("[AS]", "Simplifying method " + node.getId());
 		node.getBlockNode().simplifyExpressions();
 	}
 
@@ -111,7 +111,7 @@ public class AlgebraicSimplifier {
 		String oldList = node.getExpression().toStringList();
 		node.setExpression(node.getExpression().simplify(null));
 
-		LogCenter.debug("[AS] Simplifying " + oldList + " --> "
+		LogCenter.debug("AS", "Simplifying " + oldList + " --> "
 				+ node.getExpression().toStringList());
 
 	}
@@ -153,11 +153,11 @@ public class AlgebraicSimplifier {
 
 	public static void visit(RETURNNode node) {
 		String oldList = node.toStringList();
-		LogCenter.debug("[AS] About to simplify return node "
+		LogCenter.debug("AS", "About to simplify return node "
 				+ node.getReturnExpression().toStringList());
 		node.setReturnExpression(node.getReturnExpression().simplify(null));
 
-		LogCenter.debug("[AS] Simplified" + oldList + " --> "
+		LogCenter.debug("AS", "Simplified" + oldList + " --> "
 				+ node.getReturnExpression().toStringList());
 
 	}

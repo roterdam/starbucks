@@ -56,13 +56,13 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 
 	@Override
 	public CSEGlobalState join(CSEGlobalState s) {
-		LogCenter.debug("[OPT] JOINING " + this);
-		LogCenter.debug("[OPT] WITH " + s);
+		LogCenter.debug("OPT", "JOINING " + this);
+		LogCenter.debug("OPT", "WITH " + s);
 		// Take common expressions, only if they're temp vars or equal non-temp
 		// vars.
 		if (s == null) {
 			CSEGlobalState out = this.clone();
-			LogCenter.debug("[OPT] RESULT: " + out);
+			LogCenter.debug("OPT", "RESULT: " + out);
 			return out;
 		}
 		Set<GlobalExpr> sharedSet = exprToRefMap.keySet();
@@ -119,7 +119,7 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		}
 		CSEGlobalState out = new CSEGlobalState(newRefToExprMap,
 				newExprToRefMap, newMentionMap);
-		LogCenter.debug("[OPT] RESULT: " + out);
+		LogCenter.debug("OPT", "RESULT: " + out);
 		return out;
 	}
 
@@ -155,15 +155,15 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	// TODO (this always gets called before gen reference, so just make them one
 	// method) ?
 	public void killReferences(MidMemoryNode node) {
-		LogCenter.debug("[OPTJ] Killing references to " + node);
+		LogCenter.debug("OPT", "Killing references to " + node);
 		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
 		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
 		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
 		if (mentionMap.containsKey(node)) {
-			LogCenter.debug("[OPT] -- Found references to " + node);
+			LogCenter.debug("OPT", "-- Found references to " + node);
 			// Remove stuff for each expr that is affected by the node.
 			for (GlobalExpr e : new ArrayList<GlobalExpr>(mentionMap.get(node))) {
-				LogCenter.debug("[OPT] -- Killing  " + e);
+				LogCenter.debug("OPT", "-- Killing  " + e);
 				// Kill the expression e by deleting expression from
 				// expr -> [R] and all R -> expr
 
@@ -193,11 +193,11 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 				exprToRefMap.remove(e);
 			}
 
-			LogCenter.debug("[OPTJ] AFTER:");
-			LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
-			LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
-			LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-			LogCenter.debug("[OPTJ] ");
+			LogCenter.debug("OPT", "AFTER:");
+			LogCenter.debug("OPT", "mentionMap:\n[OPTJ] " + mentionMap);
+			LogCenter.debug("OPT", "refToExprMap:\n[OPTJ] " + refToExprMap);
+			LogCenter.debug("OPT", "exprToRefMap:\n[OPTJ] " + exprToRefMap);
+			LogCenter.debug("OPT", "");
 		}
 	}
 

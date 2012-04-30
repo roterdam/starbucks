@@ -12,7 +12,7 @@ public abstract class LocalAnalyzer {
 	public void analyze(MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (String methodName : methods.keySet()) {
-			LogCenter.debug("[OPT] Analyzing " + methodName);
+			LogCenter.debug("OPT", "Analyzing " + methodName);
 			List<Block> blocks = Block.getAllBlocks(methods.get(methodName)
 					.getNodeList());
 			for (Block b : blocks) {

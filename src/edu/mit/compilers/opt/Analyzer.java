@@ -29,7 +29,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 	public void analyze(MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (String methodName : methods.keySet()) {
-			LogCenter.debug("[OPT] Analyzing " + methodName);
+			LogCenter.debug("OPT", "Analyzing " + methodName);
 			analyzeMidNodeList(methods.get(methodName).getNodeList());
 		}
 	}
@@ -39,7 +39,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		LogCenter
-				.debug("[OPT] BLOCKS:\n[OPT] "
+				.debug("OPT", "BLOCKS:\n[OPT] "
 						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
@@ -49,17 +49,17 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 		// Do the first node
 		Block n0 = worklist.get(0);
-		LogCenter.debug("[OPT] Process " + n0);
+		LogCenter.debug("OPT", "Process " + n0);
 		outHash.put(n0, transferFunction.apply(n0, startState.getInitialState()));
 		worklist.remove(n0);
 
 		while (!worklist.isEmpty()) {
 			Block currentBlock = worklist.remove(0);
-			LogCenter.debug("[OPT]");
-			LogCenter.debug("[OPT] ######################");
-			LogCenter.debug("[OPT] ######################");
-			LogCenter.debug("[OPT] ANALYZER IS LOOKING AT " + currentBlock);
-			LogCenter.debug("[OPT] WL: " + worklist);
+			LogCenter.debug("OPT", "");
+			LogCenter.debug("OPT", "######################");
+			LogCenter.debug("OPT", "######################");
+			LogCenter.debug("OPT", "ANALYZER IS LOOKING AT " + currentBlock);
+			LogCenter.debug("OPT", "WL: " + worklist);
 			S in = getInState(currentBlock);
 			S out = transferFunction.apply(currentBlock, in);
 			if (!out.equals(outHash.get(currentBlock))) {
@@ -77,9 +77,9 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 	public S getInState(Block b) {
 		S out = null;
-		LogCenter.debug("[OPT] Getting in-state.");
+		LogCenter.debug("OPT", "Getting in-state.");
 		for (Block m : b.getPredecessors()) {
-			LogCenter.debug("[OPT] Using state from " + m);
+			LogCenter.debug("OPT", "Using state from " + m);
 			out = outHash.get(m).join(out);
 		}
 		return out;

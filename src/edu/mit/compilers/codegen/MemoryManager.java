@@ -53,14 +53,14 @@ public class MemoryManager {
 
 		Map<String, MidMethodDeclNode> methods = codeRoot.getMethods();
 		for (String methodName : methods.keySet()) {
-			LogCenter.debug("METHOD: " + methodName);
+			LogCenter.debug("MEM", "METHOD: " + methodName);
 			processMethod(methods.get(methodName));
 		}
 
 		Map<String, MidMethodDeclNode> starbucksMethods = codeRoot
 				.getStarbucksMethods();
 		for (String methodName : starbucksMethods.keySet()) {
-			LogCenter.debug("STARBUCKS_METHOD: " + methodName);
+			LogCenter.debug("MEM", "STARBUCKS_METHOD: " + methodName);
 			processMethod(starbucksMethods.get(methodName));
 		}
 	}
@@ -72,7 +72,7 @@ public class MemoryManager {
 		// Reset the localStackSize.
 		localStackSize = 0;
 		for (MidNode m : methodDeclNode.getNodeList()) {
-			LogCenter.debug("[MEM] " + m.toString());
+			LogCenter.debug("MEM", m.toString());
 			if (m instanceof MidLocalMemoryNode) {
 				localStackSize += ADDRESS_SIZE;
 				((MidMemoryNode) m).setRawLocationReference(Integer
@@ -100,7 +100,7 @@ public class MemoryManager {
 						ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
 						if (arrayNode.usesArrayReference()) {
 							LogCenter
-									.debug("[MEM] deallocating array register of "
+									.debug("MEM", "deallocating array register of "
 											+ m);
 							deallocTempRegister(arrayNode.getArrayRegister());
 						}
@@ -109,7 +109,7 @@ public class MemoryManager {
 				if (m instanceof ArrayReferenceNode) {
 					ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
 					if (arrayNode.usesArrayReference()) {
-						LogCenter.debug("[MEM] deallocating array register of "
+						LogCenter.debug("MEM", "deallocating array register of "
 								+ m);
 						deallocTempRegister(arrayNode.getArrayRegister());
 					}
@@ -126,10 +126,10 @@ public class MemoryManager {
 	public static Reg allocTempRegister() {
 		for (Reg r : registerAvailabilityMap.keySet()) {
 			if (registerAvailabilityMap.get(r)) {
-				LogCenter.debug("[MEM]  alloc " + r.name());
+				LogCenter.debug("MEM", "alloc " + r.name());
 				registerAvailabilityMap.put(r, false);
-				LogCenter.debug("[MEM]  " + registerAvailabilityMap.toString());
-				LogCenter.debug("[MEM]");
+				LogCenter.debug("MEM", registerAvailabilityMap.toString());
+				LogCenter.debug("MEM", "");
 				return r;
 			}
 		}
@@ -140,9 +140,9 @@ public class MemoryManager {
 	public static void deallocTempRegister(Reg r) {
 		registerAvailabilityMap.put(r, true);
 		assert r != null : "Why is this register null?";
-		LogCenter.debug("[MEM]  dealloc " + r.name());
-		LogCenter.debug("[MEM]  " + registerAvailabilityMap.toString());
-		LogCenter.debug("[MEM]");
+		LogCenter.debug("MEM", " dealloc " + r.name());
+		LogCenter.debug("MEM", registerAvailabilityMap.toString());
+		LogCenter.debug("MEM", "");
 	}
 
 	private static void deallocAllRegisters() {

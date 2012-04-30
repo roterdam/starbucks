@@ -24,8 +24,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		assert inState != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidNode>();
-		LogCenter.debug("[OPT]\n[OPT]\n[OPT]\n[OPT] PROCESSING " + b
-				+ ", THE GLOBAL STATE IS:\n[OPT] ##########\n[OPT] " + inState);
+		LogCenter.debug("OPT", "\n\n\nPROCESSING " + b
+				+ ", THE GLOBAL STATE IS:\n##########\n" + inState);
 
 		CSEGlobalState outState = inState.clone();
 
@@ -45,7 +45,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		}
 
 		for (MidNode assignmentNode : this.assignments) {
-			LogCenter.debug("[OPT]\n[OPT] Processing " + assignmentNode);
+			LogCenter.debug("OPT", "\nProcessing " + assignmentNode);
 			if (assignmentNode instanceof MidSaveNode) {
 				if (assignmentNode instanceof OptSaveNode) {
 					continue;
@@ -65,13 +65,13 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				}
 			} else if (assignmentNode instanceof MidMethodCallNode) {
 				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
-				LogCenter.debug(inState.getReferenceMap().toString());
+				LogCenter.debug("OPT", inState.getReferenceMap().toString());
 				processMethodCall(methodNode, inState, outState);
 			}
 		}
 
-		LogCenter.debug("[OPT] FINAL STATE IS " + outState);
-		LogCenter.debug("[OPT]");
+		LogCenter.debug("OPT", "FINAL STATE IS " + outState);
+		LogCenter.debug("OPT", "");
 
 		return outState;
 	}
@@ -107,7 +107,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			// If there's a reusable reference, reuse it!
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
 					+ ref + " -> " + expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
@@ -140,7 +140,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			// If there's a reusable reference, reuse it!
 			// TODO: are we sure we just take the first one?
 			MidMemoryNode ref = reusableReferences.get(0);
-			LogCenter.debug("[OPT] HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
 					+ ref + " -> " + expr);
 			MidLoadNode loadTempNode = new MidLoadNode(ref);
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,

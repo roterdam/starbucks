@@ -50,10 +50,10 @@ public class CPGlobalState implements State<CPGlobalState> {
 		if (s == null) {
 			return this.clone();
 		}
-		LogCenter.debug("[CP] #########\n[CP] JOINING STATES: ");
-		LogCenter.debug("[CP] THIS: " + toString());
-		LogCenter.debug("[CP]");
-		LogCenter.debug("[CP] THAT: " + s.toString());
+		LogCenter.debug("CP", "#########\n[CP] JOINING STATES: ");
+		LogCenter.debug("CP", "THIS: " + toString());
+		LogCenter.debug("CP", "");
+		LogCenter.debug("CP", "THAT: " + s.toString());
 		CPGlobalState out = new CPGlobalState();
 		HashMap<MidMemoryNode, MidMemoryNode> otherDefinitionMap = s
 				.getDefinitionMap();
@@ -66,8 +66,8 @@ public class CPGlobalState implements State<CPGlobalState> {
 		}
 		// Purposely leave out the alias map - temps shouldn't persist after the
 		// block.
-		LogCenter.debug("[CP]");
-		LogCenter.debug("[CP] RESULT: " + out.toString() + "\n[CP] #####");
+		LogCenter.debug("CP", "");
+		LogCenter.debug("CP", "RESULT: " + out.toString() + "\n[CP] #####");
 		return out;
 	}
 
@@ -84,7 +84,7 @@ public class CPGlobalState implements State<CPGlobalState> {
 	}
 
 	public void killReferences(MidMemoryNode memNode, boolean followLinkedNode) {
-		LogCenter.debug("[CP] Killing references to " + memNode);
+		LogCenter.debug("CP", "Killing references to " + memNode);
 		// Kill references, i.e. clear references to a after a = expr.
 		List<MidMemoryNode> references = mentionMap.get(memNode);
 		if (references != null) {
@@ -117,7 +117,7 @@ public class CPGlobalState implements State<CPGlobalState> {
 	}
 
 	public MidMemoryNode lookupDefinition(MidMemoryNode refNode) {
-		LogCenter.debug("[CP] Looking up definition for " + refNode);
+		LogCenter.debug("CP", "Looking up definition for " + refNode);
 		return definitionMap.get(refNode);
 	}
 
