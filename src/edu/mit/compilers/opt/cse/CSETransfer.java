@@ -14,11 +14,16 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
+import edu.mit.compilers.opt.cp.CPGlobalState;
 
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidNode> assignments;
 
+	public void cleanUp(Block b, CSEGlobalState inState) {
+		return;
+	}
+	
 	public CSEGlobalState apply(Block b, CSEGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
 

@@ -46,7 +46,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		for (Block block : worklist) {
 			outHash.put(block, startState.getBottomState());
 		}
-
+		
 		// Do the first node
 		Block n0 = worklist.get(0);
 		LogCenter.debug("[OPT] Process " + n0);
@@ -96,6 +96,10 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			outHash.put(block, startState.getBottomState());
 		}
 
+		System.out.println("\n\n\n\n\n\n" + outHash.toString() + "\n\n\n\n\n\n\n");
+
+
+		
 		// Do the first node
 		Block n0 = Block.getTailBlock(worklist);
 		LogCenter.debug("[OPT] Process " + n0);
@@ -122,12 +126,21 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 			// TODO: return with less perfect result if it takes a really long
 			// time?
 			
-			//Once things hit fixed point, make things happen.
 		}
+		
+		System.out.println("[OPT ] Removing useless nodes");
+		System.out.println(outHash.toString() + "\n");
+		// Fixed point. Okay to remove things.
+		for (Block b: Block.getAllBlocks(nodeList)){
+			S out = outHash.get(b);
+			System.out.println("[OPT cleanup] " + b + out);
+			transferFunction.cleanUp(b, out);
+		}
+		
 	}
 	
 	public S getInStateBackwards(Block b, S s) {
-		S out = s;
+		S out = outHash.get(b);
 		LogCenter.debug("[OPT] Getting in-state.");
 		for (Block m : b.getPredecessors()) {
 			LogCenter.debug("[OPT] Using state from " + m);

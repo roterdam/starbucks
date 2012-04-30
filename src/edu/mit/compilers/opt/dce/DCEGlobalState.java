@@ -49,13 +49,14 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 		if (s == null) {
 			return this.clone();
 		}
-		LogCenter.debug("[DCE] #########\n[CP] JOINING STATES: ");
+		LogCenter.debug("[DCE] #########\n[DCE] JOINING STATES: ");
 		LogCenter.debug("[DCE] THIS: " + toString());
 		LogCenter.debug("[DCE]");
 		LogCenter.debug("[DCE] THAT: " + s.toString());
 		DCEGlobalState out = new DCEGlobalState();
 		
-		this.needed.addAll(s.getNeeded());
+		out.needed.addAll(getNeeded());
+		out.needed.addAll(s.getNeeded());
 		
 		LogCenter.debug("[DCE]");
 		LogCenter.debug("[DCE] RESULT: " + out.toString() + "\n[DCE] #####");
@@ -121,8 +122,7 @@ public class DCEGlobalState implements State<DCEGlobalState> {
 	
 	@Override
 	public String toString() {
-		return "DCEGlobalState => definitionMap:\n[CP]  "
-				+ needed.toString();
+		return "DCEGlobalState " + needed.size();
 	}
 
 	@Override

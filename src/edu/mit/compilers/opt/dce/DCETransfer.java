@@ -32,8 +32,6 @@ public class DCETransfer implements Transfer<DCEGlobalState> {
 			return inState;
 		}
 		while (true) {
-			System.out.println("NEW NODE: " + node);
-
 			//if it's a save node, add it's load nodes in if it's part of the outstate already.
 
 			if (node instanceof MidSaveNode) {
@@ -48,7 +46,6 @@ public class DCETransfer implements Transfer<DCEGlobalState> {
 			if (node == b.getHead()) {
 				break;
 			}
-			System.out.println(node);
 			node = node.getPrevNode();
 		}
 		
@@ -64,12 +61,13 @@ public class DCETransfer implements Transfer<DCEGlobalState> {
 		MidNode node = b.getTail();	
 
 		while (true) {
-			if (node == null){
+			if (node == null || finalState == null){
 				//Will happen for tail block
 				break;
 			}
 			if (node instanceof MidSaveNode){
 				if (!finalState.isNeeded(node)){
+					System.out.println("DELETING NODE " + node);
 					deleteSaveNodeEtAl((MidSaveNode)node);
 				}
 			}
