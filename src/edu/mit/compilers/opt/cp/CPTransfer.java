@@ -30,8 +30,7 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 
 		CPGlobalState outState = inState.clone();
 
-		MidNode node = b.getHead();
-		while (true) {
+		for (MidNode node : b) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
@@ -54,10 +53,6 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 					&& !((MidMethodCallNode) node).isStarbucksCall()) {
 				this.nodesOfInterest.add(node);
 			}
-			if (node == b.getTail()) {
-				break;
-			}
-			node = node.getNextNode();
 		}
 
 		for (MidNode assignmentNode : this.nodesOfInterest) {

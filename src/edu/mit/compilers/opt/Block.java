@@ -1,9 +1,12 @@
 package edu.mit.compilers.opt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
@@ -11,7 +14,7 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpNode;
 
-public class Block {
+public class Block implements Iterable<MidNode> {
 
 	private MidNode head;
 	private MidNode tail;
@@ -81,8 +84,8 @@ public class Block {
 		return out;
 	}
 
-	public static String recursiveToString(Block b,
-			List<Block> visited, int indent) {
+	public static String recursiveToString(Block b, List<Block> visited,
+			int indent) {
 		String out = b.getBlockNum() + " [" + b.getHead() + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
@@ -93,8 +96,7 @@ public class Block {
 			if (visited.contains(s)) {
 				out += "-> " + s.getBlockNum() + " [" + s.getHead() + "]";
 			} else {
-				out += "-> "
-						+ recursiveToString(s, visited, indent + 2);
+				out += "-> " + recursiveToString(s, visited, indent + 2);
 			}
 		}
 		return out;
@@ -154,6 +156,32 @@ public class Block {
 		out.remove(head);
 		out.add(0, head);
 		return out;
+	}
+
+	@Override
+	public Iterator<MidNode> iterator() {
+		return new Iterator<MidNode>() {
+
+			private MidNode curNode = Block.this.getHead();
+
+			@Override
+			public boolean hasNext() {
+				return !(curNode == Block.this.getTail());
+			}
+
+			@Override
+			public MidNode next() {
+				MidNode out = curNode;
+				curNode = curNode.getNextNode();
+				return out;
+			}
+
+			@Override
+			public void remove() {
+				throw new NotImplementedException();
+			}
+
+		};
 	}
 
 }

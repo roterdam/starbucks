@@ -29,8 +29,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		CSEGlobalState outState = inState.clone();
 
-		MidNode node = b.getHead();
-		while (true) {
+		for (MidNode node : b) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				this.assignments.add(node);
@@ -38,10 +37,6 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					&& !((MidMethodCallNode) node).isStarbucksCall()) {
 				this.assignments.add(node);
 			}
-			if (node == b.getTail()) {
-				break;
-			}
-			node = node.getNextNode();
 		}
 
 		for (MidNode assignmentNode : this.assignments) {
