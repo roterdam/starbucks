@@ -19,10 +19,10 @@ public class GraphColorer {
 
 	public GraphColorer(Reg[] usableRegisters) {
 		this.usableRegisters = new HashSet<Reg>(Arrays.asList(usableRegisters));
-		out = new HashMap<Web, Reg>();
 	}
 
 	public Map<Web, Reg> color(List<Web> webs) {
+		out = new HashMap<Web, Reg>();
 		// Initialize all webs to no register at first.
 		for (Web web : webs) {
 			out.put(web, null);
