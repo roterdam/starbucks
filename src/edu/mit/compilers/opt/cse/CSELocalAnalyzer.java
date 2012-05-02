@@ -25,8 +25,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 
 		CSELocalState localState = new CSELocalState();
 
-		MidNode node = b.getHead();
-		while (true) {
+		for (MidNode node : b) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
@@ -35,10 +34,6 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 					&& !((MidMethodCallNode) node).isStarbucksCall()) {
 				this.assignments.add(node);
 			}
-			if (node == b.getTail()) {
-				break;
-			}
-			node = node.getNextNode();
 		}
 
 		for (MidNode assignmentNode : this.assignments) {

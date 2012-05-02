@@ -29,7 +29,7 @@ public class Block implements Iterable<MidNode> {
 		successors = new ArrayList<Block>();
 	}
 
-	public MidNode getHead() {
+	private MidNode getHead() {
 		return head;
 	}
 
@@ -37,7 +37,7 @@ public class Block implements Iterable<MidNode> {
 		this.tail = t;
 	}
 
-	public MidNode getTail() {
+	private MidNode getTail() {
 		return tail;
 	}
 
@@ -184,4 +184,34 @@ public class Block implements Iterable<MidNode> {
 		};
 	}
 
+	public Iterable<MidNode> reverse() {
+		return new Iterable<MidNode>() {
+
+			@Override
+			public Iterator<MidNode> iterator() {
+				return new Iterator<MidNode>() {
+					private MidNode curNode = Block.this.getTail();
+
+					@Override
+					public boolean hasNext() {
+						return !(curNode == Block.this.getHead());
+					}
+
+					@Override
+					public MidNode next() {
+						MidNode out = curNode;
+						curNode = curNode.getPrevNode();
+						return out;
+					}
+
+					@Override
+					public void remove() {
+						throw new NotImplementedException();
+					}
+				};
+
+			}
+
+		};
+	}
 }

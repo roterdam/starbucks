@@ -17,8 +17,7 @@ public class CPLocalAnalyzer extends LocalAnalyzer {
 	public void transform(Block b) {
 		CPLocalState s = new CPLocalState();
 		LogCenter.debug("CP", "APPLYING CP TRANSFER.");
-		MidNode node = b.getHead();
-		while (true) {
+		for (MidNode node : b) {
 			if (node instanceof MidLoadNode) {
 				process(s, (MidLoadNode) node);
 			}
@@ -38,10 +37,6 @@ public class CPLocalAnalyzer extends LocalAnalyzer {
 					process(s, (MidSaveNode) node);
 				}
 			}
-			if (node == b.getTail()) {
-				break;
-			}
-			node = node.getNextNode();
 		}
 	}
 

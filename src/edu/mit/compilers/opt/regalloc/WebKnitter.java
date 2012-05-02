@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -13,18 +14,18 @@ public class WebKnitter {
 
 	private Map<MidLoadNode, Web> webMapUses;
 	private Map<MidSaveNode, Web> webMapDefs;
-	private final Map<MidSaveNode, List<MidLoadNode>> defUseMap;
+	private Map<MidSaveNode, Set<MidLoadNode>> defUseMap;
 
-	public WebKnitter(Map<MidSaveNode, List<MidLoadNode>> defUseMap) {
+	public WebKnitter(Map<MidSaveNode, Set<MidLoadNode>> defUseMap) {
 		this.defUseMap = defUseMap;
 		webMapUses = new HashMap<MidLoadNode, Web>();
 		webMapDefs = new HashMap<MidSaveNode, Web>();
 	}
 	
-	public void run() {
+	public List<Web> run() {
 		List<Web> output = new ArrayList<Web>();
-		for (Entry<MidSaveNode, List<MidLoadNode>> entry : defUseMap.entrySet()) {
-			List<MidLoadNode> uses = entry.getValue();
+		for (Entry<MidSaveNode, Set<MidLoadNode>> entry : defUseMap.entrySet()) {
+			Set<MidLoadNode> uses = entry.getValue();
 			MidSaveNode def = entry.getKey();
 			Web targetWeb = null;
 			for (MidLoadNode use : uses) {
@@ -43,6 +44,7 @@ public class WebKnitter {
 			}
 			getWebMapDefs().put(def, targetWeb);
 		}
+		return output;
 	}
 
 	public Map<MidLoadNode, Web> getWebMapUses() {

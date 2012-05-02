@@ -1,53 +1,67 @@
 package edu.mit.compilers.opt.regalloc;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class RegAllocState {
 
-	private Map<MidMemoryNode, List<MidLoadNode>> uses;
+	private Map<MidMemoryNode, Set<MidLoadNode>> uses;
 
 	public RegAllocState() {
-		uses = new HashMap<MidMemoryNode, List<MidLoadNode>>();
+		uses = new HashMap<MidMemoryNode, Set<MidLoadNode>>();
 	}
 
-	public RegAllocState(Map<MidMemoryNode, List<MidLoadNode>> uses) {
+	public RegAllocState(Map<MidMemoryNode, Set<MidLoadNode>> uses) {
 		this.uses = uses;
 	}
 
 	public RegAllocState join(RegAllocState regAllocState) {
-		Map<MidMemoryNode, List<MidLoadNode>> joinedUses = new HashMap<MidMemoryNode, List<MidLoadNode>>();
-		for (Entry<MidMemoryNode, List<MidLoadNode>> entry : uses.entrySet()) {
+		Map<MidMemoryNode, Set<MidLoadNode>> joinedUses = new HashMap<MidMemoryNode, Set<MidLoadNode>>();
+		for (Entry<MidMemoryNode, Set<MidLoadNode>> entry : uses.entrySet()) {
 			MidMemoryNode memNode = entry.getKey();
-			List<MidLoadNode> otherUses = regAllocState.getUses(memNode);
-			List<MidLoadNode> newEntries = new ArrayList<MidLoadNode>();
-			for (MidLoadNode loadNode : entry.getValue()) {
-				if (otherUses.contains(loadNode)) {
-					newEntries.add(loadNode);
-				}
+			Set<MidLoadNode> thisUses = new HashSet<MidLoadNode>(
+					entry.getValue());
+			Set<MidLoadNode> otherUses = regAllocState.getUses(memNode);
+			if (otherUses != null) {
+				thisUses.addAll(otherUses);
 			}
-			if (newEntries.size() > 0) {
-				joinedUses.put(memNode, newEntries);
+			joinedUses.put(memNode, thisUses);
+		}
+		// Catch any memory nodes that weren't in the first set.
+		for (Entry<MidMemoryNode, Set<MidLoadNode>> entry : regAllocState
+				.getUses().entrySet()) {
+			MidMemoryNode memNode = entry.getKey();
+			// If already have it, skip it.
+			if (joinedUses.containsKey(memNode)) {
+				continue;
 			}
+			Set<MidLoadNode> thisUses = new HashSet<MidLoadNode>(
+					entry.getValue());
+			Set<MidLoadNode> otherUses = getUses(memNode);
+			if (otherUses != null) {
+				thisUses.addAll(otherUses);
+			}
+			joinedUses.put(memNode, thisUses);
 		}
 		return new RegAllocState(joinedUses);
 	}
 
-	public List<MidLoadNode> getUses(MidMemoryNode memNode) {
+	public Set<MidLoadNode> getUses(MidMemoryNode memNode) {
 		return uses.get(memNode);
 	}
 
 	public RegAllocState clone() {
-		Map<MidMemoryNode, List<MidLoadNode>> newUses = new HashMap<MidMemoryNode, List<MidLoadNode>>();
-		for (Entry<MidMemoryNode, List<MidLoadNode>> entry : newUses.entrySet()) {
-			newUses.put(entry.getKey(), new ArrayList<MidLoadNode>(entry
+		Map<MidMemoryNode, Set<MidLoadNode>> newUses = new HashMap<MidMemoryNode, Set<MidLoadNode>>();
+		for (Entry<MidMemoryNode, Set<MidLoadNode>> entry : getUses().entrySet()) {
+			newUses.put(entry.getKey(), new HashSet<MidLoadNode>(entry
 					.getValue()));
 		}
 		return new RegAllocState(newUses);
@@ -55,9 +69,9 @@ public class RegAllocState {
 
 	public void processUse(MidLoadNode node) {
 		MidMemoryNode memNode = node.getMemoryNode();
-		List<MidLoadNode> currentUses = uses.get(memNode);
+		Set<MidLoadNode> currentUses = uses.get(memNode);
 		if (currentUses == null) {
-			currentUses = new ArrayList<MidLoadNode>();
+			currentUses = new HashSet<MidLoadNode>();
 			uses.put(memNode, currentUses);
 		}
 		currentUses.add(node);
@@ -65,8 +79,9 @@ public class RegAllocState {
 
 	public void processDefinition(MidSaveNode node,
 			LivenessDoctor livenessAnalyzer) {
+		LogCenter.debug("RA", "Processing def " + node);
 		MidMemoryNode destNode = node.getDestinationNode();
-		List<MidLoadNode> useList = uses.get(destNode);
+		Set<MidLoadNode> useList = uses.get(destNode);
 		if (useList == null) {
 			return;
 		}
@@ -74,7 +89,7 @@ public class RegAllocState {
 		livenessAnalyzer.save(node, useList);
 	}
 
-	public Map<MidMemoryNode, List<MidLoadNode>> getUses() {
+	public Map<MidMemoryNode, Set<MidLoadNode>> getUses() {
 		return uses;
 	}
 
@@ -84,7 +99,8 @@ public class RegAllocState {
 			return false;
 		}
 		RegAllocState otherState = (RegAllocState) o;
-		return getUses().equals(otherState.getUses());
+		boolean isEqual = getUses().equals(otherState.getUses());
+		return isEqual;
 	}
 
 }

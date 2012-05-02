@@ -12,7 +12,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 
 public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
-	private S startState;
+	protected S startState;
 	private T transferFunction;
 	private HashMap<Block, S> outHash;
 
@@ -77,7 +77,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 
 	public S getInState(Block b) {
 		S out = null;
-		LogCenter.debug("OPT", "Getting in-state.");
+		LogCenter.debug("OPT", "Getting in-state of type ");
 		for (Block m : b.getPredecessors()) {
 			LogCenter.debug("OPT", "Using state from " + m);
 			out = outHash.get(m).join(out);

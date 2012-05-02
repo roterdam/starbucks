@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
@@ -22,14 +24,13 @@ import edu.mit.compilers.opt.Block;
  */
 public class LivenessDoctor {
 
-	Map<MidSaveNode, List<MidLoadNode>> defUseMap;
+	private Map<MidSaveNode, Set<MidLoadNode>> defUseMap;
 
 	public LivenessDoctor() {
-		defUseMap = new HashMap<MidSaveNode, List<MidLoadNode>>();
+		defUseMap = new HashMap<MidSaveNode, Set<MidLoadNode>>();
 	}
 
-	public Map<MidSaveNode, List<MidLoadNode>> analyze(
-			MidSymbolTable symbolTable) {
+	public Map<MidSaveNode, Set<MidLoadNode>> analyze(MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (MidMethodDeclNode methodDeclNode : methods.values()) {
 			analyze(methodDeclNode.getNodeList());
@@ -70,13 +71,15 @@ public class LivenessDoctor {
 				changed.addAll(n.getPredecessors());
 			}
 		}
-		LogCenter.debug("RA", "LIVENESS " + defUseMap);
+		LogCenter.debug("RA", "LIVENESS RESULTS:");
+		for (Entry<MidSaveNode, Set<MidLoadNode>> entry : defUseMap.entrySet()) {
+			LogCenter.debug("RA", entry.getKey() + " => " + entry.getValue());
+		}
 	}
 
 	private RegAllocState livenessProcess(Block block, RegAllocState state) {
-		MidNode node = block.getTail();
 		RegAllocState out = state.clone();
-		while (true) {
+		for (MidNode node : block.reverse()) {
 			if (node instanceof MidLoadNode) {
 				// Use.
 				out.processUse((MidLoadNode) node);
@@ -84,10 +87,6 @@ public class LivenessDoctor {
 				// Definition.
 				out.processDefinition((MidSaveNode) node, this);
 			}
-			if (node == block.getHead()) {
-				break;
-			}
-			node = node.getPrevNode();
 		}
 		return out;
 	}
@@ -110,7 +109,7 @@ public class LivenessDoctor {
 		return null;
 	}
 
-	public void save(MidSaveNode node, List<MidLoadNode> useList) {
+	public void save(MidSaveNode node, Set<MidLoadNode> useList) {
 		defUseMap.put(node, useList);
 	}
 

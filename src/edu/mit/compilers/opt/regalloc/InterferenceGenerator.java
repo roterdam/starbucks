@@ -4,19 +4,14 @@ import java.util.Map;
 
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.opt.Analyzer;
 
-public class InterferenceGenerator {
+public class InterferenceGenerator extends Analyzer<WebState, WebProcessor> {
 
-	private final Map<MidSaveNode, Web> webMapDefs;
-	private final Map<MidLoadNode, Web> webMapUses;
-
-	public InterferenceGenerator(Map<MidSaveNode, Web> webMapDefs,
-			Map<MidLoadNode, Web> webMapUses) {
-		this.webMapDefs = webMapDefs;
-		this.webMapUses = webMapUses;
-	}
-
-	public void run() {
+	public InterferenceGenerator(Map<MidSaveNode, Web> webDefs,
+			Map<MidLoadNode, Web> webUses) {
+		super(new WebState().getInitialState(), new WebProcessor());
+		WebProcessor.initialize(webDefs, webUses);
 	}
 
 }
