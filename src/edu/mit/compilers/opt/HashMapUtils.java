@@ -3,6 +3,7 @@ package edu.mit.compilers.opt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HashMapUtils {
 
@@ -23,13 +24,13 @@ public class HashMapUtils {
 		return out;
 	}
 
-	public static <K, V> String toMapString(String prefix, HashMap<K, V> map) {
+	public static <K, V> String toMapString(Map<K, V> map) {
 		String out = "{";
 		for (K key : map.keySet()) {
-			out += "\n[" + prefix + "]  " + key.toString() + " = "
-					+ map.get(key).toString() + ",";
+			out += "\n" + key.toString() + " = " + map.get(key).toString()
+					+ ",";
 		}
-		out += "\n[" + prefix + "]  }";
+		out += "\n}";
 		return out;
 	}
 

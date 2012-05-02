@@ -6,12 +6,16 @@ import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.opt.HashMapUtils;
 
 public class RegisterAllocator {
 
 	private final MidSymbolTable symbolTable;
+	private final static Reg[] USABLE_REGISTERS = { Reg.R10, Reg.R11, Reg.R12,
+			Reg.R13, Reg.R14, Reg.R15 };
 
 	public RegisterAllocator(MidSymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
@@ -26,11 +30,20 @@ public class RegisterAllocator {
 		InterferenceGenerator gen = new InterferenceGenerator(
 				knitter.getWebMapDefs(), knitter.getWebMapUses());
 		gen.analyze(symbolTable);
-		LogCenter.debug("RA", "RA results: " + webs);
+		LogCenter.debug("RA", "Webs created:");
+		for (Web w : webs) {
+			LogCenter.debug("RA", String.format("%s: %s", w, w
+					.getInterferences()));
+		}
+		GraphColorer crayola = new GraphColorer(USABLE_REGISTERS);
+		Map<Web, Reg> mapping = crayola.color(webs);
+		LogCenter.debug("RA", "Coloring results: "
+				+ HashMapUtils.toMapString(mapping));
 	}
 
 	/**
 	 * Debugging code for printing interference graph.
+	 * 
 	 * @param webs
 	 */
 	private void printInterferenceGraph(List<Web> webs) {

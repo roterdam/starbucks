@@ -48,16 +48,8 @@ public class Web {
 
 	@Override
 	public String toString() {
-		String out = "Web: [";
-		for (MidSaveNode saveNode : definitions) {
-			out += saveNode;
-		}
-		out += "] => [";
-		for (MidLoadNode loadNode : uses) {
-			out += loadNode;
-		}
-		out += "]";
-		return out;
+		return String.format("Web [%s]", definitions.get(0)
+				.getDestinationNode().getName());
 	}
 
 	public Set<Web> getInterferences() {
