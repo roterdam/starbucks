@@ -178,7 +178,7 @@ public class Block implements Iterable<MidNode> {
 
 			@Override
 			public void remove() {
-				throw new NotImplementedException();
+				assert false : "Not implemented!";
 			}
 
 		};
