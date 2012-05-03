@@ -124,9 +124,9 @@ public class CPGlobalState implements State<CPGlobalState> {
 	@Override
 	public String toString() {
 		return "CPGlobalState => definitionMap:\n[CP]  "
-				+ HashMapUtils.toMapString("CP", definitionMap)
+				+ HashMapUtils.toMapString(definitionMap)
 				+ "\n[CP] mentionMap:\n[CP]  "
-				+ HashMapUtils.toMapString("CP", mentionMap);
+				+ HashMapUtils.toMapString(mentionMap);
 	}
 
 	@Override

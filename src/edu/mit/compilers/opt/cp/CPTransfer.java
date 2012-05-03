@@ -6,9 +6,10 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
-import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
@@ -66,12 +67,34 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			} else if (assignmentNode instanceof MidMethodCallNode) {
 				outState.reset();
 			}
+			if (assignmentNode instanceof ArrayReferenceNode
+					&& ((ArrayReferenceNode) assignmentNode)
+							.usesArrayReference()) {
+				processArrayUse(outState, (ArrayReferenceNode) assignmentNode);
+			}
 		}
 
 		LogCenter.debug("CP", "FINAL STATE IS " + outState);
 		LogCenter.debug("CP", "");
 
 		return outState;
+	}
+
+	private void processArrayUse(CPGlobalState outState,
+			ArrayReferenceNode arrayNode) {
+		// Check if the register node used is a load node determined to be a
+		// constant.
+		MidArrayElementNode arrayElementNode = arrayNode
+				.getMidArrayElementNode();
+		MidLoadNode indexLoadNode = arrayElementNode.getLoadNode();
+		MidMemoryNode refNode = indexLoadNode.getMemoryNode();
+		MidMemoryNode lookedUpNode = outState.lookupDefinition(refNode);
+		if (lookedUpNode != null) {
+			refNode = lookedUpNode;
+		}
+		if (refNode instanceof MidConstantNode) {
+			arrayElementNode.setConstantNode((MidConstantNode) refNode);
+		}
 	}
 
 	private void processUse(CPGlobalState outState, MidLoadNode loadNode) {
@@ -90,9 +113,7 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 			MidMemoryNode refNode = loadNode.getMemoryNode();
 
-			if (!(saveNode.getDestinationNode() instanceof MidTempDeclNode)) {
-				outState.saveDefinition(memNode, refNode);
-			}
+			outState.saveDefinition(memNode, refNode);
 
 		}
 

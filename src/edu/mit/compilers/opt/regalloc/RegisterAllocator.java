@@ -2,11 +2,14 @@ package edu.mit.compilers.opt.regalloc;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.Reg;
+import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.HashMapUtils;
@@ -39,6 +42,21 @@ public class RegisterAllocator {
 		Map<Web, Reg> mapping = crayola.color(webs);
 		LogCenter.debug("RA", "Coloring results: "
 				+ HashMapUtils.toMapString(mapping));
+
+		for (Entry<String, MidMethodDeclNode> entry : symbolTable.getMethods()
+				.entrySet()) {
+			applyAllocations(entry.getValue(), mapping);
+		}
+	}
+
+	private void applyAllocations(MidMethodDeclNode methodDeclNode,
+			Map<Web, Reg> mapping) {
+		for (MidNode node : methodDeclNode.getNodeList()) {
+			if (node instanceof MidLoadNode) {
+				MidLoadNode loadNode = (MidLoadNode) node;
+				
+			}
+		}
 	}
 
 	/**

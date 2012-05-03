@@ -114,11 +114,11 @@ public class CSELocalState {
 	@Override
 	public String toString() {
 		String out = "CSELocalState:\n";
-		out += "[OPT] varToVal: " + HashMapUtils.toMapString("OPT", varToVal)
+		out += "[OPT] varToVal: " + HashMapUtils.toMapString(varToVal)
 				+ "\n";
-		out += "[OPT] valToTemp: " + HashMapUtils.toMapString("OPT", valToTemp)
+		out += "[OPT] valToTemp: " + HashMapUtils.toMapString(valToTemp)
 				+ "\n";
-		out += "[OPT] exprToVal: " + HashMapUtils.toMapString("OPT", exprToVal)
+		out += "[OPT] exprToVal: " + HashMapUtils.toMapString(exprToVal)
 				+ "\n";
 		return out;
 	}

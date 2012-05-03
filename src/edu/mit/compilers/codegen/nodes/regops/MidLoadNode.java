@@ -35,9 +35,11 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		int mid = className.lastIndexOf('.') + 1;
 		String isArray = usesArrayReference() ? "[A]" : "";
 		String prefix = isOptimization ? "[OPT] " : "";
-		String oldRef = (oldMemoryNode == null) ? "" : " (" + oldMemoryNode.getName() + ")";
-		return prefix + "<" + className.substring(mid) + ": " + memoryNode.getName() + oldRef
-				+ " -> " + getName() + " " + isArray + ">";
+		String oldRef = (oldMemoryNode == null) ? "" : " ("
+				+ oldMemoryNode.getName() + ")";
+		return prefix + "<" + className.substring(mid) + ": "
+				+ memoryNode.getName() + oldRef + " -> " + getName() + " "
+				+ isArray + ">";
 	}
 
 	@Override
@@ -46,6 +48,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 				+ hashCode() + " [style=dotted,color=orange];\n";
 	}
 
+	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
@@ -57,21 +60,15 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		registerOpNodes.add(opNode);
 	}
 
-	public void replaceThisReferences(MidLoadNode newNode) {
-		for (RegisterOpNode opNode : registerOpNodes) {
-			opNode.updateLoadNode(this, newNode);
-		}
-	}
-
-	public void replace(MidLoadNode node) {
-		insertAfter(node);
-		node.delete();
-		node.replaceThisReferences(this);
-	}
-
 	@Override
 	public boolean usesArrayReference() {
 		return memoryNode instanceof MidArrayElementNode;
+	}
+
+	@Override
+	public MidArrayElementNode getMidArrayElementNode() {
+		assert usesArrayReference();
+		return (MidArrayElementNode) memoryNode;
 	}
 
 	@Override
@@ -80,12 +77,13 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		return ((MidArrayElementNode) memoryNode).getLoadRegister();
 	}
 
-	public void updateMemoryNode(MidMemoryNode tempReplacement, boolean isOptimization) {
+	public void updateMemoryNode(MidMemoryNode tempReplacement,
+			boolean isOptimization) {
 		oldMemoryNode = memoryNode;
 		memoryNode = tempReplacement;
 		if (isOptimization) {
 			this.isOptimization = true;
 		}
 	}
-	
+
 }

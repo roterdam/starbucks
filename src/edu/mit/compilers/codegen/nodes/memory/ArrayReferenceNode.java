@@ -9,6 +9,7 @@ import edu.mit.compilers.codegen.Reg;
 public interface ArrayReferenceNode {
 	
 	public boolean usesArrayReference();
+	public MidArrayElementNode getMidArrayElementNode();
 	public Reg getArrayRegister();
 
 }

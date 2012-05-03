@@ -223,9 +223,9 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	@Override
 	public String toString() {
 		return "CSEGlobalState => mentionMap:\n[OPT]  "
-				+ HashMapUtils.toMapString("OPT", mentionMap) + "\n[OPT] refToExprMap:\n[OPT]  "
-				+ HashMapUtils.toMapString("OPT", refToExprMap) + "\n[OPT] exprToRefMap:\n[OPT]  "
-				+ HashMapUtils.toMapString("OPT", exprToRefMap);
+				+ HashMapUtils.toMapString(mentionMap) + "\n[OPT] refToExprMap:\n[OPT]  "
+				+ HashMapUtils.toMapString(refToExprMap) + "\n[OPT] exprToRefMap:\n[OPT]  "
+				+ HashMapUtils.toMapString(exprToRefMap);
 	}
 
 	@Override

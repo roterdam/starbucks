@@ -99,6 +99,12 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	}
 
 	@Override
+	public MidArrayElementNode getMidArrayElementNode() {
+		assert usesArrayReference();
+		return (MidArrayElementNode) destination;
+	}
+
+	@Override
 	public Reg getArrayRegister() {
 		assert usesArrayReference();
 		return ((MidArrayElementNode) destination).getLoadRegister();
