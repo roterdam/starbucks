@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.regalloc;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.opt.State;
 
 public class WebState implements State<WebState> {
@@ -62,16 +63,19 @@ public class WebState implements State<WebState> {
 
 	public void birthWeb(Web web) {
 		assert web != null;
+		LogCenter.debug("RA", "Birthing new web " + web);
 		liveWebs.add(web);
 	}
 
 	public void killWeb(Web web) {
+		LogCenter.debug("RA", "Killing web " + web);
 		liveWebs.remove(web);
 	}
 
 	public void interfereWith(Web web) {
 		for (Web liveWeb : liveWebs) {
 			assert liveWeb != null;
+			LogCenter.debug("RA", "Marking " + web + " as interfering with " + liveWeb);
 			liveWeb.addInterference(web);
 		}
 	}

@@ -20,6 +20,7 @@ public class WebProcessor implements Transfer<WebState> {
 		LogCenter.debug("RA", "Processing " + b);
 		WebState out = s.clone();
 		for (MidNode node : b) {
+			LogCenter.debug("RA", "Processing " + node);
 			if (node instanceof MidSaveNode) {
 				if (!webDefs.containsKey(node)) {
 					LogCenter.debug("RA", "Warning: saveNode: " + node

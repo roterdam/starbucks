@@ -160,18 +160,21 @@ public class Block implements Iterable<MidNode> {
 	public Iterator<MidNode> iterator() {
 		return new Iterator<MidNode>() {
 
-			private MidNode curNode = Block.this.getHead();
+			private MidNode curNode = null;
 
 			@Override
 			public boolean hasNext() {
-				return !(curNode == Block.this.getTail());
+				return curNode != Block.this.getTail();
 			}
 
 			@Override
 			public MidNode next() {
-				MidNode out = curNode;
-				curNode = curNode.getNextNode();
-				return out;
+				if (curNode == null) {
+					curNode = Block.this.getHead();
+				} else {
+					curNode = curNode.getNextNode();
+				}
+				return curNode;
 			}
 
 			@Override
@@ -188,18 +191,21 @@ public class Block implements Iterable<MidNode> {
 			@Override
 			public Iterator<MidNode> iterator() {
 				return new Iterator<MidNode>() {
-					private MidNode curNode = Block.this.getTail();
+					private MidNode curNode;
 
 					@Override
 					public boolean hasNext() {
-						return !(curNode == Block.this.getHead());
+						return curNode != Block.this.getHead();
 					}
 
 					@Override
 					public MidNode next() {
-						MidNode out = curNode;
-						curNode = curNode.getPrevNode();
-						return out;
+						if (curNode == null) {
+							curNode = Block.this.getTail();
+						} else {
+							curNode = curNode.getPrevNode();
+						}
+						return curNode;
 					}
 
 					@Override
