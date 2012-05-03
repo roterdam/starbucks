@@ -19,6 +19,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
 	private MidMemoryNode oldMemoryNode;
+	private Reg sourceReg;
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
@@ -27,6 +28,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 	}
 
 	public MidMemoryNode getMemoryNode() {
+		assert sourceReg == null : "Shouldn't be getting this memory node after allocating it to a register!";
 		return memoryNode;
 	}
 
@@ -51,8 +53,15 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
-				memoryNode.getFormattedLocationReference()));
+		if (sourceReg == null) {
+			out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
+					memoryNode.getFormattedLocationReference()));
+		} else {
+			// If the load node has instead been given a register, load from
+			// that instead.
+			out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(), sourceReg
+					.name()));
+		}
 		return out;
 	}
 
@@ -84,6 +93,10 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		if (isOptimization) {
 			this.isOptimization = true;
 		}
+	}
+
+	public void allocateRegister(Reg allocatedReg) {
+		this.sourceReg = allocatedReg;
 	}
 
 }

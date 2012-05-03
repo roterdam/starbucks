@@ -45,16 +45,31 @@ public class RegisterAllocator {
 
 		for (Entry<String, MidMethodDeclNode> entry : symbolTable.getMethods()
 				.entrySet()) {
-			applyAllocations(entry.getValue(), mapping);
+			applyAllocations(entry.getValue(), mapping, knitter);
 		}
 	}
 
 	private void applyAllocations(MidMethodDeclNode methodDeclNode,
-			Map<Web, Reg> mapping) {
+			Map<Web, Reg> mapping, WebKnitter knitter) {
 		for (MidNode node : methodDeclNode.getNodeList()) {
 			if (node instanceof MidLoadNode) {
+				LogCenter.debug("RA", "Found load node: " + node);
 				MidLoadNode loadNode = (MidLoadNode) node;
-				
+				Reg allocatedReg = mapping.get(knitter.lookupWeb(loadNode));
+				if (allocatedReg != null) {
+					LogCenter.debug("RA", "Allocating " + allocatedReg.name()
+							+ " to " + node);
+					loadNode.allocateRegister(allocatedReg);
+				}
+			} else if (node instanceof MidSaveNode) {
+				LogCenter.debug("RA", "Found save node: " + node);
+				MidSaveNode saveNode = (MidSaveNode) node;
+				Reg allocatedReg = mapping.get(knitter.lookupWeb(saveNode));
+				if (allocatedReg != null) {
+					LogCenter.debug("RA", "Allocating " + allocatedReg.name()
+							+ " to " + node);
+					saveNode.allocateRegister(allocatedReg);
+				}
 			}
 		}
 	}

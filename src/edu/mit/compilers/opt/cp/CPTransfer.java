@@ -10,6 +10,7 @@ import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
@@ -113,7 +114,9 @@ public class CPTransfer implements Transfer<CPGlobalState> {
 			MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 			MidMemoryNode refNode = loadNode.getMemoryNode();
 
-			outState.saveDefinition(memNode, refNode);
+			if (!(saveNode.getDestinationNode() instanceof MidTempDeclNode)) {
+				outState.saveDefinition(memNode, refNode);
+			}
 
 		}
 

@@ -29,7 +29,7 @@ public class WebKnitter {
 			MidSaveNode def = entry.getKey();
 			Web targetWeb = null;
 			for (MidLoadNode use : uses) {
-				targetWeb = getWebMapUses().get(use);
+				targetWeb = webMapUses.get(use);
 				if (targetWeb != null) {
 					break;
 				}
@@ -40,9 +40,9 @@ public class WebKnitter {
 			}
 			targetWeb.expand(def, uses);
 			for (MidLoadNode use : uses) {
-				getWebMapUses().put(use, targetWeb);
+				webMapUses.put(use, targetWeb);
 			}
-			getWebMapDefs().put(def, targetWeb);
+			webMapDefs.put(def, targetWeb);
 		}
 		return output;
 	}
@@ -53,6 +53,14 @@ public class WebKnitter {
 
 	public Map<MidSaveNode, Web> getWebMapDefs() {
 		return webMapDefs;
+	}
+	
+	public Web lookupWeb(MidLoadNode node) {
+		return webMapUses.get(node);
+	}
+	
+	public Web lookupWeb(MidSaveNode node) {
+		return webMapDefs.get(node);
 	}
 
 }

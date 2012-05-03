@@ -34,6 +34,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 	private MidSaveNodeType saveType;
 	private MidMemoryNode destination;
+	private Reg allocatedReg;
 
 	private MidSaveNode(MidMemoryNode dest) {
 		assert dest != null;
@@ -176,8 +177,13 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		}
 
 		String comment = (isOptimization ? "[OPT] " : "") + toString();
-		out.add(new OpASM(comment, OpCode.MOV, destination
-				.getFormattedLocationReference(), rightOperand));
+		String destinationString;
+		if (allocatedReg == null) {
+			destinationString = destination.getFormattedLocationReference();
+		} else {
+			destinationString = allocatedReg.name();
+		}
+		out.add(new OpASM(comment, OpCode.MOV, destinationString, rightOperand));
 
 		return out;
 	}
@@ -197,6 +203,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 			out.add(registerNode.getRegister());
 		}
 		return out;
+	}
+
+	public void allocateRegister(Reg allocatedReg) {
+		this.allocatedReg = allocatedReg;
 	}
 
 }
