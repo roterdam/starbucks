@@ -17,8 +17,10 @@ import edu.mit.compilers.opt.HashMapUtils;
 public class RegisterAllocator {
 
 	private final MidSymbolTable symbolTable;
-	private final static Reg[] USABLE_REGISTERS = { Reg.R10, Reg.R11, Reg.R12,
-			Reg.R13, Reg.R14, Reg.R15 };
+	private final static Reg[] USABLE_REGISTERS = {
+//		Reg.R10, Reg.R11,
+		Reg.R12, Reg.R13, Reg.R14, Reg.R15
+	};
 
 	public RegisterAllocator(MidSymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
@@ -53,7 +55,6 @@ public class RegisterAllocator {
 			Map<Web, Reg> mapping, WebKnitter knitter) {
 		for (MidNode node : methodDeclNode.getNodeList()) {
 			if (node instanceof MidLoadNode) {
-				LogCenter.debug("RA", "Found load node: " + node);
 				MidLoadNode loadNode = (MidLoadNode) node;
 				Reg allocatedReg = mapping.get(knitter.lookupWeb(loadNode));
 				if (allocatedReg != null) {
@@ -62,7 +63,6 @@ public class RegisterAllocator {
 					loadNode.allocateRegister(allocatedReg);
 				}
 			} else if (node instanceof MidSaveNode) {
-				LogCenter.debug("RA", "Found save node: " + node);
 				MidSaveNode saveNode = (MidSaveNode) node;
 				Reg allocatedReg = mapping.get(knitter.lookupWeb(saveNode));
 				if (allocatedReg != null) {
