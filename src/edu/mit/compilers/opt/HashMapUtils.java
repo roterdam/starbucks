@@ -27,8 +27,7 @@ public class HashMapUtils {
 	public static <K, V> String toMapString(Map<K, V> map) {
 		String out = "{";
 		for (K key : map.keySet()) {
-			out += "\n" + key.toString() + " = " + map.get(key).toString()
-					+ ",";
+			out += "\n" + key.toString() + " = " + map.get(key) + ",";
 		}
 		out += "\n}";
 		return out;
