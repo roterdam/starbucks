@@ -18,7 +18,7 @@ import edu.mit.compilers.opt.HashMapUtils;
 public class RegisterAllocator {
 
 	private final MidSymbolTable symbolTable;
-	private final static Reg[] USABLE_REGISTERS = {
+	public final static Reg[] USABLE_REGISTERS = {
 			// Reg.R10, Reg.R11,
 			Reg.R12, Reg.R13, Reg.R14, Reg.R15 };
 

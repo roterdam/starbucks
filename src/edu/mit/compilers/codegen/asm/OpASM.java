@@ -32,7 +32,11 @@ public class OpASM extends ASM {
 		}
 		return String.format("   %-10s %-30s\n", op.name(), arguments
 				.toString());
-
 	}
-
+	
+	@Override
+	public boolean isRet() {
+		return op == OpCode.RET;
+	}
+	
 }

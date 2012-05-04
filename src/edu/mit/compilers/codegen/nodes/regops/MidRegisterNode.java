@@ -31,6 +31,7 @@ abstract public class MidRegisterNode extends MidNode {
 	}
 
 	public Reg getRegister() {
+		assert register != null : "Called get register before register was set.";
 		return register;
 	}
 

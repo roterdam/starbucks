@@ -208,5 +208,9 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	public void allocateRegister(Reg allocatedReg) {
 		this.allocatedReg = allocatedReg;
 	}
+	
+	public Reg getAllocatedRegister() {
+		return allocatedReg;
+	}
 
 }
