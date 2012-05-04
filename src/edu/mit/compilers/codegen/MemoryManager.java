@@ -122,11 +122,13 @@ public class MemoryManager {
 		// to each.
 		int localStackSize = 0;
 		for (MidMemoryNode memNode : usedMemoryNodes) {
-			if (!(memNode instanceof MidLocalMemoryNode)
+			if (memNode instanceof MidLocalMemoryNode
 					&& memNode.getRawLocationReference() == null) {
 				localStackSize += ADDRESS_SIZE;
 				memNode.setRawLocationReference(Integer
 						.toString(localStackSize));
+			} else {
+				LogCenter.debug("MEM", "Skipping " + memNode + " (" + memNode.getRawLocationReference() + ")");
 			}
 		}
 		methodDeclNode.setLocalStackSize(localStackSize);
