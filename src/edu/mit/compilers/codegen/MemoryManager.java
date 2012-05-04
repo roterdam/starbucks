@@ -12,6 +12,7 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MemoryUser;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
+import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
@@ -121,7 +122,7 @@ public class MemoryManager {
 		// to each.
 		int localStackSize = 0;
 		for (MidMemoryNode memNode : usedMemoryNodes) {
-			if (memNode.getRawLocationReference() == null) {
+			if (!(memNode instanceof MidLocalMemoryNode)) {
 				localStackSize += ADDRESS_SIZE;
 				memNode.setRawLocationReference(Integer
 						.toString(localStackSize));
