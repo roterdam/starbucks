@@ -34,13 +34,14 @@ public class WebState implements State<WebState> {
 
 	@Override
 	public WebState join(WebState s) {
+		LogCenter.debug("RA", "Joining " + s + " with " + this);
 		if (s == null) {
 			return clone();
 		}
-		// A dead web node is dead in both places.
+		// A live web node is live in either both place.
 		Set<Web> thisLiveWebs = new HashSet<Web>(getLiveWebs());
 		Set<Web> thatLiveWebs = s.getLiveWebs();
-		thisLiveWebs.retainAll(thatLiveWebs);
+		thisLiveWebs.addAll(thatLiveWebs);
 		WebState out = new WebState(thisLiveWebs);
 		return out;
 	}
@@ -61,6 +62,11 @@ public class WebState implements State<WebState> {
 		return liveWebs.equals(otherState.getLiveWebs());
 	}
 
+	@Override
+	public String toString() {
+		return getLiveWebs().toString();
+	}
+
 	public void birthWeb(Web web) {
 		assert web != null;
 		LogCenter.debug("RA", "Birthing new web " + web);
@@ -75,7 +81,8 @@ public class WebState implements State<WebState> {
 	public void interfereWith(Web web) {
 		for (Web liveWeb : liveWebs) {
 			assert liveWeb != null;
-			LogCenter.debug("RA", "Marking " + web + " as interfering with " + liveWeb);
+			LogCenter.debug("RA", "Marking " + web + " as interfering with "
+					+ liveWeb);
 			liveWeb.addInterference(web);
 		}
 	}

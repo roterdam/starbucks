@@ -17,9 +17,10 @@ public class WebProcessor implements Transfer<WebState> {
 	@Override
 	public WebState apply(Block b, WebState s) {
 		assert (webDefs != null && webUses != null) : "WebProcessor function apply() called before initialize().";
-		LogCenter.debug("RA", "Processing " + b);
+		LogCenter.debug("RA", "\n########\nProcessing " + b);
 		WebState out = s.clone();
-		for (MidNode node : b) {
+		LogCenter.debug("RA", "Live webs: " + out.getLiveWebs());
+		for (MidNode node : b.reverse()) {
 			LogCenter.debug("RA", "Processing " + node);
 			if (node instanceof MidSaveNode) {
 				if (!webDefs.containsKey(node)) {
@@ -28,8 +29,7 @@ public class WebProcessor implements Transfer<WebState> {
 					continue;
 				}
 				Web web = webDefs.get(node);
-				s.birthWeb(web);
-				s.interfereWith(web);
+				out.killWeb(web);
 			} else if (node instanceof MidLoadNode) {
 				// It's possible that this is dead code and doesn't belong to a
 				// web.
@@ -39,12 +39,11 @@ public class WebProcessor implements Transfer<WebState> {
 					continue;
 				}
 				Web web = webUses.get(node);
-				web.markUsed(node);
-				if (web.isDead()) {
-					s.killWeb(web);
-				}
+				out.birthWeb(web);
+				out.interfereWith(web);
 			}
 		}
+		LogCenter.debug("RA", "Live webs: " + out.getLiveWebs() + "\n#\n#");
 		return out;
 	}
 

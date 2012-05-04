@@ -21,7 +21,7 @@ public class WebKnitter {
 		webMapUses = new HashMap<MidLoadNode, Web>();
 		webMapDefs = new HashMap<MidSaveNode, Web>();
 	}
-	
+
 	public List<Web> run() {
 		List<Web> output = new ArrayList<Web>();
 		for (Entry<MidSaveNode, Set<MidLoadNode>> entry : defUseMap.entrySet()) {
@@ -54,11 +54,11 @@ public class WebKnitter {
 	public Map<MidSaveNode, Web> getWebMapDefs() {
 		return webMapDefs;
 	}
-	
+
 	public Web lookupWeb(MidLoadNode node) {
 		return webMapUses.get(node);
 	}
-	
+
 	public Web lookupWeb(MidSaveNode node) {
 		return webMapDefs.get(node);
 	}

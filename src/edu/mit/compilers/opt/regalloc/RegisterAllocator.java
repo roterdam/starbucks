@@ -12,29 +12,36 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
 
 public class RegisterAllocator {
 
 	private final MidSymbolTable symbolTable;
 	private final static Reg[] USABLE_REGISTERS = {
-//		Reg.R10, Reg.R11,
-		Reg.R12, Reg.R13, Reg.R14, Reg.R15
-	};
+			// Reg.R10, Reg.R11,
+			Reg.R12, Reg.R13, Reg.R14, Reg.R15 };
 
 	public RegisterAllocator(MidSymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
 	}
 
 	public void run() {
-		LivenessDoctor analyzer = new LivenessDoctor();
-		Map<MidSaveNode, Set<MidLoadNode>> defUseMap = analyzer
-				.analyze(symbolTable);
+		LivenessDoctor doctor = new LivenessDoctor();
+		BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+				new LivenessState().getBottomState(), doctor);
+		analyzer.analyze(symbolTable);
+
+		Map<MidSaveNode, Set<MidLoadNode>> defUseMap = doctor.getDefUseMap();
 		WebKnitter knitter = new WebKnitter(defUseMap);
 		List<Web> webs = knitter.run();
-		InterferenceGenerator gen = new InterferenceGenerator(
-				knitter.getWebMapDefs(), knitter.getWebMapUses());
-		gen.analyze(symbolTable);
+
+		WebProcessor.initialize(knitter.getWebMapDefs(), knitter
+				.getWebMapUses());
+		BackwardsAnalyzer<WebState, WebProcessor> interferenceAnalyzer = new BackwardsAnalyzer<WebState, WebProcessor>(
+				new WebState().getBottomState(), new WebProcessor());
+		interferenceAnalyzer.analyze(symbolTable);
+
 		LogCenter.debug("RA", "Webs created:");
 		for (Web w : webs) {
 			LogCenter.debug("RA", String.format("%s: %s", w, w
