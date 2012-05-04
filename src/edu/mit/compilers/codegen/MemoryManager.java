@@ -10,7 +10,6 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
-import edu.mit.compilers.codegen.nodes.memory.MemoryUser;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
@@ -71,9 +70,16 @@ public class MemoryManager {
 
 	private static void processMethod(MidMethodDeclNode methodDeclNode) {
 		deallocAllTempRegisters();
+		int localStackSize = 0;
 		List<MidMemoryNode> usedMemoryNodes = new ArrayList<MidMemoryNode>();
 		for (MidNode m : methodDeclNode.getNodeList()) {
 			LogCenter.debug("MEM", m.toString());
+			if (m instanceof MidLocalMemoryNode) {
+				localStackSize += ADDRESS_SIZE;
+				((MidMemoryNode) m).setRawLocationReference(Integer
+						.toString(localStackSize));
+				continue;
+			}
 			if (m instanceof RegisterOpNode) {
 				// We dealloc before alloc in order to allow a register node
 				// to save to itself.
@@ -113,22 +119,6 @@ public class MemoryManager {
 			if (m instanceof MidRegisterNode
 					&& !((MidRegisterNode) m).hasRegister()) {
 				((MidRegisterNode) m).setRegister(allocTempRegister());
-			}
-			if (m instanceof MemoryUser) {
-				usedMemoryNodes.addAll(((MemoryUser) m).getUsedMemoryNodes());
-			}
-		}
-		// After knowing which memory nodes actually get used, assign locations
-		// to each.
-		int localStackSize = 0;
-		for (MidMemoryNode memNode : usedMemoryNodes) {
-			if (memNode instanceof MidLocalMemoryNode
-					&& memNode.getRawLocationReference() == null) {
-				localStackSize += ADDRESS_SIZE;
-				memNode.setRawLocationReference(Integer
-						.toString(localStackSize));
-			} else {
-				LogCenter.debug("MEM", "Skipping " + memNode + " (" + memNode.getRawLocationReference() + ")");
 			}
 		}
 		methodDeclNode.setLocalStackSize(localStackSize);

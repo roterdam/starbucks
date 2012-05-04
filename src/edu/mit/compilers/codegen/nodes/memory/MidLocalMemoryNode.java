@@ -17,6 +17,7 @@ abstract public class MidLocalMemoryNode extends MidMemoryNode {
 	
 	@Override
 	public String getFormattedLocationReference() {
+		assert rawLocationReference != null : this;
 		// qword gives it 64 bits.
 		return String.format("qword [ %s - %s ]", Reg.RBP.name(), rawLocationReference);
 	}

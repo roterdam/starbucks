@@ -90,4 +90,8 @@ abstract public class MidMemoryNode extends MidNode {
 		return super.equals(o);
 	}
 
+	public boolean hasRawLocationReference() {
+		return rawLocationReference != null;
+	}
+
 }

@@ -1,15 +1,13 @@
 package edu.mit.compilers.codegen.nodes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.asm.ASM;
-import edu.mit.compilers.codegen.nodes.memory.MemoryUser;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
-public class MidMethodCallNode extends MidRegisterNode implements MemoryUser {
+public class MidMethodCallNode extends MidRegisterNode  {
 
 	MidMethodDeclNode methodDecl;
 	List<MidMemoryNode> params;
@@ -47,8 +45,4 @@ public class MidMethodCallNode extends MidRegisterNode implements MemoryUser {
 		return starbucksCall;
 	}
 
-	@Override
-	public List<MidMemoryNode> getUsedMemoryNodes() {
-		return new ArrayList<MidMemoryNode>(params);
-	}
 }
