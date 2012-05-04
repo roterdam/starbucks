@@ -8,13 +8,16 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
+import edu.mit.compilers.codegen.nodes.memory.MemoryUser;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.opt.regalloc.Allocatable;
 
 /**
  * Loads value from memory.
  */
-public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
+public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
+		Allocatable, MemoryUser {
 
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
@@ -59,8 +62,8 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 		} else {
 			// If the load node has instead been given a register, load from
 			// that instead.
-			out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(), sourceReg
-					.name()));
+			out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
+					sourceReg.name()));
 		}
 		return out;
 	}
@@ -97,6 +100,20 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode {
 
 	public void allocateRegister(Reg allocatedReg) {
 		this.sourceReg = allocatedReg;
+	}
+
+	@Override
+	public Reg getAllocatedRegister() {
+		return sourceReg;
+	}
+
+	@Override
+	public List<MidMemoryNode> getUsedMemoryNodes() {
+		List<MidMemoryNode> out = new ArrayList<MidMemoryNode>();
+		if (sourceReg == null) {
+			out.add(memoryNode);
+		}
+		return out;
 	}
 
 }

@@ -1,24 +1,25 @@
 package edu.mit.compilers.codegen.nodes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.nodes.memory.MemoryUser;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
-public class MidMethodCallNode extends MidRegisterNode {
+public class MidMethodCallNode extends MidRegisterNode implements MemoryUser {
 
 	MidMethodDeclNode methodDecl;
 	List<MidMemoryNode> params;
 	boolean starbucksCall;
-	
 
 	public MidMethodCallNode(MidMethodDeclNode methodDecl,
-			List<MidMemoryNode> params){
+			List<MidMemoryNode> params) {
 		this(methodDecl, params, false);
 	}
-			
+
 	public MidMethodCallNode(MidMethodDeclNode methodDecl,
 			List<MidMemoryNode> params, boolean starbucksCall) {
 		this.methodDecl = methodDecl;
@@ -38,10 +39,16 @@ public class MidMethodCallNode extends MidRegisterNode {
 
 	@Override
 	public List<ASM> toASM() {
-		return AsmVisitor.methodCall(methodDecl.getName(), params, getRegister(), false);
+		return AsmVisitor
+				.methodCall(methodDecl.getName(), params, getRegister(), false);
 	}
-	
-	public boolean isStarbucksCall(){
+
+	public boolean isStarbucksCall() {
 		return starbucksCall;
+	}
+
+	@Override
+	public List<MidMemoryNode> getUsedMemoryNodes() {
+		return new ArrayList<MidMemoryNode>(params);
 	}
 }

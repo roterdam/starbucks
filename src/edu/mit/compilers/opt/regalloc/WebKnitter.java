@@ -55,11 +55,10 @@ public class WebKnitter {
 		return webMapDefs;
 	}
 
-	public Web lookupWeb(MidLoadNode node) {
-		return webMapUses.get(node);
-	}
-
-	public Web lookupWeb(MidSaveNode node) {
+	public Web lookupWeb(Allocatable node) {
+		if (node instanceof MidLoadNode) {
+			return webMapUses.get(node);
+		}
 		return webMapDefs.get(node);
 	}
 

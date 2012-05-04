@@ -1,6 +1,10 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
 public class MidLoadImmNode extends MidLoadNode {
 	private long value;
@@ -21,6 +25,11 @@ public class MidLoadImmNode extends MidLoadNode {
 	public String toDotSyntax() {
 		return super.toDotSyntax() + Long.toString(value) + " -> " + hashCode()
 				+ " [style=dotted,color=orange];\n";
+	}
+	
+	@Override
+	public List<MidMemoryNode> getUsedMemoryNodes() {
+		return new ArrayList<MidMemoryNode>();
 	}
 
 }

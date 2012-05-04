@@ -1,11 +1,12 @@
 package edu.mit.compilers.codegen.nodes.memory;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 
 abstract public class MidMemoryNode extends MidNode {
 
 	String rawLocationReference;
-	
+
 	// Only used for toString
 	private String name;
 
@@ -32,6 +33,12 @@ abstract public class MidMemoryNode extends MidNode {
 	 * @param rawLocationReference
 	 */
 	public void setRawLocationReference(String rawLocationReference) {
+		assert this.rawLocationReference == null : "Tried setting location reference to "
+				+ rawLocationReference
+				+ " but it's already "
+				+ this.rawLocationReference;
+		LogCenter.debug("MEM", "Raw location reference set to "
+				+ rawLocationReference);
 		this.rawLocationReference = rawLocationReference;
 	}
 
@@ -54,7 +61,7 @@ abstract public class MidMemoryNode extends MidNode {
 		this.constantValue = decafIntValue;
 		this.isConstant = true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		if (isConstant) {
@@ -62,15 +69,15 @@ abstract public class MidMemoryNode extends MidNode {
 		}
 		return super.hashCode();
 	}
-	
+
 	public boolean isConstant() {
 		return isConstant;
 	}
-	
+
 	public long getConstant() {
 		return constantValue;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof MidMemoryNode)) {
@@ -82,5 +89,5 @@ abstract public class MidMemoryNode extends MidNode {
 		}
 		return super.equals(o);
 	}
-	
+
 }

@@ -10,6 +10,7 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
+import edu.mit.compilers.codegen.nodes.memory.MemoryUser;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
@@ -17,12 +18,13 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
+import edu.mit.compilers.opt.regalloc.Allocatable;
 
 /**
  * ` Saves referenced register node or literal to memory.
  */
 public class MidSaveNode extends MidNode implements RegisterOpNode,
-		ArrayReferenceNode {
+		ArrayReferenceNode, Allocatable, MemoryUser {
 
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
@@ -205,12 +207,23 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		return out;
 	}
 
+	@Override
 	public void allocateRegister(Reg allocatedReg) {
 		this.allocatedReg = allocatedReg;
 	}
-	
+
+	@Override
 	public Reg getAllocatedRegister() {
 		return allocatedReg;
+	}
+
+	@Override
+	public List<MidMemoryNode> getUsedMemoryNodes() {
+		List<MidMemoryNode> out = new ArrayList<MidMemoryNode>();
+		if (allocatedReg == null) {
+			out.add(destination);
+		}
+		return out;
 	}
 
 }
