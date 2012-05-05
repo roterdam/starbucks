@@ -1,8 +1,6 @@
 package edu.mit.compilers.codegen;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
@@ -71,10 +69,10 @@ public class MemoryManager {
 	private static void processMethod(MidMethodDeclNode methodDeclNode) {
 		deallocAllTempRegisters();
 		int localStackSize = 0;
-		List<MidMemoryNode> usedMemoryNodes = new ArrayList<MidMemoryNode>();
 		for (MidNode m : methodDeclNode.getNodeList()) {
 			LogCenter.debug("MEM", m.toString());
-			if (m instanceof MidLocalMemoryNode) {
+			if ((m instanceof MidLocalMemoryNode)
+					&& !((MidLocalMemoryNode) m).hasRawLocationReference()) {
 				localStackSize += ADDRESS_SIZE;
 				((MidMemoryNode) m).setRawLocationReference(Integer
 						.toString(localStackSize));
@@ -101,9 +99,8 @@ public class MemoryManager {
 				if (m instanceof ArrayReferenceNode) {
 					ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
 					if (arrayNode.usesArrayReference()) {
-						LogCenter
-								.debug("MEM", "deallocating array register of "
-										+ m);
+						LogCenter.debug("MEM",
+								"deallocating array register of " + m);
 						deallocTempRegister(arrayNode.getArrayRegister());
 					}
 				}

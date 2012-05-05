@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
@@ -61,6 +62,9 @@ public class RegisterAllocator {
 	private void applyAllocations(MidMethodDeclNode methodDeclNode,
 			Map<Web, Reg> mapping, WebKnitter knitter) {
 		for (MidNode node : methodDeclNode.getNodeList()) {
+			if (!(node instanceof MidLocalMemoryNode)) {
+				continue;
+			}
 			if (node instanceof Allocatable) {
 				Allocatable allocatedNode = (Allocatable) node;
 				Reg allocatedReg = mapping.get(knitter.lookupWeb(allocatedNode));
