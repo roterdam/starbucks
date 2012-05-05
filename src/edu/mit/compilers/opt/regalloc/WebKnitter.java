@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 public class WebKnitter {
@@ -27,6 +28,12 @@ public class WebKnitter {
 		for (Entry<MidSaveNode, Set<MidLoadNode>> entry : defUseMap.entrySet()) {
 			Set<MidLoadNode> uses = entry.getValue();
 			MidSaveNode def = entry.getKey();
+			// We skip web generation for field nodes. Can potentially improve
+			// this in the future by splitting the web at method calls instead
+			// of not doing it at all.
+			if (def.getDestinationNode() instanceof MidFieldDeclNode) {
+				continue;
+			}
 			Web targetWeb = null;
 			for (MidLoadNode use : uses) {
 				targetWeb = webMapUses.get(use);
