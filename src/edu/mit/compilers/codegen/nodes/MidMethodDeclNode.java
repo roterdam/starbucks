@@ -101,7 +101,7 @@ public class MidMethodDeclNode extends MidNode {
 					if (usedReg == null) {
 						continue;
 					}
-					for (Reg usableReg : RegisterAllocator.USABLE_REGISTERS) {
+					for (Reg usableReg : RegisterAllocator.CALLEE_SAVED_REGISTERS) {
 						if (usableReg == usedReg) {
 							needToSaveRegs.add(usableReg);
 							break;
@@ -113,7 +113,6 @@ public class MidMethodDeclNode extends MidNode {
 					+ " registers to save: " + needToSaveRegs);
 			// Convert to a list so that it's ordered consistently.
 			List<Reg> orderedSaveRegs = new ArrayList<Reg>(needToSaveRegs);
-			LogCenter.debug("RA", "Ordered regs: " + orderedSaveRegs);
 			for (Reg reg : orderedSaveRegs) {
 				out.add(new OpASM("Callee-saved", OpCode.PUSH, reg.name()));
 			}
@@ -122,7 +121,6 @@ public class MidMethodDeclNode extends MidNode {
 
 			// Caution, this modifies the original array.
 			Collections.reverse(orderedSaveRegs);
-			LogCenter.debug("RA", "Reversed regs: " + orderedSaveRegs);
 			for (Reg reg : orderedSaveRegs) {
 				// Insert it right before the last one.
 				out.add(out.size() - 2, new OpASM("Callee-saved", OpCode.POP,

@@ -1,14 +1,23 @@
 package edu.mit.compilers.opt.regalloc;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 
+/**
+ * Transfer function to analyze web liveness in order to generate interference
+ * graphs.
+ * 
+ * @author joshma
+ * 
+ */
 public class WebProcessor implements Transfer<WebState> {
 
 	private static Map<MidSaveNode, Web> webDefs;
@@ -30,7 +39,9 @@ public class WebProcessor implements Transfer<WebState> {
 				}
 				Web web = webDefs.get(node);
 				out.killWeb(web);
-			} else if (node instanceof MidLoadNode) {
+				continue;
+			}
+			if (node instanceof MidLoadNode) {
 				// It's possible that this is dead code and doesn't belong to a
 				// web.
 				if (!webUses.containsKey(node)) {
@@ -41,6 +52,11 @@ public class WebProcessor implements Transfer<WebState> {
 				Web web = webUses.get(node);
 				out.birthWeb(web);
 				out.interfereWith(web);
+				continue;
+			}
+			if (node instanceof MidCallNode) {
+				((MidCallNode) node).setLiveWebs(new ArrayList<Web>(out
+						.getLiveWebs()));
 			}
 		}
 		LogCenter.debug("RA", "Live webs: " + out.getLiveWebs() + "\n#\n#");

@@ -11,6 +11,13 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
+/**
+ * Given a mapping from definitions to uses, stitches together the webs that
+ * group together references to the same memory node.
+ * 
+ * @author joshma
+ * 
+ */
 public class WebKnitter {
 
 	private Map<MidLoadNode, Web> webMapUses;

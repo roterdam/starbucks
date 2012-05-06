@@ -1,16 +1,20 @@
 package edu.mit.compilers.codegen;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.asm.SectionASM;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
+import edu.mit.compilers.codegen.nodes.MidCalloutNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
@@ -48,7 +52,8 @@ public class AsmVisitor {
 			textSection.addAll(symbolTable.getMethod(methodName).toASM());
 		}
 		for (String methodName : symbolTable.getStarbucksMethods().keySet()) {
-			textSection.addAll(symbolTable.getStarbucksMethod(methodName).toASM());
+			textSection.addAll(symbolTable.getStarbucksMethod(methodName)
+					.toASM());
 		}
 
 		asm.addAll(dataSection);
@@ -66,10 +71,10 @@ public class AsmVisitor {
 		return out.toString();
 	}
 
-
 	public static List<ASM> exitCall(int exitCode) {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM(String.format("Exit interrupt %d", exitCode), OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
+		out.add(new OpASM(String.format("Exit interrupt %d", exitCode),
+				OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.XOR, Reg.RDI.name(), Reg.RDI.name()));
 		externCalls.add(EXIT);
 		out.add(new OpASM(OpCode.CALL, EXIT));
@@ -87,7 +92,7 @@ public class AsmVisitor {
 		out.add(new SectionASM("rodata"));
 		return out;
 	}
-	
+
 	private static List<ASM> createTextSection() {
 		List<ASM> out = new ArrayList<ASM>();
 		out.add(new SectionASM("text"));
@@ -114,7 +119,8 @@ public class AsmVisitor {
 		String labelText = labelSafeString(text);
 		readOnlySection.add(new LabelASM("", labelText));
 		String outputString = String.format("`%s`,0", text);
-		readOnlySection.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
+		readOnlySection
+				.add(new OpASM("`" + text + "`", OpCode.DB, outputString));
 
 		MidStringDeclNode out = new MidStringDeclNode(labelText);
 		out.setRawLocationReference(labelText);
@@ -124,8 +130,27 @@ public class AsmVisitor {
 	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX,
 			Reg.RCX, Reg.R8, Reg.R9 };
 
+	public static List<ASM> methodCall(MidCallNode callNode) {
+		String name = callNode.getName();
+		List<MidMemoryNode> params = callNode.getParams();
+		Reg destinationRegister = callNode.getRegister();
+		List<Reg> needToSaveRegs = callNode.getNeedToSaveRegisters();
+		return methodCall(name, params, destinationRegister,
+				(callNode instanceof MidCalloutNode), needToSaveRegs);
+	}
+
+	/**
+	 * Helper method used by other MidNodes (method calls and callouts) to
+	 * follow calling convention.
+	 * 
+	 * @param name
+	 * @param params
+	 * @param destinationRegister
+	 * @param extern
+	 * @return
+	 */
 	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
-			Reg destinationRegister, boolean extern) {
+			Reg destinationRegister, boolean extern, List<Reg> needToSaveRegs) {
 		if (extern) {
 			externCalls.add(name);
 		}
@@ -147,26 +172,30 @@ public class AsmVisitor {
 				paramNode.setRegister(temp);
 				List<ASM> pushIt = new ArrayList<ASM>();
 				pushIt.addAll(paramNode.toASM());
-				pushIt.add(new OpASM(String
-						.format("push param %d onto stack", i), OpCode.PUSH,
-						paramNode.getRegister().name()));
+				pushIt.add(new OpASM(String.format("push param %d onto stack",
+						i), OpCode.PUSH, paramNode.getRegister().name()));
 				pushStack.addAll(0, pushIt);
 
 				// FIXME: is this bad to do? (made deallocTempRegister public)
 				MemoryManager.deallocTempRegister(temp);
 			}
 		}
-		// Add the push parameters in reverse order
+		// Add the caller-saved registers. Note that adding to 0 in each
+		// iteration effectively reverses the order of needToSaveRegs.
+		for (Reg r : needToSaveRegs) {
+			out.add(0, new OpASM("Caller saved", OpCode.PUSH, r.name()));
+		}
+		// Add the push parameters in reverse order.
 		out.addAll(pushStack);
 
 		// Always set RAX to 0.
 		out.add(new OpASM(OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.CALL, name));
 
-		// Remove pointers from stack.
+		// Remove params from stack.
 		int stackParams = params.size() - paramRegisters.length;
 		if (stackParams > 0) {
-			out.add(new OpASM("clean up params", OpCode.ADD, Reg.RSP.name(),
+			out.add(new OpASM("Clean up params", OpCode.ADD, Reg.RSP.name(),
 					Integer.toString(stackParams * MemoryManager.ADDRESS_SIZE)));
 		}
 
@@ -174,7 +203,11 @@ public class AsmVisitor {
 		out.add(new OpASM("Saving results of " + name, OpCode.MOV,
 				destinationRegister.name(), Reg.RAX.name()));
 
-		// out.add(new OpASM("Leaving!", OpCode.LEAVE));
+		// Restore old registers.
+		for (Reg r : needToSaveRegs) {
+			out.add(new OpASM("Restore caller saved", OpCode.POP, r.name()));
+		}
+
 		return out;
 	}
 

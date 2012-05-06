@@ -19,6 +19,7 @@ public class MidDivideNode extends MidArithmeticNode {
 		List<ASM> out = new ArrayList<ASM>();
 		// a/b -> a is dividend, b is divisor (i always forget :[)
 		String RAX = Reg.RAX.name();
+		out.add(new OpASM(toString() + " (save)", OpCode.PUSH, Reg.RDX.name()));
 		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand()
 				.getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.CQO));
@@ -26,6 +27,7 @@ public class MidDivideNode extends MidArithmeticNode {
 				.getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(),
 				RAX));
+		out.add(new OpASM(toString() + " (restore)", OpCode.POP, Reg.RDX.name()));
 		return out;
 	}
 

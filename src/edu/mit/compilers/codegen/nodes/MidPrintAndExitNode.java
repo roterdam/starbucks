@@ -27,8 +27,8 @@ public class MidPrintAndExitNode extends MidNode {
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 		// Save output to any old register.
-		out.addAll(AsmVisitor
-				.methodCall(AsmVisitor.PRINTF, params, Reg.RAX, true));
+		out.addAll(AsmVisitor.methodCall(AsmVisitor.PRINTF, params, Reg.RAX,
+				true, new ArrayList<Reg>()));
 		out.addAll(AsmVisitor.exitCall(0));
 		return out;
 	}

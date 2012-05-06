@@ -8,21 +8,24 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.Reg;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
-import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
-
 public class RegisterAllocator {
 
 	private final MidSymbolTable symbolTable;
-	public final static Reg[] USABLE_REGISTERS = {
-			// Reg.R10, Reg.R11,
-			Reg.R12, Reg.R13, Reg.R14, Reg.R15 };
+	// MidMethodDeclNode honors CALLEE_SAVED_REGISTERS.
+	public final static Reg[] CALLEE_SAVED_REGISTERS = { Reg.RBX, Reg.R12,
+			Reg.R13, Reg.R14, Reg.R15 };
+	public final static Reg[] CALLER_SAVED_REGISTERS = { Reg.RCX, Reg.RDX,
+			Reg.RSI, Reg.RDI, Reg.R8, Reg.R9 };
+	public final static Reg[] USABLE_REGISTERS = { Reg.RBX, Reg.R12, Reg.R13,
+			Reg.R14, Reg.R15, Reg.RCX, Reg.RDX, Reg.RSI, Reg.RDI, Reg.R8,
+			Reg.R9 };
 
 	public RegisterAllocator(MidSymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
@@ -72,6 +75,10 @@ public class RegisterAllocator {
 							+ " to " + node);
 					allocatedNode.allocateRegister(allocatedReg);
 				}
+				continue;
+			}
+			if (node instanceof MidCallNode) {
+				((MidCallNode) node).mapLiveRegisters(mapping);
 			}
 		}
 	}
