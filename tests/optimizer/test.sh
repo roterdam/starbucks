@@ -20,7 +20,7 @@ fi
 cd `dirname $0`
 orig_pwd=$PWD
 for file in $PWD/input/*.dcf; do
-  echo ${file}
+  echo "    "${file}
   workingdir=`mktemp -d`
   progname=`basename $file .dcf`
   input_filename="`echo $progname|cut -d_ -f1`.pgm"
@@ -36,10 +36,10 @@ for file in $PWD/input/*.dcf; do
 
   cp $orig_input $input;
   msg=""
-  echo "Compiling optimized..."
+  echo "    Compiling optimized..."
   if runcompiler_opt $file $asm; then
     if nasm -felf64 -o $asmo $asm; gcc -o $binary -L${orig_pwd}/lib $asmo -l6035 -lpthread; then
-      echo "  Done."
+      echo "    Done."
       cd $workingdir
       if $binary > $timing_opt; then
         if ! diff -q $output $golden > /dev/null; then
@@ -55,10 +55,10 @@ for file in $PWD/input/*.dcf; do
     msg="Program failed to generate assembly.";
   fi
   cd "$orig_pwd";
-  echo "Compiling unoptimized..."
+  echo "    Compiling unoptimized..."
   if runcompiler_unopt $file $asm; then
     if nasm -felf64 -o $asmo $asm; gcc -o $binary -L${orig_pwd}/lib $asmo -l6035 -lpthread; then
-      echo "  Done."
+      echo "    Done."
       cd $workingdir
       if $binary > $timing_unopt; then
         if ! diff -q $output $golden > /dev/null; then
