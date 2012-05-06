@@ -10,6 +10,7 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
+import edu.mit.compilers.opt.regalloc.LiveWebsActivist;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.opt.regalloc.Web;
 
@@ -19,7 +20,7 @@ import edu.mit.compilers.opt.regalloc.Web;
  * @author joshma
  * 
  */
-public class MidCallNode extends MidRegisterNode {
+public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 
 	private String name;
 	private List<Web> liveWebs;
@@ -42,6 +43,7 @@ public class MidCallNode extends MidRegisterNode {
 		return params;
 	}
 
+	@Override
 	public void setLiveWebs(List<Web> liveWebs) {
 		this.liveWebs = liveWebs;
 	}
@@ -50,7 +52,8 @@ public class MidCallNode extends MidRegisterNode {
 		return needToSaveRegisters;
 	}
 
-	public void mapLiveRegisters(Map<Web, Reg> mapping) {
+	@Override
+	public void applyAllocatedMapping(Map<Web, Reg> mapping) {
 		// Careful, "asList" is a view onto the backing array. Don't modify!
 		List<Reg> callerSavedRegs = Arrays
 				.asList(RegisterAllocator.CALLER_SAVED_REGISTERS);

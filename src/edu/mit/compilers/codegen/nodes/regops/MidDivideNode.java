@@ -7,8 +7,9 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.opt.regalloc.MidRDXHater;
 
-public class MidDivideNode extends MidArithmeticNode {
+public class MidDivideNode extends MidRDXHater {
 
 	public MidDivideNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
@@ -19,7 +20,10 @@ public class MidDivideNode extends MidArithmeticNode {
 		List<ASM> out = new ArrayList<ASM>();
 		// a/b -> a is dividend, b is divisor (i always forget :[)
 		String RAX = Reg.RAX.name();
-		out.add(new OpASM(toString() + " (save)", OpCode.PUSH, Reg.RDX.name()));
+		if (shouldPreserveRDX()) {
+			out.add(new OpASM(toString() + " (save)", OpCode.PUSH, Reg.RDX
+					.name()));
+		}
 		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand()
 				.getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.CQO));
@@ -27,13 +31,11 @@ public class MidDivideNode extends MidArithmeticNode {
 				.getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(),
 				RAX));
-		out.add(new OpASM(toString() + " (restore)", OpCode.POP, Reg.RDX.name()));
+		if (shouldPreserveRDX()) {
+			out.add(new OpASM(toString() + " (restore)", OpCode.POP, Reg.RDX
+					.name()));
+		}
 		return out;
-	}
-
-	@Override
-	public boolean isCommutative() {
-		return false;
 	}
 
 }

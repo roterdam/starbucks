@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +19,8 @@ public class GraphColorer {
 	private Map<Web, Reg> out;
 
 	public GraphColorer(Reg[] usableRegisters) {
-		this.usableRegisters = new HashSet<Reg>(Arrays.asList(usableRegisters));
+		this.usableRegisters = new LinkedHashSet<Reg>(
+				Arrays.asList(usableRegisters));
 	}
 
 	public Map<Web, Reg> color(List<Web> webs) {

@@ -54,8 +54,8 @@ public class WebProcessor implements Transfer<WebState> {
 				out.interfereWith(web);
 				continue;
 			}
-			if (node instanceof MidCallNode) {
-				((MidCallNode) node).setLiveWebs(new ArrayList<Web>(out
+			if (node instanceof LiveWebsActivist) {
+				((LiveWebsActivist) node).setLiveWebs(new ArrayList<Web>(out
 						.getLiveWebs()));
 			}
 		}

@@ -8,13 +8,13 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.Reg;
-import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
+
 public class RegisterAllocator {
 
 	private final MidSymbolTable symbolTable;
@@ -23,9 +23,14 @@ public class RegisterAllocator {
 			Reg.R13, Reg.R14, Reg.R15 };
 	public final static Reg[] CALLER_SAVED_REGISTERS = { Reg.RCX, Reg.RDX,
 			Reg.RSI, Reg.RDI, Reg.R8, Reg.R9 };
-	public final static Reg[] USABLE_REGISTERS = { Reg.RBX, Reg.R12, Reg.R13,
-			Reg.R14, Reg.R15, Reg.RCX, Reg.RDX, Reg.RSI, Reg.RDI, Reg.R8,
-			Reg.R9 };
+	// Sorted in "good idea to use" to "fine, use if necessary."
+	public final static Reg[] USABLE_REGISTERS = {
+			// Callee saved.
+			Reg.RBX, Reg.R12, Reg.R13, Reg.R14, Reg.R15,
+			// Caller saved.
+			Reg.RCX, Reg.RSI, Reg.RDI, Reg.R8, Reg.R9,
+			// Caller saved, but also used in DIV and MOD.
+			Reg.RDX };
 
 	public RegisterAllocator(MidSymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
@@ -77,8 +82,8 @@ public class RegisterAllocator {
 				}
 				continue;
 			}
-			if (node instanceof MidCallNode) {
-				((MidCallNode) node).mapLiveRegisters(mapping);
+			if (node instanceof LiveWebsActivist) {
+				((LiveWebsActivist) node).applyAllocatedMapping(mapping);
 			}
 		}
 	}
