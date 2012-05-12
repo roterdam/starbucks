@@ -156,18 +156,15 @@ public class Block implements Iterable<MidNode> {
 		return out;
 	}
 
-	@Override
 	public Iterator<MidNode> iterator() {
 		return new Iterator<MidNode>() {
 
 			private MidNode curNode = null;
 
-			@Override
 			public boolean hasNext() {
 				return curNode != Block.this.getTail();
 			}
 
-			@Override
 			public MidNode next() {
 				if (curNode == null) {
 					curNode = Block.this.getHead();
@@ -177,7 +174,6 @@ public class Block implements Iterable<MidNode> {
 				return curNode;
 			}
 
-			@Override
 			public void remove() {
 				assert false : "Not implemented!";
 			}
@@ -188,17 +184,14 @@ public class Block implements Iterable<MidNode> {
 	public Iterable<MidNode> reverse() {
 		return new Iterable<MidNode>() {
 
-			@Override
 			public Iterator<MidNode> iterator() {
 				return new Iterator<MidNode>() {
 					private MidNode curNode;
 
-					@Override
 					public boolean hasNext() {
 						return curNode != Block.this.getHead();
 					}
 
-					@Override
 					public MidNode next() {
 						if (curNode == null) {
 							curNode = Block.this.getTail();
@@ -208,7 +201,6 @@ public class Block implements Iterable<MidNode> {
 						return curNode;
 					}
 
-					@Override
 					public void remove() {
 						assert false : "Not implemented!";
 					}

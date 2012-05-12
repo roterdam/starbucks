@@ -27,12 +27,10 @@ public class MidRDXHater extends MidArithmeticNode implements LiveWebsActivist {
 		return false;
 	}
 
-	@Override
 	public void setLiveWebs(List<Web> liveWebs) {
 		this.liveWebs = liveWebs;
 	}
 
-	@Override
 	public void applyAllocatedMapping(Map<Web, Reg> mapping) {
 		for (Web web : liveWebs) {
 			if (mapping.get(web) == Reg.RDX) {

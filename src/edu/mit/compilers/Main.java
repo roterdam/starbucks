@@ -26,6 +26,7 @@ import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
+import edu.mit.compilers.opt.dce.DeadCodeElim;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
@@ -34,7 +35,8 @@ class Main {
 	private static final String OPT_CSE = "cse";
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
-	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA };
+	private static final String OPT_DCE = "dce";
+	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA, OPT_DCE };
 
 	public static void main(String[] args) {
 		try {
@@ -115,7 +117,7 @@ class Main {
 
 					if (CLI.optOn) {
 						// Do algebraic simplifications.
-						((CLASSNode) parser.getAST()).simplifyExpressions();
+						//((CLASSNode) parser.getAST()).simplifyExpressions();
 					}
 
 					if (CLI.visual) {
@@ -157,12 +159,17 @@ class Main {
 									new CPTransfer());
 							analyzer.analyze(symbolTable);
 						}
-
+						
 						if (isEnabled(OPT_RA)) {
 							RegisterAllocator allocator = new RegisterAllocator(symbolTable);
 							allocator.run();
 						}
 
+						if (isEnabled(OPT_DCE)) {
+							DeadCodeElim dce = new DeadCodeElim(symbolTable);
+							dce.run();
+						}
+						
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
 						} else if (CLI.target == Action.ASSEMBLY) {
@@ -192,6 +199,7 @@ class Main {
 	static private boolean isEnabled(String opt) {
 		int optIndex = -1;
 		for (int i = 0; i < OPTS.length; i++) {
+			System.out.println(OPTS[i]);
 			if (OPTS[i].equals(opt)) {
 				optIndex = i;
 				break;

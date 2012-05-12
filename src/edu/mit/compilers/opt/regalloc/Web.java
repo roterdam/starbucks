@@ -7,22 +7,23 @@ import java.util.Set;
 
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 public class Web {
 
 	private List<MidSaveNode> definitions;
-	private List<MidLoadNode> uses;
+	private List<MidRegisterNode> uses;
 	private Set<Web> interferences;
 
 	public Web() {
 		definitions = new ArrayList<MidSaveNode>();
-		uses = new ArrayList<MidLoadNode>();
+		uses = new ArrayList<MidRegisterNode>();
 		interferences = new HashSet<Web>();
 	}
 
-	public void expand(MidSaveNode newDef, Set<MidLoadNode> newUses) {
+	public void expand(MidSaveNode newDef, Set<MidRegisterNode> uses) {
 		definitions.add(newDef);
-		uses.addAll(newUses);
+		uses.addAll(uses);
 	}
 
 	public void addInterference(Web otherWeb) {

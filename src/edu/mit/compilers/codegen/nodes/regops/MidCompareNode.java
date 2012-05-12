@@ -42,6 +42,14 @@ public class MidCompareNode extends MidNode implements RegisterOpNode {
 		return out;
 	}
 
+	public List<MidRegisterNode> getOperandRegisterNodes(){
+		List<MidRegisterNode> out = new ArrayList<MidRegisterNode>();
+		out.add(leftOperand);
+		out.add(rightOperand);
+		return out;
+
+	}
+	
 	public String toDotSyntax() {
 		String out = super.toDotSyntax();
 		out += leftOperand.hashCode() + " -> " + hashCode()

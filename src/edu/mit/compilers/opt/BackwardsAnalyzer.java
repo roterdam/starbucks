@@ -29,7 +29,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 	public void analyze(MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (String methodName : methods.keySet()) {
-			LogCenter.debug("RA", "Analyzing " + methodName);
+			LogCenter.debug("BACK", "Analyzing " + methodName);
 			analyzeMidNodeList(methods.get(methodName).getNodeList());
 		}
 	}
@@ -56,12 +56,12 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 
 		while (!worklist.isEmpty()) {
 			Block currentBlock = worklist.remove(0);
-			LogCenter.debug("RA", "");
-			LogCenter.debug("RA", "######################");
-			LogCenter.debug("RA", "######################");
-			LogCenter.debug("RA", "REVERSE ANALYZER IS LOOKING AT "
+			LogCenter.debug("BACK", "");
+			LogCenter.debug("BACK", "######################");
+			LogCenter.debug("BACK", "######################");
+			LogCenter.debug("BACK", "REVERSE ANALYZER IS LOOKING AT "
 					+ currentBlock);
-			LogCenter.debug("RA", "WL: " + worklist);
+			LogCenter.debug("BACK", "WL: " + worklist);
 			S out = getOutState(currentBlock);
 			S in = transferFunction.apply(currentBlock, out);
 			if (!in.equals(inStates.get(currentBlock))) {
@@ -79,11 +79,11 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 
 	public S getOutState(Block b) {
 		S out = null;
-		LogCenter.debug("RA", String
+		LogCenter.debug("BACK", String
 				.format("Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
 		for (Block m : b.getSuccessors()) {
-			LogCenter.debug("RA", "Using state from " + m);
+			LogCenter.debug("BACK", "Using state from " + m);
 			out = inStates.get(m).join(out);
 		}
 		return out;

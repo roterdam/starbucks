@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 
 /**
  * Given a mapping from definitions to uses, stitches together the webs that
@@ -20,20 +21,20 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
  */
 public class WebKnitter {
 
-	private Map<MidLoadNode, Web> webMapUses;
+	private Map<MidRegisterNode, Web> webMapUses;
 	private Map<MidSaveNode, Web> webMapDefs;
-	private Map<MidSaveNode, Set<MidLoadNode>> defUseMap;
+	private Map<MidSaveNode, Set<MidRegisterNode>> defUseMap;
 
-	public WebKnitter(Map<MidSaveNode, Set<MidLoadNode>> defUseMap) {
+	public WebKnitter(Map<MidSaveNode, Set<MidRegisterNode>> defUseMap) {
 		this.defUseMap = defUseMap;
-		webMapUses = new HashMap<MidLoadNode, Web>();
+		webMapUses = new HashMap<MidRegisterNode, Web>();
 		webMapDefs = new HashMap<MidSaveNode, Web>();
 	}
 
 	public List<Web> run() {
 		List<Web> output = new ArrayList<Web>();
-		for (Entry<MidSaveNode, Set<MidLoadNode>> entry : defUseMap.entrySet()) {
-			Set<MidLoadNode> uses = entry.getValue();
+		for (Entry<MidSaveNode, Set<MidRegisterNode>> entry : defUseMap.entrySet()) {
+			Set<MidRegisterNode> uses = entry.getValue();
 			MidSaveNode def = entry.getKey();
 			// We skip web generation for field nodes. Can potentially improve
 			// this in the future by splitting the web at method calls instead
@@ -42,7 +43,7 @@ public class WebKnitter {
 				continue;
 			}
 			Web targetWeb = null;
-			for (MidLoadNode use : uses) {
+			for (MidRegisterNode use : uses) {
 				targetWeb = webMapUses.get(use);
 				if (targetWeb != null) {
 					break;
@@ -53,7 +54,7 @@ public class WebKnitter {
 				output.add(targetWeb);
 			}
 			targetWeb.expand(def, uses);
-			for (MidLoadNode use : uses) {
+			for (MidRegisterNode use : uses) {
 				webMapUses.put(use, targetWeb);
 			}
 			webMapDefs.put(def, targetWeb);
@@ -61,7 +62,7 @@ public class WebKnitter {
 		return output;
 	}
 
-	public Map<MidLoadNode, Web> getWebMapUses() {
+	public Map<MidRegisterNode, Web> getWebMapUses() {
 		return webMapUses;
 	}
 

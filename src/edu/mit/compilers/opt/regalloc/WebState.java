@@ -22,17 +22,14 @@ public class WebState implements State<WebState> {
 		return liveWebs;
 	}
 
-	@Override
 	public WebState getInitialState() {
 		return new WebState();
 	}
 
-	@Override
 	public WebState getBottomState() {
 		return new WebState();
 	}
 
-	@Override
 	public WebState join(WebState s) {
 		LogCenter.debug("RA", "Joining " + s + " with " + this);
 		if (s == null) {

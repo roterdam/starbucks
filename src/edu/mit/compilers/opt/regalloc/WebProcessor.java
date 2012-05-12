@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 
@@ -21,9 +21,8 @@ import edu.mit.compilers.opt.Transfer;
 public class WebProcessor implements Transfer<WebState> {
 
 	private static Map<MidSaveNode, Web> webDefs;
-	private static Map<MidLoadNode, Web> webUses;
+	private static Map<MidRegisterNode, Web> webUses;
 
-	@Override
 	public WebState apply(Block b, WebState s) {
 		assert (webDefs != null && webUses != null) : "WebProcessor function apply() called before initialize().";
 		LogCenter.debug("RA", "\n########\nProcessing " + b);
@@ -64,7 +63,7 @@ public class WebProcessor implements Transfer<WebState> {
 	}
 
 	public static void initialize(Map<MidSaveNode, Web> webDefs,
-			Map<MidLoadNode, Web> webUses) {
+			Map<MidRegisterNode, Web> webUses) {
 		assert (webDefs != null && webUses != null) : "WebProcessor function initialized() called with null arguments.";
 		WebProcessor.webDefs = webDefs;
 		WebProcessor.webUses = webUses;
