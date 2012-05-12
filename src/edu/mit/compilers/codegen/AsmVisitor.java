@@ -132,7 +132,7 @@ public class AsmVisitor {
 
 	public static List<ASM> methodCall(MidCallNode callNode) {
 		String name = callNode.getName();
-		List<MidMemoryNode> params = callNode.getParams();
+		List<MidLoadNode> params = callNode.getParamNodes();
 		Reg destinationRegister = callNode.getRegister();
 		List<Reg> needToSaveRegs = callNode.getNeedToSaveRegisters();
 		return methodCall(name, params, destinationRegister,
@@ -149,7 +149,7 @@ public class AsmVisitor {
 	 * @param extern
 	 * @return
 	 */
-	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
+	public static List<ASM> methodCall(String name, List<MidLoadNode> params,
 			Reg destinationRegister, boolean extern, List<Reg> needToSaveRegs) {
 		if (extern) {
 			externCalls.add(name);
@@ -161,7 +161,7 @@ public class AsmVisitor {
 
 		List<ASM> pushStack = new ArrayList<ASM>();
 		for (int i = 0; i < params.size(); i++) {
-			MidLoadNode paramNode = new MidLoadNode(params.get(i));
+			MidLoadNode paramNode = params.get(i);
 			if (i < paramRegisters.length) {
 				// Want to set the register.
 				paramNode.setRegister(paramRegisters[i]);

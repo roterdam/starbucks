@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.nodes.MidCalloutNode;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -86,7 +86,7 @@ public class LivenessState implements State<LivenessState> {
 		currentUses.add(node);
 	}
 	
-	public void processCalloutUse(MidCalloutNode node) {
+	public void processCallUse(MidCallNode node) {
 		List<MidMemoryNode> memNodes = node.getParams();
 		for (MidMemoryNode memNode : memNodes){
 			Set<MidRegisterNode> currentUses = uses.get(memNode);

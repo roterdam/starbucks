@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import edu.mit.compilers.codegen.nodes.MidCalloutNode;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidCompareNode;
@@ -40,16 +40,17 @@ public class LivenessDoctor implements Transfer<LivenessState> {
 			if (node instanceof MidLoadNode) {
 				// Use.
 				out.processUse((MidLoadNode) node);
-			} else if (node instanceof MidCalloutNode){
-				// Multiple Use.
-				out.processCalloutUse((MidCalloutNode)node);
-				importantNodes.add((MidCalloutNode) node);
+			} else if (node instanceof MidCallNode){
+				for (MidLoadNode ln : ((MidCallNode)node).getParamNodes()){
+					out.processUse(ln);
+					importantNodes.add(ln);
+				}
+			} else if (node instanceof MidCompareNode){
+				importantNodes.addAll(((MidCompareNode)node).getOperandRegisterNodes());
 			} else if (node instanceof MidSaveNode) {
 				// Definition.
 				out.processDefinition((MidSaveNode) node, this);
-			} else if (node instanceof MidCompareNode){
-				importantNodes.addAll(((MidCompareNode)node).getOperandRegisterNodes());
-			}
+			} 
 		}
 		return out;
 	}

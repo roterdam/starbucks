@@ -13,11 +13,11 @@ import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
-import edu.mit.compilers.opt.regalloc.LiveWebsActivist;
 import edu.mit.compilers.opt.regalloc.LivenessDoctor;
 import edu.mit.compilers.opt.regalloc.LivenessState;
 
@@ -90,11 +90,11 @@ public class DeadCodeElim {
 		System.out.println("---");
 
 		Set<MidSaveNode> neededSaveNodes = new HashSet<MidSaveNode>();
-		for (MidRegisterNode calloutNode : importantNodes){
-			if (reverseMap.containsKey(calloutNode)){
-				neededSaveNodes.addAll(reverseMap.get(calloutNode));
-			} else {
-				LogCenter.debug("DCE", "Why you no have important callout node?" + calloutNode.toString());
+		for (MidRegisterNode importantNode : importantNodes){
+			if (reverseMap.containsKey(importantNode)){
+				neededSaveNodes.addAll(reverseMap.get(importantNode));
+			} else if (!(importantNode instanceof MidLoadImmNode)){
+				LogCenter.debug("DCE", "Why you no have important register node? " + importantNode.toString());
 			}
 		}
 		while (neededSaveNodes.size() > 0){
@@ -113,8 +113,8 @@ public class DeadCodeElim {
 			for (MidRegisterNode registerNode : importantNodes){
 				if (reverseMap.containsKey(registerNode)){
 					neededSaveNodes.addAll(reverseMap.get(registerNode));
-				} else {
-					LogCenter.debug("DCE", "Why you no have important register node?" + registerNode.toString());
+				} else if (!(registerNode instanceof MidLoadImmNode)){
+					LogCenter.debug("DCE", "Why you no have important register node? " + registerNode.toString());
 				}
 			}
 

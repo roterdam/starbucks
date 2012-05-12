@@ -9,6 +9,7 @@ import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.regalloc.LiveWebsActivist;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
@@ -25,11 +26,14 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 	private String name;
 	private List<Web> liveWebs;
 	private List<Reg> needToSaveRegisters;
-	private List<MidMemoryNode> params;
+	private List<MidLoadNode> params;
 
 	public MidCallNode(String name, List<MidMemoryNode> params) {
 		this.name = name;
-		this.params = params;
+		this.params = new ArrayList<MidLoadNode>();
+		for (MidMemoryNode node : params){
+			this.params.add(new MidLoadNode(node));
+		}
 		this.needToSaveRegisters = new ArrayList<Reg>();
 		this.liveWebs = new ArrayList<Web>();
 	}
@@ -40,6 +44,14 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 	}
 
 	public List<MidMemoryNode> getParams() {
+		List<MidMemoryNode> out = new ArrayList<MidMemoryNode>();
+		for (MidLoadNode node : params){
+			out.add(node.getMemoryNode());
+		}
+		return out;
+	}
+	
+	public List<MidLoadNode> getParamNodes() {
 		return params;
 	}
 

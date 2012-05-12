@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -52,6 +53,19 @@ public class WebProcessor implements Transfer<WebState> {
 				out.birthWeb(web);
 				out.interfereWith(web);
 				continue;
+			}
+			if (node instanceof MidCallNode){
+				for (MidLoadNode loadNode : ((MidCallNode)node).getParamNodes() ){
+					if (!webUses.containsKey(node)) {
+						LogCenter.debug("RA", "Warning: loadNode " + node
+								+ " doesn't belong to a web.");
+						continue;
+					}
+					Web web = webUses.get(node);
+					out.birthWeb(web);
+					out.interfereWith(web);
+				}
+				
 			}
 			if (node instanceof LiveWebsActivist) {
 				((LiveWebsActivist) node).setLiveWebs(new ArrayList<Web>(out

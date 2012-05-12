@@ -7,6 +7,7 @@ import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 /**
  * Prints a given error message (taking in the method name) and exits. Used for
@@ -14,13 +15,13 @@ import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
  */
 public class MidPrintAndExitNode extends MidNode {
 
-	List<MidMemoryNode> params;
+	List<MidLoadNode> params;
 
 	public MidPrintAndExitNode(MidMemoryNode errorString,
 			MidMemoryNode methodNameNode) {
-		params = new ArrayList<MidMemoryNode>();
-		params.add(errorString);
-		params.add(methodNameNode);
+		params = new ArrayList<MidLoadNode>();
+		params.add(new MidLoadNode(errorString));
+		params.add(new MidLoadNode(methodNameNode));
 	}
 
 	@Override

@@ -8,9 +8,12 @@ import java.util.Map.Entry;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.Reg;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
@@ -84,6 +87,25 @@ public class RegisterAllocator {
 			}
 			if (node instanceof LiveWebsActivist) {
 				((LiveWebsActivist) node).applyAllocatedMapping(mapping);
+			}
+			if (node instanceof MidCallNode){
+				LogCenter.debug("RA", "Allocating for a call node");
+				for (MidLoadNode loadNode : ((MidCallNode)node).getParamNodes() ){
+					LogCenter.debug("RA ", loadNode.toString());
+					Allocatable allocatedNode = (Allocatable) loadNode;
+					if (knitter.lookupWeb(allocatedNode) != null){
+						LogCenter.debug("RA ", knitter.lookupWeb(allocatedNode).toString());
+					}
+					LogCenter.debug("RA ", mapping.toString());
+					
+					Reg allocatedReg = mapping.get(knitter.lookupWeb(allocatedNode));
+					if (allocatedReg != null) {
+						LogCenter.debug("RA", "Allocating " + allocatedReg.name() + " to " + loadNode);
+						allocatedNode.allocateRegister(allocatedReg);
+					}
+				}
+				LogCenter.debug("RA", "Done allocating for a call node");
+				
 			}
 		}
 	}
