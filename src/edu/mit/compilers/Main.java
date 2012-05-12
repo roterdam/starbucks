@@ -117,7 +117,7 @@ class Main {
 
 					if (CLI.optOn) {
 						// Do algebraic simplifications.
-						//((CLASSNode) parser.getAST()).simplifyExpressions();
+						((CLASSNode) parser.getAST()).simplifyExpressions();
 					}
 
 					if (CLI.visual) {
@@ -199,7 +199,6 @@ class Main {
 	static private boolean isEnabled(String opt) {
 		int optIndex = -1;
 		for (int i = 0; i < OPTS.length; i++) {
-			System.out.println(OPTS[i]);
 			if (OPTS[i].equals(opt)) {
 				optIndex = i;
 				break;

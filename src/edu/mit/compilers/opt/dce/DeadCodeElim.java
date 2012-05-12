@@ -47,13 +47,7 @@ public class DeadCodeElim {
 		BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
 				new LivenessState().getBottomState(), doctor);
 		analyzer.analyze(symbolTable);
-		System.out.println("--------------------");
-		System.out.println("--------------------");
-		System.out.println("--map");
 		Map<MidSaveNode, Set<MidRegisterNode>> map = doctor.getDefUseMap();
-		for (Map.Entry entry : map.entrySet()) {
-		    System.out.println(entry.getKey() + ", " + entry.getValue());
-		}
 		
 		Map<MidRegisterNode, Set<MidSaveNode>> reverseMap = new HashMap<MidRegisterNode, Set<MidSaveNode>>();
 		for (Map.Entry entry : map.entrySet()) {
@@ -69,15 +63,6 @@ public class DeadCodeElim {
 				}
 			}
 		}
-
-		System.out.println("--------------------");
-		System.out.println("--reverse map");
-
-		for (Map.Entry entry : reverseMap.entrySet()) {
-		    System.out.println(entry.getKey() + ", " + entry.getValue());
-		}
-		System.out.println("--------------------");
-
 		
 		//find important nodes.
 		//A node is important if one of it's decendents is a callout node
@@ -86,8 +71,7 @@ public class DeadCodeElim {
 		
 		Set<MidRegisterNode> importantNodes = new HashSet<MidRegisterNode>();
 		importantNodes.addAll(doctor.getImportantNodes());
-		System.out.println("important " + importantNodes);
-		System.out.println("---");
+		LogCenter.debug("DCE", "initial important nodes " + importantNodes);
 
 		Set<MidSaveNode> neededSaveNodes = new HashSet<MidSaveNode>();
 		for (MidRegisterNode importantNode : importantNodes){
@@ -105,10 +89,7 @@ public class DeadCodeElim {
 			//Then remove the save nodes
 			allSaveNodes.removeAll(neededSaveNodes);
 			neededSaveNodes.clear();
-			
-			System.out.println("important " + importantNodes);
-			System.out.println("---");
-			
+						
 			//Now find all the interesting save nodes
 			for (MidRegisterNode registerNode : importantNodes){
 				if (reverseMap.containsKey(registerNode)){
@@ -121,14 +102,9 @@ public class DeadCodeElim {
 			//But only the ones not added yet
 			neededSaveNodes.retainAll(allSaveNodes);
 		}
-		System.out.println("Cruft remaining: " + allSaveNodes);
+		LogCenter.debug("DCE", "Cruft to be deleted: " + allSaveNodes);
 		
-		
-		
-		System.out.println("--------------------");
 		deleteCruft(allSaveNodes);
-		System.out.println("--------------------");
-		System.out.println("--------------------");
 
 	}
 	

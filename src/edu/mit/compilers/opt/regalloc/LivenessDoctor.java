@@ -45,6 +45,7 @@ public class LivenessDoctor implements Transfer<LivenessState> {
 					out.processUse(ln);
 					importantNodes.add(ln);
 				}
+				importantNodes.add((MidCallNode)node);
 			} else if (node instanceof MidCompareNode){
 				importantNodes.addAll(((MidCompareNode)node).getOperandRegisterNodes());
 			} else if (node instanceof MidSaveNode) {
