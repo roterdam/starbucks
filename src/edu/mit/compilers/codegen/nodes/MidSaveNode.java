@@ -28,6 +28,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
 	private boolean decafBooleanValue;
+	private boolean isInactive;
 
 	private static enum MidSaveNodeType {
 		REGISTER, INT, BOOLEAN;
@@ -40,6 +41,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	private MidSaveNode(MidMemoryNode dest) {
 		assert dest != null;
 		this.destination = dest;
+		this.isInactive = false;
 	}
 
 	public MidSaveNode(MidRegisterNode refNode, MidMemoryNode dest) {
@@ -158,8 +160,12 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 	@Override
 	public List<ASM> toASM() {
-
+		
 		List<ASM> out = new ArrayList<ASM>();
+
+		if (this.isInactive){
+			return out;
+		}
 
 		String rightOperand;
 		switch (saveType) {
@@ -214,6 +220,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	@Override
 	public Reg getAllocatedRegister() {
 		return allocatedReg;
+	}
+	
+	public void deactivate(){
+		this.isInactive = true;
 	}
 
 }

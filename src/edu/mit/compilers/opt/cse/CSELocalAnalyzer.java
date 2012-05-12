@@ -10,6 +10,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
+import edu.mit.compilers.opt.AnalyzerHelpers;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.LocalAnalyzer;
 import edu.mit.compilers.opt.Value;
@@ -100,7 +101,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 			newSaveNode.isOptimization = true;
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
-			completeDeleteUnary(saveNode);
+			AnalyzerHelpers.completeDeleteUnary(saveNode);
 		}
 	}
 
@@ -137,35 +138,8 @@ public class CSELocalAnalyzer extends LocalAnalyzer {
 			newSaveNode.isOptimization = true;
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
-			completeDeleteBinary(saveNode);
+			AnalyzerHelpers.completeDeleteBinary(saveNode);
 		}
-	}
-
-	/**
-	 * Deletes a node and all now-useless nodes before it. Assumes saveNode
-	 * saves a neg node.
-	 */
-	protected static void completeDeleteUnary(MidSaveNode saveNode) {
-		saveNode.delete();
-		assert saveNode.getRegNode() instanceof MidNegNode;
-		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", "DELETING " + negNode);
-		negNode.delete();
-		negNode.getOperand().delete();
-	}
-
-	/**
-	 * Deletes a node and all now-useless nodes before it. Assumes saveNode
-	 * saves an arithmetic node.
-	 */
-	protected static void completeDeleteBinary(MidSaveNode saveNode) {
-		saveNode.delete();
-		assert saveNode.getRegNode() instanceof MidArithmeticNode;
-		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", "DELETING " + arithNode);
-		arithNode.delete();
-		arithNode.getLeftOperand().delete();
-		arithNode.getRightOperand().delete();
 	}
 
 	protected static void addTempNode(MidSaveNode saveNode, Value v3,

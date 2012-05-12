@@ -26,6 +26,7 @@ import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
+import edu.mit.compilers.opt.dce.DeadCodeElim;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
@@ -34,7 +35,8 @@ class Main {
 	private static final String OPT_CSE = "cse";
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
-	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA };
+	private static final String OPT_DCE = "dce";
+	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA, OPT_DCE };
 
 	public static void main(String[] args) {
 		try {
@@ -156,6 +158,11 @@ class Main {
 									new CPGlobalState().getInitialState(),
 									new CPTransfer());
 							analyzer.analyze(symbolTable);
+						}
+						
+						if (isEnabled(OPT_DCE)) {
+							DeadCodeElim dce = new DeadCodeElim();							
+							dce.analyze(symbolTable);
 						}
 
 						if (isEnabled(OPT_RA)) {

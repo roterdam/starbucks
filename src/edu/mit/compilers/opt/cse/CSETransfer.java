@@ -12,6 +12,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
+import edu.mit.compilers.opt.AnalyzerHelpers;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 
@@ -110,7 +111,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			newSaveNode.isOptimization = true;
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
-			CSELocalAnalyzer.completeDeleteUnary(saveNode);
+			AnalyzerHelpers.completeDeleteUnary(saveNode);
 
 		}
 
@@ -143,7 +144,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			newSaveNode.isOptimization = true;
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
-			CSELocalAnalyzer.completeDeleteBinary(saveNode);
+			AnalyzerHelpers.completeDeleteBinary(saveNode);
 		}
 
 		// Save reference in global CSE.

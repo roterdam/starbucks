@@ -218,4 +218,19 @@ public class Block implements Iterable<MidNode> {
 
 		};
 	}
+	
+	@Override
+	public boolean equals(Object o){
+		if (!(o instanceof Block)){
+			return false;
+		}
+		Block other = (Block)o;
+		return other.getHead() == this.getHead() && other.getTail() == this.getTail();
+	}
+	
+	@Override
+	public int hashCode(){
+		return this.getHead().hashCode() * 31 + this.getTail().hashCode();
+	}
+	
 }

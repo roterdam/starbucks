@@ -83,7 +83,7 @@ public class LivenessState implements State<LivenessState> {
 		}
 		currentUses.add(node);
 	}
-
+	
 	public void processDefinition(MidSaveNode node,
 			LivenessDoctor livenessAnalyzer) {
 		LogCenter.debug("RA", "Processing def " + node);
@@ -93,9 +93,15 @@ public class LivenessState implements State<LivenessState> {
 			return;
 		}
 		uses.remove(destNode);
-		livenessAnalyzer.save(node, useList);
+		if (livenessAnalyzer != null){
+			livenessAnalyzer.save(node, useList);
+		}
 	}
 
+	public void processDefinition(MidSaveNode node) {
+		processDefinition(node, null);
+	}
+	
 	public Map<MidMemoryNode, Set<MidLoadNode>> getUses() {
 		return uses;
 	}

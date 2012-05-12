@@ -65,6 +65,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 			S out = getOutState(currentBlock);
 			S in = transferFunction.apply(currentBlock, out);
 			if (!in.equals(inStates.get(currentBlock))) {
+				LogCenter.debug("DCE", "Putting instate for b" + currentBlock.getBlockNum());
 				inStates.put(currentBlock, in);
 				for (Block s : currentBlock.getPredecessors()) {
 					if (!worklist.contains(s)) {
@@ -78,12 +79,13 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 	}
 
 	public S getOutState(Block b) {
+		assert b != null;
 		S out = null;
 		LogCenter.debug("RA", String
 				.format("Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
 		for (Block m : b.getSuccessors()) {
-			LogCenter.debug("RA", "Using state from " + m);
+			assert inStates.get(m) != null : m;
 			out = inStates.get(m).join(out);
 		}
 		return out;
