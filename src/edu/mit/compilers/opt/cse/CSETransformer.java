@@ -66,7 +66,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 				}
 			} else if (assignmentNode instanceof MidCallNode) {
 				// Clear all state after a method call.
-				globalState.clear();
+				globalState.clearGlobals();
 				localState.clearGlobals();
 			}
 		}

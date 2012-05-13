@@ -68,7 +68,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					processArithmeticAssignment(saveNode, outState);
 				}
 			} else if (assignmentNode instanceof MidCallNode) {
-				outState.clear();
+				outState.clearGlobals();
 			}
 		}
 
@@ -130,7 +130,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				Main.setHasAdditionalChanges();
 			}
 		}
-
+		
 		// Save reference in global CSE.
 		state.genReference(saveNode.getDestinationNode(), expr);
 		state.killReferences(saveNode.getDestinationNode());

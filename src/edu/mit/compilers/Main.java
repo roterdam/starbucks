@@ -176,17 +176,17 @@ public class Main {
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
 
-							// if (isEnabled(OPT_DCE)) {
-							// LivenessDoctor doctor = new LivenessDoctor();
-							// BackwardsAnalyzer<LivenessState, LivenessDoctor>
-							// analyzer = new BackwardsAnalyzer<LivenessState,
-							// LivenessDoctor>(
-							// new LivenessState().getBottomState(),
-							// doctor);
-							// analyzer.analyze(symbolTable);
-							// DeadCodeElim dce = new DeadCodeElim();
-							// dce.analyze(analyzer, symbolTable);
-							// }
+//							 if (isEnabled(OPT_DCE)) {
+//							 LivenessDoctor doctor = new LivenessDoctor();
+//							 BackwardsAnalyzer<LivenessState, LivenessDoctor>
+//							 analyzer = new BackwardsAnalyzer<LivenessState,
+//							 LivenessDoctor>(
+//							 new LivenessState().getBottomState(),
+//							 doctor);
+//							 analyzer.analyze(symbolTable);
+//							 DeadCodeElim dce = new DeadCodeElim();
+//							 dce.analyze(analyzer, symbolTable);
+//							 }
 							x++;
 						}
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.HashMapUtils;
@@ -240,10 +241,13 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 				.equals(global.getMentionMap()));
 	}
 
-	public void clear() {
-		this.exprToRefMap.clear();
-		this.mentionMap.clear();
-		this.refToExprMap.clear();
+	public void clearGlobals() {
+		for (MidMemoryNode memNode : new ArrayList<MidMemoryNode>(refToExprMap.keySet())) {
+			// Only clear references to global fields.
+			if (memNode instanceof MidFieldDeclNode) {
+				killReferences(memNode);
+			}
+		}
 	}
 
 }

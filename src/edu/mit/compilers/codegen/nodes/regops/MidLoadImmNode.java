@@ -6,7 +6,7 @@ public class MidLoadImmNode extends MidLoadNode {
 	private long value;
 
 	public MidLoadImmNode(long decafIntValue) {
-		super(new MidConstantNode("CONS " + decafIntValue, decafIntValue));
+		super(new MidConstantNode(decafIntValue));
 		this.value = decafIntValue;
 	}
 
