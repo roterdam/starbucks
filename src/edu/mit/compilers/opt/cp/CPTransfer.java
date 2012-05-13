@@ -27,24 +27,21 @@ public class CPTransfer implements Transfer<CPState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				// TODO: We skip optimizing array access saves for now.
-				boolean skip = false;
 				if (saveNode.getRegNode() instanceof MidLoadNode) {
 					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 					if (loadNode.getMemoryNode() instanceof MidArrayElementNode) {
-						skip = true;
+						continue;
 					}
 				}
 
-				if (!skip) {
-					MidRegisterNode regNode = saveNode.getRegNode();
-					MidMemoryNode destNode = saveNode.getDestinationNode();
-					// Kill definitions.
-					outState.killReferences(destNode);
-					if (regNode instanceof MidLoadNode) {
-						// Process save node if it just saves a load node.
-						MidLoadNode loadNode = (MidLoadNode) regNode;
-						outState.processDef(loadNode.getMemoryNode(), destNode);
-					}
+				MidRegisterNode regNode = saveNode.getRegNode();
+				MidMemoryNode destNode = saveNode.getDestinationNode();
+				// Kill definitions.
+				outState.killReferences(destNode);
+				if (regNode instanceof MidLoadNode) {
+					// Process save node if it just saves a load node.
+					MidLoadNode loadNode = (MidLoadNode) regNode;
+					outState.processDef(loadNode.getMemoryNode(), destNode);
 				}
 
 			} else if (node instanceof MidMethodCallNode

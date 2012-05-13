@@ -4,6 +4,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.Main;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
@@ -28,6 +29,15 @@ public class CPTransformer extends Transformer<CPState> {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
+
+				// TODO: We skip optimizing array access saves for now.
+				if (saveNode.getRegNode() instanceof MidLoadNode) {
+					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
+					if (loadNode.getMemoryNode() instanceof MidArrayElementNode) {
+						continue;
+					}
+				}
+
 				MidMemoryNode destNode = saveNode.getDestinationNode();
 				localState.killReferences(destNode);
 				MidRegisterNode regNode = saveNode.getRegNode();
