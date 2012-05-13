@@ -154,11 +154,9 @@ public class Main {
 						// Run CSE + CP + DCE as long as there are changes,
 						// since each round of CP may help the next round's
 						// CSE.
-						while (hasAdditionalChanges) {
+						while (hasAdditionalChanges && x < 5) {
 							x++;
-							if (x > 5) {
-								break;
-							}
+							System.out.println("CSE");
 							clearHasAdditionalChanges();
 							
 							if (isEnabled(OPT_CSE)) {
@@ -169,7 +167,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+							System.out.println("CP");
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),

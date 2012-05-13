@@ -5,9 +5,6 @@ import edu.mit.compilers.tools.CLI;
 public class LogCenter {
 
 	public static void debug(String tag, String s) {
-		if (tag.equals("MEM")) {
-			return;
-		}
 		if (CLI.debug) {
 			StackTraceElement[] stackTraceElements = Thread.currentThread()
 					.getStackTrace();

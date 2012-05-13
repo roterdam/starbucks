@@ -21,9 +21,15 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 	ArrayList<MidNode> assignments;
 
 	@Override
-	protected void transform(Block b, CSEGlobalState state) {
+	protected void transform(Block b, CSEGlobalState inGlobalState) {
 
 		assignments = new ArrayList<MidNode>();
+		CSEGlobalState globalState;
+		if (inGlobalState == null) {
+			globalState = new CSEGlobalState();
+		} else {
+			globalState = inGlobalState.clone();
+		}
 
 		CSELocalState localState = new CSELocalState();
 
@@ -48,11 +54,11 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 				}
 				// a = -x
 				if (saveNode.getRegNode() instanceof MidNegNode) {
-					processUnaryAssignment(saveNode, localState);
+					processUnaryAssignment(saveNode, globalState, localState);
 				}
 				// a = x + y
 				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-					processArithmeticAssignment(saveNode, localState);
+					processArithmeticAssignment(saveNode, globalState, localState);
 				}
 			} else if (assignmentNode instanceof MidMethodCallNode) {
 				// Clear all state after a method call.
@@ -72,7 +78,8 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		s.addVarVal(node.getDestinationNode(), node.getRegNode(), v);
 	}
 
-	private void processUnaryAssignment(MidSaveNode saveNode, CSELocalState s) {
+	private void processUnaryAssignment(MidSaveNode saveNode,
+			CSEGlobalState globalState, CSELocalState s) {
 		MidNegNode r = (MidNegNode) saveNode.getRegNode();
 
 		// Value-number left operand if necessary.
@@ -84,11 +91,15 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		s.addVarVal(saveNode.getDestinationNode(), saveNode.getRegNode(), v3);
 		MidSaveNode tempNode = s.getTemp(v3);
 
+		// Check if we can reuse from an earlier block, i.e. global state
+		boolean modified = CSETransfer
+				.processUnaryAssignmentHelper(saveNode, globalState, true);
+
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
 			// It's not (in a temp), so create a new temp.
 			addTempNode(saveNode, v3, s);
-		} else {
+		} else if (!modified) {
 			// If the value is already stored in a temp, use that temp
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
@@ -108,7 +119,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 	}
 
 	private void processArithmeticAssignment(MidSaveNode saveNode,
-			CSELocalState s) {
+			CSEGlobalState globalState, CSELocalState s) {
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
 
 		// Value-number left and right operands if necessary.
@@ -121,10 +132,13 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		s.addVarVal(saveNode.getDestinationNode(), saveNode.getRegNode(), v3);
 		MidSaveNode tempNode = s.getTemp(v3);
 
+		boolean modified = CSETransfer
+				.processArithmeticAssignmentHelper(saveNode, globalState, true);
+
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
 			CSETransformer.addTempNode(saveNode, v3, s);
-		} else {
+		} else if (!modified) {
 			// If the value is already stored in a temp, use that temp
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
