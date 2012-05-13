@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
@@ -20,10 +21,6 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	public Analyzer(S s, T t) {
 		startState = s;
 		transferFunction = t;
-		initialize();
-	}
-
-	private void initialize() {
 		outHash = new HashMap<Block, S>();
 	}
 
@@ -36,11 +33,10 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	}
 
 	private void analyzeMidNodeList(MidNodeList nodeList) {
-		initialize();
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		LogCenter
-				.debug("OPT", "BLOCKS:\n[OPT] "
+				.debug("OPT", "BLOCKS:\n"
 						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
@@ -80,6 +76,13 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 		S out = null;
 		for (Block m : b.getPredecessors()) {
 			LogCenter.debug("OPT", "Using state from " + m);
+			String debug = "";
+			for (Entry<Block, S> entry : outHash.entrySet()) {
+				debug += String
+						.format("%s => %s", entry.getKey().getBlockNum(), entry
+								.getValue());
+			}
+			assert outHash.get(m) != null : debug;
 			out = outHash.get(m).join(out);
 		}
 		return out;

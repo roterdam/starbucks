@@ -157,6 +157,7 @@ public class Main {
 						while (hasAdditionalChanges) {
 							x++;
 							clearHasAdditionalChanges();
+							
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
@@ -165,6 +166,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
+							
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
