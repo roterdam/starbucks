@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.Main;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -38,8 +39,11 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
 				this.assignments.add(saveNode);
-			} else if (node instanceof MidMethodCallNode
-					&& !((MidMethodCallNode) node).isStarbucksCall()) {
+			} else if (node instanceof MidCallNode) {
+				if (node instanceof MidMethodCallNode
+						&& ((MidMethodCallNode) node).isStarbucksCall()) {
+					continue;
+				}
 				this.assignments.add(node);
 			}
 		}
@@ -60,9 +64,10 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
 					processArithmeticAssignment(saveNode, globalState, localState);
 				}
-			} else if (assignmentNode instanceof MidMethodCallNode) {
+			} else if (assignmentNode instanceof MidCallNode) {
 				// Clear all state after a method call.
-				localState.clear();
+				globalState.clear();
+				localState.clearGlobals();
 			}
 		}
 
@@ -120,6 +125,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 
 	private void processArithmeticAssignment(MidSaveNode saveNode,
 			CSEGlobalState globalState, CSELocalState s) {
+
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
 
 		// Value-number left and right operands if necessary.
@@ -143,9 +149,9 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
 			// loaded.
-			LogCenter.debug("OPT", s.toString());
-			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING CSE (BINARY).");
-			LogCenter.debug("OPT", "replacing " + saveNode + " with: "
+			LogCenter.debug("OPT|CPJ", s.toString());
+			LogCenter.debug("OPT|CPJ", "HALLELUJAH OPTIMIZING CSE (BINARY).");
+			LogCenter.debug("OPT|CPJ", "replacing " + saveNode + " with: "
 					+ tempNode + " (" + tempNode.hashCode() + ")");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());

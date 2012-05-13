@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.Main;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -23,20 +24,10 @@ import edu.mit.compilers.opt.cse.data.LeafGlobalExpr;
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidNode> assignments;
-	public static boolean shouldPrint = false;
-	
-	public static void print(String s) {
-		if (shouldPrint) {
-//			System.out.println(s);
-		}
-	}
 
 	@Override
 	public CSEGlobalState apply(Block b, CSEGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
-
-		print("Processing " + b.getBlockNum());
-		print("Global state is " + inState);
 
 		this.assignments = new ArrayList<MidNode>();
 		LogCenter.debug("OPT", "\n\n\nPROCESSING " + b
@@ -48,8 +39,11 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				this.assignments.add(node);
-			} else if (node instanceof MidMethodCallNode
-					&& !((MidMethodCallNode) node).isStarbucksCall()) {
+			} else if (node instanceof MidCallNode) {
+				if (node instanceof MidMethodCallNode
+						&& ((MidMethodCallNode) node).isStarbucksCall()) {
+					continue;
+				}
 				this.assignments.add(node);
 			}
 		}
@@ -73,22 +67,15 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
 					processArithmeticAssignment(saveNode, outState);
 				}
-			} else if (assignmentNode instanceof MidMethodCallNode) {
-				MidMethodCallNode methodNode = (MidMethodCallNode) assignmentNode;
-				LogCenter.debug("OPT", inState.getReferenceMap().toString());
-				processMethodCall(methodNode, outState);
+			} else if (assignmentNode instanceof MidCallNode) {
+				outState.clear();
 			}
 		}
 
 		LogCenter.debug("OPT", "FINAL STATE IS " + outState);
 		LogCenter.debug("OPT", "");
-		
-		return outState;
-	}
 
-	private void processMethodCall(MidMethodCallNode methodNode,
-			CSEGlobalState state) {
-		state.clear();
+		return outState;
 	}
 
 	private void processSimpleAssignment(MidSaveNode node, CSEGlobalState state) {
@@ -172,7 +159,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				// TODO: are we sure we just take the first one?
 				MidMemoryNode ref = reusableReferences.get(0);
 				LogCenter
-						.debug("OPT", "HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+						.debug("OPT|CPJ", "HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
 								+ ref + " -> " + expr);
 				MidLoadNode loadTempNode = new MidLoadNode(ref);
 				MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
