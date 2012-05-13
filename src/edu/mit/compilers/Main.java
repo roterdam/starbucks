@@ -39,6 +39,7 @@ public class Main {
 
 	// Statically track whether or not we're making optimizations.
 	private static boolean hasAdditionalChanges = false;
+	public static int x;
 
 	public static void setHasAdditionalChanges() {
 		hasAdditionalChanges = true;
@@ -151,12 +152,11 @@ public class Main {
 								.createMidLevelIR((CLASSNode) parser.getAST());
 
 						setHasAdditionalChanges();
-						int x = 0;
+						x = 0;
 						// Run CSE + CP + DCE as long as there are changes,
 						// since each round of CP may help the next round's
 						// CSE.
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
-							x++;
 							clearHasAdditionalChanges();
 
 							if (isEnabled(OPT_CSE)) {
@@ -187,10 +187,11 @@ public class Main {
 							// DeadCodeElim dce = new DeadCodeElim();
 							// dce.analyze(analyzer, symbolTable);
 							// }
+							x++;
 						}
 
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
-								+ x + " times.");
+								+ (x - 1) + " times.");
 
 						// if (isEnabled(OPT_RA)) {
 						// RegisterAllocator allocator = new

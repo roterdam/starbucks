@@ -2,6 +2,8 @@ package edu.mit.compilers.opt.cp;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.Main;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
@@ -55,6 +57,14 @@ public class CPTransformer extends Transformer<CPState> {
 							.updateMemoryNode(replacementNode, true);
 					Main.setHasAdditionalChanges();
 				}
+			} else if (node instanceof MidCallNode) {
+				if (node instanceof MidMethodCallNode
+						&& ((MidMethodCallNode) node).isStarbucksCall()) {
+					continue;
+				}
+				LogCenter.debug("CP", "Resetting state because of "
+						+ ((MidCallNode) node).getName());
+				localState.reset();
 			}
 		}
 	}

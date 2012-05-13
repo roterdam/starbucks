@@ -1,9 +1,11 @@
 package edu.mit.compilers.opt.cse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -111,15 +113,18 @@ public class CSELocalState {
 	@Override
 	public String toString() {
 		String out = "CSELocalState:\n";
-		out += "[OPT] varToVal: " + HashMapUtils.toMapString(varToVal) + "\n";
-		out += "[OPT] valToTemp: " + HashMapUtils.toMapString(valToTemp) + "\n";
-		out += "[OPT] exprToVal: " + HashMapUtils.toMapString(exprToVal) + "\n";
+		out += "varToVal: " + HashMapUtils.toMapString(varToVal) + "\n";
+		out += "valToTemp: " + HashMapUtils.toMapString(valToTemp) + "\n";
+		out += "exprToVal: " + HashMapUtils.toMapString(exprToVal) + "\n";
 		return out;
 	}
 
-	public void clear() {
-		this.exprToVal.clear();
-		this.valToTemp.clear();
+	public void clearGlobals() {
+		for (MidMemoryNode key : new ArrayList<MidMemoryNode>(varToVal.keySet())) {
+			if (key instanceof MidFieldDeclNode) {
+				varToVal.remove(key);
+			}
+		}
 	}
 
 }
