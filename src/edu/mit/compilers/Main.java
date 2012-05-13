@@ -33,6 +33,7 @@ public class Main {
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
+	private static final int MAX_CSE_CP_DCE_TIMES = 2;
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
 			OPT_DCE };
 
@@ -154,10 +155,11 @@ public class Main {
 						// Run CSE + CP + DCE as long as there are changes,
 						// since each round of CP may help the next round's
 						// CSE.
-						while (hasAdditionalChanges && x < 4) {
+						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
 							x++;
 							clearHasAdditionalChanges();
 
+							System.out.println("CSE " + x);
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
@@ -166,6 +168,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
+							System.out.println("CP " + x);
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
