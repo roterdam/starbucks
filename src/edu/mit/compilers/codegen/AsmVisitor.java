@@ -160,25 +160,19 @@ public class AsmVisitor {
 		// possible.
 
 		List<ASM> pushStack = new ArrayList<ASM>();
-		for (int i = 0; i < params.size(); i++) {
+		for (int i = paramRegisters.length; i < params.size(); i++) {
 			MidLoadNode paramNode = new MidLoadNode(params.get(i));
-			if (i < paramRegisters.length) {
-				// Want to set the register.
-				paramNode.setRegister(paramRegisters[i]);
-				out.addAll(paramNode.toASM());
-			} else {
-				// Push the parameters in reverse order to a list
-				Reg temp = MemoryManager.allocTempRegister();
-				paramNode.setRegister(temp);
-				List<ASM> pushIt = new ArrayList<ASM>();
-				pushIt.addAll(paramNode.toASM());
-				pushIt.add(new OpASM(String.format("push param %d onto stack",
-						i), OpCode.PUSH, paramNode.getRegister().name()));
-				pushStack.addAll(0, pushIt);
+			// Push the parameters in reverse order to a list
+			Reg temp = MemoryManager.allocTempRegister();
+			paramNode.setRegister(temp);
+			List<ASM> pushIt = new ArrayList<ASM>();
+			pushIt.addAll(paramNode.toASM());
+			pushIt.add(new OpASM(String.format("push param %d onto stack",
+					i), OpCode.PUSH, paramNode.getRegister().name()));
+			pushStack.addAll(0, pushIt);
 
-				// FIXME: is this bad to do? (made deallocTempRegister public)
-				MemoryManager.deallocTempRegister(temp);
-			}
+			// FIXME: is this bad to do? (made deallocTempRegister public)
+			MemoryManager.deallocTempRegister(temp);
 		}
 		// Add the caller-saved registers. Note that adding to 0 in each
 		// iteration effectively reverses the order of needToSaveRegs.

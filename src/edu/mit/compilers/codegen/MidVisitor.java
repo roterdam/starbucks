@@ -30,6 +30,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidMinusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidModNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
+import edu.mit.compilers.codegen.nodes.regops.MidParamLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidPlusNode;
 import edu.mit.compilers.codegen.nodes.regops.MidTimesNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
@@ -105,6 +106,8 @@ public class MidVisitor {
 		
 		List<DecafNode> argNodes = node.getArgs();
 		List<MidMemoryNode> paramNodes = new ArrayList<MidMemoryNode>();
+		
+		MidNodeList loadNodes = new MidNodeList();
 		for (int i = 0; i < argNodes.size(); i++) {
 			DecafNode n = argNodes.get(i);
 			if (n instanceof STRING_LITERALNode) {
@@ -125,12 +128,19 @@ public class MidVisitor {
 				assert false : "STRING_LITERALNode or ExpressionNode expected, found: "
 						+ n.getClass();
 			}
+			MidParamLoadNode paramLoadNode = new MidParamLoadNode(paramNodes.get(i));
+			if (i < AsmVisitor.paramRegisters.length) {
+				// Want to set the register.
+				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
+				loadNodes.add(paramLoadNode);
+			}
 		}
 		out.addAll(getPostCalls(node, symbolTable));
 		// removes the " " from the DecafNode
 		String methodName = stripQuotes(node.getName());
 		MidCalloutNode midCallOutNode = new MidCalloutNode(methodName,
 				paramNodes);
+		out.addAll(loadNodes);
 		out.add(midCallOutNode);
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 		out.add(tempDeclNode);
@@ -148,6 +158,7 @@ public class MidVisitor {
 			returnMemoryNode = returnValuedExpressionList.getReturnNode();
 		}
 		out.add(new MidReturnNode(returnMemoryNode));
+		
 		return out;
 	}
 
@@ -158,18 +169,31 @@ public class MidVisitor {
 		out.addAll(getPreCalls(node, symbolTable));
 		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
 
-		for (ExpressionNode paramRoot : node.getParamNodes()) {
+		List<ExpressionNode> paramNodes = node.getParamNodes();
+		MidNodeList loadNodes = new MidNodeList();
+		
+		for (int i=0; i<paramNodes.size(); i++) {
+			ExpressionNode paramRoot = paramNodes.get(i);
 			// MidNodeList paramList = paramRoot.convertToMidLevel(symbolTable);
 			ValuedMidNodeList valuedParamInstrList = MidShortCircuitVisitor
 					.valuedHelper(paramRoot, symbolTable);
 			paramMemoryNodes.add(valuedParamInstrList.getReturnNode());
 			out.addAll(valuedParamInstrList.getList());
+			
+			if (i < AsmVisitor.paramRegisters.length) {
+				// Want to set the register.
+				MidParamLoadNode paramLoadNode = new MidParamLoadNode(paramMemoryNodes.get(i));
+				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
+				loadNodes.add(paramLoadNode);
+			}
 			// out.addAll(paramList);
 		}
 		out.addAll(getPostCalls(node, symbolTable));
 		MidMethodCallNode methodNode = new MidMethodCallNode(
 				symbolTable.getMethod(node.getMethodName()), paramMemoryNodes);
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
+		
+		out.addAll(loadNodes);
 		out.add(methodNode);
 		out.add(tempDeclNode);
 		out.add(new MidSaveNode(methodNode, tempDeclNode));
