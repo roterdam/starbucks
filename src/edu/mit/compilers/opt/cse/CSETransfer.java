@@ -23,10 +23,20 @@ import edu.mit.compilers.opt.cse.data.LeafGlobalExpr;
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
 	ArrayList<MidNode> assignments;
+	public static boolean shouldPrint = false;
+	
+	public static void print(String s) {
+		if (shouldPrint) {
+//			System.out.println(s);
+		}
+	}
 
 	@Override
 	public CSEGlobalState apply(Block b, CSEGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
+
+		print("Processing " + b.getBlockNum());
+		print("Global state is " + inState);
 
 		this.assignments = new ArrayList<MidNode>();
 		LogCenter.debug("OPT", "\n\n\nPROCESSING " + b
@@ -72,7 +82,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 
 		LogCenter.debug("OPT", "FINAL STATE IS " + outState);
 		LogCenter.debug("OPT", "");
-
+		
 		return outState;
 	}
 

@@ -130,7 +130,7 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 		// LogCenter.debug("[OPTJ] mentionMap:\n[OPTJ] " + mentionMap);
 		// LogCenter.debug("[OPTJ] refToExprMap:\n[OPTJ] " + refToExprMap);
 		// LogCenter.debug("[OPTJ] exprToRefMap:\n[OPTJ] " + exprToRefMap);
-
+		
 		// Would potentially expand expr here (and loop through them below).
 		refToExprMap.put(node, expr);
 

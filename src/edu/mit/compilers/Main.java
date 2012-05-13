@@ -33,7 +33,7 @@ public class Main {
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
-	private static final int MAX_CSE_CP_DCE_TIMES = 2;
+	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
 			OPT_DCE };
 
@@ -165,6 +165,7 @@ public class Main {
 										new CSEGlobalState().getInitialState(),
 										new CSETransfer());
 								analyzer.analyze(symbolTable);
+								System.out.println("CSE_TRANSFORM " + x);
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}

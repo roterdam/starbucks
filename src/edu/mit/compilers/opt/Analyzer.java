@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
+import edu.mit.compilers.opt.cse.CSETransfer;
 
 public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 		DataflowAnalysis<S> {
@@ -57,9 +57,17 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 			LogCenter.debug("OPT", "######################");
 			LogCenter.debug("OPT", "ANALYZER IS LOOKING AT " + currentBlock);
 			LogCenter.debug("OPT", "WL: " + worklist);
+			if (currentBlock.getBlockNum() == 37) {
+				CSETransfer.shouldPrint = true;
+			}
 			S in = getInState(currentBlock);
 			S out = transferFunction.apply(currentBlock, in);
 			if (!out.equals(outHash.get(currentBlock))) {
+				CSETransfer.print("OLD: " + outHash.get(currentBlock));
+				CSETransfer.print("NEW: " + out);
+				if (currentBlock.getBlockNum() == 37) {
+					CSETransfer.shouldPrint = false;
+				}
 				outHash.put(currentBlock, out);
 				for (Block s : currentBlock.getSuccessors()) {
 					if (!worklist.contains(s)) {
@@ -74,17 +82,17 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 
 	private S getInState(Block b) {
 		S out = null;
+		CSETransfer.print("");
+		CSETransfer.print("");
+		CSETransfer.print("");
+		CSETransfer.print("Getting in state for " + b);
 		for (Block m : b.getPredecessors()) {
 			LogCenter.debug("OPT", "Using state from " + m);
-			String debug = "";
-			for (Entry<Block, S> entry : outHash.entrySet()) {
-				debug += String
-						.format("%s => %s", entry.getKey().getBlockNum(), entry
-								.getValue());
-			}
-			assert outHash.get(m) != null : debug;
 			out = outHash.get(m).join(out);
+			CSETransfer.print("Update: " + out);
 		}
+		CSETransfer.print("");
+		CSETransfer.print("");
 		return out;
 	}
 
