@@ -159,17 +159,14 @@ public class Main {
 							x++;
 							clearHasAdditionalChanges();
 
-							System.out.println("CSE " + x);
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
 										new CSETransfer());
 								analyzer.analyze(symbolTable);
-								System.out.println("CSE_TRANSFORM " + x);
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							System.out.println("CP " + x);
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
