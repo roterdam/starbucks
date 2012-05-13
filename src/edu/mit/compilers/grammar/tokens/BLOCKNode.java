@@ -13,6 +13,7 @@ import edu.mit.compilers.crawler.VarDecl;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
+import edu.mit.compilers.opt.algebra.UnreachableCodeEliminator;
 
 @SuppressWarnings("serial")
 public class BLOCKNode extends DecafNode {
@@ -82,6 +83,10 @@ public class BLOCKNode extends DecafNode {
 	@Override
 	public void simplifyExpressions(){
 		AlgebraicSimplifier.visit(this);
+	}
+	
+	public BLOCKNode eliminateUnreachableCode(){
+		return UnreachableCodeEliminator.visit(this);
 	}
 
 }

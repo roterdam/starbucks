@@ -61,4 +61,8 @@ public class RETURNNode extends DecafNode {
 		AlgebraicSimplifier.visit(this);
 	}
 
+	@Override
+	public boolean isBlockEnder(){
+		return true;
+	}
 }

@@ -31,6 +31,14 @@ public abstract class DecafNode extends CommonAST {
 		return column;
 	}
 
+	public DecafNode getTail(){
+		DecafNode currentNode = this;
+		while(currentNode.getNextSibling() != null){
+			currentNode = currentNode.getNextSibling();
+		}
+		return currentNode;
+	}
+	
 	public void copyFromNode(DecafNode n) {
 		this.line = n.getLine();
 		this.column = n.getColumn();
@@ -52,6 +60,33 @@ public abstract class DecafNode extends CommonAST {
 			currentNode = currentNode.getNextSibling();
 		}
 		return currentNode;
+	}
+	
+	
+	public void replaceChildWithList(int i, DecafNode node){
+		DecafNode tailNode = node;
+		while(tailNode.getNextSibling() != null){
+			tailNode = tailNode.getNextSibling();
+		}
+		
+		DecafNode predecessorNode = null;
+		DecafNode thisNode = getFirstChild();
+		for(int j = 0; j < i; j++){
+			predecessorNode = thisNode;
+			thisNode = thisNode.getNextSibling();
+		}
+		DecafNode successorNode = thisNode.getNextSibling();
+		
+		if(thisNode == node){
+			// Replacing node with itself, no updates necessary.
+			return;
+		}
+		if(predecessorNode == null){ // Setting firstChild
+			setFirstChild(node);
+		}else {
+			predecessorNode.setNextSibling(node);
+		}
+		tailNode.setNextSibling(successorNode);
 	}
 	
 	public void replaceChild(int i, DecafNode node){
@@ -130,5 +165,14 @@ public abstract class DecafNode extends CommonAST {
 	
 	public void simplifyExpressions(){
 		
+	}
+	
+	public DecafNode eliminateUnreachableCode(){
+		return this;
+	}
+	
+	/* If true, all statements after this statement are unreachable */
+	public boolean isBlockEnder(){
+		return false;
 	}
 }

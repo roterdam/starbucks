@@ -10,5 +10,9 @@ public abstract class BranchNode extends DecafNode {
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}
-
+	
+	@Override
+	public boolean isBlockEnder(){
+		return true;
+	}
 }
