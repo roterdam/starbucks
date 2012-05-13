@@ -22,6 +22,10 @@ public class ELSENode extends DecafNode {
 		return returnChecker.visit(this);
 	}
 	
+	public void setBlockNode(BLOCKNode node) {
+		replaceChild(0, node);
+	}
+	
 	public BLOCKNode getBlockNode(){
 		assert getChild(0) instanceof BLOCKNode;
 		return (BLOCKNode) this.getChild(0);
@@ -31,5 +35,7 @@ public class ELSENode extends DecafNode {
 	public void simplifyExpressions(){
 		AlgebraicSimplifier.visit(this);
 	}
+
+
 	
 }

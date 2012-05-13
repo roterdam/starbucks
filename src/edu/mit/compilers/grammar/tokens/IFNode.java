@@ -17,6 +17,10 @@ public class IFNode extends DecafNode {
 		return (IF_CLAUSENode) this.getFirstChild();
 	}
 	
+	public void setBlockNode(BLOCKNode node){
+		replaceChild(1, node);
+	}
+	
 	public BLOCKNode getBlockNode(){
 		assert getChild(1) instanceof BLOCKNode;
 		return (BLOCKNode) this.getChild(1);
@@ -29,6 +33,7 @@ public class IFNode extends DecafNode {
 	/**
 	 * Returns the else block. null if there is no else block
 	 */
+	
 	public ELSENode getElseBlock(){
 		if (hasElseBlockNode()){
 			assert getChild(2) instanceof ELSENode;	
