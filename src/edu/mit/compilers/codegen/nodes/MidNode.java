@@ -61,6 +61,8 @@ public abstract class MidNode {
 		this.setNextNode(oldNext);
 	}
 	
+	
+	//FIXME what if this is the first node?
 	public void delete() {
 		LogCenter.debug("OPT", "DELETING " + this + " (" + hashCode() + ")");
 		this.getPrevNode().setNextNode(this.getNextNode());
