@@ -19,6 +19,8 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
+import edu.mit.compilers.opt.cm.CMState;
+import edu.mit.compilers.opt.cm.CMTransfer;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -33,9 +35,10 @@ public class Main {
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
+	private static final String OPT_CM = "cm";
 	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
-			OPT_DCE };
+			OPT_DCE, OPT_CM };
 
 	// Statically track whether or not we're making optimizations.
 	private static boolean hasAdditionalChanges = false;
@@ -174,6 +177,12 @@ public class Main {
 								analyzer.analyze(symbolTable);
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
+							}
+							
+							if (isEnabled(OPT_CM)) {
+								Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
+										new CMState().getInitialState(),
+										new CMTransfer());
 							}
 
 //							 if (isEnabled(OPT_DCE)) {
