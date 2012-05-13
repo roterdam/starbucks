@@ -15,12 +15,12 @@ import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.LocalAnalyzer;
 import edu.mit.compilers.opt.Value;
 
-public class CSELocalAnalyzer extends LocalAnalyzer {
+public class CSELocalAnalyzer extends LocalAnalyzer<CSEGlobalState> {
 
 	ArrayList<MidNode> assignments;
 
 	@Override
-	protected void transform(Block b) {
+	protected void transform(Block b, CSEGlobalState state) {
 
 		assignments = new ArrayList<MidNode>();
 

@@ -10,7 +10,8 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 
-public class Analyzer<S extends State<S>, T extends Transfer<S>> {
+public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
+		DataflowAnalysis<S> {
 
 	protected S startState;
 	private T transferFunction;
@@ -75,14 +76,18 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> {
 		}
 	}
 
-	public S getInState(Block b) {
+	private S getInState(Block b) {
 		S out = null;
-		LogCenter.debug("OPT", "Getting in-state of type ");
 		for (Block m : b.getPredecessors()) {
 			LogCenter.debug("OPT", "Using state from " + m);
 			out = outHash.get(m).join(out);
 		}
 		return out;
+	}
+
+	@Override
+	public S getAnalyzedState(Block block) {
+		return getInState(block);
 	}
 
 }

@@ -10,7 +10,7 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 
-public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
+public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implements DataflowAnalysis<S> {
 
 	protected S startState;
 	private T transferFunction;
@@ -78,7 +78,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 		}
 	}
 
-	public S getOutState(Block b) {
+	private S getOutState(Block b) {
 		assert b != null;
 		S out = null;
 		LogCenter.debug("RA", String
@@ -107,6 +107,11 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public S getAnalyzedState(Block block) {
+		return getOutState(block);
 	}
 
 }

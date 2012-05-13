@@ -3,46 +3,28 @@ package edu.mit.compilers.opt.dce;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.AnalyzerHelpers;
-import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.LocalAnalyzer;
-import edu.mit.compilers.opt.regalloc.LivenessDoctor;
 import edu.mit.compilers.opt.regalloc.LivenessState;
 
-public class DeadCodeElim extends LocalAnalyzer {
-
-	private BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer;
-
+public class DeadCodeElim extends LocalAnalyzer<LivenessState> {
 
 	@Override
-	public void analyze(MidSymbolTable symbolTable) {
-		LivenessDoctor doctor = new LivenessDoctor();
-		analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
-				new LivenessState().getBottomState(), doctor);
-		analyzer.analyze(symbolTable);
-
-		super.analyze(symbolTable);
-
-	}
-
-	@Override
-	protected void transform(Block b) {
+	protected void transform(Block b, LivenessState state) {
 		
 		LivenessState localState;
-		LivenessState temp = analyzer.getOutState(b);
-		if (temp == null){
+		if (state == null){
 			//Should be the return block
 			assert b.getSuccessors().isEmpty();
 			localState = new LivenessState();
 		} else {
-			localState = temp.clone();		
+			localState = state.clone();		
 		}
 			
 		

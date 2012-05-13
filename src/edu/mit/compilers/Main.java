@@ -19,15 +19,12 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
-import edu.mit.compilers.opt.LocalAnalyzer;
-import edu.mit.compilers.opt.cp.CPGlobalState;
-import edu.mit.compilers.opt.cp.CPLocalAnalyzer;
+import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
+import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
 import edu.mit.compilers.opt.cse.CSETransfer;
-import edu.mit.compilers.opt.dce.DeadCodeElim;
-import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -36,7 +33,8 @@ class Main {
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
-	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA, OPT_DCE };
+	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
+			OPT_DCE };
 
 	public static void main(String[] args) {
 		try {
@@ -143,32 +141,38 @@ class Main {
 						// Run certain optimizations after creating a mid-level
 						// IR.
 						if (isEnabled(OPT_CSE)) {
-							LocalAnalyzer localAnalyzer = new CSELocalAnalyzer();
-							localAnalyzer.analyze(symbolTable);
 							Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 									new CSEGlobalState().getInitialState(),
 									new CSETransfer());
 							analyzer.analyze(symbolTable);
+							CSELocalAnalyzer localAnalyzer = new CSELocalAnalyzer();
+							localAnalyzer.analyze(analyzer, symbolTable);
 						}
 
 						if (isEnabled(OPT_CP)) {
-							CPLocalAnalyzer localAnalyzer = new CPLocalAnalyzer();
-							localAnalyzer.analyze(symbolTable);
-							Analyzer<CPGlobalState, CPTransfer> analyzer = new Analyzer<CPGlobalState, CPTransfer>(
-									new CPGlobalState().getInitialState(),
+							Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
+									new CPState().getInitialState(),
 									new CPTransfer());
 							analyzer.analyze(symbolTable);
-						}
-						
-						if (isEnabled(OPT_DCE)) {
-							DeadCodeElim dce = new DeadCodeElim();							
-							dce.analyze(symbolTable);
+							CPTransformer localAnalyzer = new CPTransformer();
+							localAnalyzer.analyze(analyzer, symbolTable);
 						}
 
-						if (isEnabled(OPT_RA)) {
-							RegisterAllocator allocator = new RegisterAllocator(symbolTable);
-							allocator.run();
-						}
+//						if (isEnabled(OPT_DCE)) {
+//							LivenessDoctor doctor = new LivenessDoctor();
+//							BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+//									new LivenessState().getBottomState(),
+//									doctor);
+//							analyzer.analyze(symbolTable);
+//							DeadCodeElim dce = new DeadCodeElim();
+//							dce.analyze(analyzer, symbolTable);
+//						}
+
+						// if (isEnabled(OPT_RA)) {
+						// RegisterAllocator allocator = new
+						// RegisterAllocator(symbolTable);
+						// allocator.run();
+						// }
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));

@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -90,6 +91,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 
 	public void updateMemoryNode(MidMemoryNode tempReplacement,
 			boolean isOptimization) {
+		assert tempReplacement != null : tempReplacement + " is null.";
 		oldMemoryNode = memoryNode;
 		memoryNode = tempReplacement;
 		if (isOptimization) {
