@@ -33,6 +33,11 @@ public class CLI {
 	public static boolean opts[];
 
 	/**
+	 * Array indicating which debug tags to show.
+	 */
+	public static String tags[];
+
+	/**
 	 * Vector of String containing the command-line arguments which could not
 	 * otherwise be parsed.
 	 */
@@ -81,7 +86,7 @@ public class CLI {
 	public static boolean dot;
 
 	public static boolean optOn;
-	
+
 	/**
 	 * Sets up default values for all of the result fields. Specifically, sets
 	 * the input and output files to null, the target to DEFAULT, and the extras
@@ -120,10 +125,10 @@ public class CLI {
 
 		opts = new boolean[optnames.length];
 		optOn = false;
-		
+
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-debug")) {
-				context = 0;
+				context = 4;
 				debug = true;
 			} else if (args[i].equals("-visual")) {
 				visual = true;
@@ -173,6 +178,10 @@ public class CLI {
 				} else {
 					target = Action.DEFAULT; // Anything else is just default
 				}
+				context = 0;
+			} else if (context == 4) {
+				// Debug.
+				tags = args[i].split(",");
 				context = 0;
 			} else {
 				extras.addElement(args[i]);
