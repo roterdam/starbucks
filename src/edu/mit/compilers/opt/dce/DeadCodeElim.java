@@ -10,10 +10,10 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.AnalyzerHelpers;
 import edu.mit.compilers.opt.Block;
-import edu.mit.compilers.opt.LocalAnalyzer;
+import edu.mit.compilers.opt.Transformer;
 import edu.mit.compilers.opt.regalloc.LivenessState;
 
-public class DeadCodeElim extends LocalAnalyzer<LivenessState> {
+public class DeadCodeElim extends Transformer<LivenessState> {
 
 	@Override
 	protected void transform(Block b, LivenessState state) {

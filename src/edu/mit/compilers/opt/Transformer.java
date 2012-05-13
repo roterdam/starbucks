@@ -7,7 +7,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 
-public abstract class LocalAnalyzer<S> {
+public abstract class Transformer<S> {
 
 	public void analyze(DataflowAnalysis<S> analysis, MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();

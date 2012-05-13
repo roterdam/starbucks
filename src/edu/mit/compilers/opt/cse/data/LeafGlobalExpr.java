@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt.cse;
+package edu.mit.compilers.opt.cse.data;
 
 import java.util.ArrayList;
 import java.util.List;

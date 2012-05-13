@@ -1,15 +1,16 @@
 package edu.mit.compilers.opt.cp;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.Main;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
-import edu.mit.compilers.opt.LocalAnalyzer;
+import edu.mit.compilers.opt.Transformer;
 
-public class CPTransformer extends LocalAnalyzer<CPState> {
+public class CPTransformer extends Transformer<CPState> {
 
 	@Override
 	protected void transform(Block block, CPState state) {
@@ -20,8 +21,8 @@ public class CPTransformer extends LocalAnalyzer<CPState> {
 			localState = state.clone();
 		}
 
-		LogCenter.debug("CP", "\n\nTransforming block:\n" + block + "\n State:\n"
-				+ state);
+		LogCenter.debug("CP", "\n\nTransforming block:\n" + block
+				+ "\n State:\n" + state);
 
 		for (MidNode node : block) {
 			if (node instanceof MidSaveNode
@@ -37,8 +38,12 @@ public class CPTransformer extends LocalAnalyzer<CPState> {
 			} else if (node instanceof MidLoadNode) {
 				// See if we can optimize.
 				MidMemoryNode memNode = ((MidLoadNode) node).getMemoryNode();
-				memNode = localState.lookup(memNode);
-				((MidLoadNode) node).updateMemoryNode(memNode, true);
+				MidMemoryNode replacementNode = localState.lookup(memNode);
+				if (replacementNode != memNode) {
+					((MidLoadNode) node)
+							.updateMemoryNode(replacementNode, true);
+					Main.setHasAdditionalChanges();
+				}
 			}
 		}
 	}

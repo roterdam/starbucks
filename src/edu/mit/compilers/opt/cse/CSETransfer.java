@@ -15,6 +15,10 @@ import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.AnalyzerHelpers;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
+import edu.mit.compilers.opt.cse.data.BinaryGlobalExpr;
+import edu.mit.compilers.opt.cse.data.GlobalExpr;
+import edu.mit.compilers.opt.cse.data.LeafGlobalExpr;
+import edu.mit.compilers.opt.cse.data.UnaryGlobalExpr;
 
 public class CSETransfer implements Transfer<CSEGlobalState> {
 

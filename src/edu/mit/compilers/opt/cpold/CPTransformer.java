@@ -9,9 +9,9 @@ import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
-import edu.mit.compilers.opt.LocalAnalyzer;
+import edu.mit.compilers.opt.Transformer;
 
-public class CPTransformer extends LocalAnalyzer<CPGlobalState> {
+public class CPTransformer extends Transformer<CPGlobalState> {
 
 	@Override
 	public void transform(Block b, CPGlobalState g) {

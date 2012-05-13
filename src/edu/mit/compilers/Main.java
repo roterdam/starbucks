@@ -23,18 +23,29 @@ import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
-import edu.mit.compilers.opt.cse.CSELocalAnalyzer;
+import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
-class Main {
+public class Main {
 	private static final String OPT_CSE = "cse";
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
 			OPT_DCE };
+
+	// Statically track whether or not we're making optimizations.
+	private static boolean hasAdditionalChanges = false;
+
+	public static void setHasAdditionalChanges() {
+		hasAdditionalChanges = true;
+	}
+
+	private static void clearHasAdditionalChanges() {
+		hasAdditionalChanges = false;
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -138,35 +149,46 @@ class Main {
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
 
-						// Run certain optimizations after creating a mid-level
-						// IR.
-						if (isEnabled(OPT_CSE)) {
-							Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
-									new CSEGlobalState().getInitialState(),
-									new CSETransfer());
-							analyzer.analyze(symbolTable);
-							CSELocalAnalyzer localAnalyzer = new CSELocalAnalyzer();
-							localAnalyzer.analyze(analyzer, symbolTable);
-						}
+						setHasAdditionalChanges();
+						int x = 0;
+						while (hasAdditionalChanges) {
+							x++;
+							clearHasAdditionalChanges();
+							// Run CSE + CP + DCE as long as there are changes,
+							// since each round of CP may help the next round's
+							// CSE.
+							if (isEnabled(OPT_CSE)) {
+								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
+										new CSEGlobalState().getInitialState(),
+										new CSETransfer());
+								analyzer.analyze(symbolTable);
+								CSETransformer localAnalyzer = new CSETransformer();
+								localAnalyzer.analyze(analyzer, symbolTable);
+							}
 
-						if (isEnabled(OPT_CP)) {
-							Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
-									new CPState().getInitialState(),
-									new CPTransfer());
-							analyzer.analyze(symbolTable);
-							CPTransformer localAnalyzer = new CPTransformer();
-							localAnalyzer.analyze(analyzer, symbolTable);
-						}
+							if (isEnabled(OPT_CP)) {
+								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
+										new CPState().getInitialState(),
+										new CPTransfer());
+								analyzer.analyze(symbolTable);
+								CPTransformer localAnalyzer = new CPTransformer();
+								localAnalyzer.analyze(analyzer, symbolTable);
+							}
 
-//						if (isEnabled(OPT_DCE)) {
-//							LivenessDoctor doctor = new LivenessDoctor();
-//							BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
-//									new LivenessState().getBottomState(),
-//									doctor);
-//							analyzer.analyze(symbolTable);
-//							DeadCodeElim dce = new DeadCodeElim();
-//							dce.analyze(analyzer, symbolTable);
-//						}
+							// if (isEnabled(OPT_DCE)) {
+							// LivenessDoctor doctor = new LivenessDoctor();
+							// BackwardsAnalyzer<LivenessState, LivenessDoctor>
+							// analyzer = new BackwardsAnalyzer<LivenessState,
+							// LivenessDoctor>(
+							// new LivenessState().getBottomState(),
+							// doctor);
+							// analyzer.analyze(symbolTable);
+							// DeadCodeElim dce = new DeadCodeElim();
+							// dce.analyze(analyzer, symbolTable);
+							// }
+						}
+						
+						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations " + x + " times.");
 
 						// if (isEnabled(OPT_RA)) {
 						// RegisterAllocator allocator = new

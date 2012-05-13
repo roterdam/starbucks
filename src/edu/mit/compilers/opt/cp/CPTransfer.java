@@ -39,7 +39,8 @@ public class CPTransfer implements Transfer<CPState> {
 					MidRegisterNode regNode = saveNode.getRegNode();
 					if (regNode instanceof MidLoadNode) {
 						MidLoadNode loadNode = (MidLoadNode) regNode;
-						outState.processDef(loadNode.getMemoryNode(), saveNode.getDestinationNode());
+						outState.processDef(loadNode.getMemoryNode(), saveNode
+								.getDestinationNode());
 					}
 				}
 

@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.HashMapUtils;
 import edu.mit.compilers.opt.State;
+import edu.mit.compilers.opt.cse.data.GlobalExpr;
 
 public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 

@@ -12,6 +12,9 @@ import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
 import edu.mit.compilers.opt.HashMapUtils;
 import edu.mit.compilers.opt.Value;
+import edu.mit.compilers.opt.cse.data.BinaryLocalExpr;
+import edu.mit.compilers.opt.cse.data.LocalExpr;
+import edu.mit.compilers.opt.cse.data.UnaryLocalExpr;
 
 /**
  * Stores state information for block-level optimizations, NOT global CSE.

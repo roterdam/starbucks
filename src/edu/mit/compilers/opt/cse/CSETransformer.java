@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.cse;
 import java.util.ArrayList;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.Main;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -12,10 +13,10 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.opt.AnalyzerHelpers;
 import edu.mit.compilers.opt.Block;
-import edu.mit.compilers.opt.LocalAnalyzer;
+import edu.mit.compilers.opt.Transformer;
 import edu.mit.compilers.opt.Value;
 
-public class CSELocalAnalyzer extends LocalAnalyzer<CSEGlobalState> {
+public class CSETransformer extends Transformer<CSEGlobalState> {
 
 	ArrayList<MidNode> assignments;
 
@@ -62,7 +63,6 @@ public class CSELocalAnalyzer extends LocalAnalyzer<CSEGlobalState> {
 	}
 
 	private void processSimpleAssignment(MidSaveNode node, CSELocalState s) {
-		// TODO Auto-generated method stub
 		MidLoadNode loadNode = (MidLoadNode) node.getRegNode();
 
 		// Get the value of the node to be assigned to, create a new one for it
@@ -102,6 +102,8 @@ public class CSELocalAnalyzer extends LocalAnalyzer<CSEGlobalState> {
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
 			AnalyzerHelpers.completeDeleteUnary(saveNode);
+			
+			Main.setHasAdditionalChanges();
 		}
 	}
 
@@ -121,7 +123,7 @@ public class CSELocalAnalyzer extends LocalAnalyzer<CSEGlobalState> {
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
-			CSELocalAnalyzer.addTempNode(saveNode, v3, s);
+			CSETransformer.addTempNode(saveNode, v3, s);
 		} else {
 			// If the value is already stored in a temp, use that temp
 			// instead. This is the magical optimization step.
@@ -139,6 +141,8 @@ public class CSELocalAnalyzer extends LocalAnalyzer<CSEGlobalState> {
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
 			AnalyzerHelpers.completeDeleteBinary(saveNode);
+			
+			Main.setHasAdditionalChanges();
 		}
 	}
 

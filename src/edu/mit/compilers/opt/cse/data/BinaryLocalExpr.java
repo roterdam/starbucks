@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt.cse;
+package edu.mit.compilers.opt.cse.data;
 
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.opt.Value;

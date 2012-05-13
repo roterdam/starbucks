@@ -8,6 +8,7 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.HashMapUtils;
 import edu.mit.compilers.opt.State;
 
@@ -74,6 +75,12 @@ public class CPState implements State<CPState> {
 	}
 
 	public void processDef(MidMemoryNode fromNode, MidMemoryNode destNode) {
+		// Avoid mapping a non-temp node to a temp node.
+		if (fromNode instanceof MidTempDeclNode
+				&& !(destNode instanceof MidTempDeclNode)) {
+			return;
+		}
+
 		// Clear existing references.
 		for (Entry<MidMemoryNode, MidMemoryNode> entry : definitionMap
 				.entrySet()) {
