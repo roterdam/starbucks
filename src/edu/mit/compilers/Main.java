@@ -156,6 +156,9 @@ public class Main {
 						// CSE.
 						while (hasAdditionalChanges) {
 							x++;
+							if (x > 5) {
+								break;
+							}
 							clearHasAdditionalChanges();
 							
 							if (isEnabled(OPT_CSE)) {
