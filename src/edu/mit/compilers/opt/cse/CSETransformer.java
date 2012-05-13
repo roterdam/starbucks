@@ -102,7 +102,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
 			AnalyzerHelpers.completeDeleteUnary(saveNode);
-			
+
 			Main.setHasAdditionalChanges();
 		}
 	}
@@ -131,8 +131,8 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			// loaded.
 			LogCenter.debug("OPT", s.toString());
 			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING CSE (BINARY).");
-			LogCenter.debug("OPT", "tempNode to replace with: " + tempNode
-					+ " (" + tempNode.hashCode() + ")");
+			LogCenter.debug("OPT", "replacing " + saveNode + " with: "
+					+ tempNode + " (" + tempNode.hashCode() + ")");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
@@ -141,7 +141,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
 			AnalyzerHelpers.completeDeleteBinary(saveNode);
-			
+
 			Main.setHasAdditionalChanges();
 		}
 	}
@@ -150,10 +150,12 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			CSELocalState s) {
 		// It's not (in a temp), so create a new temp.
 		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
-		MidSaveNode newTempNode = s.addTemp(v3, tempDeclNode);
+		MidLoadNode newLoadNode = new MidLoadNode(saveNode.getDestinationNode());
+		MidSaveNode newTempNode = s.addTemp(v3, tempDeclNode, newLoadNode);
 		// Add the temp after the save node. Don't forget the decl node!
 		tempDeclNode.insertAfter(saveNode);
-		newTempNode.insertAfter(tempDeclNode);
+		newLoadNode.insertAfter(tempDeclNode);
+		newTempNode.insertAfter(newLoadNode);
 		LogCenter.debug("OPT", "Inserting a temp node: " + newTempNode + " ("
 				+ newTempNode.hashCode() + ")");
 	}

@@ -1,5 +1,6 @@
 package edu.mit.compilers.opt.cp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -74,6 +75,17 @@ public class CPState implements State<CPState> {
 		return new CPState(HashMapUtils.deepClone(definitionMap));
 	}
 
+	public void killReferences(MidMemoryNode destNode) {
+		// Clear existing references.
+		for (Entry<MidMemoryNode, MidMemoryNode> entry : new ArrayList<Entry<MidMemoryNode, MidMemoryNode>>(
+				definitionMap.entrySet())) {
+			if (entry.getValue() == destNode) {
+				definitionMap.remove(entry.getKey());
+			}
+		}
+		definitionMap.remove(destNode);
+	}
+
 	public void processDef(MidMemoryNode fromNode, MidMemoryNode destNode) {
 		// Avoid mapping a non-temp node to a temp node.
 		if (fromNode instanceof MidTempDeclNode
@@ -81,13 +93,6 @@ public class CPState implements State<CPState> {
 			return;
 		}
 
-		// Clear existing references.
-		for (Entry<MidMemoryNode, MidMemoryNode> entry : definitionMap
-				.entrySet()) {
-			if (entry.getValue() == destNode) {
-				definitionMap.remove(entry.getKey());
-			}
-		}
 		LogCenter.debug("CP", "Processing def " + destNode + " <- " + fromNode);
 		LogCenter.debug("CP", HashMapUtils.toMapString(definitionMap));
 

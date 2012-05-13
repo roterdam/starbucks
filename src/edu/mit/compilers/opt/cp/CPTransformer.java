@@ -28,12 +28,13 @@ public class CPTransformer extends Transformer<CPState> {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
+				MidMemoryNode destNode = saveNode.getDestinationNode();
+				localState.killReferences(destNode);
 				MidRegisterNode regNode = saveNode.getRegNode();
 				if (regNode instanceof MidLoadNode) {
 					MidLoadNode loadNode = (MidLoadNode) regNode;
 					// Update definitions.
-					localState.processDef(loadNode.getMemoryNode(), saveNode
-							.getDestinationNode());
+					localState.processDef(loadNode.getMemoryNode(), destNode);
 				}
 			} else if (node instanceof MidLoadNode) {
 				// See if we can optimize.

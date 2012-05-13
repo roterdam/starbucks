@@ -4,6 +4,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
@@ -35,12 +36,14 @@ public class CPTransfer implements Transfer<CPState> {
 				}
 
 				if (!skip) {
-					// Process save node if it just saves a load node.
 					MidRegisterNode regNode = saveNode.getRegNode();
+					MidMemoryNode destNode = saveNode.getDestinationNode();
+					// Kill definitions.
+					outState.killReferences(destNode);
 					if (regNode instanceof MidLoadNode) {
+						// Process save node if it just saves a load node.
 						MidLoadNode loadNode = (MidLoadNode) regNode;
-						outState.processDef(loadNode.getMemoryNode(), saveNode
-								.getDestinationNode());
+						outState.processDef(loadNode.getMemoryNode(), destNode);
 					}
 				}
 

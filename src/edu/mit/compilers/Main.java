@@ -151,12 +151,12 @@ public class Main {
 
 						setHasAdditionalChanges();
 						int x = 0;
+						// Run CSE + CP + DCE as long as there are changes,
+						// since each round of CP may help the next round's
+						// CSE.
 						while (hasAdditionalChanges) {
 							x++;
 							clearHasAdditionalChanges();
-							// Run CSE + CP + DCE as long as there are changes,
-							// since each round of CP may help the next round's
-							// CSE.
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
@@ -165,7 +165,6 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
@@ -187,8 +186,9 @@ public class Main {
 							// dce.analyze(analyzer, symbolTable);
 							// }
 						}
-						
-						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations " + x + " times.");
+
+						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
+								+ x + " times.");
 
 						// if (isEnabled(OPT_RA)) {
 						// RegisterAllocator allocator = new
