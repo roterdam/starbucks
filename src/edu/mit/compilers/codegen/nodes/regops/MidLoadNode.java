@@ -74,7 +74,8 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 
 	@Override
 	public boolean usesArrayRegister() {
-		return memoryNode instanceof MidArrayElementNode;
+		return (memoryNode instanceof MidArrayElementNode)
+				&& !((MidArrayElementNode) memoryNode).isConstant();
 	}
 
 	@Override
