@@ -3,7 +3,6 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -38,7 +37,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		String isArray = usesArrayReference() ? "[A]" : "";
+		String isArray = usesArrayRegister() ? "[A]" : "";
 		String prefix = isOptimization ? "[OPT] " : "";
 		String oldRef = (oldMemoryNode == null) ? "" : " ("
 				+ oldMemoryNode.getName() + ")";
@@ -73,19 +72,20 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 	}
 
 	@Override
-	public boolean usesArrayReference() {
-		return memoryNode instanceof MidArrayElementNode;
+	public boolean usesArrayRegister() {
+		return (memoryNode instanceof MidArrayElementNode)
+				&& !((MidArrayElementNode) memoryNode).isConstant();
 	}
 
 	@Override
 	public MidArrayElementNode getMidArrayElementNode() {
-		assert usesArrayReference();
+		assert usesArrayRegister();
 		return (MidArrayElementNode) memoryNode;
 	}
 
 	@Override
 	public Reg getArrayRegister() {
-		assert usesArrayReference();
+		assert usesArrayRegister();
 		return ((MidArrayElementNode) memoryNode).getLoadRegister();
 	}
 

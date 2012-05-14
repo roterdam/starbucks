@@ -37,5 +37,10 @@ public class MidDivideNode extends MidRDXHater {
 		}
 		return out;
 	}
+	
+	@Override
+	public long applyOperation(long left, long right) {
+		return left / right;
+	}
 
 }

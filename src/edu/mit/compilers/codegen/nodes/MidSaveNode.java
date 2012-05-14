@@ -98,19 +98,20 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	}
 
 	@Override
-	public boolean usesArrayReference() {
-		return destination instanceof MidArrayElementNode;
+	public boolean usesArrayRegister() {
+		return destination instanceof MidArrayElementNode
+				&& !((MidArrayElementNode) destination).isConstant();
 	}
 
 	@Override
 	public MidArrayElementNode getMidArrayElementNode() {
-		assert usesArrayReference();
+		assert usesArrayRegister();
 		return (MidArrayElementNode) destination;
 	}
 
 	@Override
 	public Reg getArrayRegister() {
-		assert usesArrayReference();
+		assert usesArrayRegister();
 		return ((MidArrayElementNode) destination).getLoadRegister();
 	}
 
@@ -142,7 +143,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		case REGISTER:
 			value = registerNode.getName();
 		}
-		String isArray = usesArrayReference() ? "[A]" : "";
+		String isArray = usesArrayRegister() ? "[A]" : "";
 		return "<" + className.substring(mid) + ": " + value + " -> "
 				+ getDestinationNode().getName() + " " + isArray + ">";
 	}
@@ -160,10 +161,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 	@Override
 	public List<ASM> toASM() {
-		
+
 		List<ASM> out = new ArrayList<ASM>();
 
-		if (this.isInactive){
+		if (this.isInactive) {
 			return out;
 		}
 
@@ -221,8 +222,8 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	public Reg getAllocatedRegister() {
 		return allocatedReg;
 	}
-	
-	public void deactivate(){
+
+	public void deactivate() {
 		this.isInactive = true;
 	}
 

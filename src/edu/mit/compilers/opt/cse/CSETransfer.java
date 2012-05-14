@@ -68,7 +68,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 					processArithmeticAssignment(block, saveNode, outState);
 				}
 			} else if (assignmentNode instanceof MidCallNode) {
-				outState.clear();
+				outState.clearGlobals();
 			}
 		}
 
@@ -159,7 +159,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				// TODO: are we sure we just take the first one?
 				MidMemoryNode ref = reusableReferences.get(0);
 				LogCenter
-						.debug("OPT|CPJ", "HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
+						.debug("CSE", "HALLELUJAH OPTIMIZING GLOBAL CSE, reusing "
 								+ ref + " -> " + expr);
 				MidLoadNode loadTempNode = new MidLoadNode(ref);
 				MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,

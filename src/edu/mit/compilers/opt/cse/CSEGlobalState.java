@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.opt.HashMapUtils;
@@ -101,7 +102,9 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 					}
 				}
 			}
-			assert newMemNode != null;
+			if (newMemNode == null) {
+				continue;
+			}
 			List<MidMemoryNode> newMemNodes = new ArrayList<MidMemoryNode>();
 			newMemNodes.add(newMemNode);
 
@@ -240,10 +243,21 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 				.equals(global.getMentionMap()));
 	}
 
-	public void clear() {
-		this.exprToRefMap.clear();
-		this.mentionMap.clear();
-		this.refToExprMap.clear();
+	public void clearGlobals() {
+		// Clear assignments to globals, a = t1 + t2.
+		for (MidMemoryNode memNode : new ArrayList<MidMemoryNode>(
+				refToExprMap.keySet())) {
+			if (memNode instanceof MidFieldDeclNode) {
+				killReferences(memNode);
+			}
+		}
+		// Clear references to globals, t1 = a + t2.
+		for (MidMemoryNode memNode : new ArrayList<MidMemoryNode>(
+				mentionMap.keySet())) {
+			if (memNode instanceof MidFieldDeclNode) {
+				killReferences(memNode);
+			}
+		}
 	}
 
 }

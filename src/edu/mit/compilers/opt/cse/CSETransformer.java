@@ -49,7 +49,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		}
 
 		for (MidNode assignmentNode : this.assignments) {
-			LogCenter.debug("OPT", "\nProcessing " + assignmentNode);
+			LogCenter.debug("CSE", "Processing " + assignmentNode);
 			if (assignmentNode instanceof MidSaveNode) {
 				MidSaveNode saveNode = (MidSaveNode) assignmentNode;
 				// a = x
@@ -68,7 +68,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 				}
 			} else if (assignmentNode instanceof MidCallNode) {
 				// Clear all state after a method call.
-				globalState.clear();
+				globalState.clearGlobals();
 				localState.clearGlobals();
 			}
 		}
@@ -111,7 +111,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
 			// loaded.
-			LogCenter.debug("OPT", "HALLELUJAH OPTIMIZING CSE (UNARY).");
+			LogCenter.debug("CSE", "HALLELUJAH OPTIMIZING CSE (UNARY).");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());
 			MidSaveNode newSaveNode = new MidSaveNode(loadTempNode,
@@ -151,9 +151,9 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			// instead. This is the magical optimization step.
 			// We assume tempNode is already in the midNodeList and can be
 			// loaded.
-			LogCenter.debug("OPT|CPJ", s.toString());
-			LogCenter.debug("OPT|CPJ", "HALLELUJAH OPTIMIZING CSE (BINARY).");
-			LogCenter.debug("OPT|CPJ", "replacing " + saveNode + " with: "
+			LogCenter.debug("CSE|CPJ", s.toString());
+			LogCenter.debug("CSE|CPJ", "HALLELUJAH OPTIMIZING CSE (BINARY).");
+			LogCenter.debug("CSE|CPJ", "replacing " + saveNode + " with: "
 					+ tempNode + " (" + tempNode.hashCode() + ")");
 			MidLoadNode loadTempNode = new MidLoadNode(
 					tempNode.getDestinationNode());
@@ -178,7 +178,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		tempDeclNode.insertAfter(saveNode);
 		newLoadNode.insertAfter(tempDeclNode);
 		newTempNode.insertAfter(newLoadNode);
-		LogCenter.debug("OPT", "Inserting a temp node: " + newTempNode + " ("
+		LogCenter.debug("CSE", "Inserting a temp node: " + newTempNode + " ("
 				+ newTempNode.hashCode() + ")");
 	}
 

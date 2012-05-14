@@ -20,16 +20,16 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
+import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
-import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.cse.CSETransfer;
+import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.dce.DeadCodeElim;
 import edu.mit.compilers.opt.regalloc.LivenessDoctor;
 import edu.mit.compilers.opt.regalloc.LivenessState;
-import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -114,8 +114,9 @@ public class Main {
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
-					ErrorCenter.reportFatalError(e.recog.line, e.recog.column,
-							e.recog.getMessage());
+					ErrorCenter
+							.reportFatalError(e.recog.line, e.recog.column, e.recog
+									.getMessage());
 					scanner.consume();
 				}
 
@@ -172,6 +173,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
+
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
@@ -194,6 +196,11 @@ public class Main {
 							x++;
 						}
 
+						if (CLI.optOn) {
+							MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+							simplifier.analyze(symbolTable);
+						}
+
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
 								+ (x - 1) + " times.");
 
@@ -214,11 +221,9 @@ public class Main {
 				}
 			}
 		} catch (Exception e) {
-			ErrorCenter.reportError(
-					0,
-					0,
-					String.format("Unrecoverable error of %s\nSTACKTRACE:",
-							e.getClass()));
+			ErrorCenter.reportError(0, 0, String
+					.format("Unrecoverable error of %s\nSTACKTRACE:", e
+							.getClass()));
 			e.printStackTrace();
 			// print the error:
 			// System.out.println(CLI.infile);
@@ -249,8 +254,8 @@ public class Main {
 			outStream.write(text.getBytes());
 			outStream.close();
 		} catch (Exception e) {
-			System.out.println(String.format(
-					"Could not open file %s for output.", CLI.outfile));
+			System.out.println(String
+					.format("Could not open file %s for output.", CLI.outfile));
 		}
 	}
 

@@ -19,12 +19,14 @@ public class Block implements Iterable<MidNode> {
 	private List<Block> predecessors;
 	private List<Block> successors;
 	private int blockNum;
+	private MidNode identifier;
 
 	public Block(MidNode h, int blockNum) {
 		this.head = h;
 		this.blockNum = blockNum;
 		predecessors = new ArrayList<Block>();
 		successors = new ArrayList<Block>();
+		this.identifier = h;
 	}
 
 	public void delete(MidNode delNode) {
@@ -155,8 +157,8 @@ public class Block implements Iterable<MidNode> {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
-		LogCenter.debug("OPT",
-				"BLOCK: Starting getAllBlocks with " + nodeList.getHead());
+		LogCenter.debug("OPT", "BLOCK: Starting getAllBlocks with "
+				+ nodeList.getHead());
 		Block head = makeBlock(nodeList.getHead());
 		List<Block> out = new ArrayList<Block>(blockCache.values());
 		// Force head to the beginning.
@@ -242,13 +244,16 @@ public class Block implements Iterable<MidNode> {
 			return false;
 		}
 		Block other = (Block) o;
-		return other.getHead() == this.getHead()
-				&& other.getTail() == this.getTail();
+		return other.getIdentifier() == this.getIdentifier();
+	}
+
+	public MidNode getIdentifier() {
+		return identifier;
 	}
 
 	@Override
 	public int hashCode() {
-		return this.getHead().hashCode() * 31 + this.getTail().hashCode();
+		return this.getIdentifier().hashCode();
 	}
 
 }

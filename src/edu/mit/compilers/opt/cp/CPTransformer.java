@@ -7,6 +7,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
@@ -41,22 +42,34 @@ public class CPTransformer extends Transformer<CPState> {
 				}
 
 				MidMemoryNode destNode = saveNode.getDestinationNode();
-				localState.killReferences(destNode);
-				MidRegisterNode regNode = saveNode.getRegNode();
-				if (regNode instanceof MidLoadNode) {
-					MidLoadNode loadNode = (MidLoadNode) regNode;
-					// Update definitions.
-					localState.processDef(loadNode.getMemoryNode(), destNode);
+				if (destNode instanceof MidArrayElementNode) {
+					processArrayElement((MidArrayElementNode) destNode);
+				} else {
+					localState.killReferences(destNode);
+					MidRegisterNode regNode = saveNode.getRegNode();
+					if (regNode instanceof MidLoadNode) {
+						MidLoadNode loadNode = (MidLoadNode) regNode;
+						// Update definitions.
+						localState
+								.processDef(loadNode.getMemoryNode(), destNode);
+					}
 				}
 			} else if (node instanceof MidLoadNode) {
 				// See if we can optimize.
-				MidMemoryNode memNode = ((MidLoadNode) node).getMemoryNode();
-				MidMemoryNode replacementNode = localState.lookup(memNode);
-				if (replacementNode != memNode) {
-					((MidLoadNode) node)
-							.updateMemoryNode(replacementNode, true);
-					Main.setHasAdditionalChanges();
+				MidLoadNode loadNode = (MidLoadNode) node;
+				MidMemoryNode memNode = loadNode.getMemoryNode();
+				MidMemoryNode replacementNode;
+
+				if (memNode instanceof MidArrayElementNode) {
+					processArrayElement((MidArrayElementNode) memNode);
+				} else {
+					replacementNode = localState.lookup(memNode);
+					if (replacementNode != memNode) {
+						loadNode.updateMemoryNode(replacementNode, true);
+						Main.setHasAdditionalChanges();
+					}
 				}
+
 			} else if (node instanceof MidCallNode) {
 				if (node instanceof MidMethodCallNode
 						&& ((MidMethodCallNode) node).isStarbucksCall()) {
@@ -65,7 +78,20 @@ public class CPTransformer extends Transformer<CPState> {
 				LogCenter.debug("CP", "Resetting state because of "
 						+ ((MidCallNode) node).getName());
 				localState.reset();
+				LogCenter.debug("CP", "New state: " + localState);
 			}
+		}
+	}
+
+	private void processArrayElement(MidArrayElementNode arrayElementNode) {
+		MidLoadNode loadNode = arrayElementNode.getLoadNode();
+		MidMemoryNode memNode = loadNode.getMemoryNode();
+		LogCenter.debug("CPJ", "Looking at " + memNode + " ("
+				+ memNode.isConstant() + ")");
+		if (memNode.isConstant()) {
+			// Remove register operation and use a constant instead.
+			loadNode.delete();
+			arrayElementNode.setConstantNode((MidConstantNode) memNode);
 		}
 	}
 
