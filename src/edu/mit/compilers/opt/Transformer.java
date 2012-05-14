@@ -14,8 +14,8 @@ public abstract class Transformer<S> {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (String methodName : methods.keySet()) {
 			LogCenter.debug("OPT", "Analyzing " + methodName);
-			List<Block> blocks = Block.getAllBlocks(methods.get(methodName)
-					.getNodeList());
+			
+			List<Block> blocks = analysis.getTODOBlocks(); //Block.getAllBlocks(methods.get(methodName).getNodeList());
 			LogCenter
 					.debug("OPT", "Blocks: "
 							+ Block.recursiveToString(blocks.get(0), new ArrayList<Block>(), 0));

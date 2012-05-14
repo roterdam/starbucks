@@ -113,5 +113,14 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 	public S getAnalyzedState(Block block) {
 		return getOutState(block);
 	}
+	
+	@Override
+	public List<Block> getTODOBlocks() {
+		List<Block> todoBlocks = new ArrayList<Block>();
+		for (Block b : inStates.keySet()) {
+			todoBlocks.add(b);
+		}
+		return todoBlocks;
+	}
 
 }

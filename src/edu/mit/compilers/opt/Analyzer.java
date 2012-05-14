@@ -34,9 +34,11 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	private void analyzeMidNodeList(MidNodeList nodeList) {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
-		LogCenter
-				.debug("OPT", "BLOCKS:\n"
-						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
+		LogCenter.debug(
+				"OPT",
+				"BLOCKS:\n"
+						+ Block.recursiveToString(worklist.get(0),
+								new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
 		for (Block block : worklist) {
@@ -46,7 +48,8 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 		// Do the first node
 		Block n0 = worklist.get(0);
 		LogCenter.debug("OPT", "Process " + n0);
-		outHash.put(n0, transferFunction.apply(n0, startState.getInitialState()));
+		outHash.put(n0,
+				transferFunction.apply(n0, startState.getInitialState()));
 		worklist.remove(n0);
 
 		while (!worklist.isEmpty()) {
@@ -83,6 +86,15 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	@Override
 	public S getAnalyzedState(Block block) {
 		return getInState(block);
+	}
+
+	@Override
+	public List<Block> getTODOBlocks() {
+		List<Block> todoBlocks = new ArrayList<Block>();
+		for (Block b : outHash.keySet()) {
+			todoBlocks.add(b);
+		}
+		return todoBlocks;
 	}
 
 }
