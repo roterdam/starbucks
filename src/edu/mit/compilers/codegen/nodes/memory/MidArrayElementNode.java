@@ -1,5 +1,6 @@
 package edu.mit.compilers.codegen.nodes.memory;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -42,7 +43,13 @@ public class MidArrayElementNode extends MidMemoryNode {
 	}
 
 	public void setConstantNode(MidConstantNode constantNode) {
+		LogCenter.debug("CPJ", "Setting array constant node: " + constantNode);
 		this.constantNode = constantNode;
+	}
+	
+	@Override
+	public boolean isConstant() {
+		return constantNode != null;
 	}
 
 }

@@ -42,27 +42,26 @@ public class CPTransformer extends Transformer<CPState> {
 				}
 
 				MidMemoryNode destNode = saveNode.getDestinationNode();
-				localState.killReferences(destNode);
-				MidRegisterNode regNode = saveNode.getRegNode();
-				if (regNode instanceof MidLoadNode) {
-					MidLoadNode loadNode = (MidLoadNode) regNode;
-					// Update definitions.
-					localState.processDef(loadNode.getMemoryNode(), destNode);
+				if (destNode instanceof MidArrayElementNode) {
+					processArrayElement((MidArrayElementNode) destNode);
+				} else {
+					localState.killReferences(destNode);
+					MidRegisterNode regNode = saveNode.getRegNode();
+					if (regNode instanceof MidLoadNode) {
+						MidLoadNode loadNode = (MidLoadNode) regNode;
+						// Update definitions.
+						localState
+								.processDef(loadNode.getMemoryNode(), destNode);
+					}
 				}
 			} else if (node instanceof MidLoadNode) {
 				// See if we can optimize.
-				MidMemoryNode memNode = ((MidLoadNode) node).getMemoryNode();
 				MidLoadNode loadNode = (MidLoadNode) node;
+				MidMemoryNode memNode = loadNode.getMemoryNode();
 				MidMemoryNode replacementNode;
 
 				if (memNode instanceof MidArrayElementNode) {
-					MidArrayElementNode arrayElementNode = (MidArrayElementNode) memNode;
-					loadNode = arrayElementNode.getLoadNode();
-					memNode = loadNode.getMemoryNode();
-					if (memNode.isConstant()) {
-						arrayElementNode
-								.setConstantNode((MidConstantNode) memNode);
-					}
+					processArrayElement((MidArrayElementNode) memNode);
 				} else {
 					replacementNode = localState.lookup(memNode);
 					if (replacementNode != memNode) {
@@ -80,6 +79,18 @@ public class CPTransformer extends Transformer<CPState> {
 						+ ((MidCallNode) node).getName());
 				localState.reset();
 			}
+		}
+	}
+
+	private void processArrayElement(MidArrayElementNode arrayElementNode) {
+		MidLoadNode loadNode = arrayElementNode.getLoadNode();
+		MidMemoryNode memNode = loadNode.getMemoryNode();
+		LogCenter.debug("CPJ", "Looking at " + memNode + " ("
+				+ memNode.isConstant() + ")");
+		if (memNode.isConstant()) {
+			// Remove register operation and use a constant instead.
+			loadNode.delete();
+			arrayElementNode.setConstantNode((MidConstantNode) memNode);
 		}
 	}
 
