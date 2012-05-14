@@ -1,7 +1,5 @@
 package edu.mit.compilers.opt.dce;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
@@ -33,12 +31,8 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 			localState = state.clone();
 		}
 
-		for (MidNode node : b) {
-			LogCenter.debug("DCEDEBUG", "Next node: "+node.toString());
-		}
-		
 		for (MidNode node : b.reverse()) {
-			LogCenter.debug("DCEDEBUG", "ITERATING OVER "+node.toString());
+			LogCenter.debug("DCEDEBUG", "ITERATING OVER " + node.toString());
 			if (node instanceof MidUseNode) {
 				// Use.
 				localState.processUse((MidUseNode) node);
@@ -55,13 +49,11 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 						deleteSaveNodeEtAl(b, (MidSaveNode) node);
 					}
 				} else {
-					LogCenter.debug("DCE","LOOOPING FOREVER");
 					// Definition.
 					localState.processDefinition((MidSaveNode) node);
 				}
 			}
 		}
-		LogCenter.debug("DCEDEBUG", "THIS IS TEH BEGINNING OF THE END");
 
 	}
 
