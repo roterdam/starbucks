@@ -69,62 +69,35 @@ public class CMState implements State<CMState> {
 		Set<Block> visited = new HashSet<Block>();
 		Stack<Block> agenda = new Stack<Block>();
 
-		// Do first block manually to avoid recursive case
+		// Initial case
 		Loop l = new Loop(depth);
 		l.addBlock(b);
 		agenda.addAll(b.getSuccessors());
 		visited.add(b);
 		
 		while (agenda.size() > 0) {
-			for (Block d : agenda) {
-				LogCenter.debug("CM", "Agenda " + d.getHead());
-			}
 			Block current = agenda.pop();
-			LogCenter.debug("CM", "Current " + current.getHead());
-			for (Block c : current.getSuccessors()) {
-				LogCenter.debug("CM", "Successors " + c.getHead());
-			}
-			
 			if (!visited.contains(current)) {
 				visited.add(current);
 				MidNode node = current.getHead();
 				if (node instanceof MidLabelNode) {
 					MidLabelNode label = (MidLabelNode) node;
-					LogCenter.debug("CM", "Label " + label.getType().toString());
-					switch (label.getType()) {
-					case ELIHW:
-					case ROF:
-						l.addBlock(current);
-						break;
-					case WHILE:
-					case FOR:
-						LogCenter.debug("CM", "Found a nested loop, current depth is " + depth);
+					if (label.getType() == LabelType.WHILE || label.getType() == LabelType.FOR) {
 						processBlock(current, depth+1);
-						break;
-					default:
-						LogCenter.debug("CM", label.toString());
-						LogCenter.debug("CM", "Adding a block to the loop");
-						LogCenter.debug("CM", "" + current.getHead());
-						l.addBlock(current);
-						for (Block c : current.getSuccessors()) {
-							LogCenter.debug("CM", "Adding to the AGENDA " + c.getHead());
+						for (Block c : nesting.get(current).getBlocks()) {
+							l.addBlock(c);
 						}
+					} else if (label.getType() != LabelType.ELIHW && label.getType() != LabelType.ROF) {
 						agenda.addAll(current.getSuccessors());
-						break;
 					}
 				} else {
-					LogCenter.debug("CM", "Adding a block to the loop");
-					LogCenter.debug("CM", "" + current.getHead());
-					l.addBlock(current);
-					for (Block c : current.getSuccessors()) {
-						LogCenter.debug("CM", "Adding to the AGENDA " + c.getHead());
-					}
 					agenda.addAll(current.getSuccessors());
 				}
+				l.addBlock(current);
 			}
 		}
-		LogCenter.debug("CM", "Loop is of depth " + depth);
-		LogCenter.debug("CM", "Loop has num blocks: " + l.getBlocks().size());
+		LogCenter.debug("CM", "Depth " + depth);
+		LogCenter.debug("CM", "Num Blocks " + l.getBlocks().size());
 		for (Block e : l.getBlocks()) {
 			LogCenter.debug("CM", "Block " + e.getHead());
 		}
