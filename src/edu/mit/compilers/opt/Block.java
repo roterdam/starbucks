@@ -28,15 +28,21 @@ public class Block implements Iterable<MidNode> {
 	}
 
 	public void delete(MidNode delNode) {
-		if (head == delNode) {
-			this.head = delNode.getNextNode();
-		} else if (tail == delNode) {
-			this.tail = delNode.getPrevNode();
+		if(head == delNode && delNode == tail){
+			head = null;
+			tail = null;
+		} else {
+			if (head == delNode) {
+				this.head = delNode.getNextNode();
+			}
+			if (tail == delNode) {
+				this.tail = delNode.getPrevNode();
+			}
 		}
 		delNode.delete();
 	}
 
-	private MidNode getHead() {
+	public MidNode getHead() {
 		return head;
 	}
 
@@ -44,7 +50,7 @@ public class Block implements Iterable<MidNode> {
 		this.tail = t;
 	}
 
-	private MidNode getTail() {
+	public MidNode getTail() {
 		return tail;
 	}
 
@@ -79,6 +85,9 @@ public class Block implements Iterable<MidNode> {
 	}
 
 	public String toString() {
+		if (getHead() == null) {
+			return "B" + blockNum + "[]";
+		}
 		String out = "B" + blockNum + "[" + getHead() + "]";
 		MidNode node = getHead();
 		while (true) {
@@ -93,7 +102,8 @@ public class Block implements Iterable<MidNode> {
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
-		String out = b.getBlockNum() + " [" + b.getHead() + "]";
+		String out = b.getBlockNum() + " ["
+				+ (b.getHead() == null ? "" : b.getHead()) + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
 			out += "\n";
@@ -155,8 +165,8 @@ public class Block implements Iterable<MidNode> {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
-		LogCenter.debug("OPT", "BLOCK: Starting getAllBlocks with "
-				+ nodeList.getHead());
+		LogCenter.debug("OPT",
+				"BLOCK: Starting getAllBlocks with " + nodeList.getHead());
 		Block head = makeBlock(nodeList.getHead());
 		List<Block> out = new ArrayList<Block>(blockCache.values());
 		// Force head to the beginning.
@@ -243,9 +253,8 @@ public class Block implements Iterable<MidNode> {
 		}
 		Block other = (Block) o;
 		return other.getHead() == this.getHead()
-		        && other.getTail() == this.getTail();
+				&& other.getTail() == this.getTail();
 	}
-
 
 	@Override
 	public int hashCode() {
