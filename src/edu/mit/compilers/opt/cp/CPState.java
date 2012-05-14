@@ -83,9 +83,10 @@ public class CPState implements State<CPState> {
 				definitionMap.remove(entry.getKey());
 			}
 		}
+		definitionMap.remove(destNode);
 	}
 
-	public void genDef(MidMemoryNode fromNode, MidMemoryNode destNode) {
+	public void processDef(MidMemoryNode fromNode, MidMemoryNode destNode) {
 		// Avoid mapping a non-temp node to a temp node.
 		if (fromNode instanceof MidTempDeclNode
 				&& !(destNode instanceof MidTempDeclNode)) {
@@ -93,6 +94,7 @@ public class CPState implements State<CPState> {
 		}
 
 		LogCenter.debug("CP", "Processing def " + destNode + " <- " + fromNode);
+		LogCenter.debug("CP", HashMapUtils.toMapString(definitionMap));
 
 		MidMemoryNode lookedUpNode = definitionMap.get(fromNode);
 		if (lookedUpNode != null) {
