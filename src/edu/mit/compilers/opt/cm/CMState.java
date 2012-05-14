@@ -25,10 +25,6 @@ public class CMState implements State<CMState> {
 		this.nesting = nesting;
 	}
 	
-	public int getDepth() {
-		return depth;
-	}
-
 	@Override
 	public CMState getInitialState() {
 		return new CMState();
@@ -80,6 +76,7 @@ public class CMState implements State<CMState> {
 				for (MidNode node : current) {
 					if (node instanceof MidLabelNode) {
 						MidLabelNode label = (MidLabelNode) node;
+						LogCenter.debug("CM", "Current label is " + label.getType().toString());
 						switch (label.getType()) {
 						case ELIHW:
 						case ROF:
