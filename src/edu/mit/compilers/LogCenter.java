@@ -8,15 +8,17 @@ public class LogCenter {
 		if (!CLI.debug) {
 			return;
 		}
-		
-		boolean print = false;
-		for (int i = 0; i < CLI.tags.length; i++) {
-			if (CLI.tags[i].equals(tag)) {
-				print = true;
+
+		if (CLI.tags != null) {
+			boolean print = false;
+			for (int i = 0; i < CLI.tags.length; i++) {
+				if (CLI.tags[i].equals(tag)) {
+					print = true;
+				}
 			}
-		}
-		if (!print) {
-			return;
+			if (!print) {
+				return;
+			}
 		}
 
 		StackTraceElement[] stackTraceElements = Thread.currentThread()

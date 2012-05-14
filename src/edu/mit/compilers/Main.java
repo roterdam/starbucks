@@ -113,9 +113,8 @@ public class Main {
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
-					ErrorCenter
-							.reportFatalError(e.recog.line, e.recog.column, e.recog
-									.getMessage());
+					ErrorCenter.reportFatalError(e.recog.line, e.recog.column,
+							e.recog.getMessage());
 					scanner.consume();
 				}
 
@@ -171,6 +170,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
+
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
@@ -179,24 +179,24 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+
 							if (isEnabled(OPT_CM)) {
 								BackwardsAnalyzer<CMState, CMTransfer> analyzer = new BackwardsAnalyzer<CMState, CMTransfer>(
 										new CMState().getInitialState(),
 										new CMTransfer());
 							}
 
-//							 if (isEnabled(OPT_DCE)) {
-//							 LivenessDoctor doctor = new LivenessDoctor();
-//							 BackwardsAnalyzer<LivenessState, LivenessDoctor>
-//							 analyzer = new BackwardsAnalyzer<LivenessState,
-//							 LivenessDoctor>(
-//							 new LivenessState().getBottomState(),
-//							 doctor);
-//							 analyzer.analyze(symbolTable);
-//							 DeadCodeElim dce = new DeadCodeElim();
-//							 dce.analyze(analyzer, symbolTable);
-//							 }
+							// if (isEnabled(OPT_DCE)) {
+							// LivenessDoctor doctor = new LivenessDoctor();
+							// BackwardsAnalyzer<LivenessState, LivenessDoctor>
+							// analyzer = new BackwardsAnalyzer<LivenessState,
+							// LivenessDoctor>(
+							// new LivenessState().getBottomState(),
+							// doctor);
+							// analyzer.analyze(symbolTable);
+							// DeadCodeElim dce = new DeadCodeElim();
+							// dce.analyze(analyzer, symbolTable);
+							// }
 							x++;
 						}
 
@@ -220,9 +220,11 @@ public class Main {
 				}
 			}
 		} catch (Exception e) {
-			ErrorCenter.reportError(0, 0, String
-					.format("Unrecoverable error of %s\nSTACKTRACE:", e
-							.getClass()));
+			ErrorCenter.reportError(
+					0,
+					0,
+					String.format("Unrecoverable error of %s\nSTACKTRACE:",
+							e.getClass()));
 			e.printStackTrace();
 			// print the error:
 			// System.out.println(CLI.infile);
@@ -253,8 +255,8 @@ public class Main {
 			outStream.write(text.getBytes());
 			outStream.close();
 		} catch (Exception e) {
-			System.out.println(String
-					.format("Could not open file %s for output.", CLI.outfile));
+			System.out.println(String.format(
+					"Could not open file %s for output.", CLI.outfile));
 		}
 	}
 

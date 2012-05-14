@@ -3,7 +3,6 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -74,7 +73,8 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 
 	@Override
 	public boolean usesArrayRegister() {
-		return memoryNode instanceof MidArrayElementNode;
+		return (memoryNode instanceof MidArrayElementNode)
+				&& !((MidArrayElementNode) memoryNode).isConstant();
 	}
 
 	@Override
