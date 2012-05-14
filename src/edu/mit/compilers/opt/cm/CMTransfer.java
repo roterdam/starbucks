@@ -17,7 +17,6 @@ public class CMTransfer implements Transfer<CMState> {
 			if (node instanceof MidLabelNode) {
 				MidLabelNode label = (MidLabelNode) node;
 				if (label.getType() == LabelType.FOR || label.getType() == LabelType.WHILE) {
-					LogCenter.debug("CM", "Found a loop at zero depth");
 					out.processBlock(b, 1);
 				}
 			}

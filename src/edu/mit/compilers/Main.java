@@ -183,13 +183,10 @@ public class Main {
 							}
 							
 							if (isEnabled(OPT_CM)) {
-								/*Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
+								Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
 										new CMState().getInitialState(),
 										new CMTransfer());
 								analyzer.analyze(symbolTable);
-								assert false;
-								CMTransformer localAnalyzer = new CMTransformer();
-								localAnalyzer.analyze(analyzer, symbolTable);*/
 							}
 
 //							 if (isEnabled(OPT_DCE)) {
