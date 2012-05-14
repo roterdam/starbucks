@@ -84,8 +84,6 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 		LogCenter.debug("RA", String
 				.format("Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
-		System.out.println("\n######");
-		System.out.println(inStates.keySet());
 		for (Block m : b.getSuccessors()) {
 			assert inStates.get(m) != null : m;
 			out = inStates.get(m).join(out);
