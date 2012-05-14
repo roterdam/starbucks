@@ -19,14 +19,12 @@ public class Block implements Iterable<MidNode> {
 	private List<Block> predecessors;
 	private List<Block> successors;
 	private int blockNum;
-	private MidNode identifier;
 
 	public Block(MidNode h, int blockNum) {
 		this.head = h;
 		this.blockNum = blockNum;
 		predecessors = new ArrayList<Block>();
 		successors = new ArrayList<Block>();
-		this.identifier = h;
 	}
 
 	public void delete(MidNode delNode) {
@@ -244,16 +242,14 @@ public class Block implements Iterable<MidNode> {
 			return false;
 		}
 		Block other = (Block) o;
-		return other.getIdentifier() == this.getIdentifier();
+		return other.getHead() == this.getHead()
+		        && other.getTail() == this.getTail();
 	}
 
-	public MidNode getIdentifier() {
-		return identifier;
-	}
 
 	@Override
 	public int hashCode() {
-		return this.getIdentifier().hashCode();
+		return this.getHead().hashCode() * 31 + this.getTail().hashCode();
 	}
 
 }
