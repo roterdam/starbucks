@@ -51,8 +51,19 @@ public class MidPreserveParamsNode extends MidNode {
 	 * into RSI, RDI has already been overwritten by then.
 	 */
 	public static boolean regWillBeOverwritten(Reg fromReg, Reg destReg) {
-		int fromRegIndex = findRegisterIndex(fromReg);
 		int destRegIndex = findRegisterIndex(destReg);
+		int fromRegIndex = findRegisterIndex(fromReg);
+		if (fromRegIndex == -1) {
+			// Not a param reg.
+			return false;
+		}
+		if (destRegIndex == -1) {
+			// Definitely saving FROM a param reg, and since the destination
+			// register isn't a param reg we can only assume that it's something
+			// like %r10 or %r11, being pushed onto the stack. In that case the
+			// from register has most definitely been overwritten.
+			return true;
+		}
 		return (fromRegIndex < destRegIndex);
 	}
 
@@ -62,7 +73,7 @@ public class MidPreserveParamsNode extends MidNode {
 				return i;
 			}
 		}
-		return AsmVisitor.paramRegisters.length;
+		return -1;
 	}
 
 }

@@ -137,7 +137,7 @@ public class MidVisitor {
 		MidNodeList paramLoadNodes = new MidNodeList();
 		MidNodeList paramPushStack = new MidNodeList();
 
-		List<MidParamLoadNode> paramLoadNodesList = new ArrayList<MidParamLoadNode>();
+		List<MidParamLoadNode> preservationList = new ArrayList<MidParamLoadNode>();
 		
 		for (int i = 0; i < paramMemoryNodes.size(); i++) {
 			MidMemoryNode midMemNode = paramMemoryNodes.get(i);
@@ -146,7 +146,6 @@ public class MidVisitor {
 				// Want to set the register.
 				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
 				paramLoadNodes.add(paramLoadNode);
-				paramLoadNodesList.add(paramLoadNode);
 			} else {
 				// Push the remaining parameters in reverse order
 				MidNodeList pushIt = new MidNodeList();
@@ -155,6 +154,7 @@ public class MidVisitor {
 				pushIt.addAll(paramPushStack);
 				paramPushStack = pushIt;
 			}
+			preservationList.add(paramLoadNode);
 		}
 
 		out.addAll(postCalls);
@@ -162,7 +162,7 @@ public class MidVisitor {
 		
 		// Push caller-saved.
 		out.add(new MidSaveRegLaterNode(methodNode));
-		out.add(new MidPreserveParamsNode(paramLoadNodesList));
+		out.add(new MidPreserveParamsNode(preservationList));
 		out.addAll(paramLoadNodes);
 		out.addAll(paramPushStack);
 
