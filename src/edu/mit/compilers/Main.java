@@ -19,6 +19,7 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
+import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
@@ -26,6 +27,9 @@ import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.cse.CSETransformer;
+import edu.mit.compilers.opt.dce.DeadCodeElim;
+import edu.mit.compilers.opt.regalloc.LivenessDoctor;
+import edu.mit.compilers.opt.regalloc.LivenessState;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -158,6 +162,7 @@ public class Main {
 						// since each round of CP may help the next round's
 						// CSE.
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
+							LogCenter.debug("DCE", "Looppin again");
 							clearHasAdditionalChanges();
 
 							if (isEnabled(OPT_CSE)) {
@@ -178,17 +183,16 @@ public class Main {
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
 
-							// if (isEnabled(OPT_DCE)) {
-							// LivenessDoctor doctor = new LivenessDoctor();
-							// BackwardsAnalyzer<LivenessState, LivenessDoctor>
-							// analyzer = new BackwardsAnalyzer<LivenessState,
-							// LivenessDoctor>(
-							// new LivenessState().getBottomState(),
-							// doctor);
-							// analyzer.analyze(symbolTable);
-							// DeadCodeElim dce = new DeadCodeElim();
-							// dce.analyze(analyzer, symbolTable);
-							// }
+							if (isEnabled(OPT_DCE)) {
+								LivenessDoctor doctor = new LivenessDoctor();
+								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+										new LivenessState().getBottomState(),
+										doctor);
+								analyzer.analyze(symbolTable);
+								LogCenter.debug("DCE", "Starting DCE!");
+								DeadCodeElim dce = new DeadCodeElim();
+								dce.analyze(analyzer, symbolTable);
+							}
 							x++;
 						}
 
@@ -200,11 +204,11 @@ public class Main {
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
 								+ (x - 1) + " times.");
 
-						// if (isEnabled(OPT_RA)) {
-						// RegisterAllocator allocator = new
-						// RegisterAllocator(symbolTable);
-						// allocator.run();
-						// }
+						/*
+						 * if (isEnabled(OPT_RA)) { RegisterAllocator allocator
+						 * = new RegisterAllocator(symbolTable);
+						 * sallocator.run(); }
+						 */
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));

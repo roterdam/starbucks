@@ -227,4 +227,8 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		this.isInactive = true;
 	}
 
+	public boolean isInactive() {
+		return isInactive;
+	}
+
 }

@@ -8,8 +8,9 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
+import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 
-public class MidReturnNode extends MidNode {
+public class MidReturnNode extends MidNode implements MidUseNode {
 	
 	MidMemoryNode returnValue;
 	
@@ -31,5 +32,10 @@ public class MidReturnNode extends MidNode {
 		out.add(new OpASM(OpCode.LEAVE));
 		out.add(new OpASM(OpCode.RET));
 		return out;
+	}
+
+	@Override
+	public MidMemoryNode getMemoryNode() {
+		return returnValue;
 	}
 }

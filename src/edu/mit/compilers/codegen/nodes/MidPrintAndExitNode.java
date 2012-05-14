@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.AsmVisitor;
-import edu.mit.compilers.codegen.Reg;
+import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
@@ -25,12 +26,8 @@ public class MidPrintAndExitNode extends MidNode {
 
 	@Override
 	public List<ASM> toASM() {
-		List<ASM> out = new ArrayList<ASM>();
-		// Save output to any old register.
-		out.addAll(AsmVisitor.methodCall(AsmVisitor.PRINTF, params, Reg.RAX,
-				true, new ArrayList<Reg>()));
-		out.addAll(AsmVisitor.exitCall(0));
-		return out;
+		MidNodeList nodeInstr = MidVisitor.makeMethodCall(new MidCalloutNode(AsmVisitor.PRINTF), new MidNodeList(), new MidNodeList(), new MidNodeList(), params, false);
+		return nodeInstr.toASM();
+		//return new ArrayList<ASM>();
 	}
-
 }

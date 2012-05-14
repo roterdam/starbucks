@@ -7,6 +7,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.opt.Block;
 
 public abstract class MidNode {
 	private MidNode nextNode;
@@ -16,7 +17,9 @@ public abstract class MidNode {
 	public void setNextNode(MidNode node) {
 		nextNode = node;
 		// Also set a backpointer.
-		nextNode.setPrevNode(this);
+		if(nextNode != null) {
+			nextNode.setPrevNode(this);
+		}
 	}
 
 	public MidNode getNextNode() {

@@ -13,27 +13,27 @@ public class AnalyzerHelpers {
 	 * Deletes a node and all now-useless nodes before it. Assumes saveNode
 	 * saves an arithmetic node.
 	 */
-	public static void completeDeleteBinary(MidSaveNode saveNode) {
+	public static void completeDeleteBinary(MidSaveNode saveNode, Block block) {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
 		LogCenter.debug("OPT", "DELETING " + arithNode);
-		arithNode.delete();
-		arithNode.getLeftOperand().delete();
-		arithNode.getRightOperand().delete();
+		block.delete(arithNode);
+		block.delete(arithNode.getLeftOperand());
+		block.delete(arithNode.getRightOperand());
 	}
 
 	/**
 	 * Deletes a node and all now-useless nodes before it. Assumes saveNode
 	 * saves a neg node.
 	 */
-	public static void completeDeleteUnary(MidSaveNode saveNode) {
+	public static void completeDeleteUnary(MidSaveNode saveNode, Block block) {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidNegNode;
 		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
 		LogCenter.debug("OPT", "DELETING " + negNode);
-		negNode.delete();
-		negNode.getOperand().delete();
+		block.delete(negNode);
+		block.delete(negNode.getOperand());
 	}
 	
 	

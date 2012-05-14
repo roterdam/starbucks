@@ -5,13 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidCalloutNode;
+import edu.mit.compilers.codegen.nodes.MidExitNode;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
-import edu.mit.compilers.codegen.nodes.MidPrintAndExitNode;
+import edu.mit.compilers.codegen.nodes.MidMoveSPNode;
+import edu.mit.compilers.codegen.nodes.MidPopNode;
+import edu.mit.compilers.codegen.nodes.MidPushNode;
 import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.MidZeroRegNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpEQNode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpGENode;
 import edu.mit.compilers.codegen.nodes.jumpops.MidJumpLNode;
@@ -41,6 +46,7 @@ import edu.mit.compilers.grammar.ModifyAssignNode;
 import edu.mit.compilers.grammar.SubtractNode;
 import edu.mit.compilers.grammar.UnaryMinusNode;
 import edu.mit.compilers.grammar.VarTypeNode;
+import edu.mit.compilers.grammar.expressions.CallNode;
 import edu.mit.compilers.grammar.expressions.DoubleOperandNode;
 import edu.mit.compilers.grammar.tokens.ASSIGNNode;
 import edu.mit.compilers.grammar.tokens.BLOCKNode;
@@ -103,51 +109,7 @@ public class MidVisitor {
 	}
 
 	public static MidNodeList visit(CALLOUTNode node, MidSymbolTable symbolTable) {
-		MidNodeList out = new MidNodeList();
-		out.addAll(getPreCalls(node, symbolTable));
-
-		List<DecafNode> argNodes = node.getArgs();
-		List<MidMemoryNode> paramNodes = new ArrayList<MidMemoryNode>();
-		
-		MidNodeList loadNodes = new MidNodeList();
-		for (int i = 0; i < argNodes.size(); i++) {
-			DecafNode n = argNodes.get(i);
-			if (n instanceof STRING_LITERALNode) {
-				MidFieldDeclNode stringDeclNode = AsmVisitor
-						.addStringLiteral(stripQuotes(n.getText()));
-				paramNodes.add(stringDeclNode);
-			} else if (n instanceof ExpressionNode) {
-				/*
-				 * MidNodeList expList = n.convertToMidLevel(symbolTable);
-				 * out.addAll(expList);
-				 * paramNodes.add(expList.getSaveNode().getDestinationNode());
-				 */
-				ValuedMidNodeList expList = MidShortCircuitVisitor
-						.valuedHelper((ExpressionNode) n, symbolTable);
-				out.addAll(expList.getList());
-				paramNodes.add(expList.getReturnNode());
-			} else {
-				assert false : "STRING_LITERALNode or ExpressionNode expected, found: "
-						+ n.getClass();
-			}
-			MidParamLoadNode paramLoadNode = new MidParamLoadNode(paramNodes.get(i));
-			if (i < AsmVisitor.paramRegisters.length) {
-				// Want to set the register.
-				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
-				loadNodes.add(paramLoadNode);
-			}
-		}
-		out.addAll(getPostCalls(node, symbolTable));
-		// removes the " " from the DecafNode
-		String methodName = stripQuotes(node.getName());
-		MidCalloutNode midCallOutNode = new MidCalloutNode(methodName,
-				paramNodes);
-		out.addAll(loadNodes);
-		out.add(midCallOutNode);
-		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
-		out.add(tempDeclNode);
-		out.add(new MidSaveNode(midCallOutNode, tempDeclNode));
-		return out;
+		return makeMethodCall(node, symbolTable);
 	}
 
 	public static MidNodeList visit(RETURNNode node, MidSymbolTable symbolTable) {
@@ -160,47 +122,110 @@ public class MidVisitor {
 			returnMemoryNode = returnValuedExpressionList.getReturnNode();
 		}
 		out.add(new MidReturnNode(returnMemoryNode));
-		
+
 		return out;
+	}
+
+	public static MidNodeList makeMethodCall(MidCallNode methodNode,
+			MidNodeList paramExpr, MidNodeList preCalls, MidNodeList postCalls,
+			List<MidMemoryNode> paramMemoryNodes, boolean saveResult) {
+		MidNodeList out = new MidNodeList();
+		out.addAll(preCalls);
+
+		MidNodeList loadNodes = new MidNodeList();
+		MidNodeList pushStack = new MidNodeList();
+
+		for (int i = 0; i < paramMemoryNodes.size(); i++) {
+			MidMemoryNode midMemNode = paramMemoryNodes.get(i);
+			MidParamLoadNode paramLoadNode = new MidParamLoadNode(midMemNode);
+			if (i < AsmVisitor.paramRegisters.length) {
+				// Want to set the register.
+				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
+				loadNodes.add(paramLoadNode);
+			} else {
+				// Push the remaining parameters in reverse order
+				MidNodeList pushIt = new MidNodeList();
+				pushIt.add(paramLoadNode);
+				pushIt.add(new MidPushNode(paramLoadNode));
+				pushIt.addAll(pushStack);
+				pushStack = pushIt;
+			}
+		}
+
+		out.addAll(postCalls);
+		// Save caller-saved registers
+		List<Reg> needToSaveRegs = methodNode.getNeedToSaveRegisters();
+		MidNodeList saveStack = new MidNodeList();
+		MidNodeList restoreStack = new MidNodeList();
+
+		for (Reg r : needToSaveRegs) {
+			restoreStack.add(new MidPopNode(r));
+
+			MidNodeList pushIt = new MidNodeList();
+			pushIt.add(new MidPushNode(r));
+			pushIt.addAll(saveStack);
+			saveStack = pushIt;
+		}
+
+		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
+
+		out.addAll(saveStack);
+		out.addAll(paramExpr);
+		out.addAll(loadNodes);
+		out.addAll(pushStack);
+
+		// zero RAX.
+		out.add(new MidZeroRegNode(Reg.RAX));
+		out.add(methodNode);
+
+		int stackParams = paramMemoryNodes.size()
+				- AsmVisitor.paramRegisters.length;
+		if (stackParams > 0) {
+			out.add(new MidMoveSPNode(stackParams));
+		}
+		out.addAll(restoreStack);
+		if (saveResult) {
+			out.add(tempDeclNode);
+			out.add(new MidSaveNode(methodNode, tempDeclNode));
+		}
+		return out;
+	}
+
+	public static MidNodeList makeMethodCall(CallNode node,
+			MidSymbolTable symbolTable) {
+		MidCallNode methodNode;
+		if (node instanceof METHOD_CALLNode) {
+			methodNode = new MidMethodCallNode(symbolTable.getMethod(node
+					.getName()));
+		} else {
+			String methodName = stripQuotes(node.getName());
+			// LogCenter.debug("DUR", node.getName());
+			methodNode = new MidCalloutNode(methodName);
+		}
+		MidNodeList exprParamList = new MidNodeList();
+		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
+
+		List<DecafNode> paramNodes = node.getParameters();
+		for (int i = 0; i < paramNodes.size(); i++) {
+			DecafNode paramRoot = paramNodes.get(i);
+			if (paramRoot instanceof STRING_LITERALNode) {
+				MidFieldDeclNode stringDeclNode = AsmVisitor
+						.addStringLiteral(stripQuotes(paramRoot.getText()));
+				paramMemoryNodes.add(stringDeclNode);
+			} else if (paramRoot instanceof ExpressionNode) {
+				ValuedMidNodeList expList = MidShortCircuitVisitor
+						.valuedHelper((ExpressionNode) paramRoot, symbolTable);
+				exprParamList.addAll(expList.getList());
+				paramMemoryNodes.add(expList.getReturnNode());
+			}
+		}
+
+		return makeMethodCall(methodNode, exprParamList, getPreCalls(node, symbolTable), getPostCalls(node, symbolTable), paramMemoryNodes, true);
 	}
 
 	public static MidNodeList visit(METHOD_CALLNode node,
 			MidSymbolTable symbolTable) {
-		MidNodeList out = new MidNodeList();
-
-		out.addAll(getPreCalls(node, symbolTable));
-		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
-
-		List<ExpressionNode> paramNodes = node.getParamNodes();
-		MidNodeList loadNodes = new MidNodeList();
-		
-		for (int i=0; i<paramNodes.size(); i++) {
-			ExpressionNode paramRoot = paramNodes.get(i);
-			// MidNodeList paramList = paramRoot.convertToMidLevel(symbolTable);
-			ValuedMidNodeList valuedParamInstrList = MidShortCircuitVisitor
-					.valuedHelper(paramRoot, symbolTable);
-			paramMemoryNodes.add(valuedParamInstrList.getReturnNode());
-			out.addAll(valuedParamInstrList.getList());
-			
-			if (i < AsmVisitor.paramRegisters.length) {
-				// Want to set the register.
-				MidParamLoadNode paramLoadNode = new MidParamLoadNode(paramMemoryNodes.get(i));
-				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
-				loadNodes.add(paramLoadNode);
-			}
-			// out.addAll(paramList);
-		}
-		out.addAll(getPostCalls(node, symbolTable));
-		MidMethodCallNode methodNode = new MidMethodCallNode(
-				symbolTable.getMethod(node.getMethodName()), paramMemoryNodes);
-		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
-		
-		out.addAll(loadNodes);
-		out.add(methodNode);
-		out.add(tempDeclNode);
-		out.add(new MidSaveNode(methodNode, tempDeclNode));
-
-		return out;
+		return makeMethodCall(node, symbolTable);
 	}
 
 	public static MidNodeList visitParam(PARAM_DECLNode node,
@@ -258,6 +283,7 @@ public class MidVisitor {
 		MidMethodCallNode divideByZeroCall = new MidMethodCallNode(
 				symbolTable.getStarbucksMethod(DIVIDE_BY_ZERO_NAME),
 				divideByZeroParams, true);
+
 		// Set any old register.
 		divideByZeroCall.setRegister(Reg.RAX);
 
@@ -272,8 +298,8 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
-		// instrList.add(paramDeclNode);
-		instrList.add(divideByZeroCall);
+		instrList
+				.addAll(makeMethodCall(divideByZeroCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), divideByZeroParams, false));
 		instrList.add(skipErrorEnd);
 		return instrList;
 	}
@@ -333,7 +359,8 @@ public class MidVisitor {
 
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
-		// instrList.add(paramDeclNode);
+		instrList
+				.addAll(makeMethodCall(outOfBoundsCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), outOfBoundsParams, false));
 		instrList.add(outOfBoundsCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
@@ -928,14 +955,21 @@ public class MidVisitor {
 	private static MidNodeList generateHelper(String errorText) {
 		MidNodeList instrList = new MidNodeList();
 		// Name isn't really necessary, avoiding declaring unnecessary
-		// constants.
+		// constants. 0 refers to the offset, specifying method name.
 		MidParamDeclNode methodParam = new MidParamDeclNode("", 0);
 		MidMemoryNode errorStringLocation = AsmVisitor
 				.addStringLiteral(errorText);
-		MidPrintAndExitNode printNode = new MidPrintAndExitNode(
-				errorStringLocation, methodParam);
+
+		List<MidMemoryNode> params = new ArrayList<MidMemoryNode>();
+
+		params.add(errorStringLocation);
+		params.add(methodParam);
+
+		MidNodeList printInstrList = MidVisitor
+				.makeMethodCall(new MidCalloutNode(AsmVisitor.PRINTF), new MidNodeList(), new MidNodeList(), new MidNodeList(), params, false);
 		instrList.add(methodParam);
-		instrList.add(printNode);
+		instrList.addAll(printInstrList);
+		instrList.add(new MidExitNode(1));
 		return instrList;
 	}
 }

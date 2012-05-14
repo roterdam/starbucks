@@ -244,7 +244,7 @@ public class SemanticRules {
 		assert node.getNumberOfChildren() > 0;
 
 		METHOD_IDNode methodIdNode = node.getMethodIdNode();
-		String methodName = node.getMethodName();
+		String methodName = node.getName();
 		if (scope.hasMethod(methodName)) {
 			// Rule 5
 			// Construct a list of passed in parameters.

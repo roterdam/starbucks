@@ -8,10 +8,15 @@ public class MidMethodCallNode extends MidCallNode {
 
 	MidMethodDeclNode methodDecl;
 	boolean starbucksCall;
-	
+
+	// FIXME: get rid of params
 	public MidMethodCallNode(MidMethodDeclNode methodDecl,
 			List<MidMemoryNode> params) {
 		this(methodDecl, params, false);
+	}
+
+	public MidMethodCallNode(MidMethodDeclNode methodDecl) {
+		this(methodDecl, null, false);
 	}
 
 	public MidMethodCallNode(MidMethodDeclNode methodDecl,

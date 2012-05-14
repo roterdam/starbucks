@@ -16,7 +16,7 @@ import edu.mit.compilers.opt.regalloc.Allocatable;
  * Loads value from memory.
  */
 public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
-		Allocatable {
+		Allocatable, MidUseNode {
 
 	private MidMemoryNode memoryNode;
 	private List<RegisterOpNode> registerOpNodes;
