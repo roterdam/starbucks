@@ -30,5 +30,10 @@ public class MidConstantNode extends MidMemoryNode {
 		MidConstantNode consNode = (MidConstantNode) o;
 		return consNode.getValue() == value;
 	}
+	
+	@Override
+	public boolean isConstant() {
+		return true;
+	}
 
 }
