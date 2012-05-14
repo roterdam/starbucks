@@ -11,7 +11,7 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
 
@@ -42,7 +42,7 @@ public class RegisterAllocator {
 				new LivenessState().getBottomState(), doctor);
 		analyzer.analyze(symbolTable);
 
-		Map<MidSaveNode, Set<MidLoadNode>> defUseMap = doctor.getDefUseMap();
+		Map<MidSaveNode, Set<MidUseNode>> defUseMap = doctor.getDefUseMap();
 		WebKnitter knitter = new WebKnitter(defUseMap);
 		List<Web> webs = knitter.run();
 
