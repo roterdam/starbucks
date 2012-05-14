@@ -16,16 +16,13 @@ import edu.mit.compilers.opt.State;
 public class CMState implements State<CMState> {
 	
 	HashMap<Block, Loop> nesting;
-	int depth;
 	
 	public CMState() {
 		this.nesting = new HashMap<Block, Loop>();
-		this.depth = 0;
 	}
 	
-	public CMState(HashMap<Block, Loop> nesting, int depth) {
+	public CMState(HashMap<Block, Loop> nesting) {
 		this.nesting = nesting;
-		this.depth = depth;
 	}
 	
 	public int getDepth() {
@@ -50,11 +47,11 @@ public class CMState implements State<CMState> {
 		HashMap<Block, Loop> in = new HashMap<Block, Loop>();
 		in.putAll(nesting);
 		in.putAll(s.getNesting());
-		return new CMState(in, Math.min(depth, s.getDepth()));
+		return new CMState(in);
 	}
 	
 	public CMState clone() {
-		return new CMState(HashMapUtils.deepClone(nesting), depth);
+		return new CMState(HashMapUtils.deepClone(nesting));
 	}
 	
 	public Loop getLoop(Block b) {
