@@ -8,7 +8,7 @@ public class MidMethodCallNode extends MidCallNode {
 
 	MidMethodDeclNode methodDecl;
 	boolean starbucksCall;
-
+	
 	public MidMethodCallNode(MidMethodDeclNode methodDecl,
 			List<MidMemoryNode> params) {
 		this(methodDecl, params, false);
