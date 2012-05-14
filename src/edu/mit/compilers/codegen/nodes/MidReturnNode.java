@@ -9,26 +9,36 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
+import edu.mit.compilers.opt.regalloc.Allocatable;
 
-public class MidReturnNode extends MidNode implements MidUseNode {
-	
+public class MidReturnNode extends MidNode implements MidUseNode, Allocatable {
+
 	MidMemoryNode returnValue;
-	
+	private Reg allocatedReg;
+
 	/**
 	 * Takes a return memoryNode to push onto stack. NULL if returns void.
 	 */
 	public MidReturnNode(MidMemoryNode returnValue) {
 		this.returnValue = returnValue;
 	}
-	
+
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		if (returnValue != null){
-			out.add(new OpASM("Setting return value", OpCode.MOV, Reg.RAX.name(), returnValue.getFormattedLocationReference()));
+		String returnValueLocation;
+		if (allocatedReg == null) {
+			if (returnValue == null) {
+				returnValueLocation = "0";
+			} else {
+				returnValueLocation = returnValue
+						.getFormattedLocationReference();
+			}
 		} else {
-			out.add(new OpASM("Setting 0 return value (void)", OpCode.MOV, Reg.RAX.name(), "0"));
+			returnValueLocation = allocatedReg.name();
 		}
+		out.add(new OpASM("Setting return value", OpCode.MOV, Reg.RAX.name(),
+				returnValueLocation));
 		out.add(new OpASM(OpCode.LEAVE));
 		out.add(new OpASM(OpCode.RET));
 		return out;
@@ -38,4 +48,15 @@ public class MidReturnNode extends MidNode implements MidUseNode {
 	public MidMemoryNode getMemoryNode() {
 		return returnValue;
 	}
+
+	@Override
+	public void allocateRegister(Reg allocatedReg) {
+		this.allocatedReg = allocatedReg;
+	}
+
+	@Override
+	public Reg getAllocatedRegister() {
+		return allocatedReg;
+	}
+
 }
