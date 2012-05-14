@@ -30,6 +30,7 @@ import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.dce.DeadCodeElim;
 import edu.mit.compilers.opt.regalloc.LivenessDoctor;
 import edu.mit.compilers.opt.regalloc.LivenessState;
+import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -204,11 +205,11 @@ public class Main {
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
 								+ (x - 1) + " times.");
 
-						/*
-						 * if (isEnabled(OPT_RA)) { RegisterAllocator allocator
-						 * = new RegisterAllocator(symbolTable);
-						 * sallocator.run(); }
-						 */
+						if (isEnabled(OPT_RA)) {
+							RegisterAllocator allocator = new RegisterAllocator(
+									symbolTable);
+							allocator.run();
+						}
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
