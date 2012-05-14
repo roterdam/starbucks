@@ -102,7 +102,9 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 					}
 				}
 			}
-			assert newMemNode != null;
+			if (newMemNode == null) {
+				continue;
+			}
 			List<MidMemoryNode> newMemNodes = new ArrayList<MidMemoryNode>();
 			newMemNodes.add(newMemNode);
 
