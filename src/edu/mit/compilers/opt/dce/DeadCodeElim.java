@@ -5,6 +5,9 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
+import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
+import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
@@ -31,12 +34,17 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 		for (MidNode node : b.reverse()) {
 			if (node instanceof MidLoadNode) {
 				// Use.
+				MidLoadNode loadNode = (MidLoadNode) node;
+				MidMemoryNode destNode = loadNode.getMemoryNode();
 				localState.processUse((MidLoadNode) node);
 			} else if (node instanceof MidSaveNode) {				
 				Set<MidLoadNode> uses = localState.getUses(((MidSaveNode)node).getDestinationNode());
 				if (uses == null || uses.isEmpty()){
-					// Delete dead code
-					deleteSaveNodeEtAl((MidSaveNode) node);
+					// Delete dead code, only if dealing with local variables.
+					MidMemoryNode destNode = ((MidSaveNode)node).getDestinationNode();
+					if(destNode instanceof MidLocalMemoryNode || destNode instanceof MidConstantNode){
+						deleteSaveNodeEtAl((MidSaveNode) node);
+					}
 				} else {
 					// Definition.
 					localState.processDefinition((MidSaveNode) node);

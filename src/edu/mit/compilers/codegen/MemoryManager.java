@@ -71,6 +71,7 @@ public class MemoryManager {
 		int localStackSize = 0;
 		for (MidNode m : methodDeclNode.getNodeList()) {
 			LogCenter.debug("MEM", m.toString());
+			
 			if ((m instanceof MidLocalMemoryNode)
 					&& !((MidLocalMemoryNode) m).hasRawLocationReference()) {
 				localStackSize += ADDRESS_SIZE;

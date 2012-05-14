@@ -24,7 +24,7 @@ public class MidNodeList implements List<MidNode> {
 		assert object != null : "Don't add null to the list!";
 		// this is not an all encompassing assert
 		assert object.getNextNode() == null : "Don't add things that are already in lists: "
-				+ object.toString()
+				+ object.toString()	
 				+ "\nalready has next="
 				+ object.getNextNode().toString()
 				+ "\n(list:"
@@ -154,16 +154,19 @@ public class MidNodeList implements List<MidNode> {
 			currentNode = new LinkedListHeadNode();
 			currentNode.setNextNode(MidNodeList.this.getHead());
 		}
-
+		
+		@Override
 		public boolean hasNext() {
 			return currentNode.getNextNode() != null;
 		}
 
+		@Override
 		public MidNode next() {
 			currentNode = currentNode.getNextNode();
 			return currentNode;
 		}
 
+		@Override
 		public void remove() {
 			throw new java.lang.UnsupportedOperationException();
 		}

@@ -14,11 +14,14 @@ import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.expressions.CallNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
-public class METHOD_CALLNode extends ExpressionNode {
-	public String getMethodName() {
+public class METHOD_CALLNode extends CallNode {
+	
+	@Override
+	public String getName() {
 		assert getFirstChild() instanceof METHOD_IDNode;
 		return ((METHOD_IDNode) getFirstChild()).getText();
 	}
@@ -40,14 +43,14 @@ public class METHOD_CALLNode extends ExpressionNode {
 	
 	@Override
 	public VarType getReturnType(Scope scope) {
-		assert scope.getMethods().containsKey(getMethodName());
-		MethodDecl method = scope.getMethods().get(getMethodName());
+		assert scope.getMethods().containsKey(getName());
+		MethodDecl method = scope.getMethods().get(getName());
 		return method.getReturnType();
 	}
 	
 	@Override
 	public VarType getMidVarType(MidSymbolTable symbolTable){
-		return symbolTable.getMethod(getMethodName()).getMidVarType();
+		return symbolTable.getMethod(getName()).getMidVarType();
 	}
 	
 	@Override
@@ -84,5 +87,15 @@ public class METHOD_CALLNode extends ExpressionNode {
 	public List<DecafNode> getCallsDuringExecution() {
 		assert false : "Never remove a method call. It can change stuff!";
 		return null;
+	}
+	
+	@Override
+	public List<DecafNode> getParameters() {
+		List<DecafNode> output = new ArrayList<DecafNode>();
+		for (int i = 1; i < getNumberOfChildren(); i++) {
+			assert getChild(i) instanceof ExpressionNode;
+			output.add((ExpressionNode) getChild(i));
+		}
+		return output;
 	}
 }

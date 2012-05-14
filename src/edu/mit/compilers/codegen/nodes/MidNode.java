@@ -16,7 +16,9 @@ public abstract class MidNode {
 	public void setNextNode(MidNode node) {
 		nextNode = node;
 		// Also set a backpointer.
-		nextNode.setPrevNode(this);
+		if(nextNode != null) {
+			nextNode.setPrevNode(this);
+		}
 	}
 
 	public MidNode getNextNode() {
