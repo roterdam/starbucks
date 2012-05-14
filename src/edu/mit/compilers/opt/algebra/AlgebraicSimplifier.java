@@ -82,7 +82,7 @@ public class AlgebraicSimplifier {
 	}
 
 	public static void visit(METHOD_DECLNode node) {
-		LogCenter.debug("[AS]", "Simplifying method " + node.getId());
+		//LogCenter.debug("[AS]", "Simplifying method " + node.getId());
 		node.getBlockNode().simplifyExpressions();
 	}
 
