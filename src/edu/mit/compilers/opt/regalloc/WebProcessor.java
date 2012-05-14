@@ -9,6 +9,7 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
+import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
 
 /**
  * Transfer function to analyze web liveness in order to generate interference

@@ -15,6 +15,8 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.HashMapUtils;
+import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
+import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
 
 public class RegisterAllocator {
 

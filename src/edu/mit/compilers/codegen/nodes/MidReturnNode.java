@@ -9,7 +9,7 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
-import edu.mit.compilers.opt.regalloc.Allocatable;
+import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
 
 public class MidReturnNode extends MidNode implements MidUseNode, Allocatable {
 

@@ -17,7 +17,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
-import edu.mit.compilers.opt.regalloc.Allocatable;
+import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
 
 /**
  * ` Saves referenced register node or literal to memory.

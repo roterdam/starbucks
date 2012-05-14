@@ -74,8 +74,9 @@ import edu.mit.compilers.grammar.tokens.STRING_LITERALNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
-import edu.mit.compilers.opt.regalloc.MidRestoreRegLaterNode;
-import edu.mit.compilers.opt.regalloc.MidSaveRegLaterNode;
+import edu.mit.compilers.opt.regalloc.nodes.MidPreserveParamsNode;
+import edu.mit.compilers.opt.regalloc.nodes.MidRestoreRegLaterNode;
+import edu.mit.compilers.opt.regalloc.nodes.MidSaveRegLaterNode;
 
 public class MidVisitor {
 
@@ -133,33 +134,37 @@ public class MidVisitor {
 		MidNodeList out = new MidNodeList();
 		out.addAll(preCalls);
 
-		MidNodeList loadNodes = new MidNodeList();
-		MidNodeList pushStack = new MidNodeList();
+		MidNodeList paramLoadNodes = new MidNodeList();
+		MidNodeList paramPushStack = new MidNodeList();
 
+		List<MidParamLoadNode> paramLoadNodesList = new ArrayList<MidParamLoadNode>();
+		
 		for (int i = 0; i < paramMemoryNodes.size(); i++) {
 			MidMemoryNode midMemNode = paramMemoryNodes.get(i);
 			MidParamLoadNode paramLoadNode = new MidParamLoadNode(midMemNode);
 			if (i < AsmVisitor.paramRegisters.length) {
 				// Want to set the register.
 				paramLoadNode.setRegister(AsmVisitor.paramRegisters[i]);
-				loadNodes.add(paramLoadNode);
+				paramLoadNodes.add(paramLoadNode);
+				paramLoadNodesList.add(paramLoadNode);
 			} else {
 				// Push the remaining parameters in reverse order
 				MidNodeList pushIt = new MidNodeList();
 				pushIt.add(paramLoadNode);
 				pushIt.add(new MidPushNode(paramLoadNode));
-				pushIt.addAll(pushStack);
-				pushStack = pushIt;
+				pushIt.addAll(paramPushStack);
+				paramPushStack = pushIt;
 			}
 		}
 
 		out.addAll(postCalls);
+		out.addAll(paramExpr);
+		
 		// Push caller-saved.
 		out.add(new MidSaveRegLaterNode(methodNode));
-
-		out.addAll(paramExpr);
-		out.addAll(loadNodes);
-		out.addAll(pushStack);
+		out.add(new MidPreserveParamsNode(paramLoadNodesList));
+		out.addAll(paramLoadNodes);
+		out.addAll(paramPushStack);
 
 		// zero RAX.
 		out.add(new MidZeroRegNode(Reg.RAX));

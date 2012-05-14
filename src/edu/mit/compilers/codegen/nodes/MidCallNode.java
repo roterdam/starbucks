@@ -5,13 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
-import edu.mit.compilers.opt.regalloc.LiveWebsActivist;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.opt.regalloc.Web;
+import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
 
 /**
  * Represents any call, whether to external libraries or internally.
@@ -62,6 +63,7 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 				needToSaveRegisters.add(r);
 			}
 		}
+		LogCenter.debug("CALL", "APPLIED ALLOCATED MAPPINGS FOR " + getName() + ": " + needToSaveRegisters);
 	}
 
 	@Override

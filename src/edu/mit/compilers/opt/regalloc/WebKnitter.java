@@ -10,6 +10,7 @@ import java.util.Set;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
+import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
 
 /**
  * Given a mapping from definitions to uses, stitches together the webs that

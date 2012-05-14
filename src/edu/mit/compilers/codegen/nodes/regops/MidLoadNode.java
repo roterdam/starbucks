@@ -10,7 +10,7 @@ import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
-import edu.mit.compilers.opt.regalloc.Allocatable;
+import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
 
 /**
  * Loads value from memory.
