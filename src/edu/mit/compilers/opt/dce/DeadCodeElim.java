@@ -36,8 +36,7 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 			if (node instanceof MidUseNode) {
 				// Use.
 				localState.processUse((MidUseNode) node);
-			} else if (node instanceof MidSaveNode
-					&& !(((MidSaveNode) node).isInactive())) {
+			} else if (node instanceof MidSaveNode) {
 				Set<MidUseNode> uses = localState.getUses(((MidSaveNode) node)
 						.getDestinationNode());
 				if (uses == null || uses.isEmpty()) {
@@ -60,7 +59,7 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 	private void deleteSaveNodeEtAl(Block block, MidSaveNode saveNode) {
 		LogCenter.debug("DCE", "DELETING " + saveNode);
 		if (saveNode.getRegNode() instanceof MidLoadNode) {
-			block.delete(saveNode.getRegNode());
+			AnalyzerHelpers.completeDeleteAssignment(saveNode, block);
 		}
 		// a = -x
 		if (saveNode.getRegNode() instanceof MidNegNode) {
@@ -70,7 +69,6 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 		if (saveNode.getRegNode() instanceof MidArithmeticNode) {
 			AnalyzerHelpers.completeDeleteBinary(saveNode, block);
 		}
-		saveNode.deactivate();
 	}
 
 }

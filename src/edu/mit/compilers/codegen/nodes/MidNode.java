@@ -7,7 +7,6 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
-import edu.mit.compilers.opt.Block;
 
 public abstract class MidNode {
 	private MidNode nextNode;
@@ -66,7 +65,7 @@ public abstract class MidNode {
 	
 	//FIXME what if this is the first node?
 	public void delete() {
-		LogCenter.debug("OPT", "DELETING " + this + " (" + hashCode() + ")");
+		LogCenter.debug("DEL", "DELETING " + this + " (" + hashCode() + ")");
 		this.getPrevNode().setNextNode(this.getNextNode());
 	}
 }

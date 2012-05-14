@@ -85,7 +85,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 				.format("Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
 		for (Block m : b.getSuccessors()) {
-			assert inStates.get(m) != null : m;
+			assert inStates.get(m) != null : "Block not found in inStates: " + m;
 			out = inStates.get(m).join(out);
 		}
 		return out;
@@ -115,7 +115,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 	}
 	
 	@Override
-	public List<Block> getTODOBlocks() {
+	public List<Block> getProcessedBlocks() {
 		List<Block> todoBlocks = new ArrayList<Block>();
 		for (Block b : inStates.keySet()) {
 			todoBlocks.add(b);

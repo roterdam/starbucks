@@ -28,7 +28,7 @@ public class Block implements Iterable<MidNode> {
 	}
 
 	public void delete(MidNode delNode) {
-		if(head == delNode && delNode == tail){
+		if (head == delNode && delNode == tail) {
 			head = null;
 			tail = null;
 		} else {
@@ -42,7 +42,7 @@ public class Block implements Iterable<MidNode> {
 		delNode.delete();
 	}
 
-	public MidNode getHead() {
+	private MidNode getHead() {
 		return head;
 	}
 
@@ -50,7 +50,7 @@ public class Block implements Iterable<MidNode> {
 		this.tail = t;
 	}
 
-	public MidNode getTail() {
+	private MidNode getTail() {
 		return tail;
 	}
 
@@ -165,8 +165,8 @@ public class Block implements Iterable<MidNode> {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
-		LogCenter.debug("OPT",
-				"BLOCK: Starting getAllBlocks with " + nodeList.getHead());
+		LogCenter.debug("OPT", "BLOCK: Starting getAllBlocks with "
+				+ nodeList.getHead());
 		Block head = makeBlock(nodeList.getHead());
 		List<Block> out = new ArrayList<Block>(blockCache.values());
 		// Force head to the beginning.
@@ -244,21 +244,6 @@ public class Block implements Iterable<MidNode> {
 			}
 
 		};
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof Block)) {
-			return false;
-		}
-		Block other = (Block) o;
-		return other.getHead() == this.getHead()
-				&& other.getTail() == this.getTail();
-	}
-
-	@Override
-	public int hashCode() {
-		return this.getHead().hashCode() * 31 + this.getTail().hashCode();
 	}
 
 }

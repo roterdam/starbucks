@@ -86,7 +86,6 @@ public class LivenessState implements State<LivenessState> {
 	
 	public void processDefinition(MidSaveNode node,
 			LivenessDoctor livenessAnalyzer) {
-		LogCenter.debug("RA", "Processing def " + node+" which is inactive? "+node.isInactive());
 		
 		MidMemoryNode destNode = node.getDestinationNode();
 		Set<MidUseNode> useList = uses.get(destNode);

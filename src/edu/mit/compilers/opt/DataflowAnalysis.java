@@ -6,6 +6,6 @@ public interface DataflowAnalysis<S> {
 	
 	public S getAnalyzedState(Block block);
 
-	public List<Block> getTODOBlocks();
+	public List<Block> getProcessedBlocks();
 	
 }

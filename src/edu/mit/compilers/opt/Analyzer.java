@@ -89,7 +89,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	}
 
 	@Override
-	public List<Block> getTODOBlocks() {
+	public List<Block> getProcessedBlocks() {
 		List<Block> todoBlocks = new ArrayList<Block>();
 		for (Block b : outHash.keySet()) {
 			todoBlocks.add(b);

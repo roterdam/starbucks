@@ -46,17 +46,18 @@ abstract public class MidRegisterNode extends MidNode {
 		return register != null;
 	}
 	
-	public void record(MidSaveNode saveNode) {
-		referencingSaveNodes.add(saveNode);
-	}
+//	public void record(MidSaveNode saveNode) {
+//		referencingSaveNodes.add(saveNode);
+//		assert referencingSaveNodes.size() == 1;
+//	}
 	
 	
-	@Override
-	public void delete() {
-		super.delete();
-		for (MidSaveNode s : referencingSaveNodes) {
-			s.delete();
-		}
-	}
+//	@Override
+//	public void delete() {
+//		super.delete();
+//		for (MidSaveNode s : referencingSaveNodes) {
+//			s.delete();
+//		}
+//	}
 
 }
