@@ -10,9 +10,9 @@ public class Loop implements Comparable<Loop> {
 	Set<Block> blocks;
 	int depth;
 	
-	public Loop() {
+	public Loop(int depth) {
 		this.blocks = new HashSet<Block>();
-		this.depth = 0;
+		this.depth = depth;
 	}
 	
 	public void setDepth(int i) {
@@ -21,6 +21,10 @@ public class Loop implements Comparable<Loop> {
 	
 	public int getDepth() {
 		return this.depth;
+	}
+	
+	public void addBlock(Block b) {
+		this.blocks.add(b);
 	}
 	
 	public Set<Block> getBlocks() {

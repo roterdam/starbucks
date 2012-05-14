@@ -21,6 +21,10 @@ public class MidLabelNode extends MidNode {
 		return name;
 	}
 	
+	public LabelType getType() {
+		return type;
+	}
+	
 	@Override
 	public String toString() {
 		return "<" + getNodeClass() + ":" + getName()+">";
