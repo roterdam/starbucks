@@ -9,6 +9,7 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
+import edu.mit.compilers.codegen.nodes.MidNode;
 
 /**
  * Links to a method and, while in the mid node list, doesn't explicitly say
@@ -17,17 +18,19 @@ import edu.mit.compilers.codegen.nodes.MidCallNode;
  * the method is using any registers that conflict with live webs.
  * 
  */
-public class MidSaveRegLaterNode extends MidCallerSavedNode {
+public class MidSaveRegLaterNode extends MidNode {
+
+	private final MidCallNode callNode;
 
 	public MidSaveRegLaterNode(MidCallNode callNode) {
-		super(callNode);
+		this.callNode = callNode;
 	}
 
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 
-		Set<Reg> needToSaveRegs = getRegConflicts();
+		List<Reg> needToSaveRegs = callNode.getNeedToSaveRegisters();
 		for (Reg r : needToSaveRegs) {
 			out.add(new OpASM("Save live reg.", OpCode.PUSH, r.name()));
 		}

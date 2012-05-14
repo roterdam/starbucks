@@ -7,9 +7,9 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
-import edu.mit.compilers.opt.regalloc.MidRDXHater;
+import edu.mit.compilers.opt.regalloc.MidRDXOverwriter;
 
-public class MidDivideNode extends MidRDXHater {
+public class MidDivideNode extends MidRDXOverwriter {
 
 	public MidDivideNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
