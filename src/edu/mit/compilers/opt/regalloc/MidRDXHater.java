@@ -14,7 +14,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
  * @author joshma
  * 
  */
-public class MidRDXHater extends MidArithmeticNode implements LiveWebsActivist {
+public abstract class MidRDXHater extends MidArithmeticNode implements LiveWebsActivist {
 
 	public MidRDXHater(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);

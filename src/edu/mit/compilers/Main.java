@@ -19,12 +19,13 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
+import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
-import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.cse.CSETransfer;
+import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -158,7 +159,7 @@ public class Main {
 						// CSE.
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
 							clearHasAdditionalChanges();
-							
+
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
@@ -167,7 +168,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
@@ -176,19 +177,24 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
-//							 if (isEnabled(OPT_DCE)) {
-//							 LivenessDoctor doctor = new LivenessDoctor();
-//							 BackwardsAnalyzer<LivenessState, LivenessDoctor>
-//							 analyzer = new BackwardsAnalyzer<LivenessState,
-//							 LivenessDoctor>(
-//							 new LivenessState().getBottomState(),
-//							 doctor);
-//							 analyzer.analyze(symbolTable);
-//							 DeadCodeElim dce = new DeadCodeElim();
-//							 dce.analyze(analyzer, symbolTable);
-//							 }
+
+							// if (isEnabled(OPT_DCE)) {
+							// LivenessDoctor doctor = new LivenessDoctor();
+							// BackwardsAnalyzer<LivenessState, LivenessDoctor>
+							// analyzer = new BackwardsAnalyzer<LivenessState,
+							// LivenessDoctor>(
+							// new LivenessState().getBottomState(),
+							// doctor);
+							// analyzer.analyze(symbolTable);
+							// DeadCodeElim dce = new DeadCodeElim();
+							// dce.analyze(analyzer, symbolTable);
+							// }
 							x++;
+						}
+
+						if (CLI.optOn) {
+							MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+							simplifier.analyze(symbolTable);
 						}
 
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "

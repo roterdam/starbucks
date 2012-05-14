@@ -44,5 +44,10 @@ public class MidModNode extends MidRDXHater {
 	public boolean isCommutative() {
 		return false;
 	}
+	
+	@Override
+	public long applyOperation(long left, long right) {
+		return left % right;
+	}
 
 }
