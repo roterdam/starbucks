@@ -22,6 +22,7 @@ import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.cm.CMState;
 import edu.mit.compilers.opt.cm.CMTransfer;
+import edu.mit.compilers.opt.cm.CMTransformer;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -185,6 +186,10 @@ public class Main {
 								BackwardsAnalyzer<CMState, CMTransfer> analyzer = new BackwardsAnalyzer<CMState, CMTransfer>(
 										new CMState().getInitialState(),
 										new CMTransfer());
+								analyzer.analyze(symbolTable);
+								assert false;
+								CMTransformer localAnalyzer = new CMTransformer();
+								localAnalyzer.analyze(analyzer, symbolTable);
 							}
 
 //							 if (isEnabled(OPT_DCE)) {

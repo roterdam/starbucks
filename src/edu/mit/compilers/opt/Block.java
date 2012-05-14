@@ -27,7 +27,7 @@ public class Block implements Iterable<MidNode> {
 		successors = new ArrayList<Block>();
 	}
 
-	private MidNode getHead() {
+	public MidNode getHead() {
 		return head;
 	}
 
@@ -35,7 +35,7 @@ public class Block implements Iterable<MidNode> {
 		this.tail = t;
 	}
 
-	private MidNode getTail() {
+	public MidNode getTail() {
 		return tail;
 	}
 
