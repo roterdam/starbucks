@@ -86,15 +86,20 @@ public class LivenessState implements State<LivenessState> {
 	
 	public void processDefinition(MidSaveNode node,
 			LivenessDoctor livenessAnalyzer) {
-		LogCenter.debug("RA", "Processing def " + node);
+		LogCenter.debug("RA", "Processing def " + node+" which is inactive? "+node.isInactive());
+		
 		MidMemoryNode destNode = node.getDestinationNode();
 		Set<MidUseNode> useList = uses.get(destNode);
 		if (useList == null) {
+			LogCenter.debug("RA", "> Nothing to see here folks");
 			return;
 		}
+		LogCenter.debug("RA", "> Removing "+destNode+" from uses");
 		uses.remove(destNode);
 		if (livenessAnalyzer != null){
 			livenessAnalyzer.save(node, useList);
+		} else{
+			LogCenter.debug("RA", "> No save to liveness Analyze");
 		}
 	}
 

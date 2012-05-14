@@ -29,6 +29,7 @@ import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.dce.DeadCodeElim;
 import edu.mit.compilers.opt.regalloc.LivenessDoctor;
 import edu.mit.compilers.opt.regalloc.LivenessState;
+import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -113,9 +114,8 @@ public class Main {
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
-					ErrorCenter
-							.reportFatalError(e.recog.line, e.recog.column, e.recog
-									.getMessage());
+					ErrorCenter.reportFatalError(e.recog.line, e.recog.column,
+							e.recog.getMessage());
 					scanner.consume();
 				}
 
@@ -161,6 +161,7 @@ public class Main {
 						// since each round of CP may help the next round's
 						// CSE.
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
+							LogCenter.debug("DCE", "Looppin again");
 							clearHasAdditionalChanges();
 
 							if (isEnabled(OPT_CSE)) {
@@ -186,20 +187,21 @@ public class Main {
 										new LivenessState().getBottomState(),
 										doctor);
 								analyzer.analyze(symbolTable);
+								LogCenter.debug("DCE", "Starting DCE!");
 								DeadCodeElim dce = new DeadCodeElim();
 								dce.analyze(analyzer, symbolTable);
-			}
+							}
 							x++;
 						}
 
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
 								+ (x - 1) + " times.");
 
-						// if (isEnabled(OPT_RA)) {
-						// RegisterAllocator allocator = new
-						// RegisterAllocator(symbolTable);
-						// allocator.run();
-						// }
+						/*
+						 * if (isEnabled(OPT_RA)) { RegisterAllocator allocator
+						 * = new RegisterAllocator(symbolTable);
+						 * sallocator.run(); }
+						 */
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));
@@ -212,9 +214,11 @@ public class Main {
 				}
 			}
 		} catch (Exception e) {
-			ErrorCenter.reportError(0, 0, String
-					.format("Unrecoverable error of %s\nSTACKTRACE:", e
-							.getClass()));
+			ErrorCenter.reportError(
+					0,
+					0,
+					String.format("Unrecoverable error of %s\nSTACKTRACE:",
+							e.getClass()));
 			e.printStackTrace();
 			// print the error:
 			// System.out.println(CLI.infile);
@@ -245,8 +249,8 @@ public class Main {
 			outStream.write(text.getBytes());
 			outStream.close();
 		} catch (Exception e) {
-			System.out.println(String
-					.format("Could not open file %s for output.", CLI.outfile));
+			System.out.println(String.format(
+					"Could not open file %s for output.", CLI.outfile));
 		}
 	}
 

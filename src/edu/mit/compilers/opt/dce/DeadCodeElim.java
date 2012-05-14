@@ -1,10 +1,11 @@
 package edu.mit.compilers.opt.dce;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
-import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
@@ -22,50 +23,60 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 
 	@Override
 	protected void transform(Block b, LivenessState state) {
-		
+
 		LivenessState localState;
-		if (state == null){
-			//Should be the return block
+		if (state == null) {
+			// Should be the return block
 			assert b.getSuccessors().isEmpty();
 			localState = new LivenessState();
 		} else {
-			localState = state.clone();		
+			localState = state.clone();
 		}
-			
+
+		for (MidNode node : b) {
+			LogCenter.debug("DCEDEBUG", "Next node: "+node.toString());
+		}
 		
 		for (MidNode node : b.reverse()) {
+			LogCenter.debug("DCEDEBUG", "ITERATING OVER "+node.toString());
 			if (node instanceof MidUseNode) {
 				// Use.
-				localState.processUse((MidUseNode)node);
-			} else if (node instanceof MidSaveNode) {
-				Set<MidUseNode> uses = localState.getUses(((MidSaveNode)node).getDestinationNode());
-				if (uses == null || uses.isEmpty()){
+				localState.processUse((MidUseNode) node);
+			} else if (node instanceof MidSaveNode
+					&& !(((MidSaveNode) node).isInactive())) {
+				Set<MidUseNode> uses = localState.getUses(((MidSaveNode) node)
+						.getDestinationNode());
+				if (uses == null || uses.isEmpty()) {
 					// Delete dead code, only if dealing with local variables.
-					MidMemoryNode destNode = ((MidSaveNode)node).getDestinationNode();
-					if(destNode instanceof MidLocalMemoryNode || destNode instanceof MidConstantNode){
-						deleteSaveNodeEtAl((MidSaveNode) node);
+					MidMemoryNode destNode = ((MidSaveNode) node)
+							.getDestinationNode();
+					if (destNode instanceof MidLocalMemoryNode
+							|| destNode instanceof MidConstantNode) {
+						deleteSaveNodeEtAl(b, (MidSaveNode) node);
 					}
 				} else {
+					LogCenter.debug("DCE","LOOOPING FOREVER");
 					// Definition.
 					localState.processDefinition((MidSaveNode) node);
 				}
 			}
 		}
+		LogCenter.debug("DCEDEBUG", "THIS IS TEH BEGINNING OF THE END");
 
 	}
 
-	private void deleteSaveNodeEtAl(MidSaveNode saveNode) {
+	private void deleteSaveNodeEtAl(Block block, MidSaveNode saveNode) {
 		LogCenter.debug("DCE", "DELETING " + saveNode);
 		if (saveNode.getRegNode() instanceof MidLoadNode) {
-			saveNode.getRegNode().delete();
+			block.delete(saveNode.getRegNode());
 		}
 		// a = -x
 		if (saveNode.getRegNode() instanceof MidNegNode) {
-			AnalyzerHelpers.completeDeleteUnary(saveNode);
+			AnalyzerHelpers.completeDeleteUnary(saveNode, block);
 		}
 		// a = x + y
 		if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-			AnalyzerHelpers.completeDeleteBinary(saveNode);
+			AnalyzerHelpers.completeDeleteBinary(saveNode, block);
 		}
 		saveNode.deactivate();
 	}

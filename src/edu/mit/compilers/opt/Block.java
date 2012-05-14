@@ -27,6 +27,15 @@ public class Block implements Iterable<MidNode> {
 		successors = new ArrayList<Block>();
 	}
 
+	public void delete(MidNode delNode) {
+		if (head == delNode) {
+			this.head = delNode.getNextNode();
+		} else if (tail == delNode) {
+			this.tail = delNode.getPrevNode();
+		}
+		delNode.delete();
+	}
+
 	private MidNode getHead() {
 		return head;
 	}
@@ -146,8 +155,8 @@ public class Block implements Iterable<MidNode> {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
-		LogCenter.debug("OPT", "BLOCK: Starting getAllBlocks with "
-				+ nodeList.getHead());
+		LogCenter.debug("OPT",
+				"BLOCK: Starting getAllBlocks with " + nodeList.getHead());
 		Block head = makeBlock(nodeList.getHead());
 		List<Block> out = new ArrayList<Block>(blockCache.values());
 		// Force head to the beginning.
@@ -185,6 +194,11 @@ public class Block implements Iterable<MidNode> {
 		};
 	}
 
+	/**
+	 * Iterates through nodes in reverse. Caution do not delete while iterating.
+	 * 
+	 * @return
+	 */
 	public Iterable<MidNode> reverse() {
 		return new Iterable<MidNode>() {
 
@@ -200,11 +214,14 @@ public class Block implements Iterable<MidNode> {
 
 					@Override
 					public MidNode next() {
+						MidNode oldCurNode = curNode;
 						if (curNode == null) {
 							curNode = Block.this.getTail();
 						} else {
 							curNode = curNode.getPrevNode();
 						}
+						assert curNode != null : "Why this shit null? "
+								+ oldCurNode;
 						return curNode;
 					}
 
@@ -218,19 +235,20 @@ public class Block implements Iterable<MidNode> {
 
 		};
 	}
-	
+
 	@Override
-	public boolean equals(Object o){
-		if (!(o instanceof Block)){
+	public boolean equals(Object o) {
+		if (!(o instanceof Block)) {
 			return false;
 		}
-		Block other = (Block)o;
-		return other.getHead() == this.getHead() && other.getTail() == this.getTail();
+		Block other = (Block) o;
+		return other.getHead() == this.getHead()
+				&& other.getTail() == this.getTail();
 	}
-	
+
 	@Override
-	public int hashCode(){
+	public int hashCode() {
 		return this.getHead().hashCode() * 31 + this.getTail().hashCode();
 	}
-	
+
 }

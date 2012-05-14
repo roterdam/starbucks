@@ -35,7 +35,7 @@ public class LivenessDoctor implements Transfer<LivenessState> {
 			if (node instanceof MidUseNode) {
 				// Use.
 				out.processUse((MidUseNode) node);
-			} else if (node instanceof MidSaveNode) {
+			} else if (node instanceof MidSaveNode && !((MidSaveNode) node).isInactive()) {
 				// Definition.
 				out.processDefinition((MidSaveNode) node, this);
 			}

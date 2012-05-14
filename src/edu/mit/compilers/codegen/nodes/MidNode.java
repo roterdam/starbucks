@@ -7,6 +7,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
+import edu.mit.compilers.opt.Block;
 
 public abstract class MidNode {
 	private MidNode nextNode;

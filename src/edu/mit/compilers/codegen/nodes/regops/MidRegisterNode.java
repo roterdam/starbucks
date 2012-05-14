@@ -50,6 +50,7 @@ abstract public class MidRegisterNode extends MidNode {
 		referencingSaveNodes.add(saveNode);
 	}
 	
+	
 	@Override
 	public void delete() {
 		super.delete();
