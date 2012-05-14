@@ -8,7 +8,6 @@ import java.util.Map;
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
-import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.regalloc.LiveWebsActivist;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
@@ -25,13 +24,13 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 	private String name;
 	private List<Web> liveWebs;
 	private List<Reg> needToSaveRegisters;
-	private List<MidMemoryNode> params;
+	private int paramCount;
 
-	public MidCallNode(String name, List<MidMemoryNode> params) {
+	public MidCallNode(String name, int paramCount) {
 		this.name = name;
-		this.params = params;
-		this.needToSaveRegisters = new ArrayList<Reg>();
 		this.liveWebs = new ArrayList<Web>();
+		this.paramCount = paramCount;
+		this.needToSaveRegisters = new ArrayList<Reg>();
 	}
 
 	@Override
@@ -39,8 +38,8 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 		return name;
 	}
 
-	public List<MidMemoryNode> getParams() {
-		return params;
+	public int getParamCount() {
+		return paramCount;
 	}
 
 	@Override

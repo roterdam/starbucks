@@ -129,24 +129,16 @@ public class AsmVisitor {
 
 	public static List<ASM> methodCall(MidCallNode callNode) {
 		String name = callNode.getName();
-		List<MidMemoryNode> params = callNode.getParams();
 		Reg destinationRegister = callNode.getRegister();
-		return methodCall(name, params, destinationRegister,
+		return methodCall(name, destinationRegister,
 				(callNode instanceof MidCalloutNode));
 	}
 
 	/**
 	 * Helper method used by other MidNodes (method calls and callouts) to
 	 * follow calling convention.
-	 * 
-	 * @param name
-	 * @param params
-	 * @param destinationRegister
-	 * @param extern
-	 * @return
 	 */
-	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
-			Reg destinationRegister, boolean extern) {
+	public static List<ASM> methodCall(String name, Reg destinationRegister, boolean extern) {
 		if (extern) {
 			externCalls.add(name);
 		}

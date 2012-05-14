@@ -12,7 +12,6 @@ import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidMoveSPNode;
-import edu.mit.compilers.codegen.nodes.MidPopNode;
 import edu.mit.compilers.codegen.nodes.MidPushNode;
 import edu.mit.compilers.codegen.nodes.MidReturnNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -75,6 +74,8 @@ import edu.mit.compilers.grammar.tokens.STRING_LITERALNode;
 import edu.mit.compilers.grammar.tokens.TIMESNode;
 import edu.mit.compilers.grammar.tokens.VAR_DECLNode;
 import edu.mit.compilers.grammar.tokens.WHILENode;
+import edu.mit.compilers.opt.regalloc.MidRestoreRegLaterNode;
+import edu.mit.compilers.opt.regalloc.MidSaveRegLaterNode;
 
 public class MidVisitor {
 
@@ -153,23 +154,9 @@ public class MidVisitor {
 		}
 
 		out.addAll(postCalls);
-		// Save caller-saved registers
-		List<Reg> needToSaveRegs = methodNode.getNeedToSaveRegisters();
-		MidNodeList saveStack = new MidNodeList();
-		MidNodeList restoreStack = new MidNodeList();
+		// Push caller-saved.
+		out.add(new MidSaveRegLaterNode(methodNode));
 
-		for (Reg r : needToSaveRegs) {
-			restoreStack.add(new MidPopNode(r));
-
-			MidNodeList pushIt = new MidNodeList();
-			pushIt.add(new MidPushNode(r));
-			pushIt.addAll(saveStack);
-			saveStack = pushIt;
-		}
-
-		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
-
-		out.addAll(saveStack);
 		out.addAll(paramExpr);
 		out.addAll(loadNodes);
 		out.addAll(pushStack);
@@ -183,8 +170,12 @@ public class MidVisitor {
 		if (stackParams > 0) {
 			out.add(new MidMoveSPNode(stackParams));
 		}
-		out.addAll(restoreStack);
+
+		// Pop caller-saved.
+		out.add(new MidRestoreRegLaterNode(methodNode));
+
 		if (saveResult) {
+			MidTempDeclNode tempDeclNode = new MidTempDeclNode();
 			out.add(tempDeclNode);
 			out.add(new MidSaveNode(methodNode, tempDeclNode));
 		}
@@ -194,13 +185,13 @@ public class MidVisitor {
 	public static MidNodeList makeMethodCall(CallNode node,
 			MidSymbolTable symbolTable) {
 		MidCallNode methodNode;
+		int paramCount = node.getParameters().size();
 		if (node instanceof METHOD_CALLNode) {
 			methodNode = new MidMethodCallNode(symbolTable.getMethod(node
-					.getName()));
+					.getName()), paramCount);
 		} else {
 			String methodName = stripQuotes(node.getName());
-			// LogCenter.debug("DUR", node.getName());
-			methodNode = new MidCalloutNode(methodName);
+			methodNode = new MidCalloutNode(methodName, paramCount);
 		}
 		MidNodeList exprParamList = new MidNodeList();
 		List<MidMemoryNode> paramMemoryNodes = new ArrayList<MidMemoryNode>();
@@ -282,7 +273,7 @@ public class MidVisitor {
 		divideByZeroParams.add(paramDeclNode);
 		MidMethodCallNode divideByZeroCall = new MidMethodCallNode(
 				symbolTable.getStarbucksMethod(DIVIDE_BY_ZERO_NAME),
-				divideByZeroParams, true);
+				divideByZeroParams.size(), true);
 
 		// Set any old register.
 		divideByZeroCall.setRegister(Reg.RAX);
@@ -338,7 +329,7 @@ public class MidVisitor {
 		outOfBoundsParams.add(paramDeclNode);
 		MidMethodCallNode outOfBoundsCall = new MidMethodCallNode(
 				symbolTable.getStarbucksMethod(OUT_OF_BOUNDS_METHOD_NAME),
-				outOfBoundsParams, true);
+				outOfBoundsParams.size(), true);
 		// Set any old register.
 		outOfBoundsCall.setRegister(Reg.RAX);
 
@@ -965,7 +956,8 @@ public class MidVisitor {
 		params.add(methodParam);
 
 		MidNodeList printInstrList = MidVisitor
-				.makeMethodCall(new MidCalloutNode(AsmVisitor.PRINTF), new MidNodeList(), new MidNodeList(), new MidNodeList(), params, false);
+				.makeMethodCall(new MidCalloutNode(AsmVisitor.PRINTF, params
+						.size()), new MidNodeList(), new MidNodeList(), new MidNodeList(), params, false);
 		instrList.add(methodParam);
 		instrList.addAll(printInstrList);
 		instrList.add(new MidExitNode(1));
