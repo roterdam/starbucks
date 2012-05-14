@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
@@ -32,6 +34,13 @@ public class LivenessDoctor implements Transfer<LivenessState> {
 	public LivenessState apply(Block block, LivenessState s) {
 		LivenessState out = s.clone();
 		for (MidNode node : block.reverse()) {
+			LogCenter.debug("RA", "iterate: " + node);
+			if (node instanceof MidMethodCallNode) {
+				LogCenter.debug("DERP", ((MidMethodCallNode) node).getName());
+				LogCenter.debug("BEFORE", "" + node.getPrevNode());
+				LogCenter.debug("AFTER", "" + node.getNextNode());
+				assert node.getPrevNode() != node;
+			}
 			if (node instanceof MidUseNode) {
 				// Use.
 				out.processUse((MidUseNode) node);

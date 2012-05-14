@@ -361,7 +361,6 @@ public class MidVisitor {
 		instrList.add(errorLabelNode);
 		instrList
 				.addAll(makeMethodCall(outOfBoundsCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), outOfBoundsParams, false));
-		instrList.add(outOfBoundsCall);
 		instrList.add(skipErrorEnd);
 		return instrList;
 	}

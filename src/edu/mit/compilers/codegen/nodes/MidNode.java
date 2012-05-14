@@ -25,7 +25,8 @@ public abstract class MidNode {
 		return nextNode;
 	}
 	
-	public void setPrevNode(MidNode node) {
+	private void setPrevNode(MidNode node) {
+		assert node != this : "Setting a prev node to yourself wtf: " + this;
 		prevNode = node;
 	}
 	

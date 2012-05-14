@@ -10,7 +10,8 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 
-public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implements DataflowAnalysis<S> {
+public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
+		implements DataflowAnalysis<S> {
 
 	protected S startState;
 	private T transferFunction;
@@ -65,7 +66,8 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 			S out = getOutState(currentBlock);
 			S in = transferFunction.apply(currentBlock, out);
 			if (!in.equals(inStates.get(currentBlock))) {
-				LogCenter.debug("DCE", "Putting instate for b" + currentBlock.getBlockNum());
+				LogCenter.debug("DCE", "Putting instate for b"
+						+ currentBlock.getBlockNum());
 				inStates.put(currentBlock, in);
 				for (Block s : currentBlock.getPredecessors()) {
 					if (!worklist.contains(s)) {
@@ -73,6 +75,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 					}
 				}
 			}
+			LogCenter.debug("RA", "Done looking at block.");
 			// TODO: return with less perfect result if it takes a really long
 			// time?
 		}
@@ -85,7 +88,8 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 				.format("Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
 		for (Block m : b.getSuccessors()) {
-			assert inStates.get(m) != null : "Block not found in inStates: " + m;
+			assert inStates.get(m) != null : "Block not found in inStates: "
+					+ m;
 			out = inStates.get(m).join(out);
 		}
 		return out;
@@ -113,7 +117,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 	public S getAnalyzedState(Block block) {
 		return getOutState(block);
 	}
-	
+
 	@Override
 	public List<Block> getProcessedBlocks() {
 		List<Block> todoBlocks = new ArrayList<Block>();
