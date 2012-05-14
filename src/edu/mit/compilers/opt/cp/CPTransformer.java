@@ -7,6 +7,7 @@ import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
@@ -46,21 +47,37 @@ public class CPTransformer extends Transformer<CPState> {
 				if (regNode instanceof MidLoadNode) {
 					MidLoadNode loadNode = (MidLoadNode) regNode;
 					// Update definitions.
-					localState.processDef(loadNode.getMemoryNode(), destNode);
+					localState.genDef(loadNode.getMemoryNode(), destNode);
 				}
 			} else if (node instanceof MidLoadNode) {
 				// See if we can optimize.
 				MidMemoryNode memNode = ((MidLoadNode) node).getMemoryNode();
-				MidMemoryNode replacementNode = localState.lookup(memNode);
-				if (replacementNode != memNode) {
-					((MidLoadNode) node)
-							.updateMemoryNode(replacementNode, true);
-					Main.setHasAdditionalChanges();
+				MidLoadNode loadNode = (MidLoadNode) node;
+				MidMemoryNode replacementNode;
+
+				if (memNode instanceof MidArrayElementNode) {
+					MidArrayElementNode arrayElementNode = (MidArrayElementNode) memNode;
+					loadNode = arrayElementNode.getLoadNode();
+					memNode = loadNode.getMemoryNode();
+					LogCenter.debug("CP", "### Looking at mid array element node with memory " + memNode + "(" + memNode.isConstant() + ")");
+					if (memNode.isConstant()) {
+						arrayElementNode.setConstantNode((MidConstantNode) memNode);
+					}
+				} else {
+					replacementNode = localState.lookup(memNode);
+					if (replacementNode != memNode) {
+						loadNode.updateMemoryNode(replacementNode, true);
+						Main.setHasAdditionalChanges();
+					}
 				}
 			} else if (node instanceof MidCallNode) {
 				if (node instanceof MidMethodCallNode
 						&& ((MidMethodCallNode) node).isStarbucksCall()) {
 					continue;
+				}
+				LogCenter.debug("CP", "Is methodCall: " + (node instanceof MidMethodCallNode));
+				if (node instanceof MidMethodCallNode) {
+					LogCenter.debug("CP", "Is starbucks: " + ((MidMethodCallNode) node).isStarbucksCall());
 				}
 				LogCenter.debug("CP", "Resetting state because of "
 						+ ((MidCallNode) node).getName());

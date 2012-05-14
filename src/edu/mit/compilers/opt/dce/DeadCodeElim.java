@@ -46,7 +46,7 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 
 	}
 
-	 private void deleteSaveNodeEtAl(MidSaveNode saveNode) {
+	private void deleteSaveNodeEtAl(MidSaveNode saveNode) {
 		LogCenter.debug("DCE", "DELETING " + saveNode);
 		if (saveNode.getRegNode() instanceof MidLoadNode) {
 			saveNode.getRegNode().delete();
