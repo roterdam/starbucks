@@ -94,7 +94,6 @@ public class CPState implements State<CPState> {
 		}
 
 		LogCenter.debug("CP", "Processing def " + destNode + " <- " + fromNode);
-		LogCenter.debug("CP", HashMapUtils.toMapString(definitionMap));
 
 		MidMemoryNode lookedUpNode = definitionMap.get(fromNode);
 		if (lookedUpNode != null) {
