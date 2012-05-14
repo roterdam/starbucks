@@ -78,6 +78,7 @@ public class CPTransformer extends Transformer<CPState> {
 				LogCenter.debug("CP", "Resetting state because of "
 						+ ((MidCallNode) node).getName());
 				localState.reset();
+				LogCenter.debug("CP", "New state: " + localState);
 			}
 		}
 	}

@@ -242,8 +242,16 @@ public class CSEGlobalState implements State<CSEGlobalState>, Cloneable {
 	}
 
 	public void clearGlobals() {
-		for (MidMemoryNode memNode : new ArrayList<MidMemoryNode>(refToExprMap.keySet())) {
-			// Only clear references to global fields.
+		// Clear assignments to globals, a = t1 + t2.
+		for (MidMemoryNode memNode : new ArrayList<MidMemoryNode>(
+				refToExprMap.keySet())) {
+			if (memNode instanceof MidFieldDeclNode) {
+				killReferences(memNode);
+			}
+		}
+		// Clear references to globals, t1 = a + t2.
+		for (MidMemoryNode memNode : new ArrayList<MidMemoryNode>(
+				mentionMap.keySet())) {
 			if (memNode instanceof MidFieldDeclNode) {
 				killReferences(memNode);
 			}

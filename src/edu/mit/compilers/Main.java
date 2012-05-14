@@ -158,7 +158,7 @@ public class Main {
 						// CSE.
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
 							clearHasAdditionalChanges();
-
+							
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
@@ -167,6 +167,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
+							
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
@@ -175,7 +176,7 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-
+							
 //							 if (isEnabled(OPT_DCE)) {
 //							 LivenessDoctor doctor = new LivenessDoctor();
 //							 BackwardsAnalyzer<LivenessState, LivenessDoctor>
