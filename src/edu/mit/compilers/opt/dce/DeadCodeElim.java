@@ -37,19 +37,28 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 				// Use.
 				localState.processUse((MidUseNode) node);
 			} else if (node instanceof MidSaveNode) {
-				Set<MidUseNode> uses = localState.getUses(((MidSaveNode) node)
+				// a = a
+				MidSaveNode saveNode = (MidSaveNode) node;
+				if(saveNode.getRegNode() instanceof MidLoadNode){
+					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
+					if(saveNode.getDestinationNode() == loadNode.getMemoryNode()){
+						deleteSaveNodeEtAl(b, saveNode);
+					}
+				}
+				
+				Set<MidUseNode> uses = localState.getUses(saveNode
 						.getDestinationNode());
 				if (uses == null || uses.isEmpty()) {
 					// Delete dead code, only if dealing with local variables.
-					MidMemoryNode destNode = ((MidSaveNode) node)
+					MidMemoryNode destNode = (saveNode)
 							.getDestinationNode();
 					if (destNode instanceof MidLocalMemoryNode
 							|| destNode instanceof MidConstantNode) {
-						deleteSaveNodeEtAl(b, (MidSaveNode) node);
+						deleteSaveNodeEtAl(b, saveNode);
 					}
 				} else {
 					// Definition.
-					localState.processDefinition((MidSaveNode) node);
+					localState.processDefinition(saveNode);
 				}
 			}
 		}

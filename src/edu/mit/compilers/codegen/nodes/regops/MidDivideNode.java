@@ -42,5 +42,13 @@ public class MidDivideNode extends MidRDXOverwriter {
 	public long applyOperation(long left, long right) {
 		return left / right;
 	}
+	
+	@Override
+	public List<Identity> getIdentities() {
+		List<Identity> ids = new ArrayList<Identity>();
+		ids.add(new Identity(0,1, Identity.IdType.LEFT, Identity.OutType.IN));
+		ids.add(new Identity(1,0, Identity.IdType.RIGHT, Identity.OutType.OTHER));
+		return ids;
+	}
 
 }

@@ -69,4 +69,12 @@ public abstract class MidNode {
 		LogCenter.debug("DEL", "DELETING " + this + " (" + hashCode() + ")");
 		this.getPrevNode().setNextNode(this.getNextNode());
 	}
+	
+	public void replace(MidNode replacementNode){
+		if(replacementNode == this) {
+			return;
+		}
+		this.getPrevNode().setNextNode(replacementNode);
+		replacementNode.setNextNode(this.getNextNode());
+	}
 }
