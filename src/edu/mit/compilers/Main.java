@@ -130,16 +130,22 @@ public class Main {
 							|| CLI.target == Action.ASSEMBLY) {
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
-						
+
 						// Bit masks for options.
 						int options = 0;
-						options = (CLI.optOn) 			? options | Options.OPTS_ON : options;
-						options = (isEnabled(OPT_CSE)) 	? options | Options.CSE : options;
-						options = (isEnabled(OPT_CP)) 	? options | Options.CP : options;
-						options = (isEnabled(OPT_DCE)) 	? options | Options.DCE : options;
-						options = (isEnabled(OPT_CM)) 	? options | Options.CM : options;
-						options = (isEnabled(OPT_RA)) 	? options | Options.RA : options;
-						
+						options = (CLI.optOn) ? options | Options.OPTS_ON
+								: options;
+						options = (isEnabled(OPT_CSE)) ? options | Options.CSE
+								: options;
+						options = (isEnabled(OPT_CP)) ? options | Options.CP
+								: options;
+						options = (isEnabled(OPT_DCE)) ? options | Options.DCE
+								: options;
+						options = (isEnabled(OPT_CM)) ? options | Options.CM
+								: options;
+						options = (isEnabled(OPT_RA)) ? options | Options.RA
+								: options;
+
 						Optimizer optimizer = Optimizer.getOptimizer(options);
 						optimizer.go(symbolTable, CLI.outfile);
 

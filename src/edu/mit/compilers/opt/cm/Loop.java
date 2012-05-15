@@ -44,7 +44,12 @@ public class Loop implements Comparable<Loop> {
 	@Override
 	public int compareTo(Loop d) {
 		int depth = this.getDepth();
-		int other = d.getDepth();
+		int other;
+		if (d == null) {
+			other = 0; 
+		} else {
+			other = d.getDepth();
+		}
 		if (depth == other) { 
 			return 0;
 		} else if (depth > other) {

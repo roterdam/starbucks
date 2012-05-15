@@ -9,6 +9,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
+import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.HashMapUtils;
 import edu.mit.compilers.opt.State;
@@ -16,13 +17,16 @@ import edu.mit.compilers.opt.State;
 public class CMState implements State<CMState> {
 	
 	HashMap<Block, Loop> nesting;
+	HashMap<MidSaveNode, Block> defBlock;
 	
 	public CMState() {
 		this.nesting = new HashMap<Block, Loop>();
+		this.defBlock = new HashMap<MidSaveNode, Block>();
 	}
 	
-	public CMState(HashMap<Block, Loop> nesting) {
+	public CMState(HashMap<Block, Loop> nesting, HashMap<MidSaveNode, Block> defBlock) {
 		this.nesting = nesting;
+		this.defBlock = defBlock;
 	}
 	
 	@Override
@@ -40,14 +44,17 @@ public class CMState implements State<CMState> {
 		if (s == null) {
 			return this.clone();
 		}
-		HashMap<Block, Loop> in = new HashMap<Block, Loop>();
-		in.putAll(nesting);
-		in.putAll(s.getNesting());
-		return new CMState(in);
+		HashMap<Block, Loop> inNesting = new HashMap<Block, Loop>();
+		HashMap<MidSaveNode, Block> inDefBlock = new HashMap<MidSaveNode, Block>();
+		inNesting.putAll(nesting);
+		inNesting.putAll(s.getNesting());
+		inDefBlock.putAll(defBlock);
+		inDefBlock.putAll(s.getDefBlock());
+		return new CMState(inNesting, inDefBlock);
 	}
 	
 	public CMState clone() {
-		return new CMState(HashMapUtils.deepClone(nesting));
+		return new CMState(HashMapUtils.deepClone(nesting), HashMapUtils.deepClone(defBlock));
 	}
 	
 	public Loop getLoop(Block b) {
@@ -56,6 +63,10 @@ public class CMState implements State<CMState> {
 	
 	public HashMap<Block, Loop> getNesting() {
 		return nesting;
+	}
+	
+	public HashMap<MidSaveNode, Block> getDefBlock() {
+		return defBlock;
 	}
 
 	public void processBlock(Block b, int depth) {
@@ -69,7 +80,8 @@ public class CMState implements State<CMState> {
 		Set<Block> visited = new HashSet<Block>();
 		Stack<Block> agenda = new Stack<Block>();
 
-		// Initial case
+		// Do initial case separately to avoid infinite
+		// recursion, fix this later
 		Loop l = new Loop(depth);
 		l.addBlock(b);
 		agenda.addAll(b.getSuccessors());
@@ -100,8 +112,8 @@ public class CMState implements State<CMState> {
 		LogCenter.debug("CM", "Num Blocks " + l.getBlocks().size());
 		for (Block e : l.getBlocks()) {
 			LogCenter.debug("CM", "Block " + e.getHead());
+			nesting.put(e, l);
 		}
-		nesting.put(b, l);
 	}
 	
 	@Override
@@ -110,7 +122,11 @@ public class CMState implements State<CMState> {
 			return false;
 		}
 		CMState global = (CMState) o;
-		return nesting.equals(global.getNesting());
+		return nesting.equals(global.getNesting()) && defBlock.equals(global.getDefBlock());
+	}
+
+	public void processDef(MidSaveNode node, Block b) {
+		defBlock.put(node, b);
 	}
 	
 }
