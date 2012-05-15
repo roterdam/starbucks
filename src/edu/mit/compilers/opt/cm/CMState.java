@@ -112,8 +112,8 @@ public class CMState implements State<CMState> {
 		LogCenter.debug("CM", "Num Blocks " + l.getBlocks().size());
 		for (Block e : l.getBlocks()) {
 			LogCenter.debug("CM", "Block " + e.getHead());
+			nesting.put(e, l);
 		}
-		nesting.put(b, l);
 	}
 	
 	@Override

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -52,14 +53,18 @@ public class CMTransformer extends Transformer<CMState> {
 		}
 		
 		Loop l = local.getLoop(block);
+		
 		if (l == null) {
+			LogCenter.debug("CM", "" + block.getHead() + " not a loop, skipping");
 			return;
 		}
+		
 		
 		boolean invariant = false;
 		
 		for (MidNode node : block) {
-			if (node instanceof MidSaveNode && ((MidSaveNode) node).savesRegister()) {
+			LogCenter.debug("CM", "Checking " + node.toString() + " for invariance");
+			if (node instanceof MidSaveNode) {
 				MidRegisterNode reg = (MidRegisterNode) ((MidSaveNode) node).getRegNode();
 				if (reg instanceof MidArithmeticNode) {
 					MidLoadNode left = ((MidArithmeticNode) reg).getLeftOperand();
@@ -83,7 +88,7 @@ public class CMTransformer extends Transformer<CMState> {
 					}
 				}
 				
-				LogCenter.debug("CM", "" + reg.toString() + " is invariant? " + invariant);
+				LogCenter.debug("CM", "" + node.toString() + " is invariant? " + invariant);
 			}
 		}
 	}
