@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.dce;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
@@ -59,6 +60,9 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 	private void deleteSaveNodeEtAl(Block block, MidSaveNode saveNode) {
 		LogCenter.debug("DCE", "DELETING " + saveNode);
 		if (saveNode.savesRegister()) {
+			if (saveNode.getRegNode() instanceof MidCallNode) {
+				block.delete(saveNode);
+			}
 			if (saveNode.getRegNode() instanceof MidLoadNode) {
 				AnalyzerHelpers.completeDeleteAssignment(saveNode, block);
 			}
