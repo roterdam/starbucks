@@ -20,7 +20,7 @@ import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
  * @author joshma
  * 
  */
-public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
+public abstract class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 
 	private String name;
 	private List<Web> liveWebs;
@@ -72,9 +72,15 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 	public List<ASM> toASM() {
 		return AsmVisitor.methodCall(this, saveValueDisabled);
 	}
+	
+	public boolean saveValueDisabled() {
+		return saveValueDisabled;
+	}
 
 	public void disableSaveValue() {
 		this.saveValueDisabled = true;
 	}
+	
+	abstract public boolean isStarbucksCall();
 
 }

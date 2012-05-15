@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -90,6 +91,12 @@ public class MemoryManager {
 				}
 				if (m instanceof MidRegisterNode
 						&& !((MidRegisterNode) m).hasRegister()) {
+					if (m instanceof MidCallNode) {
+						if (!((MidCallNode) m).saveValueDisabled()) {
+							((MidRegisterNode) m)
+									.setRegister(allocTempRegister());
+						}
+					}
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}
 				if (m instanceof MidSaveNode

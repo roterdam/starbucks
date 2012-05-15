@@ -131,7 +131,7 @@ public class MidVisitor {
 
 	public static MidNodeList makeMethodCall(MidCallNode methodNode,
 			MidNodeList paramExpr, MidNodeList preCalls, MidNodeList postCalls,
-			List<MidMemoryNode> paramMemoryNodes, boolean saveResult) {
+			List<MidMemoryNode> paramMemoryNodes) {
 		MidNodeList out = new MidNodeList();
 		out.addAll(preCalls);
 
@@ -184,11 +184,11 @@ public class MidVisitor {
 		// Pop caller-saved.
 		out.add(new MidRestoreRegLaterNode(methodNode));
 
-		if (saveResult) {
-			MidTempDeclNode tempDeclNode = new MidTempDeclNode();
-			out.add(tempDeclNode);
-			out.add(new MidSaveNode(methodNode, tempDeclNode));
-		}
+		// Save output.
+		MidTempDeclNode tempDeclNode = new MidTempDeclNode();
+		out.add(tempDeclNode);
+		out.add(new MidSaveNode(methodNode, tempDeclNode));
+
 		return out;
 	}
 
@@ -221,7 +221,7 @@ public class MidVisitor {
 			}
 		}
 
-		return makeMethodCall(methodNode, exprParamList, getPreCalls(node, symbolTable), getPostCalls(node, symbolTable), paramMemoryNodes, true);
+		return makeMethodCall(methodNode, exprParamList, getPreCalls(node, symbolTable), getPostCalls(node, symbolTable), paramMemoryNodes);
 	}
 
 	public static MidNodeList visit(METHOD_CALLNode node,
@@ -300,7 +300,7 @@ public class MidVisitor {
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
 		instrList
-				.addAll(makeMethodCall(divideByZeroCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), divideByZeroParams, false));
+				.addAll(makeMethodCall(divideByZeroCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), divideByZeroParams));
 		instrList.add(skipErrorEnd);
 		return instrList;
 	}
@@ -361,7 +361,7 @@ public class MidVisitor {
 		instrList.add(skipErrorNode);
 		instrList.add(errorLabelNode);
 		instrList
-				.addAll(makeMethodCall(outOfBoundsCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), outOfBoundsParams, false));
+				.addAll(makeMethodCall(outOfBoundsCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), outOfBoundsParams));
 		instrList.add(skipErrorEnd);
 		return instrList;
 	}
@@ -967,7 +967,7 @@ public class MidVisitor {
 
 		MidNodeList printInstrList = MidVisitor
 				.makeMethodCall(new MidCalloutNode(AsmVisitor.PRINTF, params
-						.size()), new MidNodeList(), new MidNodeList(), new MidNodeList(), params, false);
+						.size()), new MidNodeList(), new MidNodeList(), new MidNodeList(), params);
 		instrList.add(methodParam);
 		instrList.addAll(printInstrList);
 		instrList.add(new MidExitNode(1));
