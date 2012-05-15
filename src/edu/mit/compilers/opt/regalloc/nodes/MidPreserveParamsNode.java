@@ -21,15 +21,22 @@ import edu.mit.compilers.codegen.nodes.regops.MidParamLoadNode;
 public class MidPreserveParamsNode extends MidNode {
 
 	private final List<MidParamLoadNode> paramNodes;
+	private int pushedParamCount;
 
 	public MidPreserveParamsNode(List<MidParamLoadNode> paramNodes) {
 		this.paramNodes = paramNodes;
+		for (MidParamLoadNode paramNode : paramNodes) {
+			paramNode.registerPreserveNode(this);
+		}
+		pushedParamCount = 0;
 	}
 
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 
+		List<ASM> regParams = new ArrayList<ASM>();
+		List<ASM> stackParams = new ArrayList<ASM>();
 		for (MidParamLoadNode paramNode : paramNodes) {
 			Reg fromReg = paramNode.getAllocatedRegister();
 			if (fromReg == null) {
@@ -37,10 +44,19 @@ public class MidPreserveParamsNode extends MidNode {
 			}
 			Reg destReg = paramNode.getRegister();
 			if (regWillBeOverwritten(fromReg, destReg)) {
-				out.add(0, new OpASM("Save from overwriting.", OpCode.PUSH,
-						fromReg.name()));
+				OpASM opASM = new OpASM("Save from overwriting.", OpCode.PUSH,
+						fromReg.name());
+				if (findRegisterIndex(destReg) == -1) {
+					stackParams.add(opASM);
+				} else {
+					regParams.add(0, opASM);
+				}
+				pushedParamCount++;
 			}
 		}
+		
+		out.addAll(stackParams);
+		out.addAll(regParams);
 
 		return out;
 	}
@@ -67,13 +83,27 @@ public class MidPreserveParamsNode extends MidNode {
 		return (fromRegIndex < destRegIndex);
 	}
 
-	private static int findRegisterIndex(Reg reg) {
+	public static int findRegisterIndex(Reg reg) {
 		for (int i = 0; i < AsmVisitor.paramRegisters.length; i++) {
 			if (AsmVisitor.paramRegisters[i] == reg) {
 				return i;
 			}
 		}
 		return -1;
+	}
+
+	private int stackOffset = 0;
+
+	public void shiftOffset() {
+		stackOffset += 8;
+	}
+
+	public int getOffset() {
+		return stackOffset;
+	}
+
+	public int getPushedParamCount() {
+		return pushedParamCount;
 	}
 
 }
