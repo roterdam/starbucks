@@ -46,9 +46,9 @@ public class Optimizer {
 		optsOn = (options & Options.OPTS_ON) == Options.OPTS_ON;
 		enableCSE = (options & Options.CSE) == Options.CSE;
 		enableCP = (options & Options.CP) == Options.CP;
-		enableDCE = (options & Options.DCE) == Options.CP;
-		enableCM = (options & Options.CM) == Options.CP;
-		enableRA = (options & Options.RA) == Options.CP;
+		enableDCE = (options & Options.DCE) == Options.DCE;
+		enableCM = (options & Options.CM) == Options.CM;
+		enableRA = (options & Options.RA) == Options.RA;
 	}
 
 	public void go(MidSymbolTable symbolTable, String outputFile) {
