@@ -1,6 +1,5 @@
 package edu.mit.compilers.opt.cm;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
