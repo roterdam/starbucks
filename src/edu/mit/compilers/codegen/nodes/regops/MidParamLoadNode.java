@@ -30,26 +30,27 @@ public class MidParamLoadNode extends MidLoadNode {
 		assert preserveNode != null : "Make sure preserve node is set in MidVisitor.";
 		Reg fromReg = getAllocatedRegister();
 		Reg destReg = getRegister();
+
+		List<ASM> out;
+		if (fromReg != null
+				&& MidPreserveParamsNode.regWillBeOverwritten(fromReg, destReg)) {
+			out = new ArrayList<ASM>();
+			out.add(new OpASM(String
+					.format("Phew, reg was saved for us. (%s <- %s)", destReg
+							.name(), fromReg.name()), OpCode.MOV, destReg
+					.name(), String.format("qword [ RSP + %d ]", preserveNode
+					.getOffset())));
+			preserveNode.shiftOffset();
+		} else {
+			out = super.toASM();
+		}
 		int destRegIndex = MidPreserveParamsNode.findRegisterIndex(destReg);
 		if (destRegIndex == -1) {
 			// We'll be pushing to the stack, so we need to adjust the stack
 			// offset for preserved params.
 			preserveNode.shiftOffset();
 		}
-		if (fromReg != null) {
-			if (MidPreserveParamsNode.regWillBeOverwritten(fromReg, destReg)) {
-				List<ASM> out = new ArrayList<ASM>();
-				out.add(new OpASM(
-						String.format("Phew, reg was saved for us. (%s <- %s)", destReg
-								.name(), fromReg.name()), OpCode.MOV, destReg
-								.name(), String
-								.format("qword [ RSP + %d ]", preserveNode
-										.getOffset())));
-				preserveNode.shiftOffset();
-				return out;
-			}
-		}
-		return super.toASM();
+		return out;
 	}
 
 }
