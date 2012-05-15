@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.cse;
 import java.util.ArrayList;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.Main;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -16,6 +15,7 @@ import edu.mit.compilers.opt.AnalyzerHelpers;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transformer;
 import edu.mit.compilers.opt.Value;
+import edu.mit.compilers.opt.meta.Optimizer;
 
 public class CSETransformer extends Transformer<CSEGlobalState> {
 
@@ -121,7 +121,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			newSaveNode.insertAfter(loadTempNode);
 			AnalyzerHelpers.completeDeleteUnary(saveNode, block);
 
-			Main.setHasAdditionalChanges();
+			Optimizer.setHasAdditionalChanges();
 		}
 	}
 
@@ -164,7 +164,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			newSaveNode.insertAfter(loadTempNode);
 			AnalyzerHelpers.completeDeleteBinary(saveNode, block);
 
-			Main.setHasAdditionalChanges();
+			Optimizer.setHasAdditionalChanges();
 		}
 	}
 

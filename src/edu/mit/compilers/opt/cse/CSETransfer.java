@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.Main;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -20,6 +19,7 @@ import edu.mit.compilers.opt.Transfer;
 import edu.mit.compilers.opt.cse.data.BinaryGlobalExpr;
 import edu.mit.compilers.opt.cse.data.GlobalExpr;
 import edu.mit.compilers.opt.cse.data.LeafGlobalExpr;
+import edu.mit.compilers.opt.meta.Optimizer;
 
 public class CSETransfer implements Transfer<CSEGlobalState> {
 
@@ -127,7 +127,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				newSaveNode.insertAfter(loadTempNode);
 				AnalyzerHelpers.completeDeleteUnary(saveNode, block);
 				modified = true;
-				Main.setHasAdditionalChanges();
+				Optimizer.setHasAdditionalChanges();
 			}
 		}
 
@@ -169,7 +169,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				newSaveNode.insertAfter(loadTempNode);
 				AnalyzerHelpers.completeDeleteBinary(saveNode, block);
 				modified = true;
-				Main.setHasAdditionalChanges();
+				Optimizer.setHasAdditionalChanges();
 			}
 		}
 

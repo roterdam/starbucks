@@ -1,15 +1,12 @@
 package edu.mit.compilers;
 
 import java.io.DataInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.codegen.AsmVisitor;
-import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
@@ -18,21 +15,8 @@ import edu.mit.compilers.grammar.DecafParserTokenTypes;
 import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
-import edu.mit.compilers.opt.Analyzer;
-import edu.mit.compilers.opt.BackwardsAnalyzer;
-import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
-import edu.mit.compilers.opt.cm.CMState;
-import edu.mit.compilers.opt.cm.CMTransfer;
-import edu.mit.compilers.opt.cp.CPState;
-import edu.mit.compilers.opt.cp.CPTransfer;
-import edu.mit.compilers.opt.cp.CPTransformer;
-import edu.mit.compilers.opt.cse.CSEGlobalState;
-import edu.mit.compilers.opt.cse.CSETransfer;
-import edu.mit.compilers.opt.cse.CSETransformer;
-import edu.mit.compilers.opt.dce.DeadCodeElim;
-import edu.mit.compilers.opt.regalloc.LivenessDoctor;
-import edu.mit.compilers.opt.regalloc.LivenessState;
-import edu.mit.compilers.opt.regalloc.RegisterAllocator;
+import edu.mit.compilers.opt.meta.Optimizer;
+import edu.mit.compilers.opt.meta.Options;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -42,21 +26,8 @@ public class Main {
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
 	private static final String OPT_CM = "cm";
-	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
 			OPT_DCE, OPT_CM };
-
-	// Statically track whether or not we're making optimizations.
-	private static boolean hasAdditionalChanges = false;
-	public static int x;
-
-	public static void setHasAdditionalChanges() {
-		hasAdditionalChanges = true;
-	}
-
-	private static void clearHasAdditionalChanges() {
-		hasAdditionalChanges = false;
-	}
 
 	public static void main(String[] args) {
 		try {
@@ -159,75 +130,18 @@ public class Main {
 							|| CLI.target == Action.ASSEMBLY) {
 						MidSymbolTable symbolTable = MidVisitor
 								.createMidLevelIR((CLASSNode) parser.getAST());
-
-						setHasAdditionalChanges();
-						x = 0;
-						// Run CSE + CP + DCE as long as there are changes,
-						// since each round of CP may help the next round's
-						// CSE.
-						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
-							LogCenter.debug("DCE", "Looppin again");
-							clearHasAdditionalChanges();
-
-							if (isEnabled(OPT_CSE)) {
-								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
-										new CSEGlobalState().getInitialState(),
-										new CSETransfer());
-								analyzer.analyze(symbolTable);
-								CSETransformer localAnalyzer = new CSETransformer();
-								localAnalyzer.analyze(analyzer, symbolTable);
-							}
-
-							if (isEnabled(OPT_CP)) {
-								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
-										new CPState().getInitialState(),
-										new CPTransfer());
-								analyzer.analyze(symbolTable);
-								CPTransformer localAnalyzer = new CPTransformer();
-								localAnalyzer.analyze(analyzer, symbolTable);
-							}
-
-							if (isEnabled(OPT_DCE)) {
-								LogCenter.debug("DCE", "Starting DCE!");
-								LivenessDoctor doctor = new LivenessDoctor();
-								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
-										new LivenessState().getBottomState(),
-										doctor);
-								analyzer.analyze(symbolTable);
-								DeadCodeElim dce = new DeadCodeElim();
-								dce.analyze(analyzer, symbolTable);
-							}
-
-							if (isEnabled(OPT_CM)) {
-								Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
-										new CMState().getInitialState(),
-										new CMTransfer());
-								analyzer.analyze(symbolTable);
-							}
-
-							x++;
-						}
-
-						if (CLI.optOn) {
-							MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
-							simplifier.analyze(symbolTable);
-						}
-
-						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
-								+ (x - 1) + " times.");
-
-						if (isEnabled(OPT_RA)) {
-							RegisterAllocator allocator = new RegisterAllocator(
-									symbolTable);
-							allocator.run();
-						}
-
-						if (CLI.dot) {
-							System.out.println(symbolTable.toDotSyntax(true));
-						} else if (CLI.target == Action.ASSEMBLY) {
-							MemoryManager.assignStorage(symbolTable);
-							writeToOutput(AsmVisitor.generate(symbolTable));
-						}
+						
+						// Bit masks for options.
+						int options = 0;
+						options = (CLI.optOn) 			? options | Options.OPTS_ON : options;
+						options = (isEnabled(OPT_CSE)) 	? options | Options.CSE : options;
+						options = (isEnabled(OPT_CP)) 	? options | Options.CP : options;
+						options = (isEnabled(OPT_DCE)) 	? options | Options.DCE : options;
+						options = (isEnabled(OPT_CM)) 	? options | Options.CM : options;
+						options = (isEnabled(OPT_RA)) 	? options | Options.RA : options;
+						
+						Optimizer optimizer = Optimizer.getOptimizer(options);
+						optimizer.go(symbolTable, CLI.outfile);
 
 					}
 				}
@@ -257,18 +171,6 @@ public class Main {
 			}
 		}
 		return CLI.opts[optIndex];
-	}
-
-	static private void writeToOutput(String text) {
-		FileOutputStream outStream;
-		try {
-			outStream = new FileOutputStream(CLI.outfile);
-			outStream.write(text.getBytes());
-			outStream.close();
-		} catch (Exception e) {
-			System.out.println(String
-					.format("Could not open file %s for output.", CLI.outfile));
-		}
 	}
 
 }
