@@ -21,6 +21,7 @@ public class MidNodeList implements List<MidNode> {
 	public MidNodeList() {
 		head = new FillerMidNode();
 		tail = head;
+		size = 1;
 	}
 
 	/**
@@ -50,15 +51,18 @@ public class MidNodeList implements List<MidNode> {
 	public boolean addAll(MidNodeList list) {
 		if (list == null) {
 			return false;
-		} else if (this.isEmpty()) {
+		} else if (this.isEmpty()) { //never happens
+			assert false;
 			head = list.getHead();
 			tail = list.getTail();
 			size = list.size();
-		} else if (list.isEmpty()) {
+		} else if (list.isEmpty()) { // never happens
+			assert false;
 		} else {
-			tail.setNextNode(list.getHead());
+			assert list.getHead() instanceof FillerMidNode;
+			tail.setNextNode(list.getHead().getNextNode());
 			tail = list.getTail();
-			size += list.size();
+			size += list.size()-1;
 		}
 
 		return true;
@@ -125,9 +129,14 @@ public class MidNodeList implements List<MidNode> {
 	public MidNode set(int location, MidNode object) {
 		throw new java.lang.UnsupportedOperationException();
 	}
-
+	
+	@Override
 	public int size() {
 		return size;
+	}
+	
+	public int instructionSize() {
+		return size-1;
 	}
 
 	public List<MidNode> subList(int start, int end) {
