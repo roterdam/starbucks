@@ -21,6 +21,8 @@ import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
+import edu.mit.compilers.opt.cm.CMState;
+import edu.mit.compilers.opt.cm.CMTransfer;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -39,9 +41,10 @@ public class Main {
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
+	private static final String OPT_CM = "cm";
 	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
-			OPT_DCE };
+			OPT_DCE, OPT_CM };
 
 	// Statically track whether or not we're making optimizations.
 	private static boolean hasAdditionalChanges = false;
@@ -166,14 +169,14 @@ public class Main {
 							LogCenter.debug("DCE", "Looppin again");
 							clearHasAdditionalChanges();
 
-//							if (isEnabled(OPT_CSE)) {
-//								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
-//										new CSEGlobalState().getInitialState(),
-//										new CSETransfer());
-//								analyzer.analyze(symbolTable);
-//								CSETransformer localAnalyzer = new CSETransformer();
-//								localAnalyzer.analyze(analyzer, symbolTable);
-//							}
+							if (isEnabled(OPT_CSE)) {
+								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
+										new CSEGlobalState().getInitialState(),
+										new CSETransfer());
+								analyzer.analyze(symbolTable);
+								CSETransformer localAnalyzer = new CSETransformer();
+								localAnalyzer.analyze(analyzer, symbolTable);
+							}
 
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
@@ -194,6 +197,14 @@ public class Main {
 								DeadCodeElim dce = new DeadCodeElim();
 								dce.analyze(analyzer, symbolTable);
 							}
+
+							if (isEnabled(OPT_CM)) {
+								Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
+										new CMState().getInitialState(),
+										new CMTransfer());
+								analyzer.analyze(symbolTable);
+							}
+
 							x++;
 						}
 

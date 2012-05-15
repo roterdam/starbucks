@@ -20,7 +20,7 @@ public class MidLabelManager {
 	
 	public static MidLabelNode getLabel(LabelType type) {
 		tracker.put(type, tracker.get(type) + 1);
-		return new MidLabelNode(type.toString().toLowerCase()
+		return new MidLabelNode(type, type.toString().toLowerCase()
 				+ tracker.get(type));
 	}
 

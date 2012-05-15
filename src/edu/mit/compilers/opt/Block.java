@@ -50,7 +50,7 @@ public class Block implements Iterable<MidNode> {
 		this.tail = t;
 	}
 
-	private MidNode getTail() {
+	public MidNode getTail() {
 		return tail;
 	}
 
