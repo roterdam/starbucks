@@ -139,16 +139,20 @@ public class MemoryManager {
 				return r;
 			}
 		}
-		// return Reg.R9;
 		throw new RuntimeException("Ran out of registers somehow!.");
 	}
 
 	public static void deallocTempRegister(Reg r) {
-		tempRegisterMap.put(r, true);
-		assert r != null : "Why is this register null?";
-		LogCenter.debug("MEM", " dealloc " + r.name());
-		LogCenter.debug("MEM", tempRegisterMap.toString());
-		LogCenter.debug("MEM", "");
+		if (tempRegisterMap.containsKey(r)) {
+			// Only deallocate it if it was ever allocated in the first place.
+			// Sometimes we accidentally deallocate something like RAX for a
+			// custom call and we don't want it to be re-used.
+			tempRegisterMap.put(r, true);
+			assert r != null : "Why is this register null?";
+			LogCenter.debug("MEM", " dealloc " + r.name());
+			LogCenter.debug("MEM", tempRegisterMap.toString());
+			LogCenter.debug("MEM", "");
+		}
 	}
 
 	private static void deallocAllTempRegisters() {
