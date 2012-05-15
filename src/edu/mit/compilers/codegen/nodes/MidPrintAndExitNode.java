@@ -28,7 +28,7 @@ public class MidPrintAndExitNode extends MidNode {
 	public List<ASM> toASM() {
 		MidNodeList nodeInstr = MidVisitor
 				.makeMethodCall(new MidCalloutNode(AsmVisitor.PRINTF, params
-						.size()), new MidNodeList(), new MidNodeList(), new MidNodeList(), params, false);
+						.size()), new MidNodeList(), new MidNodeList(), new MidNodeList(), params);
 		return nodeInstr.toASM();
 		// return new ArrayList<ASM>();
 	}
