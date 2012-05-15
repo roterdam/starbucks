@@ -42,7 +42,7 @@ public class Block implements Iterable<MidNode> {
 		delNode.delete();
 	}
 
-	private MidNode getHead() {
+	MidNode getHead() {
 		return head;
 	}
 

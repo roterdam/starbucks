@@ -21,6 +21,7 @@ public class MidNodeList implements List<MidNode> {
 	public MidNodeList() {
 		head = new FillerMidNode();
 		tail = head;
+		size = 1;
 	}
 
 	/**

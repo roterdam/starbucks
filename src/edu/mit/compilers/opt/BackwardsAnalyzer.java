@@ -20,10 +20,6 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 	public BackwardsAnalyzer(S s, T t) {
 		startState = s;
 		transferFunction = t;
-		initialize();
-	}
-
-	private void initialize() {
 		inStates = new HashMap<Block, S>();
 	}
 
@@ -36,7 +32,6 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 	}
 
 	private void analyzeMidNodeList(MidNodeList nodeList) {
-		initialize();
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		LogCenter
@@ -57,17 +52,9 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 
 		while (!worklist.isEmpty()) {
 			Block currentBlock = worklist.remove(0);
-			LogCenter.debug("RA", "");
-			LogCenter.debug("RA", "######################");
-			LogCenter.debug("RA", "######################");
-			LogCenter.debug("RA", "REVERSE ANALYZER IS LOOKING AT "
-					+ currentBlock);
-			LogCenter.debug("RA", "WL: " + worklist);
 			S out = getOutState(currentBlock);
 			S in = transferFunction.apply(currentBlock, out);
 			if (!in.equals(inStates.get(currentBlock))) {
-				LogCenter.debug("DCE", "Putting instate for b"
-						+ currentBlock.getBlockNum());
 				inStates.put(currentBlock, in);
 				for (Block s : currentBlock.getPredecessors()) {
 					if (!worklist.contains(s)) {
@@ -76,8 +63,6 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 				}
 			}
 			LogCenter.debug("RA", "Done looking at block.");
-			// TODO: return with less perfect result if it takes a really long
-			// time?
 		}
 	}
 

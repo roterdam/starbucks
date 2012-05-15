@@ -166,14 +166,14 @@ public class Main {
 							LogCenter.debug("DCE", "Looppin again");
 							clearHasAdditionalChanges();
 
-							if (isEnabled(OPT_CSE)) {
-								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
-										new CSEGlobalState().getInitialState(),
-										new CSETransfer());
-								analyzer.analyze(symbolTable);
-								CSETransformer localAnalyzer = new CSETransformer();
-								localAnalyzer.analyze(analyzer, symbolTable);
-							}
+//							if (isEnabled(OPT_CSE)) {
+//								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
+//										new CSEGlobalState().getInitialState(),
+//										new CSETransfer());
+//								analyzer.analyze(symbolTable);
+//								CSETransformer localAnalyzer = new CSETransformer();
+//								localAnalyzer.analyze(analyzer, symbolTable);
+//							}
 
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
@@ -183,14 +183,14 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+
 							if (isEnabled(OPT_DCE)) {
+								LogCenter.debug("DCE", "Starting DCE!");
 								LivenessDoctor doctor = new LivenessDoctor();
 								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
 										new LivenessState().getBottomState(),
 										doctor);
 								analyzer.analyze(symbolTable);
-								LogCenter.debug("DCE", "Starting DCE!");
 								DeadCodeElim dce = new DeadCodeElim();
 								dce.analyze(analyzer, symbolTable);
 							}
