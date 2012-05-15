@@ -179,10 +179,10 @@ public class MidVisitor {
 			out.add(new MidMoveSPNode(stackParams));
 		}
 
-		// Pop caller-saved.
-		out.add(new MidRestoreRegLaterNode(methodNode));
 		// Pop preserved params.
 		out.add(new MidUndoPreserveParamsNode(preserveParamsNode));
+		// Pop caller-saved.
+		out.add(new MidRestoreRegLaterNode(methodNode));
 
 		if (saveResult) {
 			MidTempDeclNode tempDeclNode = new MidTempDeclNode();
