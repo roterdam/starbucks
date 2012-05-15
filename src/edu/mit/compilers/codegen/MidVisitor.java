@@ -77,6 +77,7 @@ import edu.mit.compilers.grammar.tokens.WHILENode;
 import edu.mit.compilers.opt.regalloc.nodes.MidPreserveParamsNode;
 import edu.mit.compilers.opt.regalloc.nodes.MidRestoreRegLaterNode;
 import edu.mit.compilers.opt.regalloc.nodes.MidSaveRegLaterNode;
+import edu.mit.compilers.opt.regalloc.nodes.MidUndoPreserveParamsNode;
 
 public class MidVisitor {
 
@@ -138,7 +139,7 @@ public class MidVisitor {
 		MidNodeList paramPushStack = new MidNodeList();
 
 		List<MidParamLoadNode> preservationList = new ArrayList<MidParamLoadNode>();
-		
+
 		for (int i = 0; i < paramMemoryNodes.size(); i++) {
 			MidMemoryNode midMemNode = paramMemoryNodes.get(i);
 			MidParamLoadNode paramLoadNode = new MidParamLoadNode(midMemNode);
@@ -159,10 +160,12 @@ public class MidVisitor {
 
 		out.addAll(postCalls);
 		out.addAll(paramExpr);
-		
+
 		// Push caller-saved.
 		out.add(new MidSaveRegLaterNode(methodNode));
-		out.add(new MidPreserveParamsNode(preservationList));
+		MidPreserveParamsNode preserveParamsNode = new MidPreserveParamsNode(
+				preservationList);
+		out.add(preserveParamsNode);
 		out.addAll(paramLoadNodes);
 		out.addAll(paramPushStack);
 
@@ -178,6 +181,8 @@ public class MidVisitor {
 
 		// Pop caller-saved.
 		out.add(new MidRestoreRegLaterNode(methodNode));
+		// Pop preserved params.
+		out.add(new MidUndoPreserveParamsNode(preserveParamsNode));
 
 		if (saveResult) {
 			MidTempDeclNode tempDeclNode = new MidTempDeclNode();
