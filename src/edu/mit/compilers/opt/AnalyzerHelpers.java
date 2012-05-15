@@ -2,6 +2,7 @@ package edu.mit.compilers.opt;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -74,5 +75,13 @@ public class AnalyzerHelpers {
 		MidNode insertAfter = insertBefore.getNextNode();
 		insertAfter.insertNodeListAfter(replaceList);
 	}	
+
+	public static void completeDeleteMethodSave(MidSaveNode saveNode,
+			Block block) {
+		assert saveNode.getRegNode() instanceof MidCallNode;
+		block.delete(saveNode);
+		MidCallNode callNode = (MidCallNode) saveNode.getRegNode();
+		callNode.disableSaveValue();
+	}
 
 }

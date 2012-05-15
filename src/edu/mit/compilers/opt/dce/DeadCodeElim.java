@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.dce;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
@@ -68,16 +69,18 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 	private void deleteSaveNodeEtAl(Block block, MidSaveNode saveNode) {
 		LogCenter.debug("DCE", "DELETING " + saveNode);
 		if (saveNode.savesRegister()) {
-			if (saveNode.getRegNode() instanceof MidLoadNode) {
+			if (saveNode.getRegNode() instanceof MidCallNode) {
+				AnalyzerHelpers.completeDeleteMethodSave(saveNode, block);
+			} else if (saveNode.getRegNode() instanceof MidLoadNode) {
 				AnalyzerHelpers.completeDeleteAssignment(saveNode, block);
-			}
-			// a = -x
-			if (saveNode.getRegNode() instanceof MidNegNode) {
+			} else if (saveNode.getRegNode() instanceof MidNegNode) {
+				// a = -x
 				AnalyzerHelpers.completeDeleteUnary(saveNode, block);
-			}
-			// a = x + y
-			if (saveNode.getRegNode() instanceof MidArithmeticNode) {
+			} else if (saveNode.getRegNode() instanceof MidArithmeticNode) {
+				// a = x + y
 				AnalyzerHelpers.completeDeleteBinary(saveNode, block);
+			} else {
+				assert false : "Could not handle this.";
 			}
 		}
 	}

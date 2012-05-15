@@ -20,18 +20,21 @@ import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
  * @author joshma
  * 
  */
-public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
+public abstract class MidCallNode extends MidRegisterNode implements
+		LiveWebsActivist {
 
 	private String name;
 	private List<Web> liveWebs;
 	private List<Reg> needToSaveRegisters;
 	private int paramCount;
+	private boolean saveValueDisabled;
 
 	public MidCallNode(String name, int paramCount) {
 		this.name = name;
 		this.liveWebs = new ArrayList<Web>();
 		this.paramCount = paramCount;
 		this.needToSaveRegisters = new ArrayList<Reg>();
+		this.saveValueDisabled = false;
 	}
 
 	@Override
@@ -63,12 +66,29 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 				needToSaveRegisters.add(r);
 			}
 		}
-		LogCenter.debug("CALL", "APPLIED ALLOCATED MAPPINGS FOR " + getName() + ": " + needToSaveRegisters);
+		LogCenter.debug("CALL", "APPLIED ALLOCATED MAPPINGS FOR " + getName()
+				+ ": " + needToSaveRegisters);
 	}
 
 	@Override
 	public List<ASM> toASM() {
-		return AsmVisitor.methodCall(this);
+		return AsmVisitor.methodCall(this, saveValueDisabled);
+	}
+
+	public boolean saveValueDisabled() {
+		return saveValueDisabled;
+	}
+
+	public void disableSaveValue() {
+		this.saveValueDisabled = true;
+	}
+
+	abstract public boolean isStarbucksCall();
+	
+	@Override
+	public void setRegister(Reg reg) {
+		assert !saveValueDisabled;
+		super.setRegister(reg);
 	}
 
 }

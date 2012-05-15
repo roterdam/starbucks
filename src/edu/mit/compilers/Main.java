@@ -20,6 +20,7 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
+import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
@@ -162,6 +163,12 @@ public class Main {
 						// Run CSE + CP + DCE as long as there are changes,
 						// since each round of CP may help the next round's
 						// CSE.
+						
+						
+						// Let's look at the blocks right now.
+						
+						
+						//Block.makeBlock(n)
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
 							LogCenter.debug("DCE", "Looppin again");
 							clearHasAdditionalChanges();
@@ -183,7 +190,7 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+							/*
 							if (isEnabled(OPT_DCE)) {
 								LivenessDoctor doctor = new LivenessDoctor();
 								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
@@ -194,6 +201,7 @@ public class Main {
 								DeadCodeElim dce = new DeadCodeElim();
 								dce.analyze(analyzer, symbolTable);
 							}
+							*/
 							x++;
 						}
 

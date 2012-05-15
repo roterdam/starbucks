@@ -8,6 +8,7 @@ import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.Identity;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -53,11 +54,14 @@ public class MidAlgebraicSimplifier {
 
 					if (leftMemNode.isConstant() && rightMemNode.isConstant()) {
 						// If so, replace with a constant load.
-						long leftVal = leftMemNode.getConstant();
-						long rightVal = rightMemNode.getConstant();
+
+						long leftVal = ((MidConstantNode)leftMemNode).getValue();
+						long rightVal = ((MidConstantNode)rightMemNode).getValue();
 						long simpleVal = binaryNode.applyOperation(leftVal,
 								rightVal);
 						
+						LogCenter.debug("MAS", ""+binaryNode.getLeftOperand().getMemoryNode().getClass());
+						LogCenter.debug("MAS", ""+binaryNode.getRightOperand().getMemoryNode().getClass());
 						LogCenter.debug("MAS", "About to replace "+node+" with "+simpleVal);
 						
 						MidRegisterNode newRegNode = new MidLoadImmNode(simpleVal);

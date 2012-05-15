@@ -131,6 +131,7 @@ public class Block implements Iterable<MidNode> {
 			return makeBlock(jumpNode.getLabelNode());
 		}
 		if (blockCache.containsKey(n)) {
+			LogCenter.debug("OPT", "BLOCK: snap its cached");
 			return blockCache.get(n);
 		}
 		LogCenter.debug("OPT", "BLOCK: makeBlock " + n);

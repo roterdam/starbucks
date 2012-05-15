@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 
@@ -24,6 +25,7 @@ public class MidPlusNode extends MidArithmeticNode {
 
 	@Override
 	public long applyOperation(long left, long right) {
+		LogCenter.debug("MAS",String.format("%d + %d = %d", left, right, left+right));
 		return left + right;
 	}
 	
