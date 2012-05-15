@@ -9,10 +9,11 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
+import edu.mit.compilers.grammar.expressions.CallNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
-public class CALLOUTNode extends ExpressionNode {
+public class CALLOUTNode extends CallNode {
 
 	@Override
 	public VarType getReturnType(Scope scope) {
@@ -24,10 +25,12 @@ public class CALLOUTNode extends ExpressionNode {
 		return VarType.INT;
 	}
 
+	@Override
 	public String getName() {
 		assert getChild(0) instanceof CALLOUT_NAMENode;
 		return ((CALLOUT_NAMENode) getChild(0)).getName();
 	}
+	
 
 	/**
 	 * Returns a list of arguments, which is type Object because it can either
@@ -73,6 +76,11 @@ public class CALLOUTNode extends ExpressionNode {
 		//list.addAll(getLeftOperand().getAllCallsDuringExecution());
 		//list.addAll(getRightOperand().getAllCallsDuringExecution());
 		//return list;
+	}
+
+	@Override
+	public List<DecafNode> getParameters() {
+		return getArgs();
 	}
 
 }

@@ -22,7 +22,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 	ArrayList<MidNode> assignments;
 
 	@Override
-	protected void transform(Block b, CSEGlobalState inGlobalState) {
+	protected void transform(Block block, CSEGlobalState inGlobalState) {
 
 		assignments = new ArrayList<MidNode>();
 		CSEGlobalState globalState;
@@ -34,7 +34,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 
 		CSELocalState localState = new CSELocalState();
 
-		for (MidNode node : b) {
+		for (MidNode node : block) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				MidSaveNode saveNode = (MidSaveNode) node;
@@ -58,11 +58,13 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 				}
 				// a = -x
 				if (saveNode.getRegNode() instanceof MidNegNode) {
-					processUnaryAssignment(saveNode, globalState, localState);
+					processUnaryAssignment(block, saveNode, globalState,
+							localState);
 				}
 				// a = x + y
 				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-					processArithmeticAssignment(saveNode, globalState, localState);
+					processArithmeticAssignment(block, saveNode, globalState,
+							localState);
 				}
 			} else if (assignmentNode instanceof MidCallNode) {
 				// Clear all state after a method call.
@@ -83,7 +85,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		s.addVarVal(node.getDestinationNode(), node.getRegNode(), v);
 	}
 
-	private void processUnaryAssignment(MidSaveNode saveNode,
+	private void processUnaryAssignment(Block block, MidSaveNode saveNode,
 			CSEGlobalState globalState, CSELocalState s) {
 		MidNegNode r = (MidNegNode) saveNode.getRegNode();
 
@@ -97,8 +99,8 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		MidSaveNode tempNode = s.getTemp(v3);
 
 		// Check if we can reuse from an earlier block, i.e. global state
-		boolean modified = CSETransfer
-				.processUnaryAssignmentHelper(saveNode, globalState, true);
+		boolean modified = CSETransfer.processUnaryAssignmentHelper(block,
+				saveNode, globalState, true);
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
@@ -117,13 +119,13 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			newSaveNode.isOptimization = true;
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
-			AnalyzerHelpers.completeDeleteUnary(saveNode);
+			AnalyzerHelpers.completeDeleteUnary(saveNode, block);
 
 			Main.setHasAdditionalChanges();
 		}
 	}
 
-	private void processArithmeticAssignment(MidSaveNode saveNode,
+	private void processArithmeticAssignment(Block block, MidSaveNode saveNode,
 			CSEGlobalState globalState, CSELocalState s) {
 
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
@@ -138,8 +140,8 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 		s.addVarVal(saveNode.getDestinationNode(), saveNode.getRegNode(), v3);
 		MidSaveNode tempNode = s.getTemp(v3);
 
-		boolean modified = CSETransfer
-				.processArithmeticAssignmentHelper(saveNode, globalState, true);
+		boolean modified = CSETransfer.processArithmeticAssignmentHelper(block,
+				saveNode, globalState, true);
 
 		// Check if the value is already in a temp.
 		if (tempNode == null) {
@@ -160,7 +162,7 @@ public class CSETransformer extends Transformer<CSEGlobalState> {
 			newSaveNode.isOptimization = true;
 			loadTempNode.insertAfter(saveNode);
 			newSaveNode.insertAfter(loadTempNode);
-			AnalyzerHelpers.completeDeleteBinary(saveNode);
+			AnalyzerHelpers.completeDeleteBinary(saveNode, block);
 
 			Main.setHasAdditionalChanges();
 		}

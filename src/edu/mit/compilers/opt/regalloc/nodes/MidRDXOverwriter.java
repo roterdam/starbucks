@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt.regalloc;
+package edu.mit.compilers.opt.regalloc.nodes;
 
 import java.util.List;
 import java.util.Map;
@@ -6,17 +6,15 @@ import java.util.Map;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.opt.regalloc.Web;
 
 /**
  * Indicates that a node will corrupt values in RDX. Requires special care to
  * push and pop to preserve RDX.
- * 
- * @author joshma
- * 
  */
-public class MidRDXHater extends MidArithmeticNode implements LiveWebsActivist {
+public abstract class MidRDXOverwriter extends MidArithmeticNode implements LiveWebsActivist {
 
-	public MidRDXHater(MidLoadNode leftOperand, MidLoadNode rightOperand) {
+	public MidRDXOverwriter(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
 	}
 

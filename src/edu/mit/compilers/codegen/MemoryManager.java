@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
@@ -71,6 +72,7 @@ public class MemoryManager {
 		int localStackSize = 0;
 		for (MidNode m : methodDeclNode.getNodeList()) {
 			LogCenter.debug("MEM", m.toString());
+
 			if ((m instanceof MidLocalMemoryNode)
 					&& !((MidLocalMemoryNode) m).hasRawLocationReference()) {
 				localStackSize += ADDRESS_SIZE;
@@ -98,10 +100,12 @@ public class MemoryManager {
 				}
 				if (m instanceof ArrayReferenceNode) {
 					ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
-					LogCenter.debug("MEM", "Deallocate array ref " + arrayNode + "?");
+					LogCenter.debug("MEM", "Deallocate array ref " + arrayNode
+							+ "?");
 					if (arrayNode.usesArrayRegister()) {
-						LogCenter.debug("MEM",
-								"deallocating array register of " + m);
+						LogCenter
+								.debug("MEM", "deallocating array register of "
+										+ m);
 						deallocTempRegister(arrayNode.getArrayRegister());
 					}
 				}
@@ -116,7 +120,10 @@ public class MemoryManager {
 			}
 			if (m instanceof MidRegisterNode
 					&& !((MidRegisterNode) m).hasRegister()) {
-				((MidRegisterNode) m).setRegister(allocTempRegister());
+				if (!(m instanceof MidCallNode)
+						|| !((MidCallNode) m).saveValueDisabled()) {
+					((MidRegisterNode) m).setRegister(allocTempRegister());
+				}
 			}
 		}
 		methodDeclNode.setLocalStackSize(localStackSize);

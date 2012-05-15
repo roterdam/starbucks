@@ -16,7 +16,6 @@ import edu.mit.compilers.codegen.nodes.MidCalloutNode;
 import edu.mit.compilers.codegen.nodes.memory.MidFieldDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidStringDeclNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.crawler.SemanticRules;
 
 public class AsmVisitor {
@@ -128,76 +127,23 @@ public class AsmVisitor {
 	public static Reg[] paramRegisters = new Reg[] { Reg.RDI, Reg.RSI, Reg.RDX,
 			Reg.RCX, Reg.R8, Reg.R9 };
 
-	public static List<ASM> methodCall(MidCallNode callNode) {
+	public static List<ASM> methodCall(MidCallNode callNode,
+			boolean saveValueDisabled) {
 		String name = callNode.getName();
-		List<MidMemoryNode> params = callNode.getParams();
-		Reg destinationRegister = callNode.getRegister();
-		List<Reg> needToSaveRegs = callNode.getNeedToSaveRegisters();
-		return methodCall(name, params, destinationRegister,
-				(callNode instanceof MidCalloutNode), needToSaveRegs);
-	}
 
-	/**
-	 * Helper method used by other MidNodes (method calls and callouts) to
-	 * follow calling convention.
-	 * 
-	 * @param name
-	 * @param params
-	 * @param destinationRegister
-	 * @param extern
-	 * @return
-	 */
-	public static List<ASM> methodCall(String name, List<MidMemoryNode> params,
-			Reg destinationRegister, boolean extern, List<Reg> needToSaveRegs) {
-		if (extern) {
+		if (callNode instanceof MidCalloutNode) {
 			externCalls.add(name);
 		}
 		List<ASM> out = new ArrayList<ASM>();
 
-		// Begin calling convention, place as many nodes in registers as
-		// possible.
-
-		List<ASM> pushStack = new ArrayList<ASM>();
-		for (int i = paramRegisters.length; i < params.size(); i++) {
-			MidLoadNode paramNode = new MidLoadNode(params.get(i));
-			// Push the parameters in reverse order to a list
-			Reg temp = MemoryManager.allocTempRegister();
-			paramNode.setRegister(temp);
-			List<ASM> pushIt = new ArrayList<ASM>();
-			pushIt.addAll(paramNode.toASM());
-			pushIt.add(new OpASM(String.format("push param %d onto stack",
-					i), OpCode.PUSH, paramNode.getRegister().name()));
-			pushStack.addAll(0, pushIt);
-
-			// FIXME: is this bad to do? (made deallocTempRegister public)
-			MemoryManager.deallocTempRegister(temp);
-		}
-		// Add the caller-saved registers. Note that adding to 0 in each
-		// iteration effectively reverses the order of needToSaveRegs.
-		for (Reg r : needToSaveRegs) {
-			out.add(0, new OpASM("Caller saved", OpCode.PUSH, r.name()));
-		}
-		// Add the push parameters in reverse order.
-		out.addAll(pushStack);
-
 		// Always set RAX to 0.
-		out.add(new OpASM(OpCode.XOR, Reg.RAX.name(), Reg.RAX.name()));
 		out.add(new OpASM(OpCode.CALL, name));
 
-		// Remove params from stack.
-		int stackParams = params.size() - paramRegisters.length;
-		if (stackParams > 0) {
-			out.add(new OpASM("Clean up params", OpCode.ADD, Reg.RSP.name(),
-					Integer.toString(stackParams * MemoryManager.ADDRESS_SIZE)));
-		}
-
-		// Push RAX into destinationRegister.
-		out.add(new OpASM("Saving results of " + name, OpCode.MOV,
-				destinationRegister.name(), Reg.RAX.name()));
-
-		// Restore old registers.
-		for (Reg r : needToSaveRegs) {
-			out.add(new OpASM("Restore caller saved", OpCode.POP, r.name()));
+		if (!callNode.saveValueDisabled()) {
+			Reg destinationRegister = callNode.getRegister();
+			// Push RAX into destinationRegister.
+			out.add(new OpASM("Saving results of " + name, OpCode.MOV,
+					destinationRegister.name(), Reg.RAX.name()));
 		}
 
 		return out;

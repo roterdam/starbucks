@@ -7,9 +7,9 @@ import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
-import edu.mit.compilers.opt.regalloc.MidRDXHater;
+import edu.mit.compilers.opt.regalloc.nodes.MidRDXOverwriter;
 
-public class MidModNode extends MidRDXHater {
+public class MidModNode extends MidRDXOverwriter {
 
 	public MidModNode(MidLoadNode leftOperand, MidLoadNode rightOperand) {
 		super(leftOperand, rightOperand);
@@ -43,6 +43,11 @@ public class MidModNode extends MidRDXHater {
 	@Override
 	public boolean isCommutative() {
 		return false;
+	}
+	
+	@Override
+	public long applyOperation(long left, long right) {
+		return left % right;
 	}
 
 }

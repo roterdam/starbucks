@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
 
@@ -18,23 +20,27 @@ import edu.mit.compilers.opt.Transfer;
  */
 public class LivenessDoctor implements Transfer<LivenessState> {
 
-	private Map<MidSaveNode, Set<MidLoadNode>> defUseMap;
+	private Map<MidSaveNode, Set<MidUseNode>> defUseMap;
 
 	public LivenessDoctor() {
-		defUseMap = new HashMap<MidSaveNode, Set<MidLoadNode>>();
+		defUseMap = new HashMap<MidSaveNode, Set<MidUseNode>>();
 	}
 
-	public void save(MidSaveNode node, Set<MidLoadNode> useList) {
+	public void save(MidSaveNode node, Set<MidUseNode> useList) {
 		defUseMap.put(node, useList);
 	}
 
 	@Override
 	public LivenessState apply(Block block, LivenessState s) {
+		LogCenter.debug("DCE", "Liveness on " + block.getBlockNum());
 		LivenessState out = s.clone();
 		for (MidNode node : block.reverse()) {
-			if (node instanceof MidLoadNode) {
+			if (node instanceof MidMethodCallNode) {
+				assert node.getPrevNode() != node;
+			}
+			if (node instanceof MidUseNode) {
 				// Use.
-				out.processUse((MidLoadNode) node);
+				out.processUse((MidUseNode) node);
 			} else if (node instanceof MidSaveNode) {
 				// Definition.
 				out.processDefinition((MidSaveNode) node, this);
@@ -43,7 +49,7 @@ public class LivenessDoctor implements Transfer<LivenessState> {
 		return out;
 	}
 
-	public Map<MidSaveNode, Set<MidLoadNode>> getDefUseMap() {
+	public Map<MidSaveNode, Set<MidUseNode>> getDefUseMap() {
 		return defUseMap;
 	}
 

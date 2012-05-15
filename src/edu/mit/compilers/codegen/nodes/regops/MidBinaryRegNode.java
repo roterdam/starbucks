@@ -72,4 +72,6 @@ public abstract class MidBinaryRegNode extends MidRegisterNode implements Regist
 		}
 	}
 	
+	public abstract long applyOperation(long left, long right);
+	
 }

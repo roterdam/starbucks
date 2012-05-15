@@ -12,27 +12,31 @@ import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
+import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transformer;
 
 public class CMTransformer extends Transformer<CMState> {
 	
-	Map<MidSaveNode, Set<MidLoadNode>> defUse;
+	Map<MidSaveNode, Set<MidUseNode>> defUse;
 	Map<MidLoadNode, MidSaveNode> useDef;
 	Map<MidSaveNode, Block> defBlock;
 	
-	public CMTransformer(Map<MidSaveNode, Set<MidLoadNode>> defUse, Map<MidSaveNode, Block> defBlock) {
+	public CMTransformer(Map<MidSaveNode, Set<MidUseNode>> defUse, Map<MidSaveNode, Block> defBlock) {
 		this.defUse = defUse;
 		this.useDef = buildUseDef(defUse);
 		this.defBlock = defBlock;
 	}
 
-	private Map<MidLoadNode, MidSaveNode> buildUseDef(Map<MidSaveNode, Set<MidLoadNode>> defUse) {
+	private Map<MidLoadNode, MidSaveNode> buildUseDef(Map<MidSaveNode, Set<MidUseNode>> defUse) {
 		HashMap<MidLoadNode, MidSaveNode> useDef = new HashMap<MidLoadNode, MidSaveNode>();
-		for (Entry<MidSaveNode, Set<MidLoadNode>> e : defUse.entrySet()) {
+		for (Entry<MidSaveNode, Set<MidUseNode>> e : defUse.entrySet()) {
 			MidSaveNode sn = e.getKey();
-			for (MidLoadNode ln : e.getValue()) {
-				useDef.put(ln, sn);
+			for (MidUseNode un : e.getValue()) {
+				if (un instanceof MidLoadNode) {
+					MidLoadNode ln = (MidLoadNode) un;
+					useDef.put(ln, sn);
+				}
 			}
 		}
 		return useDef;

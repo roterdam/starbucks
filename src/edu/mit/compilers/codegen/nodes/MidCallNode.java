@@ -5,14 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
-import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
-import edu.mit.compilers.opt.regalloc.LiveWebsActivist;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.opt.regalloc.Web;
+import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
 
 /**
  * Represents any call, whether to external libraries or internally.
@@ -20,18 +20,21 @@ import edu.mit.compilers.opt.regalloc.Web;
  * @author joshma
  * 
  */
-public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
+public abstract class MidCallNode extends MidRegisterNode implements
+		LiveWebsActivist {
 
 	private String name;
 	private List<Web> liveWebs;
 	private List<Reg> needToSaveRegisters;
-	private List<MidMemoryNode> params;
+	private int paramCount;
+	private boolean saveValueDisabled;
 
-	public MidCallNode(String name, List<MidMemoryNode> params) {
+	public MidCallNode(String name, int paramCount) {
 		this.name = name;
-		this.params = params;
-		this.needToSaveRegisters = new ArrayList<Reg>();
 		this.liveWebs = new ArrayList<Web>();
+		this.paramCount = paramCount;
+		this.needToSaveRegisters = new ArrayList<Reg>();
+		this.saveValueDisabled = false;
 	}
 
 	@Override
@@ -39,8 +42,8 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 		return name;
 	}
 
-	public List<MidMemoryNode> getParams() {
-		return params;
+	public int getParamCount() {
+		return paramCount;
 	}
 
 	@Override
@@ -63,11 +66,29 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 				needToSaveRegisters.add(r);
 			}
 		}
+		LogCenter.debug("CALL", "APPLIED ALLOCATED MAPPINGS FOR " + getName()
+				+ ": " + needToSaveRegisters);
 	}
 
 	@Override
 	public List<ASM> toASM() {
-		return AsmVisitor.methodCall(this);
+		return AsmVisitor.methodCall(this, saveValueDisabled);
+	}
+
+	public boolean saveValueDisabled() {
+		return saveValueDisabled;
+	}
+
+	public void disableSaveValue() {
+		this.saveValueDisabled = true;
+	}
+
+	abstract public boolean isStarbucksCall();
+	
+	@Override
+	public void setRegister(Reg reg) {
+		assert !saveValueDisabled;
+		super.setRegister(reg);
 	}
 
 }

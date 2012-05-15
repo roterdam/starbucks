@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.nodes.FillerMidNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
@@ -16,6 +17,12 @@ public class MidNodeList implements List<MidNode> {
 	private MidNode head;
 	private MidNode tail;
 	int size;
+	
+	public MidNodeList() {
+		head = new FillerMidNode();
+		tail = head;
+		size = 1;
+	}
 
 	/**
 	 * Please do not add a node twice to the list. Breaks will shit.
@@ -146,7 +153,7 @@ public class MidNodeList implements List<MidNode> {
 
 	private class LinkedListIterator implements Iterator<MidNode> {
 		MidNode currentNode;
-		
+
 		class LinkedListHeadNode extends MidNode {
 		}
 
@@ -155,15 +162,18 @@ public class MidNodeList implements List<MidNode> {
 			currentNode.setNextNode(MidNodeList.this.getHead());
 		}
 
+		@Override
 		public boolean hasNext() {
 			return currentNode.getNextNode() != null;
 		}
 
+		@Override
 		public MidNode next() {
 			currentNode = currentNode.getNextNode();
 			return currentNode;
 		}
 
+		@Override
 		public void remove() {
 			throw new java.lang.UnsupportedOperationException();
 		}

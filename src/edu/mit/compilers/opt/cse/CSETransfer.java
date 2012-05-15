@@ -26,16 +26,16 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	ArrayList<MidNode> assignments;
 
 	@Override
-	public CSEGlobalState apply(Block b, CSEGlobalState inState) {
+	public CSEGlobalState apply(Block block, CSEGlobalState inState) {
 		assert inState != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidNode>();
-		LogCenter.debug("OPT", "\n\n\nPROCESSING " + b
+		LogCenter.debug("OPT", "\n\n\nPROCESSING " + block
 				+ ", THE GLOBAL STATE IS:\n##########\n" + inState);
 
 		CSEGlobalState outState = inState.clone();
 
-		for (MidNode node : b) {
+		for (MidNode node : block) {
 			if (node instanceof MidSaveNode
 					&& ((MidSaveNode) node).savesRegister()) {
 				this.assignments.add(node);
@@ -61,11 +61,11 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				}
 				// a = -x
 				if (saveNode.getRegNode() instanceof MidNegNode) {
-					processUnaryAssignment(saveNode, outState);
+					processUnaryAssignment(block, saveNode, outState);
 				}
 				// a = x + y
 				if (saveNode.getRegNode() instanceof MidArithmeticNode) {
-					processArithmeticAssignment(saveNode, outState);
+					processArithmeticAssignment(block, saveNode, outState);
 				}
 			} else if (assignmentNode instanceof MidCallNode) {
 				outState.clearGlobals();
@@ -89,9 +89,9 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		state.killReferences(node.getDestinationNode());
 	}
 
-	private void processUnaryAssignment(MidSaveNode saveNode,
+	private void processUnaryAssignment(Block block, MidSaveNode saveNode,
 			CSEGlobalState state) {
-		processUnaryAssignmentHelper(saveNode, state, false);
+		processUnaryAssignmentHelper(block, saveNode, state, false);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 	 * @param shouldModify
 	 * @return Whether or not it modified something.
 	 */
-	public static boolean processUnaryAssignmentHelper(MidSaveNode saveNode,
+	public static boolean processUnaryAssignmentHelper(Block block, MidSaveNode saveNode,
 			CSEGlobalState state, boolean shouldModify) {
 		boolean modified = false;
 		MidNegNode r = (MidNegNode) saveNode.getRegNode();
@@ -125,7 +125,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				newSaveNode.isOptimization = true;
 				loadTempNode.insertAfter(saveNode);
 				newSaveNode.insertAfter(loadTempNode);
-				AnalyzerHelpers.completeDeleteUnary(saveNode);
+				AnalyzerHelpers.completeDeleteUnary(saveNode, block);
 				modified = true;
 				Main.setHasAdditionalChanges();
 			}
@@ -138,12 +138,12 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		return modified;
 	}
 
-	private void processArithmeticAssignment(MidSaveNode saveNode,
+	private void processArithmeticAssignment(Block block, MidSaveNode saveNode,
 			CSEGlobalState state) {
-		processArithmeticAssignmentHelper(saveNode, state, false);
+		processArithmeticAssignmentHelper(block, saveNode, state, false);
 	}
 
-	public static boolean processArithmeticAssignmentHelper(
+	public static boolean processArithmeticAssignmentHelper(Block block, 
 			MidSaveNode saveNode, CSEGlobalState state, boolean shouldModify) {
 		boolean modified = false;
 		MidArithmeticNode r = (MidArithmeticNode) saveNode.getRegNode();
@@ -167,7 +167,7 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 				newSaveNode.isOptimization = true;
 				loadTempNode.insertAfter(saveNode);
 				newSaveNode.insertAfter(loadTempNode);
-				AnalyzerHelpers.completeDeleteBinary(saveNode);
+				AnalyzerHelpers.completeDeleteBinary(saveNode, block);
 				modified = true;
 				Main.setHasAdditionalChanges();
 			}

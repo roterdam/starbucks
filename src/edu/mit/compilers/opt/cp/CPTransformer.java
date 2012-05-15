@@ -43,7 +43,7 @@ public class CPTransformer extends Transformer<CPState> {
 
 				MidMemoryNode destNode = saveNode.getDestinationNode();
 				if (destNode instanceof MidArrayElementNode) {
-					processArrayElement((MidArrayElementNode) destNode);
+					processArrayElement(block, (MidArrayElementNode) destNode);
 				} else {
 					localState.killReferences(destNode);
 					MidRegisterNode regNode = saveNode.getRegNode();
@@ -61,7 +61,7 @@ public class CPTransformer extends Transformer<CPState> {
 				MidMemoryNode replacementNode;
 
 				if (memNode instanceof MidArrayElementNode) {
-					processArrayElement((MidArrayElementNode) memNode);
+					processArrayElement(block, (MidArrayElementNode) memNode);
 				} else {
 					replacementNode = localState.lookup(memNode);
 					if (replacementNode != memNode) {
@@ -83,14 +83,15 @@ public class CPTransformer extends Transformer<CPState> {
 		}
 	}
 
-	private void processArrayElement(MidArrayElementNode arrayElementNode) {
+	private void processArrayElement(Block block,
+			MidArrayElementNode arrayElementNode) {
 		MidLoadNode loadNode = arrayElementNode.getLoadNode();
 		MidMemoryNode memNode = loadNode.getMemoryNode();
 		LogCenter.debug("CPJ", "Looking at " + memNode + " ("
 				+ memNode.isConstant() + ")");
 		if (memNode.isConstant()) {
 			// Remove register operation and use a constant instead.
-			loadNode.delete();
+			block.delete(loadNode);
 			arrayElementNode.setConstantNode((MidConstantNode) memNode);
 		}
 	}

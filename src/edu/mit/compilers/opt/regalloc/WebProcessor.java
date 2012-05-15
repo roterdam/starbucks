@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
+import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transfer;
+import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
 
 /**
  * Transfer function to analyze web liveness in order to generate interference
@@ -21,7 +21,7 @@ import edu.mit.compilers.opt.Transfer;
 public class WebProcessor implements Transfer<WebState> {
 
 	private static Map<MidSaveNode, Web> webDefs;
-	private static Map<MidLoadNode, Web> webUses;
+	private static Map<MidUseNode, Web> webUses;
 
 	@Override
 	public WebState apply(Block b, WebState s) {
@@ -39,9 +39,10 @@ public class WebProcessor implements Transfer<WebState> {
 				}
 				Web web = webDefs.get(node);
 				out.killWeb(web);
+				out.interfereWith(web);
 				continue;
 			}
-			if (node instanceof MidLoadNode) {
+			if (node instanceof MidUseNode) {
 				// It's possible that this is dead code and doesn't belong to a
 				// web.
 				if (!webUses.containsKey(node)) {
@@ -64,7 +65,7 @@ public class WebProcessor implements Transfer<WebState> {
 	}
 
 	public static void initialize(Map<MidSaveNode, Web> webDefs,
-			Map<MidLoadNode, Web> webUses) {
+			Map<MidUseNode, Web> webUses) {
 		assert (webDefs != null && webUses != null) : "WebProcessor function initialized() called with null arguments.";
 		WebProcessor.webDefs = webDefs;
 		WebProcessor.webUses = webUses;

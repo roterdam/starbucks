@@ -8,10 +8,7 @@ import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.codegen.AsmVisitor;
-import edu.mit.compilers.codegen.MemoryManager;
-import edu.mit.compilers.codegen.MidSymbolTable;
-import edu.mit.compilers.codegen.MidVisitor;
+import edu.mit.compilers.codegen.*;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
@@ -20,6 +17,7 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
+import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
 import edu.mit.compilers.opt.cm.CMState;
 import edu.mit.compilers.opt.cm.CMTransfer;
 import edu.mit.compilers.opt.cm.CMTransformer;
@@ -29,8 +27,8 @@ import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.cse.CSETransformer;
-import edu.mit.compilers.opt.regalloc.LivenessDoctor;
-import edu.mit.compilers.opt.regalloc.LivenessState;
+import edu.mit.compilers.opt.dce.DeadCodeElim;
+import edu.mit.compilers.opt.regalloc.*;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -164,8 +162,9 @@ public class Main {
 						// since each round of CP may help the next round's
 						// CSE.
 						while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
+							LogCenter.debug("DCE", "Looppin again");
 							clearHasAdditionalChanges();
-							
+
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
 										new CSEGlobalState().getInitialState(),
@@ -174,7 +173,7 @@ public class Main {
 								CSETransformer localAnalyzer = new CSETransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
 										new CPState().getInitialState(),
@@ -183,7 +182,18 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							
+
+							if (isEnabled(OPT_DCE)) {
+								LogCenter.debug("DCE", "Starting DCE!");
+								LivenessDoctor doctor = new LivenessDoctor();
+								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+										new LivenessState().getBottomState(),
+										doctor);
+								analyzer.analyze(symbolTable);
+								DeadCodeElim dce = new DeadCodeElim();
+								dce.analyze(analyzer, symbolTable);
+							}
+
 							if (isEnabled(OPT_CM)) {
 								CMState cms = new CMState().getInitialState();
 								Analyzer<CMState, CMTransfer> nestingAnalyzer = new Analyzer<CMState, CMTransfer>(
@@ -199,28 +209,22 @@ public class Main {
 								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
 							}
 
-//							 if (isEnabled(OPT_DCE)) {
-//							 LivenessDoctor doctor = new LivenessDoctor();
-//							 BackwardsAnalyzer<LivenessState, LivenessDoctor>
-//							 analyzer = new BackwardsAnalyzer<LivenessState,
-//							 LivenessDoctor>(
-//							 new LivenessState().getBottomState(),
-//							 doctor);
-//							 analyzer.analyze(symbolTable);
-//							 DeadCodeElim dce = new DeadCodeElim();
-//							 dce.analyze(analyzer, symbolTable);
-//							 }
 							x++;
+						}
+
+						if (CLI.optOn) {
+							MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+							simplifier.analyze(symbolTable);
 						}
 
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "
 								+ (x - 1) + " times.");
 
-						// if (isEnabled(OPT_RA)) {
-						// RegisterAllocator allocator = new
-						// RegisterAllocator(symbolTable);
-						// allocator.run();
-						// }
+						if (isEnabled(OPT_RA)) {
+							RegisterAllocator allocator = new RegisterAllocator(
+									symbolTable);
+							allocator.run();
+						}
 
 						if (CLI.dot) {
 							System.out.println(symbolTable.toDotSyntax(true));

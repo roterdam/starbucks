@@ -1,9 +1,10 @@
-package edu.mit.compilers.opt.regalloc;
+package edu.mit.compilers.opt.regalloc.nodes;
 
 import java.util.List;
 import java.util.Map;
 
 import edu.mit.compilers.codegen.Reg;
+import edu.mit.compilers.opt.regalloc.Web;
 
 /**
  * Simply indicates to WebProcessor that this guy cares about knowing which webs

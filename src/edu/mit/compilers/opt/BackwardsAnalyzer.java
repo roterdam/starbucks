@@ -10,7 +10,8 @@ import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.nodes.MidMethodDeclNode;
 
-public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implements DataflowAnalysis<S> {
+public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
+		implements DataflowAnalysis<S> {
 
 	protected S startState;
 	private T transferFunction;
@@ -19,10 +20,6 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 	public BackwardsAnalyzer(S s, T t) {
 		startState = s;
 		transferFunction = t;
-		initialize();
-	}
-
-	private void initialize() {
 		inStates = new HashMap<Block, S>();
 	}
 
@@ -35,7 +32,6 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 	}
 
 	private void analyzeMidNodeList(MidNodeList nodeList) {
-		initialize();
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		LogCenter
@@ -56,16 +52,9 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 
 		while (!worklist.isEmpty()) {
 			Block currentBlock = worklist.remove(0);
-			LogCenter.debug("RA", "");
-			LogCenter.debug("RA", "######################");
-			LogCenter.debug("RA", "######################");
-			LogCenter.debug("RA", "REVERSE ANALYZER IS LOOKING AT "
-					+ currentBlock);
-			LogCenter.debug("RA", "WL: " + worklist);
 			S out = getOutState(currentBlock);
 			S in = transferFunction.apply(currentBlock, out);
 			if (!in.equals(inStates.get(currentBlock))) {
-				LogCenter.debug("DCE", "Putting instate for b" + currentBlock.getBlockNum());
 				inStates.put(currentBlock, in);
 				for (Block s : currentBlock.getPredecessors()) {
 					if (!worklist.contains(s)) {
@@ -73,8 +62,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 					}
 				}
 			}
-			// TODO: return with less perfect result if it takes a really long
-			// time?
+			LogCenter.debug("RA", "Done looking at block.");
 		}
 	}
 
@@ -85,7 +73,8 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 				.format("Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
 		for (Block m : b.getSuccessors()) {
-			assert inStates.get(m) != null : m;
+			assert inStates.get(m) != null : "Block not found in inStates: "
+					+ m;
 			out = inStates.get(m).join(out);
 		}
 		return out;
@@ -112,6 +101,15 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>> implem
 	@Override
 	public S getAnalyzedState(Block block) {
 		return getOutState(block);
+	}
+
+	@Override
+	public List<Block> getProcessedBlocks() {
+		List<Block> todoBlocks = new ArrayList<Block>();
+		for (Block b : inStates.keySet()) {
+			todoBlocks.add(b);
+		}
+		return todoBlocks;
 	}
 
 }

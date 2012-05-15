@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt.regalloc;
+package edu.mit.compilers.opt.regalloc.nodes;
 
 import edu.mit.compilers.codegen.Reg;
 

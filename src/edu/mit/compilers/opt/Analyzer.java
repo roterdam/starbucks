@@ -26,7 +26,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	public void analyze(MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (String methodName : methods.keySet()) {
-			LogCenter.debug("OPT", "Analyzing " + methodName);
+			LogCenter.debug("DCE", "Analyzing " + methodName);
 			analyzeMidNodeList(methods.get(methodName).getNodeList());
 		}
 	}
@@ -51,11 +51,6 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 
 		while (!worklist.isEmpty()) {
 			Block currentBlock = worklist.remove(0);
-			LogCenter.debug("OPT", "");
-			LogCenter.debug("OPT", "######################");
-			LogCenter.debug("OPT", "######################");
-			LogCenter.debug("OPT", "ANALYZER IS LOOKING AT " + currentBlock);
-			LogCenter.debug("OPT", "WL: " + worklist);
 			S in = getInState(currentBlock);
 			S out = transferFunction.apply(currentBlock, in);
 			if (!out.equals(outHash.get(currentBlock))) {
@@ -83,6 +78,11 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	@Override
 	public S getAnalyzedState(Block block) {
 		return getInState(block);
+	}
+
+	@Override
+	public List<Block> getProcessedBlocks() {
+		return new ArrayList<Block>(outHash.keySet());
 	}
 
 }

@@ -27,6 +27,21 @@ public class Block implements Iterable<MidNode> {
 		successors = new ArrayList<Block>();
 	}
 
+	public void delete(MidNode delNode) {
+		if (head == delNode && delNode == tail) {
+			head = null;
+			tail = null;
+		} else {
+			if (head == delNode) {
+				this.head = delNode.getNextNode();
+			}
+			if (tail == delNode) {
+				this.tail = delNode.getPrevNode();
+			}
+		}
+		delNode.delete();
+	}
+
 	public MidNode getHead() {
 		return head;
 	}
@@ -70,6 +85,9 @@ public class Block implements Iterable<MidNode> {
 	}
 
 	public String toString() {
+		if (getHead() == null) {
+			return "B" + blockNum + "[]";
+		}
 		String out = "B" + blockNum + "[" + getHead() + "]";
 		MidNode node = getHead();
 		while (true) {
@@ -84,7 +102,8 @@ public class Block implements Iterable<MidNode> {
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
-		String out = b.getBlockNum() + " [" + b.getHead() + "]";
+		String out = b.getBlockNum() + " ["
+				+ (b.getHead() == null ? "" : b.getHead()) + "]";
 		visited.add(b);
 		for (Block s : b.getSuccessors()) {
 			out += "\n";
@@ -185,6 +204,11 @@ public class Block implements Iterable<MidNode> {
 		};
 	}
 
+	/**
+	 * Iterates through nodes in reverse. Caution do not delete while iterating.
+	 * 
+	 * @return
+	 */
 	public Iterable<MidNode> reverse() {
 		return new Iterable<MidNode>() {
 
@@ -200,11 +224,14 @@ public class Block implements Iterable<MidNode> {
 
 					@Override
 					public MidNode next() {
+						MidNode oldCurNode = curNode;
 						if (curNode == null) {
 							curNode = Block.this.getTail();
 						} else {
 							curNode = curNode.getPrevNode();
 						}
+						assert curNode != null : "Why this shit null? "
+								+ oldCurNode;
 						return curNode;
 					}
 
@@ -218,19 +245,5 @@ public class Block implements Iterable<MidNode> {
 
 		};
 	}
-	
-	@Override
-	public boolean equals(Object o){
-		if (!(o instanceof Block)){
-			return false;
-		}
-		Block other = (Block)o;
-		return other.getHead() == this.getHead() && other.getTail() == this.getTail();
-	}
-	
-	@Override
-	public int hashCode(){
-		return this.getHead().hashCode() * 31 + this.getTail().hashCode();
-	}
-	
+
 }

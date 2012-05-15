@@ -3,7 +3,6 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
@@ -16,21 +15,24 @@ public abstract class MidNode {
 	public void setNextNode(MidNode node) {
 		nextNode = node;
 		// Also set a backpointer.
-		nextNode.setPrevNode(this);
+		if (nextNode != null) {
+			nextNode.setPrevNode(this);
+		}
 	}
 
 	public MidNode getNextNode() {
 		return nextNode;
 	}
-	
-	public void setPrevNode(MidNode node) {
+
+	private void setPrevNode(MidNode node) {
+		assert node != this : "Setting a prev node to yourself wtf: " + this;
 		prevNode = node;
 	}
-	
+
 	public MidNode getPrevNode() {
 		return prevNode;
 	}
-	
+
 	public String toString() {
 		return "<" + getNodeClass() + ">";
 	}
@@ -43,7 +45,8 @@ public abstract class MidNode {
 
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		out.add(new OpASM("Error: IMPLEMENT toASM for " + this.getNodeClass(), OpCode.NOP));
+		out.add(new OpASM("Error: IMPLEMENT toASM for " + this.getNodeClass(),
+				OpCode.NOP));
 		return out;
 	}
 
@@ -54,17 +57,17 @@ public abstract class MidNode {
 	public String toDotSyntax() {
 		return hashCode() + " [label=\"" + toString() + "\"];\n";
 	}
-	
+
 	public void insertAfter(MidNode n) {
 		MidNode oldNext = n.getNextNode();
 		n.setNextNode(this);
 		this.setNextNode(oldNext);
 	}
-	
-	
-	//FIXME what if this is the first node?
+
+	// FIXME what if this is the first node?
 	public void delete() {
-		LogCenter.debug("OPT", "DELETING " + this + " (" + hashCode() + ")");
-		this.getPrevNode().setNextNode(this.getNextNode());
+		if (this.getPrevNode() != null) {
+			this.getPrevNode().setNextNode(this.getNextNode());
+		}
 	}
 }

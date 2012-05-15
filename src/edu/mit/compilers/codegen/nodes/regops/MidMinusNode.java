@@ -20,5 +20,10 @@ public class MidMinusNode extends MidArithmeticNode {
 	public boolean isCommutative() {
 		return false;
 	}
+	
+	@Override
+	public long applyOperation(long left, long right) {
+		return left - right;
+	}
 
 }

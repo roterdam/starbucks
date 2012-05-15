@@ -17,7 +17,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
-import edu.mit.compilers.opt.regalloc.Allocatable;
+import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
 
 /**
  * ` Saves referenced register node or literal to memory.
@@ -28,7 +28,6 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
 	private boolean decafBooleanValue;
-	private boolean isInactive;
 
 	private static enum MidSaveNodeType {
 		REGISTER, INT, BOOLEAN;
@@ -41,7 +40,6 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	private MidSaveNode(MidMemoryNode dest) {
 		assert dest != null;
 		this.destination = dest;
-		this.isInactive = false;
 	}
 
 	public MidSaveNode(MidRegisterNode refNode, MidMemoryNode dest) {
@@ -51,7 +49,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		if (registerNode instanceof MidLoadNode) {
 			((MidLoadNode) registerNode).recordRegisterOp(this);
 		}
-		registerNode.record(this);
+//		registerNode.record(this);
 	}
 
 	public static MidNodeList storeValueInMemory(long decafIntValue,
@@ -164,10 +162,6 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 		List<ASM> out = new ArrayList<ASM>();
 
-		if (this.isInactive) {
-			return out;
-		}
-
 		String rightOperand;
 		switch (saveType) {
 		case REGISTER:
@@ -222,9 +216,5 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	public Reg getAllocatedRegister() {
 		return allocatedReg;
 	}
-
-	public void deactivate() {
-		this.isInactive = true;
-	}
-
+	
 }
