@@ -27,7 +27,10 @@ public class MidUndoPreserveParamsNode extends MidNode {
 
 		int offset = preserveParamsNode.getPushedParamCount()
 				* MemoryManager.ADDRESS_SIZE;
-		out.add(new OpASM("Fix up preserve params.", OpCode.ADD, Reg.RSP.name(), Integer.toString(offset)));
+		if (offset != 0) {
+			out.add(new OpASM("Fix up preserve params.", OpCode.ADD, Reg.RSP
+					.name(), Integer.toString(offset)));
+		}
 
 		return out;
 	}

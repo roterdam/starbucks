@@ -26,12 +26,14 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 	private List<Web> liveWebs;
 	private List<Reg> needToSaveRegisters;
 	private int paramCount;
+	private boolean saveValueDisabled;
 
 	public MidCallNode(String name, int paramCount) {
 		this.name = name;
 		this.liveWebs = new ArrayList<Web>();
 		this.paramCount = paramCount;
 		this.needToSaveRegisters = new ArrayList<Reg>();
+		this.saveValueDisabled = false;
 	}
 
 	@Override
@@ -68,7 +70,11 @@ public class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
 
 	@Override
 	public List<ASM> toASM() {
-		return AsmVisitor.methodCall(this);
+		return AsmVisitor.methodCall(this, saveValueDisabled);
+	}
+
+	public void disableSaveValue() {
+		this.saveValueDisabled = true;
 	}
 
 }
