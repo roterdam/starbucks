@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import edu.mit.compilers.codegen.asm.ASM;
+import edu.mit.compilers.codegen.nodes.FillerMidNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
@@ -16,6 +17,11 @@ public class MidNodeList implements List<MidNode> {
 	private MidNode head;
 	private MidNode tail;
 	int size;
+	
+	public MidNodeList() {
+		head = new FillerMidNode();
+		tail = head;
+	}
 
 	/**
 	 * Please do not add a node twice to the list. Breaks will shit.
@@ -24,7 +30,7 @@ public class MidNodeList implements List<MidNode> {
 		assert object != null : "Don't add null to the list!";
 		// this is not an all encompassing assert
 		assert object.getNextNode() == null : "Don't add things that are already in lists: "
-				+ object.toString()	
+				+ object.toString()
 				+ "\nalready has next="
 				+ object.getNextNode().toString()
 				+ "\n(list:"
@@ -146,7 +152,7 @@ public class MidNodeList implements List<MidNode> {
 
 	private class LinkedListIterator implements Iterator<MidNode> {
 		MidNode currentNode;
-		
+
 		class LinkedListHeadNode extends MidNode {
 		}
 
@@ -154,7 +160,7 @@ public class MidNodeList implements List<MidNode> {
 			currentNode = new LinkedListHeadNode();
 			currentNode.setNextNode(MidNodeList.this.getHead());
 		}
-		
+
 		@Override
 		public boolean hasNext() {
 			return currentNode.getNextNode() != null;
