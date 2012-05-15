@@ -130,17 +130,8 @@ public class AsmVisitor {
 	public static List<ASM> methodCall(MidCallNode callNode,
 			boolean saveValueDisabled) {
 		String name = callNode.getName();
-		Reg destinationRegister = callNode.getRegister();
-		return methodCall(name, destinationRegister, (callNode instanceof MidCalloutNode), saveValueDisabled);
-	}
 
-	/**
-	 * Helper method used by other MidNodes (method calls and callouts) to
-	 * follow calling convention.
-	 */
-	public static List<ASM> methodCall(String name, Reg destinationRegister,
-			boolean extern, boolean saveValueDisabled) {
-		if (extern) {
+		if (callNode instanceof MidCalloutNode) {
 			externCalls.add(name);
 		}
 		List<ASM> out = new ArrayList<ASM>();
@@ -148,7 +139,8 @@ public class AsmVisitor {
 		// Always set RAX to 0.
 		out.add(new OpASM(OpCode.CALL, name));
 
-		if (!saveValueDisabled) {
+		if (!callNode.saveValueDisabled()) {
+			Reg destinationRegister = callNode.getRegister();
 			// Push RAX into destinationRegister.
 			out.add(new OpASM("Saving results of " + name, OpCode.MOV,
 					destinationRegister.name(), Reg.RAX.name()));

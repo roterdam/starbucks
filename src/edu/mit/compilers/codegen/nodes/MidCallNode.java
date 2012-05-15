@@ -20,7 +20,8 @@ import edu.mit.compilers.opt.regalloc.nodes.LiveWebsActivist;
  * @author joshma
  * 
  */
-public abstract class MidCallNode extends MidRegisterNode implements LiveWebsActivist {
+public abstract class MidCallNode extends MidRegisterNode implements
+		LiveWebsActivist {
 
 	private String name;
 	private List<Web> liveWebs;
@@ -65,14 +66,15 @@ public abstract class MidCallNode extends MidRegisterNode implements LiveWebsAct
 				needToSaveRegisters.add(r);
 			}
 		}
-		LogCenter.debug("CALL", "APPLIED ALLOCATED MAPPINGS FOR " + getName() + ": " + needToSaveRegisters);
+		LogCenter.debug("CALL", "APPLIED ALLOCATED MAPPINGS FOR " + getName()
+				+ ": " + needToSaveRegisters);
 	}
 
 	@Override
 	public List<ASM> toASM() {
 		return AsmVisitor.methodCall(this, saveValueDisabled);
 	}
-	
+
 	public boolean saveValueDisabled() {
 		return saveValueDisabled;
 	}
@@ -80,7 +82,13 @@ public abstract class MidCallNode extends MidRegisterNode implements LiveWebsAct
 	public void disableSaveValue() {
 		this.saveValueDisabled = true;
 	}
-	
+
 	abstract public boolean isStarbucksCall();
+	
+	@Override
+	public void setRegister(Reg reg) {
+		assert !saveValueDisabled;
+		super.setRegister(reg);
+	}
 
 }

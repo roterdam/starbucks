@@ -91,12 +91,6 @@ public class MemoryManager {
 				}
 				if (m instanceof MidRegisterNode
 						&& !((MidRegisterNode) m).hasRegister()) {
-					if (m instanceof MidCallNode) {
-						if (!((MidCallNode) m).saveValueDisabled()) {
-							((MidRegisterNode) m)
-									.setRegister(allocTempRegister());
-						}
-					}
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}
 				if (m instanceof MidSaveNode
@@ -126,7 +120,10 @@ public class MemoryManager {
 			}
 			if (m instanceof MidRegisterNode
 					&& !((MidRegisterNode) m).hasRegister()) {
-				((MidRegisterNode) m).setRegister(allocTempRegister());
+				if (!(m instanceof MidCallNode)
+						|| !((MidCallNode) m).saveValueDisabled()) {
+					((MidRegisterNode) m).setRegister(allocTempRegister());
+				}
 			}
 		}
 		methodDeclNode.setLocalStackSize(localStackSize);
