@@ -69,7 +69,8 @@ public class CMState implements State<CMState> {
 		Set<Block> visited = new HashSet<Block>();
 		Stack<Block> agenda = new Stack<Block>();
 
-		// Initial case
+		// Do initial case separately to avoid infinite
+		// recursion, fix this later
 		Loop l = new Loop(depth);
 		l.addBlock(b);
 		agenda.addAll(b.getSuccessors());

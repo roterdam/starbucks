@@ -19,7 +19,6 @@ import edu.mit.compilers.grammar.DecafScanner;
 import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
-import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.cm.CMState;
 import edu.mit.compilers.opt.cm.CMTransfer;
 import edu.mit.compilers.opt.cm.CMTransformer;
@@ -27,8 +26,10 @@ import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
 import edu.mit.compilers.opt.cse.CSEGlobalState;
-import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.cse.CSETransfer;
+import edu.mit.compilers.opt.cse.CSETransformer;
+import edu.mit.compilers.opt.regalloc.LivenessDoctor;
+import edu.mit.compilers.opt.regalloc.LivenessState;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -183,10 +184,15 @@ public class Main {
 							}
 							
 							if (isEnabled(OPT_CM)) {
-								Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
+								Analyzer<CMState, CMTransfer> nestingAnalyzer = new Analyzer<CMState, CMTransfer>(
 										new CMState().getInitialState(),
 										new CMTransfer());
-								analyzer.analyze(symbolTable);
+								nestingAnalyzer.analyze(symbolTable);
+								Analyzer<LivenessState, LivenessDoctor> livenessAnalyzer = new Analyzer<LivenessState, LivenessDoctor>(
+										new LivenessState().getInitialState(),
+										new LivenessDoctor());
+								CMTransformer localAnalyzer = new CMTransformer(livenessAnalyzer);
+								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
 							}
 
 //							 if (isEnabled(OPT_DCE)) {
