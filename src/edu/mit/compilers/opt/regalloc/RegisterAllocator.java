@@ -76,11 +76,11 @@ public class RegisterAllocator {
 		for (MidNode node : methodDeclNode.getNodeList()) {
 			if (node instanceof Allocatable) {
 				Allocatable allocatedNode = (Allocatable) node;
-				Reg allocatedReg = mapping
-						.get(knitter.lookupWeb(allocatedNode));
+				Web web = knitter.lookupWeb(allocatedNode);
+				Reg allocatedReg = mapping.get(web);
 				if (allocatedReg != null) {
 					LogCenter.debug("RA", "Allocating " + allocatedReg.name()
-							+ " to " + node);
+							+ " (" + web + ") to " + node);
 					allocatedNode.allocateRegister(allocatedReg);
 				}
 				continue;

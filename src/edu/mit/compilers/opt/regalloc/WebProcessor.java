@@ -39,6 +39,7 @@ public class WebProcessor implements Transfer<WebState> {
 				}
 				Web web = webDefs.get(node);
 				out.killWeb(web);
+				out.interfereWith(web);
 				continue;
 			}
 			if (node instanceof MidUseNode) {
