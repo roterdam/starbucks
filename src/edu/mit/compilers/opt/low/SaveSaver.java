@@ -68,7 +68,8 @@ public class SaveSaver {
 										.getOpCode();
 								if (nextNextOpCode == OpCode.ADD
 										|| nextNextOpCode == OpCode.IMUL
-										|| nextNextOpCode == OpCode.SUB) {
+										|| nextNextOpCode == OpCode.SUB
+										|| nextNextOpCode == OpCode.CMP) {
 									// We know we have:
 									// MOV R10, R1
 									// MOV R11, R2
@@ -79,6 +80,16 @@ public class SaveSaver {
 									String nextNextFrom = nextNextArgs[1];
 									assert dest.equals(nextNextDest)
 											&& nextDest.equals(nextNextFrom);
+									if (nextNextOpCode == OpCode.CMP) {
+										String finalFrom = from;
+										if (!isRegister(finalFrom)) {
+											out.add(item);
+											finalFrom = dest;
+										}
+										out.add(new OpASM("AS84", OpCode.CMP, finalFrom, nextFrom));
+										i += 2;
+										continue;
+									}
 									// Check if the 4th instruction can be
 									// removed, i.e.
 									// MOV R1, 10
