@@ -44,16 +44,16 @@ public class WebGraph {
 
 	public Web removeMostConstrainedVertex() {
 		assert !graphData.isEmpty();
-		Web out;
+		Web removed = null;
 		int maxDegree = -1;
 		for (Web vertex : graphData.keySet()) {
 			int n = getDegree(vertex);
 			if (n > maxDegree) {
 				maxDegree = n;
-				out = vertex;
+				removed = vertex;
 			}
 		}
-		return removeVertex(graphData.keySet().iterator().next());
+		return removeVertex(removed);
 	}
 
 	public int getDegree(Web web) {

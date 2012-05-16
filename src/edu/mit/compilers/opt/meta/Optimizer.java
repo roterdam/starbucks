@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.meta;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import com.google.common.io.Files;
 
@@ -10,6 +11,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
@@ -134,19 +136,24 @@ public class Optimizer {
 				}
 
 				// Try a test file.
-				testFile = new File(testDir, String.format("starbucks%d.s", iterID));
+				testFile = new File(testDir, String.format("starbucks%d.s",
+						iterID));
 				MemoryManager.assignStorage(symbolTable);
+
+				List<ASM> asmList = AsmVisitor.buildASMList(symbolTable);
+
 				writeToOutput(testFile.getAbsolutePath(),
-						AsmVisitor.generate(symbolTable));
+						AsmVisitor.generateText(asmList));
 				LogCenter.debug("META",
 						"Wrote to " + testFile.getAbsolutePath());
 
-//				try {
-//					long time = TestBench.testFile(testFile);
-//					LogCenter.debug("META", "Expecting the binary to take " + time + "ms.");
-//				} catch (IOException e) {
-//					abort("Could not create directory and files to test binaries.");
-//				}
+				// try {
+				// long time = TestBench.testFile(testFile);
+				// LogCenter.debug("META", "Expecting the binary to take " +
+				// time + "ms.");
+				// } catch (IOException e) {
+				// abort("Could not create directory and files to test binaries.");
+				// }
 
 				break;
 			}
@@ -162,7 +169,7 @@ public class Optimizer {
 			// If no optimizations, go straight to writing the final file.
 			MemoryManager.assignStorage(symbolTable);
 			writeToOutput(finalFile.getAbsolutePath(),
-					AsmVisitor.generate(symbolTable));
+					AsmVisitor.generateText(AsmVisitor.buildASMList(symbolTable)));
 		}
 
 		// Clean up temp files if necessary.

@@ -36,8 +36,21 @@ public class AsmVisitor {
 	private AsmVisitor(MidSymbolTable symbolTable) {
 	}
 
-	public static String generate(MidSymbolTable symbolTable) {
+	public static String generateText(List<ASM> asm) {
 
+		StringBuilder out = new StringBuilder();
+		for (String extern : externCalls) {
+			out.append(new OpASM(OpCode.EXTERN, extern).toString());
+		}
+		
+		for (ASM asmLine : asm) {
+			out.append(asmLine.toString());
+		}
+
+		return out.toString();
+	}
+	
+	public static List<ASM> buildASMList(MidSymbolTable symbolTable) {
 		dataSection = createDataSection();
 
 		List<ASM> asm = new ArrayList<ASM>();
@@ -63,16 +76,7 @@ public class AsmVisitor {
 		asm.addAll(dataSection);
 		asm.addAll(readOnlySection);
 		asm.addAll(textSection);
-
-		StringBuilder out = new StringBuilder();
-		for (String extern : externCalls) {
-			out.append(new OpASM(OpCode.EXTERN, extern).toString());
-		}
-		for (ASM asmLine : asm) {
-			out.append(asmLine.toString());
-		}
-
-		return out.toString();
+		return asm;
 	}
 
 	public static List<ASM> exitCall(int exitCode) {
