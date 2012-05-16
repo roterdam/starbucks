@@ -26,7 +26,7 @@ public class WebProcessor implements Transfer<WebState> {
 	@Override
 	public WebState apply(Block b, WebState s) {
 		assert (webDefs != null && webUses != null) : "WebProcessor function apply() called before initialize().";
-		LogCenter.debug("RA", "\n########\nProcessing " + b);
+		//LogCenter.debug("RA", "\n########\nProcessing " + b);
 		WebState out = s.clone();
 		LogCenter.debug("RA", "Live webs: " + out.getLiveWebs());
 		for (MidNode node : b.reverse()) {

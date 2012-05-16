@@ -118,6 +118,10 @@ public class Main {
 					if (CLI.optOn) {
 						// Do algebraic simplifications.
 						((CLASSNode) parser.getAST()).simplifyExpressions();
+						
+						// Do for loop unrolling.
+						//((CLASSNode) parser.getAST()).unroll();
+						
 					}
 
 					if (CLI.visual) {

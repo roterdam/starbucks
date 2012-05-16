@@ -41,6 +41,11 @@ public class PotentialCheckDivideByZeroNode extends DecafNode {
 	public boolean isActive(){
 		return active;
 	}
+	
+	@Override
+	public DecafNode deepCopy(){
+		return new PotentialCheckDivideByZeroNode((ExpressionNode) expr.deepCopy(), active);
+	}
 
 	
 }

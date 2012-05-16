@@ -110,7 +110,7 @@ public class Optimizer {
 		}
 
 		if (optsOn) {
-			LogCenter.debug("SB", "STARTING AS.");
+			LogCenter.debug("SB", "STARTING AS. naht");
 			MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
 			simplifier.analyze(symbolTable);
 		}

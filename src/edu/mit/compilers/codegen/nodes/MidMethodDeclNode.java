@@ -87,7 +87,7 @@ public class MidMethodDeclNode extends MidNode {
 		List<ASM> mainList = nodeList.toASM();
 
 		// Only save items if we're going to return (and not exit) at the end.
-		if (mainList.get(mainList.size() - 1).isRet()) {
+		if (!mainList.isEmpty() && mainList.get(mainList.size() - 1).isRet()) {
 			// Save callee-saved registers. Traverse the tree to figure out
 			// which ones we need to save - assume that any ones that we need to
 			// save will be identified in a save node.

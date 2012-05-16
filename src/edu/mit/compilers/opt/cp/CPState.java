@@ -59,8 +59,8 @@ public class CPState implements State<CPState> {
 			MidMemoryNode map2 = otherMap.get(key);
 			if (map1 instanceof MidConstantNode
 					&& map2 instanceof MidConstantNode) {
-				long val1 = ((MidConstantNode) map1).getValue();
-				long val2 = ((MidConstantNode) map2).getValue();
+				long val1 = ((MidConstantNode) map1).getConstant();
+				long val2 = ((MidConstantNode) map2).getConstant();
 				if (val1 == val2) {
 					outMap.put(key, map1);
 				}

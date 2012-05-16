@@ -8,6 +8,7 @@ import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.grammar.ExpressionNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
+import edu.mit.compilers.opt.forunroll.Unroller;
 
 @SuppressWarnings("serial")
 public class ASSIGNNode extends DecafNode {
@@ -45,6 +46,11 @@ public class ASSIGNNode extends DecafNode {
 	@Override
 	public void simplifyExpressions(){
 		AlgebraicSimplifier.visit(this);
+	}
+	
+	@Override
+	public boolean isUnrollable(String var, boolean hasLoopScope){
+		return Unroller.isUnrollable(this, var, hasLoopScope);
 	}
 
 }

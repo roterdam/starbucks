@@ -7,6 +7,7 @@ import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.Scope.BlockType;
 import edu.mit.compilers.grammar.DecafNode;
 import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
+import edu.mit.compilers.opt.forunroll.Unroller;
 
 @SuppressWarnings("serial")
 public class FORNode extends DecafNode {
@@ -46,5 +47,15 @@ public class FORNode extends DecafNode {
 	@Override
 	public void simplifyExpressions(){
 		AlgebraicSimplifier.visit(this);
+	}
+	
+	@Override
+	public DecafNode unroll(){
+		return Unroller.unroll(this);
+	}
+	
+	@Override
+	public boolean isUnrollable(String var, boolean hasLoopScope){
+		return Unroller.isUnrollable(this, var, hasLoopScope);
 	}
 }

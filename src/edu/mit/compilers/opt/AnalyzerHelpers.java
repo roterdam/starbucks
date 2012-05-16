@@ -1,7 +1,9 @@
 package edu.mit.compilers.opt;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
+import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
@@ -42,6 +44,37 @@ public class AnalyzerHelpers {
 		block.delete(saveNode.getRegNode());
 		block.delete(saveNode);
 	}
+	
+	
+	public static void completeReplaceBinary(MidSaveNode saveNode, MidNodeList replaceList) {
+		MidNode insertBefore = saveNode.getNextNode();
+		
+		saveNode.delete();
+		assert saveNode.getRegNode() instanceof MidArithmeticNode;
+		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
+		LogCenter.debug("OPT", "DELETING " + arithNode);
+		arithNode.delete();
+		arithNode.getLeftOperand().delete();
+		arithNode.getRightOperand().delete();
+		
+		MidNode insertAfter = insertBefore.getPrevNode();
+		insertAfter.insertNodeListAfter(replaceList);
+	}
+
+	public static void completeReplaceUnary(MidSaveNode saveNode, MidNodeList replaceList) {
+		MidNode insertBefore = saveNode.getNextNode();
+		
+		saveNode.delete();
+		assert saveNode.getRegNode() instanceof MidNegNode;
+		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
+		LogCenter.debug("OPT", "DELETING " + negNode);
+		negNode.delete();
+		negNode.getOperand().delete();
+		
+
+		MidNode insertAfter = insertBefore.getPrevNode();
+		insertAfter.insertNodeListAfter(replaceList);
+	}	
 
 	public static void completeDeleteMethodSave(MidSaveNode saveNode,
 			Block block) {

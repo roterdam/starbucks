@@ -11,7 +11,7 @@ import edu.mit.compilers.grammar.ExpressionNode;
 public abstract class DoubleOperandNode extends ExpressionNode {
 
 	public ExpressionNode getLeftOperand() {
-		assert getChild(0) instanceof ExpressionNode;
+		assert getChild(0) instanceof ExpressionNode : toString() + " has left op = "+getChild(0);
 		return (ExpressionNode) getChild(0);
 	}
 
