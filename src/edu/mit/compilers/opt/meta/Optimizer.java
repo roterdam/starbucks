@@ -110,9 +110,9 @@ public class Optimizer {
 		}
 
 		if (optsOn) {
-			LogCenter.debug("SB", "STARTING AS.");
-			MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
-			simplifier.analyze(symbolTable);
+			LogCenter.debug("SB", "STARTING AS. naht");
+			//MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+			//simplifier.analyze(symbolTable);
 		}
 
 		LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations " + (x - 1)
