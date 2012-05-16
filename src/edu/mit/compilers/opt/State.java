@@ -7,7 +7,7 @@ public interface State<T> {
 	 * start of the program or the end, depending on whether it's forward or
 	 * backwards.
 	 */
-	public T getInitialState();
+	public T getInitialState(Block b);
 	
 	public T getBottomState();
 

@@ -1,11 +1,10 @@
-package edu.mit.compilers.opt.cm;
+package edu.mit.compilers.opt.cmold;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -18,19 +17,22 @@ public class CMState implements State<CMState> {
 	
 	HashMap<Block, Loop> nesting;
 	HashMap<MidSaveNode, Block> defBlock;
+	int counter;
 	
 	public CMState() {
 		this.nesting = new HashMap<Block, Loop>();
 		this.defBlock = new HashMap<MidSaveNode, Block>();
+		this.counter = 0;
 	}
 	
 	public CMState(HashMap<Block, Loop> nesting, HashMap<MidSaveNode, Block> defBlock) {
 		this.nesting = nesting;
 		this.defBlock = defBlock;
+		this.counter = 0;
 	}
 	
 	@Override
-	public CMState getInitialState() {
+	public CMState getInitialState(Block b) {
 		return new CMState();
 	}
 
@@ -68,53 +70,84 @@ public class CMState implements State<CMState> {
 	public HashMap<MidSaveNode, Block> getDefBlock() {
 		return defBlock;
 	}
-
-	public void processBlock(Block b, int depth) {
-		
-		// Already processed block, small hack to avoid
-		// rewriting an analyzer function
+	
+	public void processBlock(Block b) {
 		if (nesting.get(b) != null) {
 			return;
 		}
 
 		Set<Block> visited = new HashSet<Block>();
-		Stack<Block> agenda = new Stack<Block>();
+		ArrayList<Block> agenda = new ArrayList<Block>();
 
-		// Do initial case separately to avoid infinite
-		// recursion, fix this later
-		Loop l = new Loop(depth);
+		Loop l = new Loop();
+		if (b.getPredecessors().size() == 0) {
+			l.setDepth(0);
+			l.setNum(0);
+		}
 		l.addBlock(b);
 		agenda.addAll(b.getSuccessors());
 		visited.add(b);
 		
 		while (agenda.size() > 0) {
-			Block current = agenda.pop();
+			Block current = agenda.remove(0);
 			if (!visited.contains(current)) {
 				visited.add(current);
 				MidNode node = current.getHead();
 				if (node instanceof MidLabelNode) {
 					MidLabelNode label = (MidLabelNode) node;
 					if (label.getType() == LabelType.WHILE || label.getType() == LabelType.FOR) {
-						processBlock(current, depth+1);
-						for (Block c : nesting.get(current).getBlocks()) {
-							l.addBlock(c);
-						}
+						processBlock(current);
+						Loop child = nesting.get(current);
+						l.addChild(child);
+						child.addParent(l);
 					} else if (label.getType() != LabelType.ELIHW && label.getType() != LabelType.ROF) {
 						agenda.addAll(current.getSuccessors());
 					}
+					l.addBlock(current);
 				} else {
+					l.addBlock(current);
 					agenda.addAll(current.getSuccessors());
 				}
-				l.addBlock(current);
 			}
 		}
-		LogCenter.debug("CM", "Depth " + depth);
-		LogCenter.debug("CM", "Num Blocks " + l.getBlocks().size());
-		for (Block e : l.getBlocks()) {
-			LogCenter.debug("CM", "Block " + e.getHead());
-			nesting.put(e, l);
+		for (Block lb : l.getBlocks()) {
+			nesting.put(lb, l);
 		}
 	}
+	
+	public void updateDepth() {
+		for (Loop nested : nesting.values()) {
+			if (nested.getDepth() == 0) {
+				updateDepth(nested);
+			}
+		}
+	}
+	
+	private void updateDepth(Loop l) {
+		for (Loop child : l.getChildren()) {
+			child.setDepth(l.getDepth() + 1);
+			updateDepth(child);
+		}
+	}
+	
+	public void updateCounter() {
+		for (Loop nested : nesting.values()) {
+			if (nested.getDepth() == 0) {
+				counter = 0;
+				updateCounter(nested);
+				break;
+			}
+		}
+	}
+	
+	private void updateCounter(Loop l) {
+		for (Loop child : l.getChildren()) {
+			counter++;
+			child.setNum(counter);
+			updateCounter(child);
+		}
+	}
+	
 	
 	@Override
 	public boolean equals(Object o) {

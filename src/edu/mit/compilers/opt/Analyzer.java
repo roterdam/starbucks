@@ -16,11 +16,16 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	protected S startState;
 	private T transferFunction;
 	private HashMap<Block, S> outHash;
+	private static List<Block> referenceBlocks;
 
 	public Analyzer(S s, T t) {
 		startState = s;
 		transferFunction = t;
 		outHash = new HashMap<Block, S>();
+	}
+	
+	public static List<Block> getReferenceBlocks() {
+		return referenceBlocks;
 	}
 
 	public void analyze(MidSymbolTable symbolTable) {
@@ -34,6 +39,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	private void analyzeMidNodeList(MidNodeList nodeList) {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
+		referenceBlocks = new ArrayList<Block>(worklist);
 		LogCenter
 				.debug("OPT", "BLOCKS:\n"
 						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
@@ -46,7 +52,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 		// Do the first node
 		Block n0 = worklist.get(0);
 		LogCenter.debug("OPT", "Process " + n0);
-		outHash.put(n0, transferFunction.apply(n0, startState.getInitialState()));
+		outHash.put(n0, transferFunction.apply(n0, startState.getInitialState(n0)));
 		worklist.remove(n0);
 
 		while (!worklist.isEmpty()) {

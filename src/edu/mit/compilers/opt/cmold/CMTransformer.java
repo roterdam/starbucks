@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt.cm;
+package edu.mit.compilers.opt.cmold;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +29,7 @@ public class CMTransformer extends Transformer<CMState> {
 		this.defBlock = defBlock;
 	}
 
-	private Map<MidLoadNode, MidSaveNode> buildUseDef(
-			Map<MidSaveNode, Set<MidUseNode>> defUse) {
+	private Map<MidLoadNode, MidSaveNode> buildUseDef(Map<MidSaveNode, Set<MidUseNode>> defUse) {
 		HashMap<MidLoadNode, MidSaveNode> useDef = new HashMap<MidLoadNode, MidSaveNode>();
 		for (Entry<MidSaveNode, Set<MidUseNode>> e : defUse.entrySet()) {
 			MidSaveNode sn = e.getKey();
@@ -52,46 +51,42 @@ public class CMTransformer extends Transformer<CMState> {
 		} else {
 			local = state.clone();
 		}
-
+		
 		Loop l = local.getLoop(block);
 
-		if (l == null) {
+		if (l.getDepth() == 0) {
 			LogCenter.debug("CM", "" + block.getHead()
 					+ " not a loop, skipping");
 			return;
 		}
-
-		boolean invariant = false;
-
+		
+		boolean invariant;
+		
 		for (MidNode node : block) {
-			LogCenter.debug("CM", "Checking " + node.toString()
-					+ " for invariance");
-			if (node instanceof MidSaveNode
-					&& ((MidSaveNode) node).savesRegister()) {
-				MidRegisterNode reg = ((MidSaveNode) node).getRegNode();
+			invariant = false;
+			if (node instanceof MidSaveNode && ((MidSaveNode) node).savesRegister()) {
+				MidRegisterNode reg = (MidRegisterNode) ((MidSaveNode) node).getRegNode();
 				if (reg instanceof MidArithmeticNode) {
-					MidLoadNode left = ((MidArithmeticNode) reg)
-							.getLeftOperand();
-					MidLoadNode right = ((MidArithmeticNode) reg)
-							.getRightOperand();
-					Loop leftLoop = local
-							.getLoop(defBlock.get(useDef.get(left)));
-					Loop rightLoop = local.getLoop(defBlock.get(useDef
-							.get(right)));
-					if (l.compareTo(leftLoop) == 1
-							&& l.compareTo(rightLoop) == 1) {
+					MidLoadNode left = ((MidArithmeticNode) reg).getLeftOperand();
+					MidLoadNode right = ((MidArithmeticNode) reg).getRightOperand();
+					Loop checkLeft = local.getLoop(defBlock.get(useDef.get(left)));
+					Loop checkRight = local.getLoop(defBlock.get(useDef.get(right)));
+					LogCenter.debug("CM", "loop " + l.getDepth());
+					LogCenter.debug("CM", "left " + checkLeft);
+					LogCenter.debug("CM", "right " + checkRight);
+					if (checkLeft.getNum() < l.getNum() && checkRight.getNum() < l.getNum()) {
 						invariant = true;
 					}
 				} else if (reg instanceof MidNegNode) {
 					MidLoadNode neg = ((MidNegNode) reg).getOperand();
 					Loop loop = local.getLoop(defBlock.get(useDef.get(neg)));
-					if (l.compareTo(loop) == 1) {
+					if (loop.getNum() < l.getNum()) {
 						invariant = true;
 					}
 				} else if (reg instanceof MidLoadNode) {
 					MidLoadNode load = (MidLoadNode) reg;
 					Loop loop = local.getLoop(defBlock.get(useDef.get(load)));
-					if (l.compareTo(loop) == 1) {
+					if (loop.getNum() < l.getNum()) {
 						invariant = true;
 					}
 				}

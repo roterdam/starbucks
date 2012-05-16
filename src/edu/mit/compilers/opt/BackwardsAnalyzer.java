@@ -34,20 +34,22 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 	private void analyzeMidNodeList(MidNodeList nodeList) {
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
-		LogCenter
-				.debug("RA", "BLOCKS:\n"
-						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
+		LogCenter.debug(
+				"RA",
+				"BLOCKS:\n"
+						+ Block.recursiveToString(worklist.get(0),
+								new ArrayList<Block>(), 2));
 
 		// Don't forget that since we're working backwards the "in state" is the
 		// output of the block!
 		Block exit = findTail(worklist.get(0), new ArrayList<Block>());
 		for (Block b : worklist) {
 			if (b != exit) {
-				inStates.put(b, startState.getInitialState());
+				inStates.put(b, startState.getBottomState());
 			}
 		}
-		inStates.put(exit, transferFunction.apply(exit, startState
-				.getInitialState()));
+		inStates.put(exit,
+				transferFunction.apply(exit, startState.getInitialState(exit)));
 		worklist.remove(exit);
 
 		while (!worklist.isEmpty()) {
@@ -69,8 +71,8 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 	private S getOutState(Block b) {
 		assert b != null;
 		S out = null;
-		LogCenter.debug("RA", String
-				.format("Getting in-state of %s\nWith %s predecessors.", b, b
+		LogCenter.debug("RA", String.format(
+				"Getting in-state of %s\nWith %s predecessors.", b, b
 						.getSuccessors().size()));
 		for (Block m : b.getSuccessors()) {
 			assert inStates.get(m) != null : "Block not found in inStates: "

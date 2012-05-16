@@ -10,6 +10,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
+import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.HashMapUtils;
 import edu.mit.compilers.opt.State;
 
@@ -34,7 +35,7 @@ public class CPState implements State<CPState> {
 	}
 
 	@Override
-	public CPState getInitialState() {
+	public CPState getInitialState(Block b) {
 		return new CPState();
 	}
 

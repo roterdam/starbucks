@@ -2,6 +2,8 @@ package edu.mit.compilers.opt.meta;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.io.Files;
 
@@ -11,9 +13,10 @@ import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
+import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
-import edu.mit.compilers.opt.cm.CMState;
-import edu.mit.compilers.opt.cm.CMTransfer;
+import edu.mit.compilers.opt.cm.DomState;
+import edu.mit.compilers.opt.cm.DomTransfer;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -30,7 +33,7 @@ import edu.mit.compilers.opt.regalloc.RegisterAllocator;
  * experiments to find the best set. This is a singleton.
  */
 public class Optimizer {
-	
+
 	private static int iterID = -1;
 
 	private static final int MAX_CSE_CP_DCE_TIMES = 5;
@@ -46,7 +49,7 @@ public class Optimizer {
 	private final boolean enableDCE;
 	private final boolean enableCM;
 	private final boolean enableRA;
-	
+
 	private Optimizer(int options) {
 		optsOn = (options & Options.OPTS_ON) == Options.OPTS_ON;
 		enableCSE = (options & Options.CSE) == Options.CSE;
@@ -68,8 +71,7 @@ public class Optimizer {
 
 			if (enableCSE) {
 				Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
-						new CSEGlobalState().getInitialState(),
-						new CSETransfer());
+						new CSEGlobalState(), new CSETransfer());
 				analyzer.analyze(symbolTable);
 				CSETransformer localAnalyzer = new CSETransformer();
 				localAnalyzer.analyze(analyzer, symbolTable);
@@ -77,7 +79,7 @@ public class Optimizer {
 
 			if (enableCP) {
 				Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
-						new CPState().getInitialState(), new CPTransfer());
+						new CPState(), new CPTransfer());
 				analyzer.analyze(symbolTable);
 				CPTransformer localAnalyzer = new CPTransformer();
 				localAnalyzer.analyze(analyzer, symbolTable);
@@ -93,9 +95,24 @@ public class Optimizer {
 			}
 
 			if (enableCM) {
-				Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
-						new CMState().getInitialState(), new CMTransfer());
-				analyzer.analyze(symbolTable);
+				Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
+						new DomState(), new DomTransfer());
+				dominatorAnalyzer.analyze(symbolTable);
+				List<Block> processedBlocks = dominatorAnalyzer
+						.getProcessedBlocks();
+				Block entry = null;
+				for (Block b : processedBlocks) {
+					if (b.getPredecessors().isEmpty()) {
+						entry = b;
+					}
+				}
+				LogCenter.debug("CM", Block
+						.recursiveToString(entry, new ArrayList<Block>(), 0));
+				for (Block b : processedBlocks) {
+					LogCenter.debug("CM", "block " + b.getBlockNum() + " ("
+							+ b.getHead() + ") is dominated by: "
+							+ dominatorAnalyzer.getAnalyzedState(b));
+				}
 			}
 
 			x++;
@@ -122,17 +139,17 @@ public class Optimizer {
 			} catch (IllegalStateException e) {
 				abort("Could not create folder for testing binaries.");
 			}
-			
+
 			File testFile = new File(testDir, String.format("%d.s", iterID));
-			
+
 			MemoryManager.assignStorage(symbolTable);
 			writeToOutput(testFile.getAbsolutePath(), AsmVisitor.generate(symbolTable));
 			LogCenter.debug("META", "Wrote to " + testFile.getAbsolutePath());
-			
+
 			testDir.delete();
 
 		}
-		
+
 		MemoryManager.assignStorage(symbolTable);
 
 		// System.out.println(symbolTable.toDotSyntax(true));

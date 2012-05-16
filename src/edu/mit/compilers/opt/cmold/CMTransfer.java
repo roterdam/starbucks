@@ -1,7 +1,5 @@
-package edu.mit.compilers.opt.cm;
+package edu.mit.compilers.opt.cmold;
 
-import edu.mit.compilers.codegen.MidLabelManager.LabelType;
-import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.opt.Block;
@@ -12,15 +10,16 @@ public class CMTransfer implements Transfer<CMState> {
 	@Override
 	public CMState apply(Block b, CMState in) {
 		CMState out = in.clone();
-
+		
+		out.processBlock(b);
+		
+		// hackish to call these here, lots of repeated work
+		// but shouldn't make a difference
+		out.updateDepth();
+		out.updateCounter();
+		
 		for (MidNode node : b) {
-			if (node instanceof MidLabelNode) {
-				MidLabelNode label = (MidLabelNode) node;
-				if (label.getType() == LabelType.FOR || label.getType() == LabelType.WHILE) {
-					out.processBlock(b, 1);
-				}
-			}
-			else if (node instanceof MidSaveNode) {
+			if (node instanceof MidSaveNode) {
 				MidSaveNode save = (MidSaveNode) node;
 				out.processDef(save, b);
 			}
