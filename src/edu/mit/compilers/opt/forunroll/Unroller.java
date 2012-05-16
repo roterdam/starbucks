@@ -28,7 +28,7 @@ public class Unroller {
 	
 	static int varCounter = 0;
 	
-	static int LARGEST_UNROLL_LG = 5; // corresponds to 2**5 unroll.
+	static int LARGEST_UNROLL_LG = 1; // corresponds to 2**5 unroll.
 	
 	public static String getVariableName(){
 		return "!unroll_"+varCounter++;

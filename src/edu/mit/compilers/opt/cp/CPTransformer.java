@@ -1,7 +1,6 @@
 package edu.mit.compilers.opt.cp;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.Main;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidMethodCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -13,6 +12,7 @@ import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transformer;
+import edu.mit.compilers.opt.meta.Optimizer;
 
 public class CPTransformer extends Transformer<CPState> {
 
@@ -25,8 +25,8 @@ public class CPTransformer extends Transformer<CPState> {
 			localState = state.clone();
 		}
 
-		LogCenter.debug("CP", "\n\nTransforming block:\n" + block
-				+ "\n State:\n" + state);
+		//LogCenter.debug("CP", "\n\nTransforming block:\n" + block
+		//		+ "\n State:\n" + state);
 
 		for (MidNode node : block) {
 			if (node instanceof MidSaveNode
@@ -66,7 +66,7 @@ public class CPTransformer extends Transformer<CPState> {
 					replacementNode = localState.lookup(memNode);
 					if (replacementNode != memNode) {
 						loadNode.updateMemoryNode(replacementNode, true);
-						Main.setHasAdditionalChanges();
+						Optimizer.setHasAdditionalChanges();
 					}
 				}
 

@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes.regops;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -40,6 +41,7 @@ public class MidParamLoadNode extends MidLoadNode {
 							.name(), fromReg.name()), OpCode.MOV, destReg
 					.name(), String.format("qword [ RSP + %d ]", preserveNode
 					.getOffset())));
+			LogCenter.debug("JM", "Requesting we shift offset (" + this + ")");
 			preserveNode.shiftOffset();
 		} else {
 			out = super.toASM();
@@ -48,6 +50,7 @@ public class MidParamLoadNode extends MidLoadNode {
 		if (destRegIndex == -1) {
 			// We'll be pushing to the stack, so we need to adjust the stack
 			// offset for preserved params.
+			LogCenter.debug("JM", "Requesting we shift offset (" + this + ")");
 			preserveNode.shiftOffset();
 		}
 		return out;

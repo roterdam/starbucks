@@ -1,7 +1,9 @@
 package edu.mit.compilers.codegen.nodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidNodeList;
@@ -17,6 +19,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
+import edu.mit.compilers.opt.meta.Optimizer;
 import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
 
 /**
@@ -28,6 +31,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	private MidRegisterNode registerNode;
 	private long decafIntValue;
 	private boolean decafBooleanValue;
+	private Map<Integer, Reg> allocatedRegs;
 
 	private static enum MidSaveNodeType {
 		REGISTER, INT, BOOLEAN;
@@ -35,11 +39,11 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 	private MidSaveNodeType saveType;
 	private MidMemoryNode destination;
-	private Reg allocatedReg;
 
 	private MidSaveNode(MidMemoryNode dest) {
 		assert dest != null;
 		this.destination = dest;
+		allocatedRegs = new HashMap<Integer, Reg>();
 	}
 
 	public MidSaveNode(MidRegisterNode refNode, MidMemoryNode dest) {
@@ -49,7 +53,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 		if (registerNode instanceof MidLoadNode) {
 			((MidLoadNode) registerNode).recordRegisterOp(this);
 		}
-//		registerNode.record(this);
+		// registerNode.record(this);
 	}
 
 	public static MidNodeList storeValueInMemory(long decafIntValue,
@@ -180,10 +184,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 		String comment = (isOptimization ? "[OPT] " : "") + toString();
 		String destinationString;
-		if (allocatedReg == null) {
+		if (!allocatedRegs.containsKey(Optimizer.getIterID())) {
 			destinationString = destination.getFormattedLocationReference();
 		} else {
-			destinationString = allocatedReg.name();
+			destinationString = allocatedRegs.get(Optimizer.getIterID()).name();
 		}
 		out.add(new OpASM(comment, OpCode.MOV, destinationString, rightOperand));
 
@@ -209,12 +213,12 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 	@Override
 	public void allocateRegister(Reg allocatedReg) {
-		this.allocatedReg = allocatedReg;
+		allocatedRegs.put(Optimizer.getIterID(), allocatedReg);
 	}
 
 	@Override
 	public Reg getAllocatedRegister() {
-		return allocatedReg;
+		return allocatedRegs.get(Optimizer.getIterID());
 	}
-	
+
 }

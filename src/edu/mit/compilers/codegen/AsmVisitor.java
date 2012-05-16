@@ -24,14 +24,34 @@ public class AsmVisitor {
 
 	// Static variable because Strings have to be added to it from within other
 	// code.
-	private static List<ASM> dataSection = createDataSection();
-	private static List<ASM> readOnlySection = createReadOnlySection();
-	private static Set<String> externCalls = new HashSet<String>();
+	private static List<ASM> dataSection;
+	private static List<ASM> readOnlySection;
+	private static Set<String> externCalls;
+
+	static {
+		readOnlySection = createReadOnlySection();
+		externCalls = new HashSet<String>();
+	}
 
 	private AsmVisitor(MidSymbolTable symbolTable) {
 	}
 
-	public static String generate(MidSymbolTable symbolTable) {
+	public static String generateText(List<ASM> asm) {
+
+		StringBuilder out = new StringBuilder();
+		for (String extern : externCalls) {
+			out.append(new OpASM(OpCode.EXTERN, extern).toString());
+		}
+		
+		for (ASM asmLine : asm) {
+			out.append(asmLine.toString());
+		}
+
+		return out.toString();
+	}
+	
+	public static List<ASM> buildASMList(MidSymbolTable symbolTable) {
+		dataSection = createDataSection();
 
 		List<ASM> asm = new ArrayList<ASM>();
 		List<ASM> textSection = createTextSection();
@@ -56,16 +76,7 @@ public class AsmVisitor {
 		asm.addAll(dataSection);
 		asm.addAll(readOnlySection);
 		asm.addAll(textSection);
-
-		StringBuilder out = new StringBuilder();
-		for (String extern : externCalls) {
-			out.append(new OpASM(OpCode.EXTERN, extern).toString());
-		}
-		for (ASM asmLine : asm) {
-			out.append(asmLine.toString());
-		}
-
-		return out.toString();
+		return asm;
 	}
 
 	public static List<ASM> exitCall(int exitCode) {

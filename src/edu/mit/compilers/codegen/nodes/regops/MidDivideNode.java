@@ -19,25 +19,24 @@ public class MidDivideNode extends MidRDXOverwriter {
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 		// a/b -> a is dividend, b is divisor (i always forget :[)
-		String RAX = Reg.RAX.name();
 		if (shouldPreserveRDX()) {
 			out.add(new OpASM(toString() + " (save)", OpCode.PUSH, Reg.RDX
 					.name()));
 		}
-		out.add(new OpASM(toString(), OpCode.MOV, RAX, this.getLeftOperand()
-				.getRegister().name()));
+		out.add(new OpASM(toString(), OpCode.MOV, Reg.RAX.name(), this
+				.getLeftOperand().getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.CQO));
 		out.add(new OpASM(toString(), OpCode.IDIV, this.getRightOperand()
 				.getRegister().name()));
 		out.add(new OpASM(toString(), OpCode.MOV, this.getRegister().name(),
-				RAX));
+				Reg.RAX.name()));
 		if (shouldPreserveRDX()) {
 			out.add(new OpASM(toString() + " (restore)", OpCode.POP, Reg.RDX
 					.name()));
 		}
 		return out;
 	}
-	
+
 	@Override
 	public long applyOperation(long left, long right) {
 		return left / right;

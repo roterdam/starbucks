@@ -35,6 +35,8 @@ public class RegisterAllocator {
 			// Caller saved, but also used in DIV and MOD.
 			Reg.RDX };
 
+	public static final Reg[] TEMP_REGISTERS = { Reg.R10, Reg.R11 };
+
 	public RegisterAllocator(MidSymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
 	}

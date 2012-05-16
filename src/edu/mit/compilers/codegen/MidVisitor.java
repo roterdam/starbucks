@@ -509,8 +509,8 @@ public class MidVisitor {
 		try {
 			MidNodeList rightOperandList = node.getExpression()
 					.convertToMidLevel(symbolTable);
-			MidMemoryNode leftOperandNode = symbolTable.getVar(node
-					.getLocation().getText());
+			ValuedMidNodeList leftEvalList = getMemoryLocation(node.getLocation(), symbolTable);
+			MidMemoryNode leftOperandNode = leftEvalList.getReturnNode();
 
 			// Load from memory into register and add to left hand side
 			MidLoadNode loadRightNode = new MidLoadNode(
@@ -524,6 +524,7 @@ public class MidVisitor {
 
 			// Save from register to memory
 			newOperandList.addAll(rightOperandList);
+			newOperandList.addAll(leftEvalList.getList());
 			newOperandList.add(loadLeftNode);
 			newOperandList.add(loadRightNode);
 			newOperandList.add(binaryRegNode);

@@ -14,6 +14,7 @@ import edu.mit.compilers.codegen.nodes.memory.MidLocalMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
+import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 
 /**
  * Handles traversing through code in order to assign memory and register
@@ -29,9 +30,10 @@ public class MemoryManager {
 	@SuppressWarnings("serial")
 	public static Map<Reg, Boolean> tempRegisterMap = new HashMap<Reg, Boolean>() {
 		{
-			// Only allow R10 and R11
-			put(Reg.R10, true);
-			put(Reg.R11, true);
+			for (Reg r : RegisterAllocator.TEMP_REGISTERS) {
+				// Only allow R10 and R11
+				put(r, true);
+			}
 		}
 	};
 
@@ -73,8 +75,7 @@ public class MemoryManager {
 		for (MidNode m : methodDeclNode.getNodeList()) {
 			LogCenter.debug("MEM", m.toString());
 
-			if ((m instanceof MidLocalMemoryNode)
-					&& !((MidLocalMemoryNode) m).hasRawLocationReference()) {
+			if (m instanceof MidLocalMemoryNode) {
 				localStackSize += ADDRESS_SIZE;
 				((MidMemoryNode) m).setRawLocationReference(Integer
 						.toString(localStackSize));
@@ -103,9 +104,8 @@ public class MemoryManager {
 					LogCenter.debug("MEM", "Deallocate array ref " + arrayNode
 							+ "?");
 					if (arrayNode.usesArrayRegister()) {
-						LogCenter
-								.debug("MEM", "deallocating array register of "
-										+ m);
+						LogCenter.debug("MEM",
+								"deallocating array register of " + m);
 						deallocTempRegister(arrayNode.getArrayRegister());
 					}
 				}
@@ -139,16 +139,20 @@ public class MemoryManager {
 				return r;
 			}
 		}
-		// return Reg.R9;
 		throw new RuntimeException("Ran out of registers somehow!.");
 	}
 
 	public static void deallocTempRegister(Reg r) {
-		tempRegisterMap.put(r, true);
-		assert r != null : "Why is this register null?";
-		LogCenter.debug("MEM", " dealloc " + r.name());
-		LogCenter.debug("MEM", tempRegisterMap.toString());
-		LogCenter.debug("MEM", "");
+		if (tempRegisterMap.containsKey(r)) {
+			// Only deallocate it if it was ever allocated in the first place.
+			// Sometimes we accidentally deallocate something like RAX for a
+			// custom call and we don't want it to be re-used.
+			tempRegisterMap.put(r, true);
+			assert r != null : "Why is this register null?";
+			LogCenter.debug("MEM", " dealloc " + r.name());
+			LogCenter.debug("MEM", tempRegisterMap.toString());
+			LogCenter.debug("MEM", "");
+		}
 	}
 
 	private static void deallocAllTempRegisters() {
