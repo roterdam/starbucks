@@ -25,6 +25,14 @@ public class OpASM extends ASM {
 	public String[] getArgs() {
 		return args;
 	}
+	
+	public String getComment() {
+		return comment;
+	}
+	
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
 	@Override
 	public String toString() {
