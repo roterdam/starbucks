@@ -85,7 +85,6 @@ public class Block implements Iterable<MidNode> {
 	}
 
 	public String toString() {
-		assert false;
 		if (getHead() == null) {
 			return "B" + blockNum + "[]";
 		}
@@ -103,7 +102,6 @@ public class Block implements Iterable<MidNode> {
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
-		assert false;
 		String out = b.getBlockNum() + " ["
 				+ (b.getHead() == null ? "" : b.getHead()) + "]";
 		visited.add(b);

@@ -40,9 +40,6 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 		// Get all the blocks
 		List<Block> worklist = Block.getAllBlocks(nodeList);
 		referenceBlocks = new ArrayList<Block>(worklist);
-		LogCenter
-				.debug("OPT", "BLOCKS:\n"
-						+ Block.recursiveToString(worklist.get(0), new ArrayList<Block>(), 2));
 
 		// Set all the outs to bottom
 		for (Block block : worklist) {
