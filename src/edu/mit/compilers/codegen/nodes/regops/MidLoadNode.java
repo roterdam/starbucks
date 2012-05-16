@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
+import edu.mit.compilers.codegen.nodes.memory.MidFieldArrayDeclNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.opt.meta.Optimizer;
 import edu.mit.compilers.opt.regalloc.nodes.Allocatable;
@@ -28,6 +29,7 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 
 	public MidLoadNode(MidMemoryNode memoryNode) {
 		super();
+		assert !(memoryNode instanceof MidFieldArrayDeclNode) : "Tried to set memoryNode of load node to a MidFieldArrayDeclNode.";
 		this.memoryNode = memoryNode;
 		registerOpNodes = new ArrayList<RegisterOpNode>();
 		allocatedRegs = new HashMap<Integer, Reg>();
