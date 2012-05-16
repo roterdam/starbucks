@@ -13,6 +13,7 @@ public class CMTransfer implements Transfer<CMState> {
 		
 		out.processBlock(b);
 		out.updateDepth();
+		out.updateCounter();
 		
 		for (MidNode node : b) {
 			if (node instanceof MidSaveNode) {

@@ -52,9 +52,9 @@ public class CMTransformer extends Transformer<CMState> {
 			local = state.clone();
 		}
 
-		Loop l = local.getLoop(block);
+		/*Loop l = local.getLoop(block);
 
-		if (l == null) {
+		if (l.getDepth() == 0) {
 			LogCenter.debug("CM", "" + block.getHead()
 					+ " not a loop, skipping");
 			return;
@@ -62,7 +62,7 @@ public class CMTransformer extends Transformer<CMState> {
 		
 		boolean invariant;
 		
-		/*for (MidNode node : block) {
+		for (MidNode node : block) {
 			invariant = false;
 			if (node instanceof MidSaveNode && ((MidSaveNode) node).savesRegister()) {
 				MidRegisterNode reg = (MidRegisterNode) ((MidSaveNode) node).getRegNode();
@@ -74,19 +74,20 @@ public class CMTransformer extends Transformer<CMState> {
 					LogCenter.debug("CM", "loop " + l.getDepth());
 					LogCenter.debug("CM", "left " + checkLeft);
 					LogCenter.debug("CM", "right " + checkRight);
-					if (l.compareTo(checkLeft) == 1 && l.compareTo(checkRight) == 1) {
+					if (checkLeft.getNum() < l.getNum() && checkRight.getNum() < l.getNum()) {
 						invariant = true;
 					}
 				} else if (reg instanceof MidNegNode) {
 					MidLoadNode neg = ((MidNegNode) reg).getOperand();
 					Loop loop = local.getLoop(defBlock.get(useDef.get(neg)));
-					if (l.compareTo(loop) == 1) {
+					if (loop.getNum() < l.getNum()) {
 						invariant = true;
 					}
 				} else if (reg instanceof MidLoadNode) {
 					MidLoadNode load = (MidLoadNode) reg;
+					LogCenter.debug("CM", "" + load);
 					Loop loop = local.getLoop(defBlock.get(useDef.get(load)));
-					if (l.compareTo(loop) == 1) {
+					if (loop.getNum() < l.getNum()) {
 						invariant = true;
 					}
 				}

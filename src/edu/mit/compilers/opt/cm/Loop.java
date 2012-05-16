@@ -16,6 +16,7 @@ public class Loop {
 		this.parents = new HashSet<Loop>();
 		this.children = new HashSet<Loop>();
 		this.depth = -1;
+		this.num = -1;
 	}
 	
 	public int getDepth() {

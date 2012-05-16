@@ -18,15 +18,18 @@ public class CMState implements State<CMState> {
 	
 	HashMap<Block, Loop> nesting;
 	HashMap<MidSaveNode, Block> defBlock;
+	int counter;
 	
 	public CMState() {
 		this.nesting = new HashMap<Block, Loop>();
 		this.defBlock = new HashMap<MidSaveNode, Block>();
+		this.counter = 0;
 	}
 	
 	public CMState(HashMap<Block, Loop> nesting, HashMap<MidSaveNode, Block> defBlock) {
 		this.nesting = nesting;
 		this.defBlock = defBlock;
+		this.counter = 0;
 	}
 	
 	@Override
@@ -80,6 +83,7 @@ public class CMState implements State<CMState> {
 		Loop l = new Loop();
 		if (b.getPredecessors().size() == 0) {
 			l.setDepth(0);
+			l.setNum(0);
 		}
 		l.addBlock(b);
 		agenda.addAll(b.getSuccessors());
@@ -94,8 +98,9 @@ public class CMState implements State<CMState> {
 					MidLabelNode label = (MidLabelNode) node;
 					if (label.getType() == LabelType.WHILE || label.getType() == LabelType.FOR) {
 						processBlock(current);
-						l.addChild(nesting.get(current));
-						nesting.get(current).addParent(l);
+						Loop child = nesting.get(current);
+						l.addChild(child);
+						child.addParent(l);
 					} else if (label.getType() != LabelType.ELIHW && label.getType() != LabelType.ROF) {
 						l.addBlock(current);
 						agenda.addAll(current.getSuccessors());
@@ -107,6 +112,7 @@ public class CMState implements State<CMState> {
 			}
 		}
 		LogCenter.debug("CM", "Loop with num blocks " + l.getBlocks().size());
+		LogCenter.debug("CM", "Loop with counter " + l.getNum());
 		LogCenter.debug("CM", "Blocks are");
 		for (Block lb : l.getBlocks()) {
 			LogCenter.debug("CM", "" + lb);
@@ -117,9 +123,9 @@ public class CMState implements State<CMState> {
 	public void updateDepth() {
 		for (Loop nested : nesting.values()) {
 			if (nested.getDepth() == 0) {
-				LogCenter.debug("CM", "Top level with " + nested.getBlocks().size() + " and depth " + nested.getDepth());
+				//LogCenter.debug("CM", "Top level with " + nested.getBlocks().size() + " and depth " + nested.getDepth());
 				for (Block b : nested.getBlocks()) {
-					LogCenter.debug("CM", "" + b);
+					//LogCenter.debug("CM", "" + b);
 				}
 				updateDepth(nested);
 				break;
@@ -130,13 +136,39 @@ public class CMState implements State<CMState> {
 	private void updateDepth(Loop l) {
 		for (Loop child : l.getChildren()) {
 			child.setDepth(l.getDepth() + 1);
-			LogCenter.debug("CM", "Child with " + child.getBlocks().size() + " and depth " + child.getDepth());
+			//LogCenter.debug("CM", "Child with " + child.getBlocks().size() + " and depth " + child.getDepth());
 			for (Block b : child.getBlocks()) {
-				LogCenter.debug("CM", "" + b);
+				//LogCenter.debug("CM", "" + b);
 			}
 			updateDepth(child);
 		}
 	}
+	
+	public void updateCounter() {
+		for (Loop nested : nesting.values()) {
+			if (nested.getDepth() == 0) {
+				LogCenter.debug("CM", "Top level with " + nested.getDepth() + " and counter " + nested.getNum());
+				for (Block b : nested.getBlocks()) {
+					//LogCenter.debug("CM", "" + b);
+				}
+				updateCounter(nested);
+				break;
+			}
+		}
+	}
+	
+	private void updateCounter(Loop l) {
+		for (Loop child : l.getChildren()) {
+			child.setNum(++counter);
+			LogCenter.debug("CM", "Child with " + child.getDepth() + " and counter " + child.getNum());
+			for (Block b : child.getBlocks()) {
+				//LogCenter.debug("CM", "" + b);
+			}
+			updateCounter(child);
+		}
+	}
+	
+	
 	
 	@Override
 	public boolean equals(Object o) {

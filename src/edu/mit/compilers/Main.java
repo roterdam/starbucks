@@ -201,13 +201,13 @@ public class Main {
 										cms,
 										new CMTransfer());
 								nestingAnalyzer.analyze(symbolTable);
-								/*LivenessDoctor doctor = new LivenessDoctor();
+								LivenessDoctor doctor = new LivenessDoctor();
 								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
 										new LivenessState().getBottomState(),
 										doctor);
 								analyzer.analyze(symbolTable);
 								CMTransformer localAnalyzer = new CMTransformer(doctor.getDefUseMap(), cms.getDefBlock());
-								localAnalyzer.analyze(nestingAnalyzer, symbolTable);*/
+								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
 							}
 
 							x++;
