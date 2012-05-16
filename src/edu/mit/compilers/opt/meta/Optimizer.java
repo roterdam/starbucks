@@ -24,6 +24,7 @@ import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.dce.DeadCodeElim;
+import edu.mit.compilers.opt.low.SaveSaver;
 import edu.mit.compilers.opt.regalloc.LivenessDoctor;
 import edu.mit.compilers.opt.regalloc.LivenessState;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
@@ -141,6 +142,7 @@ public class Optimizer {
 				MemoryManager.assignStorage(symbolTable);
 
 				List<ASM> asmList = AsmVisitor.buildASMList(symbolTable);
+				asmList = SaveSaver.pruneList(asmList);
 
 				writeToOutput(testFile.getAbsolutePath(),
 						AsmVisitor.generateText(asmList));

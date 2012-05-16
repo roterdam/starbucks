@@ -17,6 +17,14 @@ public class OpASM extends ASM {
 		this.op = op;
 		this.args = args;
 	}
+	
+	public OpCode getOpCode() {
+		return op;
+	}
+	
+	public String[] getArgs() {
+		return args;
+	}
 
 	@Override
 	public String toString() {
