@@ -669,7 +669,7 @@ public class MidVisitor {
 						LogCenter.debug("REBC", "p4");
 						String iterVar = idNode.getText();
 						FORNode forNode = iterDeclNode.getForNode();
-						if (forNode.isUnrollable(iterVar, true)){
+						if (forNode.getBlockNode().isUnrollable(iterVar, true)){
 							LogCenter.debug("REBC", "p5");
 							long arraySize = arrayNode.getLength();
 							ExpressionNode initExpr = forNode.getForInitializeNode().getAssignNode().getExpression();
