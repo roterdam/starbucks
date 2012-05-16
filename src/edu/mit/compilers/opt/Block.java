@@ -165,8 +165,8 @@ public class Block implements Iterable<MidNode> {
 		blockCache.clear();
 		// Make block will recursively make all the blocks and save them into
 		// the block cache.
-		LogCenter.debug("OPT", "BLOCK: Starting getAllBlocks with "
-				+ nodeList.getHead());
+		LogCenter.debug("OPT",
+				"BLOCK: Starting getAllBlocks with " + nodeList.getHead());
 		Block head = makeBlock(nodeList.getHead());
 		List<Block> out = new ArrayList<Block>(blockCache.values());
 		// Force head to the beginning.
@@ -244,6 +244,18 @@ public class Block implements Iterable<MidNode> {
 			}
 
 		};
+	}
+
+	public void setPredecessor(Block preheader) {
+		this.predecessors = new ArrayList<Block>();
+		this.predecessors.add(preheader);
+	}
+
+	public void add(MidNode node) {
+		MidNode oldNext = tail.getNextNode();
+		tail.setNextNode(node);
+		node.setNextNode(oldNext);
+		tail = node;
 	}
 
 }

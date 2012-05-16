@@ -59,7 +59,7 @@ public class DomState implements State<DomState> {
 		return domSet.equals(oDomState.getDomSet());
 	}
 
-	private Set<Block> getDomSet() {
+	Set<Block> getDomSet() {
 		return domSet;
 	}
 

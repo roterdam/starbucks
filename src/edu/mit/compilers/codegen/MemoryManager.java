@@ -122,6 +122,9 @@ public class MemoryManager {
 					&& !((MidRegisterNode) m).hasRegister()) {
 				if (!(m instanceof MidCallNode)
 						|| !((MidCallNode) m).saveValueDisabled()) {
+					if (m instanceof MidCallNode) {
+					LogCenter.debug("MEM", "Allocating reg for " + ((MidCallNode) m).getName());
+					}
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}
 			}

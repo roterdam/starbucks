@@ -3,8 +3,8 @@ package edu.mit.compilers.opt.meta;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.io.Files;
 
@@ -17,8 +17,11 @@ import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
+import edu.mit.compilers.opt.cm.CodeHoister;
 import edu.mit.compilers.opt.cm.DomState;
 import edu.mit.compilers.opt.cm.DomTransfer;
+import edu.mit.compilers.opt.cm.DominanceRecord;
+import edu.mit.compilers.opt.cm.LoopGenerator;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -100,29 +103,27 @@ public class Optimizer {
 				dce.analyze(analyzer, symbolTable);
 			}
 
-			if (enableCM) {
-				Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
-						new DomState(), new DomTransfer());
-				dominatorAnalyzer.analyze(symbolTable);
-				List<Block> processedBlocks = dominatorAnalyzer
-						.getProcessedBlocks();
-				Block entry = null;
-				for (Block b : processedBlocks) {
-					if (b.getPredecessors().isEmpty()) {
-						entry = b;
-					}
-				}
-				LogCenter.debug("CM", Block
-						.recursiveToString(entry, new ArrayList<Block>(), 0));
-				for (Block b : processedBlocks) {
-					LogCenter.debug("CM", "block " + b.getBlockNum() + " ("
-							+ b.getHead() + ") is dominated by: "
-							+ dominatorAnalyzer.getAnalyzedState(b));
-				}
-			}
-
 			x++;
 		}
+		
+//		if (enableCM) {
+//			LogCenter.debug("CM", "I'm being called anyways.");
+//			Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
+//					new DomState(), new DomTransfer());
+//			dominatorAnalyzer.analyze(symbolTable);
+//			DominanceRecord record = new DominanceRecord(dominatorAnalyzer);
+//			// Perform DFS through CFGs to build list of loops (IDed by loop end).
+//			LoopGenerator generator = new LoopGenerator(record);
+//			generator.run();
+//			
+//			LivenessDoctor doctor = new LivenessDoctor();
+//			BackwardsAnalyzer<LivenessState, LivenessDoctor> livenessAnalyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+//					new LivenessState().getBottomState(), doctor);
+//			livenessAnalyzer.analyze(symbolTable);
+//			
+//			CodeHoister hoister = new CodeHoister(generator, doctor);
+//			hoister.hoist();
+//		}
 
 		if (optsOn) {
 			LogCenter.debug("SB", "STARTING AS.");
