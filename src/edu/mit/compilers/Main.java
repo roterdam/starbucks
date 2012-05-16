@@ -86,13 +86,15 @@ public class Main {
 						inputStream));
 				DecafParser parser = new DecafParser(scanner);
 				boolean trace = false;
-				for (int i = 0; i < CLI.tags.length; i++) {
-					if (CLI.tags[i].equals("PARSE")) {
-						trace = true;
+				if (CLI.tags != null) {
+					for (int i = 0; i < CLI.tags.length; i++) {
+						if (CLI.tags[i].equals("PARSE")) {
+							trace = true;
+						}
 					}
 				}
 				parser.setTrace(trace);
-				
+
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
