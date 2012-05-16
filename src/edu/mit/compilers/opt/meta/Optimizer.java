@@ -100,7 +100,12 @@ public class Optimizer {
 				dce.analyze(analyzer, symbolTable);
 			}
 
-			
+			if (optsOn) {
+				LogCenter.debug("SB", "STARTING AS. naht");
+				MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+				simplifier.analyze(symbolTable);
+			}
+
 			if (enableCM) {
 				LogCenter.debug("SB", "STARTING CM.");
 				Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
@@ -109,12 +114,6 @@ public class Optimizer {
 			}
 
 			x++;
-		}
-
-		if (optsOn) {
-			LogCenter.debug("SB", "STARTING AS. naht");
-			MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
-			simplifier.analyze(symbolTable);
 		}
 
 		LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations " + (x - 1)
@@ -173,7 +172,8 @@ public class Optimizer {
 			// If no optimizations, go straight to writing the final file.
 			MemoryManager.assignStorage(symbolTable);
 			writeToOutput(finalFile.getAbsolutePath(),
-					AsmVisitor.generateText(AsmVisitor.buildASMList(symbolTable)));
+					AsmVisitor.generateText(AsmVisitor
+							.buildASMList(symbolTable)));
 		}
 
 		// Clean up temp files if necessary.
