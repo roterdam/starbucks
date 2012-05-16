@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
+import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.State;
 
 public class WebState implements State<WebState> {
@@ -23,7 +24,7 @@ public class WebState implements State<WebState> {
 	}
 
 	@Override
-	public WebState getInitialState() {
+	public WebState getInitialState(Block b) {
 		return new WebState();
 	}
 

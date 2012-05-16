@@ -1,4 +1,4 @@
-package edu.mit.compilers.opt.cm;
+package edu.mit.compilers.opt.cmold;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class CMTransformer extends Transformer<CMState> {
 			local = state.clone();
 		}
 		
-		/*Loop l = local.getLoop(block);
+		Loop l = local.getLoop(block);
 
 		if (l.getDepth() == 0) {
 			LogCenter.debug("CM", "" + block.getHead()
@@ -85,7 +85,6 @@ public class CMTransformer extends Transformer<CMState> {
 					}
 				} else if (reg instanceof MidLoadNode) {
 					MidLoadNode load = (MidLoadNode) reg;
-					LogCenter.debug("CM", "" + load);
 					Loop loop = local.getLoop(defBlock.get(useDef.get(load)));
 					if (loop.getNum() < l.getNum()) {
 						invariant = true;
@@ -95,7 +94,7 @@ public class CMTransformer extends Transformer<CMState> {
 				LogCenter.debug("CM", "" + node.toString() + " is invariant? "
 						+ invariant);
 			}
-		}*/
+		}
 	}
 
 }

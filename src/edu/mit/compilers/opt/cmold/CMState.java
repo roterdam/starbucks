@@ -1,11 +1,10 @@
-package edu.mit.compilers.opt.cm;
+package edu.mit.compilers.opt.cmold;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -33,7 +32,7 @@ public class CMState implements State<CMState> {
 	}
 	
 	@Override
-	public CMState getInitialState() {
+	public CMState getInitialState(Block b) {
 		return new CMState();
 	}
 
@@ -102,20 +101,16 @@ public class CMState implements State<CMState> {
 						l.addChild(child);
 						child.addParent(l);
 					} else if (label.getType() != LabelType.ELIHW && label.getType() != LabelType.ROF) {
-						l.addBlock(current);
 						agenda.addAll(current.getSuccessors());
 					}
+					l.addBlock(current);
 				} else {
 					l.addBlock(current);
 					agenda.addAll(current.getSuccessors());
 				}
 			}
 		}
-		LogCenter.debug("CM", "Loop with num blocks " + l.getBlocks().size());
-		LogCenter.debug("CM", "Loop with counter " + l.getNum());
-		LogCenter.debug("CM", "Blocks are");
 		for (Block lb : l.getBlocks()) {
-			LogCenter.debug("CM", "" + lb);
 			nesting.put(lb, l);
 		}
 	}
@@ -123,10 +118,6 @@ public class CMState implements State<CMState> {
 	public void updateDepth() {
 		for (Loop nested : nesting.values()) {
 			if (nested.getDepth() == 0) {
-				//LogCenter.debug("CM", "Top level with " + nested.getBlocks().size() + " and depth " + nested.getDepth());
-				for (Block b : nested.getBlocks()) {
-					//LogCenter.debug("CM", "" + b);
-				}
 				updateDepth(nested);
 			}
 		}
@@ -135,10 +126,6 @@ public class CMState implements State<CMState> {
 	private void updateDepth(Loop l) {
 		for (Loop child : l.getChildren()) {
 			child.setDepth(l.getDepth() + 1);
-			//LogCenter.debug("CM", "Child with " + child.getBlocks().size() + " and depth " + child.getDepth());
-			for (Block b : child.getBlocks()) {
-				//LogCenter.debug("CM", "" + b);
-			}
 			updateDepth(child);
 		}
 	}
@@ -146,26 +133,20 @@ public class CMState implements State<CMState> {
 	public void updateCounter() {
 		for (Loop nested : nesting.values()) {
 			if (nested.getDepth() == 0) {
-				LogCenter.debug("CM", "Top level with " + nested.getDepth() + " and counter " + nested.getNum());
-				for (Block b : nested.getBlocks()) {
-					//LogCenter.debug("CM", "" + b);
-				}
+				counter = 0;
 				updateCounter(nested);
+				break;
 			}
 		}
 	}
 	
 	private void updateCounter(Loop l) {
 		for (Loop child : l.getChildren()) {
-			child.setNum(++counter);
-			LogCenter.debug("CM", "Child with " + child.getDepth() + " and counter " + child.getNum());
-			for (Block b : child.getBlocks()) {
-				//LogCenter.debug("CM", "" + b);
-			}
+			counter++;
+			child.setNum(counter);
 			updateCounter(child);
 		}
 	}
-	
 	
 	
 	@Override

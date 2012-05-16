@@ -10,6 +10,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUseNode;
+import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.State;
 
 public class LivenessState implements State<LivenessState> {
@@ -121,7 +122,7 @@ public class LivenessState implements State<LivenessState> {
 	}
 
 	@Override
-	public LivenessState getInitialState() {
+	public LivenessState getInitialState(Block b) {
 		return new LivenessState();
 	}
 

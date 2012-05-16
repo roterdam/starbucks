@@ -3,12 +3,17 @@ package edu.mit.compilers;
 import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.codegen.*;
+import edu.mit.compilers.codegen.AsmVisitor;
+import edu.mit.compilers.codegen.MemoryManager;
+import edu.mit.compilers.codegen.MidSymbolTable;
+import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
@@ -17,11 +22,10 @@ import edu.mit.compilers.grammar.DecafScannerTokenTypes;
 import edu.mit.compilers.grammar.tokens.CLASSNode;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
+import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
-import edu.mit.compilers.opt.cm.CMState;
-import edu.mit.compilers.opt.cm.CMTransfer;
-import edu.mit.compilers.opt.cm.CMTransformer;
-import edu.mit.compilers.opt.cm.Loop;
+import edu.mit.compilers.opt.cm.DomState;
+import edu.mit.compilers.opt.cm.DomTransfer;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -29,7 +33,9 @@ import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.dce.DeadCodeElim;
-import edu.mit.compilers.opt.regalloc.*;
+import edu.mit.compilers.opt.regalloc.LivenessDoctor;
+import edu.mit.compilers.opt.regalloc.LivenessState;
+import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -168,7 +174,7 @@ public class Main {
 
 							if (isEnabled(OPT_CSE)) {
 								Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
-										new CSEGlobalState().getInitialState(),
+										new CSEGlobalState(),
 										new CSETransfer());
 								analyzer.analyze(symbolTable);
 								CSETransformer localAnalyzer = new CSETransformer();
@@ -177,7 +183,7 @@ public class Main {
 
 							if (isEnabled(OPT_CP)) {
 								Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
-										new CPState().getInitialState(),
+										new CPState(),
 										new CPTransfer());
 								analyzer.analyze(symbolTable);
 								CPTransformer localAnalyzer = new CPTransformer();
@@ -196,18 +202,40 @@ public class Main {
 							}
 
 							if (isEnabled(OPT_CM)) {
-								CMState cms = new CMState().getInitialState();
-								Analyzer<CMState, CMTransfer> nestingAnalyzer = new Analyzer<CMState, CMTransfer>(
-										cms,
-										new CMTransfer());
-								nestingAnalyzer.analyze(symbolTable);
-								LivenessDoctor doctor = new LivenessDoctor();
-								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
-										new LivenessState().getBottomState(),
-										doctor);
-								analyzer.analyze(symbolTable);
-								CMTransformer localAnalyzer = new CMTransformer(doctor.getDefUseMap(), cms.getDefBlock());
-								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
+								Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
+										new DomState(),
+										new DomTransfer());
+								dominatorAnalyzer.analyze(symbolTable);
+								List<Block> processedBlocks = dominatorAnalyzer.getProcessedBlocks();
+								Block entry = null;
+								for (Block b : processedBlocks) {
+									if (b.getPredecessors().isEmpty()) {
+										entry = b;
+									}
+								}
+								LogCenter.debug("CM", Block.recursiveToString(entry, new ArrayList<Block>(), 0));
+								for (Block b : processedBlocks) {
+									LogCenter.debug("CM", "block " + b.getBlockNum() + " (" + b.getHead() + ") is dominated by: " + dominatorAnalyzer.getAnalyzedState(b));
+								}
+								
+								/*for (Entry<String,MidMethodDeclNode> entry : symbolTable.getMethods().entrySet()) {
+									List<Block> allBlocks = Block.getAllBlocks(entry.getValue().getNodeList());
+									Dominator y = new Dominator(allBlocks);
+									for (Block b : allBlocks) {
+										LogCenter.debug("CM", "" + y.dom(b));
+									}
+								}*/
+//								Analyzer<CMState, CMTransfer> nestingAnalyzer = new Analyzer<CMState, CMTransfer>(
+//										new CMState().getInitialState(),
+//										new CMTransfer());
+//								nestingAnalyzer.analyze(symbolTable);
+//								LivenessDoctor doctor = new LivenessDoctor();
+//								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+//										new LivenessState().getBottomState(),
+//										doctor);
+//								analyzer.analyze(symbolTable);
+//								CMTransformer localAnalyzer = new CMTransformer(doctor.getDefUseMap(), cms.getDefBlock());
+//								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
 							}
 
 							x++;
