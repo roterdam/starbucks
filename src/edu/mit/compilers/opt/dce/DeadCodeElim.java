@@ -22,7 +22,6 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 
 	@Override
 	protected void transform(Block b, LivenessState state) {
-
 		LivenessState localState;
 		if (state == null) {
 			// Should be the return block
@@ -33,7 +32,7 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 		}
 
 		for (MidNode node : b.reverse()) {
-			LogCenter.debug("DCEDEBUG", "ITERATING OVER " + node.toString());
+			LogCenter.debug("DCE", "Checking out " + node);
 			if (node instanceof MidUseNode) {
 				// Use.
 				localState.processUse((MidUseNode) node);

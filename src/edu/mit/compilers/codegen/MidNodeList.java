@@ -19,12 +19,7 @@ public class MidNodeList implements List<MidNode> {
 	int size;
 
 	public MidNodeList() {
-		// head = null;
-		// tail = null;
-		// size = 0;
-		// head = new FillerMidNode();
-		// tail = head;
-		// size = 1;
+		size = 0;
 		add(new FillerMidNode());
 	}
 
@@ -63,14 +58,14 @@ public class MidNodeList implements List<MidNode> {
 		} else if (list.isEmpty()) { // never happens
 			assert false;
 		} else {
-			assert list.getHead() instanceof FillerMidNode;
+			//assert list.getHead() instanceof FillerMidNode;
 			//tail.setNextNode(list.getHead().getNextNode());
 			//tail = list.getTail();
 			//size += list.size() - 1;
 
-			 tail.setNextNode(list.getHead());
-			 tail = list.getTail();
-			 size += list.size();
+			tail.setNextNode(list.getHead());
+			tail = list.getTail();
+			size += list.size();
 		}
 
 		return true;

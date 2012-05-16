@@ -11,9 +11,9 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.memory.ArrayReferenceNode;
 import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
+import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.memory.MidTempDeclNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.RegisterOpNode;
@@ -56,7 +56,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 			MidTempDeclNode dest) {
 		// TODO: Optimize by using two mov's instead of a load and mov.
 		MidNodeList nodeList = new MidNodeList();
-		MidLoadImmNode loadNode = new MidLoadImmNode(decafIntValue);
+		MidLoadNode loadNode = new MidLoadNode(new MidConstantNode(decafIntValue));
 		MidSaveNode saveNode = new MidSaveNode(loadNode, dest);
 		dest.setConstantValue(decafIntValue);
 		nodeList.add(loadNode);

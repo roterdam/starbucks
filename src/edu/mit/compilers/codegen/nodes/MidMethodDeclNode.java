@@ -13,7 +13,6 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.LabelASM;
 import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
-import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.VarType;
 import edu.mit.compilers.opt.regalloc.RegisterAllocator;
 

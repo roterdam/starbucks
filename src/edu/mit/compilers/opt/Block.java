@@ -42,7 +42,7 @@ public class Block implements Iterable<MidNode> {
 		delNode.delete();
 	}
 
-	private MidNode getHead() {
+	public MidNode getHead() {
 		return head;
 	}
 
@@ -50,7 +50,7 @@ public class Block implements Iterable<MidNode> {
 		this.tail = t;
 	}
 
-	private MidNode getTail() {
+	public MidNode getTail() {
 		return tail;
 	}
 
@@ -123,6 +123,8 @@ public class Block implements Iterable<MidNode> {
 	public static int blockNumCounter = 0;
 
 	public static Block makeBlock(MidNode n) {
+		
+		LogCenter.debug("OPT", "Starting block with "+n.hashCode());
 		if (n == null) {
 			return null;
 		}
@@ -134,6 +136,8 @@ public class Block implements Iterable<MidNode> {
 			LogCenter.debug("OPT", "BLOCK: snap its cached");
 			return blockCache.get(n);
 		}
+		
+		LogCenter.debug("OPT", "Done making this block");
 		LogCenter.debug("OPT", "BLOCK: makeBlock " + n);
 		Block b = new Block(n, blockNumCounter++);
 		blockCache.put(n, b);
@@ -159,6 +163,7 @@ public class Block implements Iterable<MidNode> {
 						+ secondSuc.getHead());
 			}
 		}
+		LogCenter.debug("OPT", "Done making this block with "+n.hashCode());
 		return b;
 	}
 

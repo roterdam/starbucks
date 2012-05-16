@@ -8,10 +8,7 @@ import antlr.Token;
 import antlr.TokenStreamRecognitionException;
 import antlr.collections.AST;
 import antlr.debug.misc.ASTFrame;
-import edu.mit.compilers.codegen.AsmVisitor;
-import edu.mit.compilers.codegen.MemoryManager;
-import edu.mit.compilers.codegen.MidSymbolTable;
-import edu.mit.compilers.codegen.MidVisitor;
+import edu.mit.compilers.codegen.*;
 import edu.mit.compilers.crawler.DecafSemanticChecker;
 import edu.mit.compilers.grammar.DecafParser;
 import edu.mit.compilers.grammar.DecafParserTokenTypes;
@@ -22,6 +19,9 @@ import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
+import edu.mit.compilers.opt.cm.CMState;
+import edu.mit.compilers.opt.cm.CMTransfer;
+import edu.mit.compilers.opt.cm.CMTransformer;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -29,9 +29,7 @@ import edu.mit.compilers.opt.cse.CSEGlobalState;
 import edu.mit.compilers.opt.cse.CSETransfer;
 import edu.mit.compilers.opt.cse.CSETransformer;
 import edu.mit.compilers.opt.dce.DeadCodeElim;
-import edu.mit.compilers.opt.regalloc.LivenessDoctor;
-import edu.mit.compilers.opt.regalloc.LivenessState;
-import edu.mit.compilers.opt.regalloc.RegisterAllocator;
+import edu.mit.compilers.opt.regalloc.*;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 
@@ -40,9 +38,10 @@ public class Main {
 	private static final String OPT_CP = "cp";
 	private static final String OPT_RA = "regalloc";
 	private static final String OPT_DCE = "dce";
+	private static final String OPT_CM = "cm";
 	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static String[] OPTS = new String[] { OPT_CSE, OPT_CP, OPT_RA,
-			OPT_DCE };
+			OPT_DCE, OPT_CM };
 
 	// Statically track whether or not we're making optimizations.
 	private static boolean hasAdditionalChanges = false;
@@ -136,6 +135,10 @@ public class Main {
 					if (CLI.optOn) {
 						// Do algebraic simplifications.
 						((CLASSNode) parser.getAST()).simplifyExpressions();
+						
+						// Do for loop unrolling.
+						((CLASSNode) parser.getAST()).unroll();
+						
 					}
 
 					if (CLI.visual) {
@@ -190,24 +193,38 @@ public class Main {
 								CPTransformer localAnalyzer = new CPTransformer();
 								localAnalyzer.analyze(analyzer, symbolTable);
 							}
-							/*
+
 							if (isEnabled(OPT_DCE)) {
+								LogCenter.debug("DCE", "Starting DCE!");
 								LivenessDoctor doctor = new LivenessDoctor();
 								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
 										new LivenessState().getBottomState(),
 										doctor);
 								analyzer.analyze(symbolTable);
-								LogCenter.debug("DCE", "Starting DCE!");
 								DeadCodeElim dce = new DeadCodeElim();
 								dce.analyze(analyzer, symbolTable);
 							}
-							*/
+
+							if (isEnabled(OPT_CM)) {
+								CMState cms = new CMState().getInitialState();
+								Analyzer<CMState, CMTransfer> nestingAnalyzer = new Analyzer<CMState, CMTransfer>(
+										cms,
+										new CMTransfer());
+								nestingAnalyzer.analyze(symbolTable);
+								LivenessDoctor doctor = new LivenessDoctor();
+								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+										new LivenessState().getBottomState(),
+										doctor);
+								analyzer.analyze(symbolTable);
+								CMTransformer localAnalyzer = new CMTransformer(doctor.getDefUseMap(), cms.getDefBlock());
+								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
+							}
 							x++;
 						}
 
 						if (CLI.optOn) {
-							MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
-							simplifier.analyze(symbolTable);
+							//MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+							//simplifier.analyze(symbolTable);
 						}
 
 						LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations "

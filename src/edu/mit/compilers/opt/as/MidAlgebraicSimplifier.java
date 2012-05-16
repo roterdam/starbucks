@@ -11,11 +11,8 @@ import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 import edu.mit.compilers.codegen.nodes.regops.Identity;
-import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidBinaryRegNode;
-import edu.mit.compilers.codegen.nodes.regops.MidLoadImmNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
-import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
 import edu.mit.compilers.codegen.nodes.regops.MidRegisterNode;
 import edu.mit.compilers.codegen.nodes.regops.MidUnaryRegNode;
 import edu.mit.compilers.opt.AnalyzerHelpers;
@@ -55,8 +52,8 @@ public class MidAlgebraicSimplifier {
 					if (leftMemNode.isConstant() && rightMemNode.isConstant()) {
 						// If so, replace with a constant load.
 
-						long leftVal = ((MidConstantNode)leftMemNode).getValue();
-						long rightVal = ((MidConstantNode)rightMemNode).getValue();
+						long leftVal = ((MidConstantNode)leftMemNode).getConstant();
+						long rightVal = ((MidConstantNode)rightMemNode).getConstant();
 						long simpleVal = binaryNode.applyOperation(leftVal,
 								rightVal);
 						
@@ -64,7 +61,7 @@ public class MidAlgebraicSimplifier {
 						LogCenter.debug("MAS", ""+binaryNode.getRightOperand().getMemoryNode().getClass());
 						LogCenter.debug("MAS", "About to replace "+node+" with "+simpleVal);
 						
-						MidRegisterNode newRegNode = new MidLoadImmNode(simpleVal);
+						MidRegisterNode newRegNode = new MidLoadNode(new MidConstantNode(simpleVal));
 						
 						if(binaryNode.hasRegister())
 							newRegNode.setRegister(binaryNode.getRegister());
@@ -108,7 +105,7 @@ public class MidAlgebraicSimplifier {
 						
 						LogCenter.debug("MAS", "About to replace "+node+" with "+simpleVal);
 						
-						MidRegisterNode newRegNode = new MidLoadImmNode(simpleVal);
+						MidRegisterNode newRegNode = new MidLoadNode(new MidConstantNode(simpleVal));
 						
 						if(unaryNode.hasRegister())
 							newRegNode.setRegister(unaryNode.getRegister());

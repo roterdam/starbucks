@@ -1,6 +1,5 @@
 package edu.mit.compilers.opt;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +12,9 @@ public abstract class Transformer<S> {
 	public void analyze(DataflowAnalysis<S> analysis, MidSymbolTable symbolTable) {
 		Map<String, MidMethodDeclNode> methods = symbolTable.getMethods();
 		for (String methodName : methods.keySet()) {
-			LogCenter.debug("OPT", "Analyzing " + methodName);
-
 			List<Block> blocks = analysis.getProcessedBlocks();
-			LogCenter
-					.debug("OPT", "Blocks: "
-							+ Block.recursiveToString(blocks.get(0), new ArrayList<Block>(), 0));
+			LogCenter.debug("DCE", "Analyzing " + methodName + " ("
+					+ blocks.size() + " blocks)");
 			for (Block b : blocks) {
 				transform(b, analysis.getAnalyzedState(b));
 			}

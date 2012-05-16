@@ -100,7 +100,7 @@ public class MidSymbolTable {
 			assert parent.getVar(v) != null : v;
 			return parent.getVar(v);
 		} else {
-			assert false : "Variables should be declared. Semantic Checker, what up?";
+			assert false : "Variables should be declared. Semantic Checker, what up? "+v;
 			return null;
 		}
 	}

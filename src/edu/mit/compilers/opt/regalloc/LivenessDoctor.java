@@ -32,13 +32,10 @@ public class LivenessDoctor implements Transfer<LivenessState> {
 
 	@Override
 	public LivenessState apply(Block block, LivenessState s) {
+		LogCenter.debug("DCE", "Liveness on " + block.getBlockNum());
 		LivenessState out = s.clone();
 		for (MidNode node : block.reverse()) {
-			LogCenter.debug("RA", "iterate: " + node);
 			if (node instanceof MidMethodCallNode) {
-				LogCenter.debug("DERP", ((MidMethodCallNode) node).getName());
-				LogCenter.debug("BEFORE", "" + node.getPrevNode());
-				LogCenter.debug("AFTER", "" + node.getNextNode());
 				assert node.getPrevNode() != node;
 			}
 			if (node instanceof MidUseNode) {

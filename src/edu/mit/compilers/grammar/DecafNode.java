@@ -1,5 +1,7 @@
 package edu.mit.compilers.grammar;
 
+import java.lang.reflect.InvocationTargetException;
+
 import antlr.CommonAST;
 import antlr.Token;
 import edu.mit.compilers.codegen.MidNodeList;
@@ -8,6 +10,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
+import edu.mit.compilers.opt.forunroll.Unroller;
 
 @SuppressWarnings("serial")
 public abstract class DecafNode extends CommonAST {
@@ -175,4 +178,101 @@ public abstract class DecafNode extends CommonAST {
 	public boolean isBlockEnder(){
 		return false;
 	}
+	
+	public DecafNode getLastSibling(){
+		DecafNode lastSibling = this;
+		while(lastSibling.getNextSibling() != null){
+			lastSibling = lastSibling.getNextSibling();
+		}
+		return lastSibling;
+	}
+	
+	
+	/**
+	 * Returns true if this node sets the value of variable 'var'.
+	 * 
+	 * Overridden by ASSIGNNode!
+	 * @param var
+	 * @return
+	 */
+	public boolean doesAssign(String var){
+		DecafNode childNode = this.getFirstChild();
+		while(childNode != null){
+			if(childNode.doesAssign(var)){
+				return true;
+			}
+			childNode = childNode.getNextSibling();
+		}
+		return false;
+	}
+	
+	
+	protected static DecafNode deepCopyHelper(DecafNode n){
+
+		try {
+			DecafNode copyNode = n.getClass().getConstructor(new Class[0]).newInstance(new Object[0]);
+			copyNode.setText(n.getText());
+			
+			DecafNode childNode = n.getFirstChild();
+			DecafNode prevNode = null;
+			for(int i = 0; i < n.getNumberOfChildren(); i++){
+				if (i == 0){
+					copyNode.setFirstChild(childNode.deepCopy());
+					prevNode = copyNode.getFirstChild();
+				}else{
+					prevNode.setNextSibling(childNode.deepCopy());
+					prevNode = prevNode.getNextSibling();
+				}
+				childNode = childNode.getNextSibling();
+			}			
+			return copyNode;
+			
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	// Overwritten by ExpressionNode
+	public DecafNode deepCopy(){
+		return DecafNode.deepCopyHelper(this);
+		//FIXME: expressions have pre/post lists.
+		
+	}
+	
+	public DecafNode unroll(){
+		return Unroller.unroll(this);
+	}
+	
+	public boolean isUnrollable(String var, boolean hasLoopScope){
+		return Unroller.isUnrollable(this, var, hasLoopScope);
+	}
+	
+	@Override
+	public String toString(){
+		String out = "<"+this.getClass().getSimpleName()+" "+getText()+">[";
+		DecafNode childNode = getFirstChild();
+		while(childNode != null){
+			out += childNode.toString()+",";
+			childNode = childNode.getNextSibling();
+		}
+		out += "]";
+		return out;
+	}	
 }

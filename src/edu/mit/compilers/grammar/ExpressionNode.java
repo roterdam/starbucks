@@ -81,4 +81,17 @@ public abstract class ExpressionNode extends DecafNode {
 	public void simplifyExpressions(){
 		assert false : "Expressions do not have children expressions, unless it is an IDNode and should override this method.";
 	}
+	
+	@Override
+	public DecafNode deepCopy(){
+		ExpressionNode copyNode = (ExpressionNode) DecafNode.deepCopyHelper(this);
+		if (copyNode == null) return null;
+		for(DecafNode call : callsBeforeExecution){
+			copyNode.getCallsBeforeExecution().add(call.deepCopy());
+		}
+		for(DecafNode call : callsAfterExecution){
+			copyNode.getCallsAfterExecution().add(call.deepCopy());
+		}
+		return copyNode;
+	}
 }

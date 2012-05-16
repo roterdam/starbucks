@@ -76,11 +76,11 @@ public class RegisterAllocator {
 		for (MidNode node : methodDeclNode.getNodeList()) {
 			if (node instanceof Allocatable) {
 				Allocatable allocatedNode = (Allocatable) node;
-				Reg allocatedReg = mapping
-						.get(knitter.lookupWeb(allocatedNode));
+				Web web = knitter.lookupWeb(allocatedNode);
+				Reg allocatedReg = mapping.get(web);
 				if (allocatedReg != null) {
 					LogCenter.debug("RA", "Allocating " + allocatedReg.name()
-							+ " to " + node);
+							+ " (" + web + ") to " + node);
 					allocatedNode.allocateRegister(allocatedReg);
 				}
 				continue;
@@ -93,27 +93,6 @@ public class RegisterAllocator {
 				((LiveWebsActivist) node).applyAllocatedMapping(mapping);
 			}
 		}
-	}
-
-	/**
-	 * Debugging code for printing interference graph.
-	 * 
-	 * @param webs
-	 */
-	private void printInterferenceGraph(List<Web> webs) {
-		System.out.println("digraph InterferenceGraph {\n");
-		for (Web web : webs) {
-			LogCenter.debug("RA", web.toString());
-			System.out.println(String.format("%s [label=\"%s\"];", web
-					.hashCode(), web.toString()));
-			for (Web inter : web.getInterferences()) {
-				System.out
-						.println(String.format("%s -> %s;", web.hashCode(), inter
-								.hashCode()));
-			}
-		}
-		System.out.println("}");
-
 	}
 
 }
