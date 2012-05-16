@@ -20,7 +20,7 @@ public class MidFieldArrayDeclNode extends MidFieldDeclNode {
 	
 	@Override
 	public String getFormattedLocationReference(){
-		assert false : "Arrays are accessed by element.";
+		assert false : "Arrays are accessed by element: " + this;
 		return null;
 	}
 	

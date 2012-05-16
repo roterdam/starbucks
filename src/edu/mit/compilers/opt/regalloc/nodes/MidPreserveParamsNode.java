@@ -3,6 +3,7 @@ package edu.mit.compilers.opt.regalloc.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.AsmVisitor;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
@@ -10,6 +11,7 @@ import edu.mit.compilers.codegen.asm.OpASM;
 import edu.mit.compilers.codegen.asm.OpCode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.regops.MidParamLoadNode;
+import edu.mit.compilers.opt.meta.Optimizer;
 
 /**
  * At ASM time, will check if the referenced parameters are moving overwritten
@@ -54,7 +56,7 @@ public class MidPreserveParamsNode extends MidNode {
 				pushedParamCount++;
 			}
 		}
-		
+
 		out.addAll(stackParams);
 		out.addAll(regParams);
 
@@ -63,8 +65,8 @@ public class MidPreserveParamsNode extends MidNode {
 
 	/**
 	 * If true, means that the register we're loading from already has been
-	 * overwritten! For example, if we're loading a web value RDI
-	 * into RSI, RDI has already been overwritten by then.
+	 * overwritten! For example, if we're loading a web value RDI into RSI, RDI
+	 * has already been overwritten by then.
 	 */
 	public static boolean regWillBeOverwritten(Reg fromReg, Reg destReg) {
 		int destRegIndex = findRegisterIndex(destReg);
@@ -92,13 +94,23 @@ public class MidPreserveParamsNode extends MidNode {
 		return -1;
 	}
 
-	private int stackOffset = 0;
+	private int stackOffset;
+	private int iterID = -1;
 
 	public void shiftOffset() {
+		if (iterID == -1 || iterID != Optimizer.getIterID()) {
+			iterID = Optimizer.getIterID();
+			stackOffset = 0;
+		}
 		stackOffset += 8;
+		LogCenter.debug("JM", "Offset increased to " + stackOffset);
 	}
 
 	public int getOffset() {
+		if (iterID == -1 || iterID != Optimizer.getIterID()) {
+			iterID = Optimizer.getIterID();
+			stackOffset = 0;
+		}
 		return stackOffset;
 	}
 

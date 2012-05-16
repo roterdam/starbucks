@@ -130,6 +130,7 @@
 	<!-- Set failonerror="true" when you're confident you're correct
 	     and want to prevent accidentally regressing. -->
 	<exec executable="${tests}/codegen/test.sh" />
+	<exec executable="${tests}/dataflow/test.sh" />
   </target>
 	
   <target name="integrationtests" depends="test_scanner,test_parser">

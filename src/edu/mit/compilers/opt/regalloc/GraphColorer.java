@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.regalloc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +45,10 @@ public class GraphColorer {
 			if (graph.isEmpty()) {
 				break;
 			}
+			
 			// Remove a remaining nodes with degree >= N. (We are spilling it by
 			// not giving it a register.)
-			Web removed = graph.removeAnyVertex();
+			Web removed = graph.removeMostConstrainedVertex();
 			LogCenter.debug("RA", "Could not color all nodes, spilling "
 					+ removed);
 		}
@@ -56,7 +56,7 @@ public class GraphColorer {
 			// When all nodes are removed, start to color.
 			// Pop a node from the stack back and pick a valid color.
 			Web poppedWeb = workingStack.pop();
-			Set<Reg> validColors = new HashSet<Reg>(usableRegisters);
+			Set<Reg> validColors = new LinkedHashSet<Reg>(usableRegisters);
 			graph.insertVertex(poppedWeb);
 			for (Web neighbor : graph.getNeighbors(poppedWeb)) {
 				validColors.remove(getColor(neighbor));
