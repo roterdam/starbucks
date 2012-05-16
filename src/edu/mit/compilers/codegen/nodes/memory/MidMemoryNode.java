@@ -33,10 +33,10 @@ abstract public class MidMemoryNode extends MidNode {
 	 * @param rawLocationReference
 	 */
 	public void setRawLocationReference(String rawLocationReference) {
-		assert this.rawLocationReference == null : "Tried setting location reference to "
-				+ rawLocationReference
-				+ " but it's already "
-				+ this.rawLocationReference;
+//		assert this.rawLocationReference == null : "Tried setting location reference to "
+//				+ rawLocationReference
+//				+ " but it's already "
+//				+ this.rawLocationReference;
 		LogCenter.debug("MEM", "Raw location reference set to "
 				+ rawLocationReference);
 		this.rawLocationReference = rawLocationReference;

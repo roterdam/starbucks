@@ -85,7 +85,14 @@ public class Main {
 				DecafScanner scanner = new DecafScanner(new DataInputStream(
 						inputStream));
 				DecafParser parser = new DecafParser(scanner);
-				parser.setTrace(CLI.debug);
+				boolean trace = false;
+				for (int i = 0; i < CLI.tags.length; i++) {
+					if (CLI.tags[i].equals("PARSE")) {
+						trace = true;
+					}
+				}
+				parser.setTrace(trace);
+				
 				try {
 					parser.program();
 				} catch (TokenStreamRecognitionException e) {
@@ -147,7 +154,7 @@ public class Main {
 								: options;
 
 						Optimizer optimizer = Optimizer.getOptimizer(options);
-						optimizer.go(symbolTable, CLI.outfile);
+						optimizer.ventureForth(symbolTable, CLI.outfile);
 
 					}
 				}

@@ -1,6 +1,9 @@
 package edu.mit.compilers.opt.meta;
 
+import java.io.File;
 import java.io.FileOutputStream;
+
+import com.google.common.io.Files;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.AsmVisitor;
@@ -27,6 +30,8 @@ import edu.mit.compilers.opt.regalloc.RegisterAllocator;
  * experiments to find the best set. This is a singleton.
  */
 public class Optimizer {
+	
+	private static int regID = -1;
 
 	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static Optimizer singleton;
@@ -41,7 +46,7 @@ public class Optimizer {
 	private final boolean enableDCE;
 	private final boolean enableCM;
 	private final boolean enableRA;
-
+	
 	private Optimizer(int options) {
 		optsOn = (options & Options.OPTS_ON) == Options.OPTS_ON;
 		enableCSE = (options & Options.CSE) == Options.CSE;
@@ -51,7 +56,7 @@ public class Optimizer {
 		enableRA = (options & Options.RA) == Options.RA;
 	}
 
-	public void go(MidSymbolTable symbolTable, String outputFile) {
+	public void ventureForth(MidSymbolTable symbolTable, String outputFile) {
 
 		setHasAdditionalChanges();
 		x = 0;
@@ -107,12 +112,38 @@ public class Optimizer {
 		if (enableRA) {
 			RegisterAllocator allocator = new RegisterAllocator(symbolTable);
 			allocator.run();
-		}
 
-//		System.out.println(symbolTable.toDotSyntax(true));
+			// Create a test folder
+			File testDir = null;
+			try {
+				testDir = Files.createTempDir();
+				LogCenter.debug("META", "Created temp folder: " + testDir);
+			} catch (IllegalStateException e) {
+				abort("Could not create folder for testing binaries.");
+			}
+			
+			int iter = 0;
+			
+			File testFile = new File(testDir, String.format("%d.s", iter));
+			
+			MemoryManager.assignStorage(symbolTable);
+			writeToOutput(testFile.getAbsolutePath(), AsmVisitor.generate(symbolTable));
+			LogCenter.debug("META", "Wrote to " + testFile.getAbsolutePath());
+			
+			testDir.delete();
+
+		}
+		
 		MemoryManager.assignStorage(symbolTable);
+
+		// System.out.println(symbolTable.toDotSyntax(true));
 		writeToOutput(outputFile, AsmVisitor.generate(symbolTable));
 
+	}
+
+	private void abort(String error) {
+		System.out.println(error);
+		System.exit(1);
 	}
 
 	private void writeToOutput(String outputFile, String text) {
@@ -140,6 +171,10 @@ public class Optimizer {
 			singleton = new Optimizer(options);
 		}
 		return singleton;
+	}
+
+	public static int getRegID() {
+		return regID;
 	}
 
 }
