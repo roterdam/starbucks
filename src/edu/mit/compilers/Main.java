@@ -21,6 +21,7 @@ import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
 import edu.mit.compilers.opt.cm.CMState;
 import edu.mit.compilers.opt.cm.CMTransfer;
 import edu.mit.compilers.opt.cm.CMTransformer;
+import edu.mit.compilers.opt.cm.Loop;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -200,13 +201,13 @@ public class Main {
 										cms,
 										new CMTransfer());
 								nestingAnalyzer.analyze(symbolTable);
-								LivenessDoctor doctor = new LivenessDoctor();
+								/*LivenessDoctor doctor = new LivenessDoctor();
 								BackwardsAnalyzer<LivenessState, LivenessDoctor> analyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
 										new LivenessState().getBottomState(),
 										doctor);
 								analyzer.analyze(symbolTable);
 								CMTransformer localAnalyzer = new CMTransformer(doctor.getDefUseMap(), cms.getDefBlock());
-								localAnalyzer.analyze(nestingAnalyzer, symbolTable);
+								localAnalyzer.analyze(nestingAnalyzer, symbolTable);*/
 							}
 
 							x++;

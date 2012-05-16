@@ -17,12 +17,13 @@ import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.Transformer;
 
 public class CMTransformer extends Transformer<CMState> {
-	
+
 	Map<MidSaveNode, Set<MidUseNode>> defUse;
 	Map<MidLoadNode, MidSaveNode> useDef;
 	Map<MidSaveNode, Block> defBlock;
-	
-	public CMTransformer(Map<MidSaveNode, Set<MidUseNode>> defUse, Map<MidSaveNode, Block> defBlock) {
+
+	public CMTransformer(Map<MidSaveNode, Set<MidUseNode>> defUse,
+			Map<MidSaveNode, Block> defBlock) {
 		this.defUse = defUse;
 		this.useDef = buildUseDef(defUse);
 		this.defBlock = defBlock;
@@ -50,17 +51,18 @@ public class CMTransformer extends Transformer<CMState> {
 		} else {
 			local = state.clone();
 		}
-		
+
 		Loop l = local.getLoop(block);
-		
+
 		if (l == null) {
-			LogCenter.debug("CM", "" + block.getHead() + " not a loop, skipping");
+			LogCenter.debug("CM", "" + block.getHead()
+					+ " not a loop, skipping");
 			return;
 		}
 		
 		boolean invariant;
 		
-		for (MidNode node : block) {
+		/*for (MidNode node : block) {
 			invariant = false;
 			if (node instanceof MidSaveNode && ((MidSaveNode) node).savesRegister()) {
 				MidRegisterNode reg = (MidRegisterNode) ((MidSaveNode) node).getRegNode();
@@ -88,10 +90,11 @@ public class CMTransformer extends Transformer<CMState> {
 						invariant = true;
 					}
 				}
-				
-				LogCenter.debug("CM", "" + node.toString() + " is invariant? " + invariant);
+
+				LogCenter.debug("CM", "" + node.toString() + " is invariant? "
+						+ invariant);
 			}
-		}
+		}*/
 	}
 
 }

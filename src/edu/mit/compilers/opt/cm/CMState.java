@@ -1,9 +1,9 @@
 package edu.mit.compilers.opt.cm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
@@ -68,52 +68,73 @@ public class CMState implements State<CMState> {
 	public HashMap<MidSaveNode, Block> getDefBlock() {
 		return defBlock;
 	}
-
-	public void processBlock(Block b, int depth) {
-		
-		// Already processed block, small hack to avoid
-		// rewriting an analyzer function
+	
+	public void processBlock(Block b) {
 		if (nesting.get(b) != null) {
 			return;
 		}
 
 		Set<Block> visited = new HashSet<Block>();
-		Stack<Block> agenda = new Stack<Block>();
+		ArrayList<Block> agenda = new ArrayList<Block>();
 
-		// Do initial case separately to avoid infinite
-		// recursion, fix this later
-		Loop l = new Loop(depth);
+		Loop l = new Loop();
+		if (b.getPredecessors().size() == 0) {
+			l.setDepth(0);
+		}
 		l.addBlock(b);
 		agenda.addAll(b.getSuccessors());
 		visited.add(b);
 		
 		while (agenda.size() > 0) {
-			Block current = agenda.pop();
+			Block current = agenda.remove(0);
 			if (!visited.contains(current)) {
 				visited.add(current);
 				MidNode node = current.getHead();
 				if (node instanceof MidLabelNode) {
 					MidLabelNode label = (MidLabelNode) node;
 					if (label.getType() == LabelType.WHILE || label.getType() == LabelType.FOR) {
-						processBlock(current, depth+1);
-						for (Block c : nesting.get(current).getBlocks()) {
-							l.addBlock(c);
-						}
+						processBlock(current);
+						l.addChild(nesting.get(current));
+						nesting.get(current).addParent(l);
 					} else if (label.getType() != LabelType.ELIHW && label.getType() != LabelType.ROF) {
+						l.addBlock(current);
 						agenda.addAll(current.getSuccessors());
 					}
 				} else {
+					l.addBlock(current);
 					agenda.addAll(current.getSuccessors());
 				}
-				l.addBlock(current);
 			}
 		}
-		LogCenter.debug("CM", "Depth " + depth);
-		LogCenter.debug("CM", "Num Blocks " + l.getBlocks().size());
-		LogCenter.debug("CM", "Block");
-		for (Block e : l.getBlocks()) {
-			LogCenter.debug("CM", "" + e);
-			nesting.put(e, l);
+		LogCenter.debug("CM", "Loop with num blocks " + l.getBlocks().size());
+		LogCenter.debug("CM", "Blocks are");
+		for (Block lb : l.getBlocks()) {
+			LogCenter.debug("CM", "" + lb);
+			nesting.put(lb, l);
+		}
+	}
+	
+	public void updateDepth() {
+		for (Loop nested : nesting.values()) {
+			if (nested.getDepth() == 0) {
+				LogCenter.debug("CM", "Top level with " + nested.getBlocks().size() + " and depth " + nested.getDepth());
+				for (Block b : nested.getBlocks()) {
+					LogCenter.debug("CM", "" + b);
+				}
+				updateDepth(nested);
+				break;
+			}
+		}
+	}
+	
+	private void updateDepth(Loop l) {
+		for (Loop child : l.getChildren()) {
+			child.setDepth(l.getDepth() + 1);
+			LogCenter.debug("CM", "Child with " + child.getBlocks().size() + " and depth " + child.getDepth());
+			for (Block b : child.getBlocks()) {
+				LogCenter.debug("CM", "" + b);
+			}
+			updateDepth(child);
 		}
 	}
 	
