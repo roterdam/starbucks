@@ -17,7 +17,9 @@ import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 
 @SuppressWarnings("serial")
 public class IDNode extends ExpressionNode {
-
+	private boolean checkZeroBound = true;
+	private boolean checkLenBound = true;
+	
 	/**
 	 * Returns INT or BOOLEAN (If INT_ARRAY or BOOLEAN_ARRAY, returns INT and
 	 * BOOLEAN respectively.) 
@@ -44,10 +46,25 @@ public class IDNode extends ExpressionNode {
 		return returnType;
 	}
 
-	public Boolean isArray(){
+	public boolean isArray(){
 		return getNumberOfChildren() == 1;
 	}
 	
+	public boolean mustCheckZeroBound(){
+		return isArray() && checkZeroBound;
+	}
+	
+	public boolean mustCheckLenBound(){
+		return isArray() && checkLenBound;
+	}
+	
+	public void setCheckZeroBound(boolean check){
+		checkZeroBound = check;
+	}
+	
+	public void setCheckLenBound(boolean check){
+		checkLenBound = check;
+	}
 	/**
 	 * returns null if not an array;
 	 */

@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidCalloutNode;
@@ -307,7 +308,7 @@ public class MidVisitor {
 
 	public static MidNodeList checkArrayIndexOutOfBoundsError(
 			MidFieldArrayDeclNode arrayNode, MidMemoryNode indexNode,
-			MidSymbolTable symbolTable) {
+			MidSymbolTable symbolTable, boolean checkZeroBound, boolean checkLenBound) {
 		// Check for zero.
 		MidLoadNode loadIndexNode1 = new MidLoadNode(indexNode);
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
@@ -345,24 +346,33 @@ public class MidVisitor {
 
 		MidNodeList instrList = new MidNodeList();
 
-		instrList.add(loadIndexNode1);
-		instrList.add(zeroNode);
-		instrList.addAll(zeroSaveInstrList);
-		instrList.add(zeroLoadNode);
-		instrList.add(zeroCompareNode);
-		instrList.add(zeroJumpNode);
-		instrList.add(loadIndexNode2);
-		instrList.add(lengthNode);
-		instrList.addAll(lengthSaveInstrList);
-		instrList.add(lengthLoadNode);
-		instrList.add(lengthCompareNode);
-		instrList.add(lengthJumpNode);
-
-		instrList.add(skipErrorNode);
-		instrList.add(errorLabelNode);
-		instrList
-				.addAll(makeMethodCall(outOfBoundsCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), outOfBoundsParams));
-		instrList.add(skipErrorEnd);
+		int count = 0;
+		if (checkZeroBound){
+			count ++;
+			instrList.add(loadIndexNode1);
+			instrList.add(zeroNode);
+			instrList.addAll(zeroSaveInstrList);
+			instrList.add(zeroLoadNode);
+			instrList.add(zeroCompareNode);
+			instrList.add(zeroJumpNode);
+		}
+		if (checkLenBound){
+			count ++;
+			instrList.add(loadIndexNode2);
+			instrList.add(lengthNode);
+			instrList.addAll(lengthSaveInstrList);
+			instrList.add(lengthLoadNode);
+			instrList.add(lengthCompareNode);
+			instrList.add(lengthJumpNode);
+		}
+		LogCenter.debug("REBC", "SKIPPED "+(2-count)+" bound checks!");
+		if (checkZeroBound || checkLenBound) {
+			instrList.add(skipErrorNode);
+			instrList.add(errorLabelNode);
+			instrList
+					.addAll(makeMethodCall(outOfBoundsCall, new MidNodeList(), new MidNodeList(), new MidNodeList(), outOfBoundsParams));
+			instrList.add(skipErrorEnd);
+		}
 		return instrList;
 	}
 
@@ -639,9 +649,58 @@ public class MidVisitor {
 			ValuedMidNodeList exprList = MidShortCircuitVisitor
 					.valuedHelper(node.getExpressionNode(), symbolTable);
 			MidMemoryNode exprNode = exprList.getReturnNode();
-
+			
+			
+			LogCenter.debug("REBC", "Working with array "+node.getText());
+			boolean mustCheckZeroBound = true;
+			boolean mustCheckLenBound = true;
+			// REBC
+			LogCenter.debug("REBC", "p1");
+			if (node.getExpressionNode() instanceof IDNode){
+				LogCenter.debug("REBC", "p2");
+				IDNode idNode = (IDNode) node.getExpressionNode();
+				LogCenter.debug("REBC", "Loop variable is "+idNode.getText());
+				MidMemoryNode memNode = symbolTable.getVar(idNode.getText());
+				LogCenter.debug("REBC", "Mem node is "+memNode.getClass());
+				if (memNode instanceof MidLocalVarDeclNode){
+					LogCenter.debug("REBC", "p3");
+					MidLocalVarDeclNode iterDeclNode = (MidLocalVarDeclNode) memNode;
+					if (iterDeclNode.isInLoop()){
+						LogCenter.debug("REBC", "p4");
+						String iterVar = idNode.getText();
+						FORNode forNode = iterDeclNode.getForNode();
+						if (forNode.isUnrollable(iterVar, true)){
+							LogCenter.debug("REBC", "p5");
+							long arraySize = arrayNode.getLength();
+							ExpressionNode initExpr = forNode.getForInitializeNode().getAssignNode().getExpression();
+							ExpressionNode termExpr = forNode.getForTerminateNode().getExpressionNode();
+							if (initExpr instanceof INT_LITERALNode){
+								LogCenter.debug("REBC", "p6");
+								long val = ((INT_LITERALNode) initExpr).getValue();
+								if(val >= 0){
+									LogCenter.debug("REBC", "p7");
+									mustCheckZeroBound = false;
+									mustCheckLenBound = false;
+								}
+							}
+							if (termExpr instanceof INT_LITERALNode){
+								LogCenter.debug("REBC", "p8");
+								long val = ((INT_LITERALNode) termExpr).getValue();
+								if(val < arraySize){
+									LogCenter.debug("REBC", "p9");
+									mustCheckZeroBound = false;
+									mustCheckLenBound = false;
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			
+			
 			// Make sure the index is not out of bounds
-			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode, symbolTable);
+			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode, symbolTable, mustCheckZeroBound, mustCheckLenBound);
 
 			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
 			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
@@ -745,6 +804,10 @@ public class MidVisitor {
 				.convertToMidLevel(newSymbolTable);
 		MidMemoryNode iterVarNode = assignList.getMemoryNode();
 
+		
+		
+		
+		
 		MidNodeList limitList = node.getForTerminateNode().getExpressionNode()
 				.convertToMidLevel(newSymbolTable);
 		MidMemoryNode limitNode = limitList.getMemoryNode();
@@ -756,6 +819,12 @@ public class MidVisitor {
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 
+		// ADD META DATA FOR FOR LOOP (REBC)
+		String iterVar = node.getAssignNode().getLocation().getText();
+		LogCenter.debug("REBC", "iter variable for for loop is: "+iterVar);
+		MidLocalVarDeclNode iterDeclNode = (MidLocalVarDeclNode) newSymbolTable.getVar(iterVar);
+		iterDeclNode.setForNode(node);
+		
 		MidNodeList statementList = node.getBlockNode()
 				.convertToMidLevelSpecial(newSymbolTable);
 
@@ -783,6 +852,9 @@ public class MidVisitor {
 		outputList.addAll(incrementList);
 		outputList.add(jumpStartNode);
 		outputList.add(endLabel);
+		
+		
+		
 		return outputList;
 
 	}

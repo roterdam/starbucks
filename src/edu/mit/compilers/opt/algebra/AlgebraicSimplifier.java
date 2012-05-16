@@ -115,7 +115,7 @@ public class AlgebraicSimplifier {
 		String oldList = node.getExpression().toStringList();
 		node.setExpression(node.getExpression().simplify(null));
 
-		LogCenter.debug("AS", "Simplifying " + oldList + " --> "
+		LogCenter.debug("AS", "Simplimifying " + oldList + " --> "
 				+ node.getExpression().toStringList());
 
 	}
@@ -166,7 +166,6 @@ public class AlgebraicSimplifier {
 
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(PLUSNode node,
 			MidSymbolTable symbolTable) {
 
@@ -219,17 +218,15 @@ public class AlgebraicSimplifier {
 		} else if (Canonicalization
 				.equals(retCanonicalization, Canonicalization.ZERO)) {
 			// Case 4
-			return new INT_LITERALNode() {
-				{
-					setText(Long.toString(0));
-					setCanonicalization(Canonicalization.ZERO);
-					initializeValue();
-					getCallsBeforeExecution()
+			INT_LITERALNode returnNode = new INT_LITERALNode();
+			returnNode.setText(Long.toString(0));
+			returnNode.setCanonicalization(Canonicalization.ZERO);
+			returnNode.initializeValue();
+			returnNode.getCallsBeforeExecution()
 							.addAll(leftOp.getAllCallsDuringExecution());
-					getCallsAfterExecution()
+			returnNode.getCallsAfterExecution()
 							.addAll(rightOp.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		}
 
 		node.setLeftOperand(leftOp);
@@ -237,7 +234,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(SubtractNode node,
 			MidSymbolTable symbolTable) {
 		// Case 1: int(a) - int(b) --> int(a+b)
@@ -277,14 +273,14 @@ public class AlgebraicSimplifier {
 				// Case 2
 				rightOp.getCallsBeforeExecution()
 						.addAll(0, leftOp.getAllCallsDuringExecution());
-				return new UnaryMinusNode() {
-					{
-						setText("-"); // is this right?
-						setCanonicalization(Canonicalization.inv(rightOp
-								.getCanonicalization()));
-						setFirstChild(rightOp);
-					}
-				};
+				
+				UnaryMinusNode returnNode = new UnaryMinusNode();
+				returnNode.setText("-"); // is this right?
+				returnNode.setCanonicalization(Canonicalization.inv(rightOp.getCanonicalization()));
+				returnNode.setFirstChild(rightOp);
+				
+				return returnNode;
+
 			}
 		} else if (rightOp instanceof INT_LITERALNode) {
 			long rightVal = ((INT_LITERALNode) rightOp).getValue();
@@ -298,17 +294,15 @@ public class AlgebraicSimplifier {
 		} else if (Canonicalization
 				.equals(retCanonicalization, Canonicalization.ZERO)) {
 			// Case 4
-			return new INT_LITERALNode() {
-				{
-					setText(Long.toString(0));
-					setCanonicalization(Canonicalization.ZERO);
-					initializeValue();
-					getCallsBeforeExecution()
+			INT_LITERALNode returnNode = new INT_LITERALNode();
+			returnNode.setText(Long.toString(0));
+			returnNode.setCanonicalization(Canonicalization.ZERO);
+			returnNode.initializeValue();
+			returnNode.getCallsBeforeExecution()
 							.addAll(leftOp.getAllCallsDuringExecution());
-					getCallsAfterExecution()
+			returnNode.getCallsAfterExecution()
 							.addAll(rightOp.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		}
 
 		node.setLeftOperand(leftOp);
@@ -316,7 +310,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(UnaryMinusNode node,
 			MidSymbolTable symbolTable) {
 
@@ -330,21 +323,18 @@ public class AlgebraicSimplifier {
 
 		if (expr instanceof INT_LITERALNode) {
 			final long exprValue = ((INT_LITERALNode) expr).getValue();
-			return new INT_LITERALNode() {
-				{
-					setText(Long.toString(-exprValue));
-					setCanonicalization(retCanonicalization);
-					initializeValue();
-					getCallsBeforeExecution()
+			INT_LITERALNode returnNode = new INT_LITERALNode();
+			returnNode.setText(Long.toString(-exprValue));
+			returnNode.setCanonicalization(retCanonicalization);
+			returnNode.initializeValue();
+			returnNode.getCallsBeforeExecution()
 							.addAll(expr.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		}
 		node.setCanonicalization(retCanonicalization);
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(ANDNode node,
 			MidSymbolTable symbolTable) {
 
@@ -358,15 +348,13 @@ public class AlgebraicSimplifier {
 			return rightNode;
 		} else if (leftNode instanceof FALSENode && !rightNode.hasMethodCalls()
 				|| rightNode instanceof FALSENode && !leftNode.hasMethodCalls()) {
-			return new FALSENode() {
-				{
-					setText("false");
-					getCallsBeforeExecution()
+			FALSENode returnNode = new FALSENode();
+			returnNode.setText("false");
+			returnNode.getCallsBeforeExecution()
 							.addAll(leftNode.getAllCallsDuringExecution());
-					getCallsAfterExecution()
+			returnNode.getCallsAfterExecution()
 							.addAll(rightNode.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		} else if (rightNode instanceof TRUENode) {
 			leftNode.getCallsAfterExecution()
 					.addAll(rightNode.getAllCallsDuringExecution());
@@ -378,7 +366,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(ORNode node,
 			MidSymbolTable symbolTable) {
 
@@ -392,15 +379,13 @@ public class AlgebraicSimplifier {
 			return rightNode;
 		} else if (leftNode instanceof TRUENode && !rightNode.hasMethodCalls()
 				|| rightNode instanceof TRUENode && !leftNode.hasMethodCalls()) {
-			return new TRUENode() {
-				{
-					setText("true");
-					getCallsBeforeExecution()
+			TRUENode returnNode = new TRUENode();
+			returnNode.setText("true");
+			returnNode.getCallsBeforeExecution()
 							.addAll(leftNode.getAllCallsDuringExecution());
-					getCallsAfterExecution()
+			returnNode.getCallsAfterExecution()
 							.addAll(rightNode.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		} else if (rightNode instanceof FALSENode) {
 			leftNode.getCallsAfterExecution()
 					.addAll(rightNode.getAllCallsDuringExecution());
@@ -413,27 +398,22 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(BANGNode node,
 			MidSymbolTable symbolTable) {
 
 		final ExpressionNode opNode = node.getOperand().simplify(symbolTable);
 		if (opNode instanceof TRUENode) {
-			return new FALSENode() {
-				{
-					setText("false");
-					getCallsBeforeExecution()
+			FALSENode returnNode = new FALSENode();
+			returnNode.setText("false");
+			returnNode.getCallsBeforeExecution()
 							.addAll(opNode.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		} else if (opNode instanceof FALSENode) {
-			return new TRUENode() {
-				{
-					setText("true");
-					getCallsBeforeExecution()
+			TRUENode returnNode = new TRUENode();
+			returnNode.setText("true");
+			returnNode.getCallsBeforeExecution()
 							.addAll(opNode.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		} else if (opNode instanceof BANGNode) {
 			ExpressionNode replNode = ((BANGNode) opNode).getOperand();
 			replNode.getCallsBeforeExecution()
@@ -465,10 +445,10 @@ public class AlgebraicSimplifier {
 
 	public static ExpressionNode simplifyExpression(METHOD_CALLNode node,
 			MidSymbolTable symbolTable) {
-
 		List<ExpressionNode> paramNodes = new ArrayList<ExpressionNode>();
 		for (ExpressionNode expr : node.getParamNodes()) {
-			paramNodes.add(expr.simplify(symbolTable));
+			ExpressionNode newExpr = expr.simplify(symbolTable);
+			paramNodes.add(newExpr);
 		}
 		for (int i = 0; i < paramNodes.size(); i++) {
 			node.replaceChild(i + 1, paramNodes.get(i));
@@ -476,20 +456,17 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(
 			final CHAR_LITERALNode node, MidSymbolTable symbolTable) {
 
-		return new INT_LITERALNode() {
-			{
-				setText(Long.toString(node.getValue()));
-				setCanonicalization(Canonicalization.makeLiteral(node
+		INT_LITERALNode returnNode = new INT_LITERALNode();
+		returnNode.setText(Long.toString(node.getValue()));
+		returnNode.setCanonicalization(Canonicalization.makeLiteral(node
 						.getValue()));
-				initializeValue();
-				getCallsBeforeExecution()
+		returnNode.initializeValue();
+		returnNode.getCallsBeforeExecution()
 						.addAll(node.getAllCallsDuringExecution());
-			}
-		};
+		return returnNode;
 	}
 
 	public static ExpressionNode simplifyExpression(INT_LITERALNode node,
@@ -498,7 +475,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(DIVIDENode node,
 			MidSymbolTable symbolTable) {
 
@@ -552,22 +528,20 @@ public class AlgebraicSimplifier {
 		} else if (leftOp instanceof INT_LITERALNode) {
 			long leftVal = ((INT_LITERALNode) leftOp).getValue();
 			if (leftVal == 0 && !rightOp.hasMethodCalls()) {
-				return new INT_LITERALNode() {
-					{
-						setText("0");
-						setCanonicalization(Canonicalization.ZERO);
-						initializeValue();
-						getCallsBeforeExecution()
+				INT_LITERALNode returnNode = new INT_LITERALNode();
+				returnNode.setText("0");
+				returnNode.setCanonicalization(Canonicalization.ZERO);
+				returnNode.initializeValue();
+				returnNode.getCallsBeforeExecution()
 								.addAll(leftOp.getAllCallsDuringExecution());
 
-						getCallsBeforeExecution()
+				returnNode.getCallsBeforeExecution()
 								.add(new PotentialCheckDivideByZeroNode(
 										rightOp, true));
 
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
-					}
-				};
+				return returnNode;
 			}
 		}
 
@@ -579,7 +553,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(MODNode node,
 			MidSymbolTable symbolTable) {
 
@@ -609,17 +582,15 @@ public class AlgebraicSimplifier {
 								.format(DIVIDE_BY_ZERO_ERROR));
 			} else if (rightVal == 1 && !leftOp.hasMethodCalls()) {
 				// Case 2
-				return new INT_LITERALNode() {
-					{
-						setText("0");
-						setCanonicalization(Canonicalization.ZERO);
-						initializeValue();
-						getCallsBeforeExecution()
+				INT_LITERALNode returnNode = new INT_LITERALNode();
+				returnNode.setText("0");
+				returnNode.setCanonicalization(Canonicalization.ZERO);
+				returnNode.initializeValue();
+				returnNode.getCallsBeforeExecution()
 								.addAll(leftOp.getAllCallsDuringExecution());
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
-					}
-				};
+				return returnNode;
 
 			} else if (leftOp instanceof INT_LITERALNode) {
 				// Case 3
@@ -640,22 +611,19 @@ public class AlgebraicSimplifier {
 		} else if (leftOp instanceof INT_LITERALNode) {
 			long leftVal = ((INT_LITERALNode) leftOp).getValue();
 			if (leftVal == 0 && !rightOp.hasMethodCalls()) {
-				return new INT_LITERALNode() {
-					{
-						setText("0");
-						setCanonicalization(Canonicalization.ZERO);
-
-						initializeValue();
-						getCallsBeforeExecution()
+				INT_LITERALNode returnNode = new INT_LITERALNode();
+				returnNode.setText("0");
+				returnNode.setCanonicalization(Canonicalization.ZERO);
+				returnNode.initializeValue();
+				returnNode.getCallsBeforeExecution()
 								.addAll(leftOp.getAllCallsDuringExecution());
-						getCallsBeforeExecution()
+				returnNode.getCallsBeforeExecution()
 								.add(new PotentialCheckDivideByZeroNode(
 										rightOp, true));
 
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
-					}
-				};
+				return returnNode;
 			}
 		}
 
@@ -664,7 +632,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(
 			final OpSameSame2BoolNode node, MidSymbolTable symbolTable) {
 
@@ -695,12 +662,10 @@ public class AlgebraicSimplifier {
 			rightNode.getCallsBeforeExecution()
 					.addAll(0, leftNode.getAllCallsDuringExecution());
 
-			return new BANGNode() {
-				{
-					setText("!");
-					setFirstChild(rightNode);
-				}
-			}.simplify(symbolTable);
+			BANGNode returnNode = new BANGNode();
+			returnNode.setText("!");
+			returnNode.setFirstChild(rightNode);
+			return returnNode.simplify(symbolTable);
 		} else if (rightNode instanceof FALSENode && node instanceof EQNode
 				|| rightNode instanceof TRUENode && node instanceof NEQNode) {
 			// Case 4, expr() == false --> !expr(), and expr() != true -->
@@ -708,12 +673,10 @@ public class AlgebraicSimplifier {
 			leftNode.getCallsAfterExecution()
 					.addAll(rightNode.getAllCallsDuringExecution());
 			leftNode.setNextSibling(null);
-			return new BANGNode() {
-				{
-					setText("!");
-					setFirstChild(leftNode);
-				}
-			}.simplify(symbolTable);
+			BANGNode returnNode = new BANGNode();
+			returnNode.setText("!");
+			returnNode.setFirstChild(leftNode);
+			return returnNode.simplify(symbolTable);
 
 		} else if (leftNode instanceof INT_LITERALNode
 				&& rightNode instanceof INT_LITERALNode) {
@@ -726,25 +689,21 @@ public class AlgebraicSimplifier {
 				ret = !eq;
 			}
 			if (ret) {
-				return new TRUENode() {
-					{
-						setText("true");
-						getCallsBeforeExecution()
+				TRUENode returnNode = new TRUENode();
+				returnNode.setText("true");
+				returnNode.getCallsBeforeExecution()
 								.addAll(leftNode.getAllCallsDuringExecution());
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(rightNode.getAllCallsDuringExecution());
-					}
-				};
+				return returnNode;
 			}
-			return new FALSENode() {
-				{
-					setText("false");
-					getCallsBeforeExecution()
+			FALSENode returnNode = new FALSENode();
+			returnNode.setText("false");
+			returnNode.getCallsBeforeExecution()
 							.addAll(leftNode.getAllCallsDuringExecution());
-					getCallsAfterExecution()
+			returnNode.getCallsAfterExecution()
 							.addAll(rightNode.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		}
 		node.setLeftOperand(leftNode);
 		node.setRightOperand(rightNode);
@@ -784,7 +743,6 @@ public class AlgebraicSimplifier {
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(OpIntInt2BoolNode node,
 			MidSymbolTable symbolTable) {
 
@@ -812,32 +770,27 @@ public class AlgebraicSimplifier {
 			}
 
 			if (ret) {
-				return new TRUENode() {
-					{
-						setText("true");
-						getCallsBeforeExecution()
+				TRUENode returnNode = new TRUENode();
+				returnNode.setText("true");
+				returnNode.getCallsBeforeExecution()
 								.addAll(leftNode.getAllCallsDuringExecution());
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(rightNode.getAllCallsDuringExecution());
-					}
-				};
+				return returnNode;
 			}
-			return new FALSENode() {
-				{
-					setText("false");
-					getCallsBeforeExecution()
+			FALSENode returnNode = new FALSENode();
+			returnNode.setText("false");
+			returnNode.getCallsBeforeExecution()
 							.addAll(leftNode.getAllCallsDuringExecution());
-					getCallsAfterExecution()
+			returnNode.getCallsAfterExecution()
 							.addAll(rightNode.getAllCallsDuringExecution());
-				}
-			};
+			return returnNode;
 		}
 		node.setLeftOperand(leftNode);
 		node.setRightOperand(rightNode);
 		return node;
 	}
 
-	@SuppressWarnings("serial")
 	public static ExpressionNode simplifyExpression(TIMESNode node,
 			MidSymbolTable symbolTable) {
 
@@ -883,17 +836,15 @@ public class AlgebraicSimplifier {
 				return rightOp;
 			} else if (leftVal == 0 && !rightOp.hasMethodCalls()) {
 				// Case 3
-				return new INT_LITERALNode() {
-					{
-						setText("0");
-						setCanonicalization(Canonicalization.ZERO);
-						initializeValue();
-						getCallsBeforeExecution()
+				INT_LITERALNode returnNode = new INT_LITERALNode();
+				returnNode.setText("0");
+				returnNode.setCanonicalization(Canonicalization.ZERO);
+				returnNode.initializeValue();
+				returnNode.getCallsBeforeExecution()
 								.addAll(leftOp.getAllCallsDuringExecution());
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
-					}
-				};
+				return returnNode;
 			}
 		} else if (rightOp instanceof INT_LITERALNode) {
 			long rightVal = ((INT_LITERALNode) rightOp).getValue();
@@ -905,17 +856,14 @@ public class AlgebraicSimplifier {
 				return leftOp;
 			} else if (rightVal == 0 && !leftOp.hasMethodCalls()) {
 				// Case 5
-				return new INT_LITERALNode() {
-					{
-						setText("0");
-						setCanonicalization(Canonicalization.ZERO);
-						initializeValue();
-						getCallsBeforeExecution()
+				INT_LITERALNode returnNode = new INT_LITERALNode();
+				returnNode.setText("0");
+				returnNode.setCanonicalization(Canonicalization.ZERO);
+				returnNode.initializeValue();
+				returnNode.getCallsBeforeExecution()
 								.addAll(rightOp.getAllCallsDuringExecution());
-						getCallsAfterExecution()
+				returnNode.getCallsAfterExecution()
 								.addAll(leftOp.getAllCallsDuringExecution());
-					}
-				};
 			}
 		}
 		node.setLeftOperand(leftOp);

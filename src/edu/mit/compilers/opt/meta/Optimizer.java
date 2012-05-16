@@ -37,7 +37,7 @@ public class Optimizer {
 
 	private static int iterID = -1;
 
-	private static final int MAX_CSE_CP_DCE_TIMES = 2;
+	private static final int MAX_CSE_CP_DCE_TIMES = 1;
 	private static Optimizer singleton;
 
 	// Statically track whether or not we've made optimizations.
@@ -69,7 +69,7 @@ public class Optimizer {
 		// CSE.
 		while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
 			clearHasAdditionalChanges();
-
+			
 			if (enableCSE) {
 				LogCenter.debug("SB", "STARTING CSE.");
 				Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
@@ -80,6 +80,7 @@ public class Optimizer {
 				localAnalyzer.analyze(analyzer, symbolTable);
 			}
 
+			
 			if (enableCP) {
 				LogCenter.debug("SB", "STARTING CP.");
 				Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
@@ -88,7 +89,7 @@ public class Optimizer {
 				CPTransformer localAnalyzer = new CPTransformer();
 				localAnalyzer.analyze(analyzer, symbolTable);
 			}
-
+			
 			if (enableDCE) {
 				LogCenter.debug("SB", "STARTING DCE.");
 				LivenessDoctor doctor = new LivenessDoctor();
@@ -99,6 +100,7 @@ public class Optimizer {
 				dce.analyze(analyzer, symbolTable);
 			}
 
+			
 			if (enableCM) {
 				LogCenter.debug("SB", "STARTING CM.");
 				Analyzer<CMState, CMTransfer> analyzer = new Analyzer<CMState, CMTransfer>(
@@ -110,7 +112,7 @@ public class Optimizer {
 		}
 
 		if (optsOn) {
-			LogCenter.debug("SB", "STARTING AS. naht");
+			//LogCenter.debug("SB", "STARTING AS. naht");
 			MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
 			simplifier.analyze(symbolTable);
 		}
