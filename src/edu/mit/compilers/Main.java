@@ -120,7 +120,7 @@ public class Main {
 						((CLASSNode) parser.getAST()).simplifyExpressions();
 						
 						// Do for loop unrolling.
-						((CLASSNode) parser.getAST()).unroll();
+						//((CLASSNode) parser.getAST()).unroll();
 						
 					}
 
