@@ -73,8 +73,7 @@ public class MemoryManager {
 		for (MidNode m : methodDeclNode.getNodeList()) {
 			LogCenter.debug("MEM", m.toString());
 
-			if ((m instanceof MidLocalMemoryNode)
-					&& !((MidLocalMemoryNode) m).hasRawLocationReference()) {
+			if (m instanceof MidLocalMemoryNode) {
 				localStackSize += ADDRESS_SIZE;
 				((MidMemoryNode) m).setRawLocationReference(Integer
 						.toString(localStackSize));
@@ -103,9 +102,8 @@ public class MemoryManager {
 					LogCenter.debug("MEM", "Deallocate array ref " + arrayNode
 							+ "?");
 					if (arrayNode.usesArrayRegister()) {
-						LogCenter
-								.debug("MEM", "deallocating array register of "
-										+ m);
+						LogCenter.debug("MEM",
+								"deallocating array register of " + m);
 						deallocTempRegister(arrayNode.getArrayRegister());
 					}
 				}

@@ -31,7 +31,7 @@ public class MidReturnNode extends MidNode implements MidUseNode, Allocatable {
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 		String returnValueLocation;
-		if (!allocatedRegs.containsKey(Optimizer.iterID())) {
+		if (!allocatedRegs.containsKey(Optimizer.getIterID())) {
 			if (returnValue == null) {
 				returnValueLocation = "0";
 			} else {
@@ -39,7 +39,7 @@ public class MidReturnNode extends MidNode implements MidUseNode, Allocatable {
 						.getFormattedLocationReference();
 			}
 		} else {
-			returnValueLocation = allocatedRegs.get(Optimizer.iterID())
+			returnValueLocation = allocatedRegs.get(Optimizer.getIterID())
 					.name();
 		}
 		out.add(new OpASM("Setting return value", OpCode.MOV, Reg.RAX.name(),
@@ -56,12 +56,12 @@ public class MidReturnNode extends MidNode implements MidUseNode, Allocatable {
 
 	@Override
 	public void allocateRegister(Reg allocatedReg) {
-		allocatedRegs.put(Optimizer.iterID(), allocatedReg);
+		allocatedRegs.put(Optimizer.getIterID(), allocatedReg);
 	}
 
 	@Override
 	public Reg getAllocatedRegister() {
-		return allocatedRegs.get(Optimizer.iterID());
+		return allocatedRegs.get(Optimizer.getIterID());
 	}
 
 }

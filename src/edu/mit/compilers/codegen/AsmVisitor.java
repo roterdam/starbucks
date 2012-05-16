@@ -24,14 +24,21 @@ public class AsmVisitor {
 
 	// Static variable because Strings have to be added to it from within other
 	// code.
-	private static List<ASM> dataSection = createDataSection();
-	private static List<ASM> readOnlySection = createReadOnlySection();
-	private static Set<String> externCalls = new HashSet<String>();
+	private static List<ASM> dataSection;
+	private static List<ASM> readOnlySection;
+	private static Set<String> externCalls;
+
+	static {
+		readOnlySection = createReadOnlySection();
+		externCalls = new HashSet<String>();
+	}
 
 	private AsmVisitor(MidSymbolTable symbolTable) {
 	}
 
 	public static String generate(MidSymbolTable symbolTable) {
+
+		dataSection = createDataSection();
 
 		List<ASM> asm = new ArrayList<ASM>();
 		List<ASM> textSection = createTextSection();

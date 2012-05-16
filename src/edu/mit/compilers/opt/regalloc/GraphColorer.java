@@ -3,7 +3,6 @@ package edu.mit.compilers.opt.regalloc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class GraphColorer {
 			// When all nodes are removed, start to color.
 			// Pop a node from the stack back and pick a valid color.
 			Web poppedWeb = workingStack.pop();
-			Set<Reg> validColors = new HashSet<Reg>(usableRegisters);
+			Set<Reg> validColors = new LinkedHashSet<Reg>(usableRegisters);
 			graph.insertVertex(poppedWeb);
 			for (Web neighbor : graph.getNeighbors(poppedWeb)) {
 				validColors.remove(getColor(neighbor));

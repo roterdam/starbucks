@@ -110,7 +110,7 @@ public class Optimizer {
 				+ " times.");
 
 		if (enableRA) {
-			iterID = 1;
+			iterID++;
 			RegisterAllocator allocator = new RegisterAllocator(symbolTable);
 			allocator.run();
 
@@ -130,12 +130,11 @@ public class Optimizer {
 			LogCenter.debug("META", "Wrote to " + testFile.getAbsolutePath());
 			
 			testDir.delete();
-
+			
 		}
-		
-		MemoryManager.assignStorage(symbolTable);
 
-		// System.out.println(symbolTable.toDotSyntax(true));
+		iterID++;
+		MemoryManager.assignStorage(symbolTable);
 		writeToOutput(outputFile, AsmVisitor.generate(symbolTable));
 
 	}
@@ -172,7 +171,7 @@ public class Optimizer {
 		return singleton;
 	}
 
-	public static int iterID() {
+	public static int getIterID() {
 		return iterID;
 	}
 
