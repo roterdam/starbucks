@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.nodes.MidLabelNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
@@ -59,19 +58,21 @@ public class CMTransformer extends Transformer<CMState> {
 			return;
 		}
 		
-		
-		boolean invariant = false;
+		boolean invariant;
 		
 		for (MidNode node : block) {
-			LogCenter.debug("CM", "Checking " + node.toString() + " for invariance");
-			if (node instanceof MidSaveNode) {
+			invariant = false;
+			if (node instanceof MidSaveNode && ((MidSaveNode) node).savesRegister()) {
 				MidRegisterNode reg = (MidRegisterNode) ((MidSaveNode) node).getRegNode();
 				if (reg instanceof MidArithmeticNode) {
 					MidLoadNode left = ((MidArithmeticNode) reg).getLeftOperand();
 					MidLoadNode right = ((MidArithmeticNode) reg).getRightOperand();
-					Loop leftLoop = local.getLoop(defBlock.get(useDef.get(left)));
-					Loop rightLoop = local.getLoop(defBlock.get(useDef.get(right)));
-					if (l.compareTo(leftLoop) == 1 && l.compareTo(rightLoop) == 1) {
+					Loop checkLeft = local.getLoop(defBlock.get(useDef.get(left)));
+					Loop checkRight = local.getLoop(defBlock.get(useDef.get(right)));
+					LogCenter.debug("CM", "loop " + l.getDepth());
+					LogCenter.debug("CM", "left " + checkLeft);
+					LogCenter.debug("CM", "right " + checkRight);
+					if (l.compareTo(checkLeft) == 1 && l.compareTo(checkRight) == 1) {
 						invariant = true;
 					}
 				} else if (reg instanceof MidNegNode) {

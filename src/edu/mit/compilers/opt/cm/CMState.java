@@ -110,8 +110,9 @@ public class CMState implements State<CMState> {
 		}
 		LogCenter.debug("CM", "Depth " + depth);
 		LogCenter.debug("CM", "Num Blocks " + l.getBlocks().size());
+		LogCenter.debug("CM", "Block");
 		for (Block e : l.getBlocks()) {
-			LogCenter.debug("CM", "Block " + e.getHead());
+			LogCenter.debug("CM", "" + e);
 			nesting.put(e, l);
 		}
 	}
