@@ -45,6 +45,7 @@ public class AnalyzerHelpers {
 		
 		MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 		
+		//FIXME is this correct?
 		if (loadNode.getMemoryNode() instanceof MidArrayElementNode){
 			block.delete(((MidArrayElementNode)loadNode.getMemoryNode()).getLoadNode());
 		}

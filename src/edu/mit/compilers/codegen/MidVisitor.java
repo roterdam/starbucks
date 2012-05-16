@@ -346,6 +346,7 @@ public class MidVisitor {
 
 		MidNodeList instrList = new MidNodeList();
 
+		
 		int count = 0;
 		if (checkZeroBound){
 			count ++;
@@ -819,11 +820,16 @@ public class MidVisitor {
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 
+		
+		
 		// ADD META DATA FOR FOR LOOP (REBC)
 		String iterVar = node.getAssignNode().getLocation().getText();
 		LogCenter.debug("REBC", "iter variable for for loop is: "+iterVar);
 		MidLocalVarDeclNode iterDeclNode = (MidLocalVarDeclNode) newSymbolTable.getVar(iterVar);
 		iterDeclNode.setForNode(node);
+		
+		
+		
 		
 		MidNodeList statementList = node.getBlockNode()
 				.convertToMidLevelSpecial(newSymbolTable);

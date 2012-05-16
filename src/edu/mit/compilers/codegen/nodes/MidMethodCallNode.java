@@ -6,7 +6,6 @@ public class MidMethodCallNode extends MidCallNode {
 	MidMethodDeclNode methodDecl;
 	boolean starbucksCall;
 
-	// FIXME: get rid of params
 	public MidMethodCallNode(MidMethodDeclNode methodDecl, int paramCount) {
 		this(methodDecl, paramCount, false);
 	}
