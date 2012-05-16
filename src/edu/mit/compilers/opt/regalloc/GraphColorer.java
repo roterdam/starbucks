@@ -45,9 +45,10 @@ public class GraphColorer {
 			if (graph.isEmpty()) {
 				break;
 			}
+			
 			// Remove a remaining nodes with degree >= N. (We are spilling it by
 			// not giving it a register.)
-			Web removed = graph.removeAnyVertex();
+			Web removed = graph.removeMostConstrainedVertex();
 			LogCenter.debug("RA", "Could not color all nodes, spilling "
 					+ removed);
 		}

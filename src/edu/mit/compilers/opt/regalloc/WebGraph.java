@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class WebGraph {
-	
+
 	private Map<Web, List<Web>> graphData;
 
 	public WebGraph(List<Web> webs) {
@@ -16,7 +16,7 @@ public class WebGraph {
 			graphData.put(web, new ArrayList<Web>(web.getInterferences()));
 		}
 	}
-	
+
 	public Set<Web> getVertices() {
 		return graphData.keySet();
 	}
@@ -42,8 +42,17 @@ public class WebGraph {
 		return web;
 	}
 
-	public Web removeAnyVertex() {
+	public Web removeMostConstrainedVertex() {
 		assert !graphData.isEmpty();
+		Web out;
+		int maxDegree = -1;
+		for (Web vertex : graphData.keySet()) {
+			int n = getDegree(vertex);
+			if (n > maxDegree) {
+				maxDegree = n;
+				out = vertex;
+			}
+		}
 		return removeVertex(graphData.keySet().iterator().next());
 	}
 
