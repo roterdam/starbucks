@@ -90,5 +90,11 @@ public abstract class MidCallNode extends MidRegisterNode implements
 		assert !saveValueDisabled;
 		super.setRegister(reg);
 	}
+	
+	
+	@Override
+	public String toString(){
+		return super.toString() + " disabled? "+saveValueDisabled();
+	}
 
 }

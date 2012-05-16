@@ -7,6 +7,7 @@ import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
@@ -22,7 +23,7 @@ public class AnalyzerHelpers {
 		block.delete(saveNode);
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", "DELETING " + arithNode);
+		LogCenter.debug("OPT", " --> DELETING binary" + arithNode);
 		block.delete(arithNode);
 		block.delete(arithNode.getLeftOperand());
 		block.delete(arithNode.getRightOperand());
@@ -43,7 +44,7 @@ public class AnalyzerHelpers {
 		block.delete(saveNode);
 		assert saveNode.getRegNode() instanceof MidNegNode;
 		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", "DELETING " + negNode);
+		LogCenter.debug("OPT", " --> DELETING unary " + negNode);
 		block.delete(negNode);
 		block.delete(negNode.getOperand());
 		
@@ -57,6 +58,15 @@ public class AnalyzerHelpers {
 			Block block) {
 		List<MidNode> deleted = new ArrayList<MidNode>();
 		assert saveNode.getRegNode() instanceof MidLoadNode;
+		
+		MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
+		
+		//FIXME is this correct?
+		if (loadNode.getMemoryNode() instanceof MidArrayElementNode){
+			block.delete(((MidArrayElementNode)loadNode.getMemoryNode()).getLoadNode());
+		}
+		
+		LogCenter.debug("DCE", "DELETING ASSIGN "+saveNode.getRegNode());
 		block.delete(saveNode.getRegNode());
 		block.delete(saveNode);
 		deleted.add(saveNode.getRegNode());
@@ -68,12 +78,13 @@ public class AnalyzerHelpers {
 			Block block) {
 		List<MidNode> deleted = new ArrayList<MidNode>();
 		assert saveNode.getRegNode() instanceof MidCallNode;
+		LogCenter.debug("DCE", "DELETEING SAVE NODE "+saveNode);
 		block.delete(saveNode);
 		MidCallNode callNode = (MidCallNode) saveNode.getRegNode();
+		LogCenter.debug("DCE", "DISABLING "+callNode);
 		callNode.disableSaveValue();
 		deleted.add(callNode);
 		deleted.add(saveNode);
 		return deleted;
 	}
-
 }

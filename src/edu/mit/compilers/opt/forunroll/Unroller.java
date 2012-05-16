@@ -25,8 +25,10 @@ import edu.mit.compilers.grammar.tokens.WHILENode;
 import edu.mit.compilers.grammar.tokens.WHILE_TERMINATENode;
 
 public class Unroller {
-	
+	static int count = 0;
 	static int varCounter = 0;
+	
+	static int MAX_FOR_LENGTH = 0; 
 	
 	static int LARGEST_UNROLL_LG = 1; // corresponds to 2**5 unroll.
 	
@@ -59,7 +61,7 @@ public class Unroller {
 	}
 	*/
 	
-	public  static void unrollHelper(DecafNode node) {
+	public static void unrollHelper(DecafNode node) {
 		// By default does nothing and propagates call to children.
 		DecafNode child = node.getFirstChild();
 		
@@ -129,6 +131,10 @@ public class Unroller {
 	*/
 	
 	public static DecafNode unroll(FORNode forNode){
+		count++;
+		
+		LogCenter.debug("FU", "I enter! ");
+
 		unrollHelper(forNode);
 		
 		ASSIGNNode assignNode = forNode.getForInitializeNode().getAssignNode();
@@ -138,12 +144,15 @@ public class Unroller {
 		BLOCKNode blockNode = forNode.getBlockNode();
 		
 		// Can't unroll if variable gets modified.
-		if (!blockNode.isUnrollable(iterVar, true)){
+		if (!blockNode.isUnrollable(iterVar, true) || blockNode.getNumberOfChildren() > MAX_FOR_LENGTH){
+			LogCenter.debug("FU", "I exit1!");
 			return forNode;
 		}
 		
+		
+		/*
 		// Do a full unroll if we are dealing with int literals.
-		if(false && initExpr instanceof INT_LITERALNode && termExpr instanceof INT_LITERALNode){
+		if(initExpr instanceof INT_LITERALNode && termExpr instanceof INT_LITERALNode){
 			long initValue = ((INT_LITERALNode)initExpr).getValue();
 			long termValue = ((INT_LITERALNode)termExpr).getValue();
 			
@@ -172,10 +181,13 @@ public class Unroller {
 			copyAssignNode.setNextSibling(innerBlock);
 			
 			LogCenter.debug("FU","Unrolled to: "+unrolledBlock);
+			
+			LogCenter.debug("FU", "I exit2!");
 			return unrolledBlock;
 			
-		}
+		*/
 		// Otherwise, we are dealing with at least one non-literal expression :(
+		
 		
 		
 		String termVar = getVariableName();
@@ -187,20 +199,20 @@ public class Unroller {
 		// Set the value of the itervar
 		ASSIGNNode copyAssignIterNode = (ASSIGNNode) assignNode.deepCopy();
 		
+		
 		// Set the value of the termvar
 		ASSIGNNode copyAssignTermNode = new ASSIGNNode();
 		DecafNode copyTermExpr = termExpr.deepCopy();
+		
 		IDNode copyTermVarNode = new IDNode();
 		copyTermVarNode.setText(termVar);
 		copyAssignTermNode.setFirstChild(copyTermVarNode);
 		copyTermVarNode.setNextSibling(copyTermExpr);
 		
-		
 		// Generate the inner block
 		BLOCKNode innerNode = generateBodyWithDecls(blockNode);
 		
 		// ADD PARAMS HERE.
-		
 		DecafNode lastNode = null;
 		
 		long pow2 = 1;
@@ -236,7 +248,7 @@ public class Unroller {
 		copyAssignTermNode.setNextSibling(innerNode);
 		
 		LogCenter.debug("FU","Unrolled to: "+unrolledBlock);
-		
+		LogCenter.debug("FU", "I exit3!");
 		return unrolledBlock;
 	}
 	
@@ -280,6 +292,7 @@ public class Unroller {
 				lastNode.setNextSibling(childNode.deepCopy());
 				lastNode = lastNode.getNextSibling();
 			}
+			childNode = childNode.getNextSibling();
 		}
 		return declBody;
 	}

@@ -11,6 +11,7 @@ import edu.mit.compilers.codegen.MidVisitor;
 import edu.mit.compilers.crawler.Scope;
 import edu.mit.compilers.crawler.SemanticRules;
 import edu.mit.compilers.crawler.ValidReturnChecker;
+import edu.mit.compilers.opt.algebra.AlgebraicSimplifier;
 import edu.mit.compilers.opt.forunroll.Unroller;
 
 @SuppressWarnings("serial")
@@ -207,6 +208,7 @@ public abstract class DecafNode extends CommonAST {
 	}
 
 	protected static DecafNode deepCopyHelper(DecafNode n) {
+		assert n instanceof DecafNode;
 		LogCenter
 				.debug("FU", "Deep copying " + n + " ( " + n.hashCode() + " )");
 		try {
@@ -268,7 +270,8 @@ public abstract class DecafNode extends CommonAST {
 
 	@Override
 	public String toString() {
-		String out = "<" + this.getClass() + " " + getText() + ">[";
+		//assert !this.getClass().getSimpleName().equals("");
+		String out = "<" + this.getClass().getName() + " " + getText() + ">[";
 		DecafNode childNode = getFirstChild();
 		while (childNode != null) {
 			out += childNode.toString() + ",";

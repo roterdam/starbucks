@@ -81,7 +81,9 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 			} else {
 				assert false : "Could not handle this.";
 			}
+		} else {
+		LogCenter.debug("DCE", "just kidding");
+		
 		}
 	}
-
 }

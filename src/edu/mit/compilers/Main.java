@@ -117,11 +117,14 @@ public class Main {
 
 					if (CLI.optOn) {
 						// Do algebraic simplifications.
+						LogCenter.debug("SB", "Begin For Algebraic Simplifications");
 						((CLASSNode) parser.getAST()).simplifyExpressions();
 						
 						// Do for loop unrolling.
-						//((CLASSNode) parser.getAST()).unroll();
+						LogCenter.debug("SB", "Begin For Loop Unrolling");
+						((CLASSNode) parser.getAST()).unroll();
 						
+						LogCenter.debug("SB", "Finished Loop Unrolling");
 					}
 
 					if (CLI.visual) {
