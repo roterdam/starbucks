@@ -15,4 +15,10 @@ public class MidNegNode extends MidUnaryRegNode {
 	public List<ASM> toASM() {
 		return super.toASM(OpCode.NEG);	
 	}
+
+	@Override
+	public long applyOperation(long value) {
+		return -value;
+	}
+	
 }

@@ -30,8 +30,8 @@ public class CSETransfer implements Transfer<CSEGlobalState> {
 		assert inState != null : "Input state should not be null.";
 
 		this.assignments = new ArrayList<MidNode>();
-		LogCenter.debug("OPT", "\n\n\nPROCESSING " + block
-				+ ", THE GLOBAL STATE IS:\n##########\n" + inState);
+		//LogCenter.debug("OPT", "\n\n\nPROCESSING " + block
+		//		+ ", THE GLOBAL STATE IS:\n##########\n" + inState);
 
 		CSEGlobalState outState = inState.clone();
 

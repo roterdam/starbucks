@@ -46,5 +46,7 @@ public abstract class MidUnaryRegNode extends MidRegisterNode implements
 	public void updateLoadNode(MidLoadNode oldNode, MidLoadNode newNode) {
 		operand = newNode;
 	}
+	
+	public abstract long applyOperation(long value);
 
 }

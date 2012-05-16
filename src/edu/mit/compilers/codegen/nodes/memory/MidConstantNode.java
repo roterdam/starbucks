@@ -13,7 +13,8 @@ public class MidConstantNode extends MidMemoryNode {
 		this.value = value;
 	}
 
-	public long getValue() {
+	@Override
+	public long getConstant() {
 		return value;
 	}
 
@@ -28,7 +29,7 @@ public class MidConstantNode extends MidMemoryNode {
 			return false;
 		}
 		MidConstantNode consNode = (MidConstantNode) o;
-		return consNode.getValue() == value;
+		return consNode.getConstant() == value;
 	}
 	
 	@Override

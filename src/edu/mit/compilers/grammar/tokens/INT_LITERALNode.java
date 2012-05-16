@@ -109,5 +109,13 @@ public class INT_LITERALNode extends ExpressionNode {
 		List<DecafNode> list = new ArrayList<DecafNode>();
 		return list;
 	}
+	
+	@Override
+	public DecafNode deepCopy(){
+		INT_LITERALNode copyNode = new INT_LITERALNode();
+		copyNode.setText(this.getText());
+		copyNode.initializeValue();
+		return copyNode;
+	}
 
 }

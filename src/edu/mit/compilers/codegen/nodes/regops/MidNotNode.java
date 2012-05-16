@@ -18,4 +18,9 @@ public class MidNotNode extends MidUnaryRegNode {
 		return super.toASM(OpCode.NOT);		
 	}
 
+	@Override
+	public long applyOperation(long value) {
+		return value^0;
+	}
+
 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.io.Files;
 
@@ -15,13 +14,7 @@ import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
-import edu.mit.compilers.opt.Block;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
-import edu.mit.compilers.opt.cm.CodeHoister;
-import edu.mit.compilers.opt.cm.DomState;
-import edu.mit.compilers.opt.cm.DomTransfer;
-import edu.mit.compilers.opt.cm.DominanceRecord;
-import edu.mit.compilers.opt.cm.LoopGenerator;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -103,6 +96,12 @@ public class Optimizer {
 				dce.analyze(analyzer, symbolTable);
 			}
 
+			if (optsOn) {
+				LogCenter.debug("SB", "STARTING AS. naht");
+				MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
+				simplifier.analyze(symbolTable);
+			}
+
 			x++;
 		}
 		
@@ -124,12 +123,6 @@ public class Optimizer {
 //			CodeHoister hoister = new CodeHoister(generator, doctor);
 //			hoister.hoist();
 //		}
-
-		if (optsOn) {
-			LogCenter.debug("SB", "STARTING AS.");
-			MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
-			simplifier.analyze(symbolTable);
-		}
 
 		LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations " + (x - 1)
 				+ " times.");
@@ -187,7 +180,8 @@ public class Optimizer {
 			// If no optimizations, go straight to writing the final file.
 			MemoryManager.assignStorage(symbolTable);
 			writeToOutput(finalFile.getAbsolutePath(),
-					AsmVisitor.generateText(AsmVisitor.buildASMList(symbolTable)));
+					AsmVisitor.generateText(AsmVisitor
+							.buildASMList(symbolTable)));
 		}
 
 		// Clean up temp files if necessary.

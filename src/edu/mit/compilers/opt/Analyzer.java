@@ -75,7 +75,7 @@ public class Analyzer<S extends State<S>, T extends Transfer<S>> implements
 	private S getInState(Block b) {
 		S out = null;
 		for (Block m : b.getPredecessors()) {
-			LogCenter.debug("OPT", "Using state from " + m);
+			//LogCenter.debug("OPT", "Using state from " + m);
 			out = outHash.get(m).join(out);
 		}
 		return out;

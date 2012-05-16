@@ -29,7 +29,7 @@ public class MidSaveRegLaterNode extends MidNode {
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
 
-		out.add(new OpASM("MidSaveRegLaterNode", OpCode.NOP));
+		//out.add(new OpASM("MidSaveRegLaterNode", OpCode.NOP));
 		
 		List<Reg> needToSaveRegs = callNode.getNeedToSaveRegisters();
 		for (Reg r : needToSaveRegs) {

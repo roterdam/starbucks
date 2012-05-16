@@ -85,6 +85,7 @@ public class Block implements Iterable<MidNode> {
 	}
 
 	public String toString() {
+		assert false;
 		if (getHead() == null) {
 			return "B" + blockNum + "[]";
 		}
@@ -102,6 +103,7 @@ public class Block implements Iterable<MidNode> {
 
 	public static String recursiveToString(Block b, List<Block> visited,
 			int indent) {
+		assert false;
 		String out = b.getBlockNum() + " ["
 				+ (b.getHead() == null ? "" : b.getHead()) + "]";
 		visited.add(b);
@@ -123,16 +125,21 @@ public class Block implements Iterable<MidNode> {
 	public static int blockNumCounter = 0;
 
 	public static Block makeBlock(MidNode n) {
+		
 		if (n == null) {
 			return null;
 		}
+		LogCenter.debug("OPT", "Starting block with "+n.hashCode());
 		if (n instanceof MidJumpNode) {
 			MidJumpNode jumpNode = (MidJumpNode) n;
 			return makeBlock(jumpNode.getLabelNode());
 		}
 		if (blockCache.containsKey(n)) {
+			LogCenter.debug("OPT", "BLOCK: snap its cached");
 			return blockCache.get(n);
 		}
+		
+		LogCenter.debug("OPT", "Done making this block");
 		LogCenter.debug("OPT", "BLOCK: makeBlock " + n);
 		Block b = new Block(n, blockNumCounter++);
 		blockCache.put(n, b);
@@ -158,6 +165,7 @@ public class Block implements Iterable<MidNode> {
 						+ secondSuc.getHead());
 			}
 		}
+		LogCenter.debug("OPT", "Done making this block with "+n.hashCode());
 		return b;
 	}
 
@@ -172,6 +180,7 @@ public class Block implements Iterable<MidNode> {
 		// Force head to the beginning.
 		out.remove(head);
 		out.add(0, head);
+		LogCenter.debug("OPT", "BLOCK: done with getAllBlocks");
 		return out;
 	}
 

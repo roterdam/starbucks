@@ -25,8 +25,8 @@ public class CPTransformer extends Transformer<CPState> {
 			localState = state.clone();
 		}
 
-		LogCenter.debug("CP", "\n\nTransforming block:\n" + block
-				+ "\n State:\n" + state);
+		//LogCenter.debug("CP", "\n\nTransforming block:\n" + block
+		//		+ "\n State:\n" + state);
 
 		for (MidNode node : block) {
 			if (node instanceof MidSaveNode
