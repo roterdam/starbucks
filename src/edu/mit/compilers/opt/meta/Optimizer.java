@@ -31,7 +31,7 @@ import edu.mit.compilers.opt.regalloc.RegisterAllocator;
  */
 public class Optimizer {
 	
-	private static int regID = -1;
+	private static int iterID = -1;
 
 	private static final int MAX_CSE_CP_DCE_TIMES = 5;
 	private static Optimizer singleton;
@@ -110,6 +110,7 @@ public class Optimizer {
 				+ " times.");
 
 		if (enableRA) {
+			iterID = 1;
 			RegisterAllocator allocator = new RegisterAllocator(symbolTable);
 			allocator.run();
 
@@ -122,9 +123,7 @@ public class Optimizer {
 				abort("Could not create folder for testing binaries.");
 			}
 			
-			int iter = 0;
-			
-			File testFile = new File(testDir, String.format("%d.s", iter));
+			File testFile = new File(testDir, String.format("%d.s", iterID));
 			
 			MemoryManager.assignStorage(symbolTable);
 			writeToOutput(testFile.getAbsolutePath(), AsmVisitor.generate(symbolTable));
@@ -173,8 +172,8 @@ public class Optimizer {
 		return singleton;
 	}
 
-	public static int getRegID() {
-		return regID;
+	public static int iterID() {
+		return iterID;
 	}
 
 }

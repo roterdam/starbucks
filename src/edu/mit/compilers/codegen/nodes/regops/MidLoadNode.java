@@ -35,7 +35,6 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 
 	public MidMemoryNode getMemoryNode() {
 		assert allocatedRegs.isEmpty() : "Shouldn't be getting this memory node after allocating it to a register!";
-		allocatedRegs = new HashMap<Integer, Reg>();
 		return memoryNode;
 	}
 
@@ -60,14 +59,14 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 	@Override
 	public List<ASM> toASM() {
 		List<ASM> out = new ArrayList<ASM>();
-		if (!allocatedRegs.containsKey(Optimizer.getRegID())) {
+		if (!allocatedRegs.containsKey(Optimizer.iterID())) {
 			out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
 					memoryNode.getFormattedLocationReference()));
 		} else {
 			// If the load node has instead been given a register, load from
 			// that instead.
 			out.add(new OpASM(toString(), OpCode.MOV, getRegister().name(),
-					allocatedRegs.get(Optimizer.getRegID()).name()));
+					allocatedRegs.get(Optimizer.iterID()).name()));
 		}
 		return out;
 	}
@@ -106,12 +105,12 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 
 	@Override
 	public void allocateRegister(Reg allocatedReg) {
-		allocatedRegs.put(Optimizer.getRegID(), allocatedReg);
+		allocatedRegs.put(Optimizer.iterID(), allocatedReg);
 	}
 
 	@Override
 	public Reg getAllocatedRegister() {
-		return allocatedRegs.get(Optimizer.getRegID());
+		return allocatedRegs.get(Optimizer.iterID());
 	}
 
 }

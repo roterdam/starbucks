@@ -184,10 +184,10 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 		String comment = (isOptimization ? "[OPT] " : "") + toString();
 		String destinationString;
-		if (!allocatedRegs.containsKey(Optimizer.getRegID())) {
+		if (!allocatedRegs.containsKey(Optimizer.iterID())) {
 			destinationString = destination.getFormattedLocationReference();
 		} else {
-			destinationString = allocatedRegs.get(Optimizer.getRegID()).name();
+			destinationString = allocatedRegs.get(Optimizer.iterID()).name();
 		}
 		out.add(new OpASM(comment, OpCode.MOV, destinationString, rightOperand));
 
@@ -213,12 +213,12 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 
 	@Override
 	public void allocateRegister(Reg allocatedReg) {
-		allocatedRegs.put(Optimizer.getRegID(), allocatedReg);
+		allocatedRegs.put(Optimizer.iterID(), allocatedReg);
 	}
 
 	@Override
 	public Reg getAllocatedRegister() {
-		return allocatedRegs.get(Optimizer.getRegID());
+		return allocatedRegs.get(Optimizer.iterID());
 	}
 
 }
