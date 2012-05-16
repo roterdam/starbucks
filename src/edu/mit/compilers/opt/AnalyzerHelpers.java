@@ -47,7 +47,7 @@ public class AnalyzerHelpers {
 	
 	
 	public static void completeReplaceBinary(MidSaveNode saveNode, MidNodeList replaceList) {
-		MidNode insertBefore = saveNode.getPrevNode();
+		MidNode insertBefore = saveNode.getNextNode();
 		
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
@@ -57,12 +57,12 @@ public class AnalyzerHelpers {
 		arithNode.getLeftOperand().delete();
 		arithNode.getRightOperand().delete();
 		
-		MidNode insertAfter = insertBefore.getNextNode();
+		MidNode insertAfter = insertBefore.getPrevNode();
 		insertAfter.insertNodeListAfter(replaceList);
 	}
 
 	public static void completeReplaceUnary(MidSaveNode saveNode, MidNodeList replaceList) {
-		MidNode insertBefore = saveNode.getPrevNode();
+		MidNode insertBefore = saveNode.getNextNode();
 		
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidNegNode;
@@ -72,7 +72,7 @@ public class AnalyzerHelpers {
 		negNode.getOperand().delete();
 		
 
-		MidNode insertAfter = insertBefore.getNextNode();
+		MidNode insertAfter = insertBefore.getPrevNode();
 		insertAfter.insertNodeListAfter(replaceList);
 	}	
 

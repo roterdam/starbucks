@@ -70,7 +70,6 @@ public class MidAlgebraicSimplifier {
 						replList.add(newRegNode);
 						replList.add(newSaveNode);
 						
-						
 						AnalyzerHelpers.completeReplaceBinary(saveNode, replList);
 						continue;
 					} else {
@@ -100,8 +99,8 @@ public class MidAlgebraicSimplifier {
 					MidMemoryNode memNode = unaryNode.getOperand().getMemoryNode();
 					if(memNode.isConstant()){
 						
-						long rightVal = memNode.getConstant();
-						long simpleVal = unaryNode.applyOperation(rightVal);
+						long val = memNode.getConstant();
+						long simpleVal = unaryNode.applyOperation(val);
 						
 						LogCenter.debug("MAS", "About to replace "+node+" with "+simpleVal);
 						

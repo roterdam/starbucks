@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import antlr.CommonAST;
 import antlr.Token;
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.MidSymbolTable;
 import edu.mit.compilers.codegen.MidVisitor;
@@ -34,14 +35,14 @@ public abstract class DecafNode extends CommonAST {
 		return column;
 	}
 
-	public DecafNode getTail(){
+	public DecafNode getTail() {
 		DecafNode currentNode = this;
-		while(currentNode.getNextSibling() != null){
+		while (currentNode.getNextSibling() != null) {
 			currentNode = currentNode.getNextSibling();
 		}
 		return currentNode;
 	}
-	
+
 	public void copyFromNode(DecafNode n) {
 		this.line = n.getLine();
 		this.column = n.getColumn();
@@ -64,64 +65,63 @@ public abstract class DecafNode extends CommonAST {
 		}
 		return currentNode;
 	}
-	
-	
-	public void replaceChildWithList(int i, DecafNode node){
+
+	public void replaceChildWithList(int i, DecafNode node) {
 		DecafNode tailNode = node;
-		while(tailNode.getNextSibling() != null){
+		while (tailNode.getNextSibling() != null) {
 			tailNode = tailNode.getNextSibling();
 		}
-		
+
 		DecafNode predecessorNode = null;
 		DecafNode thisNode = getFirstChild();
-		for(int j = 0; j < i; j++){
+		for (int j = 0; j < i; j++) {
 			predecessorNode = thisNode;
 			thisNode = thisNode.getNextSibling();
 		}
 		DecafNode successorNode = thisNode.getNextSibling();
-		
-		if(thisNode == node){
+
+		if (thisNode == node) {
 			// Replacing node with itself, no updates necessary.
 			return;
 		}
-		if(predecessorNode == null){ // Setting firstChild
+		if (predecessorNode == null) { // Setting firstChild
 			setFirstChild(node);
-		}else {
+		} else {
 			predecessorNode.setNextSibling(node);
 		}
 		tailNode.setNextSibling(successorNode);
 	}
-	
-	public void replaceChild(int i, DecafNode node){
+
+	public void replaceChild(int i, DecafNode node) {
 		DecafNode predecessorNode = null;
 		DecafNode thisNode = getFirstChild();
-		for(int j = 0; j < i; j++){
+		for (int j = 0; j < i; j++) {
 			predecessorNode = thisNode;
 			thisNode = thisNode.getNextSibling();
 		}
 		DecafNode successorNode = thisNode.getNextSibling();
-		
-		if(thisNode == node){
+
+		if (thisNode == node) {
 			// Replacing node with itself, no updates necessary.
 			return;
 		}
-		if(predecessorNode == null){ // Setting firstChild
+		if (predecessorNode == null) { // Setting firstChild
 			setFirstChild(node);
-		}else {
+		} else {
 			predecessorNode.setNextSibling(node);
 		}
 		node.setNextSibling(successorNode);
 	}
-	
+
 	public void validate(Scope scope) {
 		applyRules(scope);
 		validateChildren(scope);
 	}
-	
+
 	public void applyRules(Scope scope) {
 		SemanticRules.apply(this, scope);
 	}
-	
+
 	public void validateChildren(Scope scope) {
 		DecafNode child = this.getFirstChild();
 		while (child != null) {
@@ -138,7 +138,7 @@ public abstract class DecafNode extends CommonAST {
 	public DecafNode clean() {
 		// By default does nothing and propagates call to children.
 		DecafNode child = this.getFirstChild();
-		
+
 		if (child != null) {
 			DecafNode nextChild = child.getNextSibling();
 			this.setFirstChild(child.clean());
@@ -155,78 +155,79 @@ public abstract class DecafNode extends CommonAST {
 		}
 		return this;
 	}
-	
+
 	public boolean hasValidReturn(ValidReturnChecker returnChecker) {
 		return returnChecker.visit(this);
 	}
-	
+
 	public MidNodeList convertToMidLevel(MidSymbolTable symbolTable) {
 		// TODO: make this method abstract.
-//		assert false;
+		// assert false;
 		return MidVisitor.visit(this, symbolTable);
 	}
-	
-	public void simplifyExpressions(){
-		
+
+	public void simplifyExpressions() {
+
 	}
-	
-	public DecafNode eliminateUnreachableCode(){
+
+	public DecafNode eliminateUnreachableCode() {
 		return this;
 	}
-	
+
 	/* If true, all statements after this statement are unreachable */
-	public boolean isBlockEnder(){
+	public boolean isBlockEnder() {
 		return false;
 	}
-	
-	public DecafNode getLastSibling(){
+
+	public DecafNode getLastSibling() {
 		DecafNode lastSibling = this;
-		while(lastSibling.getNextSibling() != null){
+		while (lastSibling.getNextSibling() != null) {
 			lastSibling = lastSibling.getNextSibling();
 		}
 		return lastSibling;
 	}
-	
-	
+
 	/**
 	 * Returns true if this node sets the value of variable 'var'.
 	 * 
 	 * Overridden by ASSIGNNode!
+	 * 
 	 * @param var
 	 * @return
 	 */
-	public boolean doesAssign(String var){
+	public boolean doesAssign(String var) {
 		DecafNode childNode = this.getFirstChild();
-		while(childNode != null){
-			if(childNode.doesAssign(var)){
+		while (childNode != null) {
+			if (childNode.doesAssign(var)) {
 				return true;
 			}
 			childNode = childNode.getNextSibling();
 		}
 		return false;
 	}
-	
-	
-	protected static DecafNode deepCopyHelper(DecafNode n){
 
+	protected static DecafNode deepCopyHelper(DecafNode n) {
+		LogCenter
+				.debug("FU", "Deep copying " + n + " ( " + n.hashCode() + " )");
 		try {
-			DecafNode copyNode = n.getClass().getConstructor(new Class[0]).newInstance(new Object[0]);
+			LogCenter.debug("FU", "Node class is " + n.getClass());
+			DecafNode copyNode = n.getClass().getConstructor().newInstance();
 			copyNode.setText(n.getText());
-			
+
 			DecafNode childNode = n.getFirstChild();
 			DecafNode prevNode = null;
-			for(int i = 0; i < n.getNumberOfChildren(); i++){
-				if (i == 0){
+			for (int i = 0; i < n.getNumberOfChildren(); i++) {
+				if (i == 0) {
 					copyNode.setFirstChild(childNode.deepCopy());
 					prevNode = copyNode.getFirstChild();
-				}else{
+				} else {
 					prevNode.setNextSibling(childNode.deepCopy());
 					prevNode = prevNode.getNextSibling();
 				}
 				childNode = childNode.getNextSibling();
-			}			
+			}
 			return copyNode;
-			
+
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -243,36 +244,37 @@ public abstract class DecafNode extends CommonAST {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
+			LogCenter.debug("FU", "OOPS! " + n);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	// Overwritten by ExpressionNode
-	public DecafNode deepCopy(){
+	public DecafNode deepCopy() {
 		return DecafNode.deepCopyHelper(this);
-		//FIXME: expressions have pre/post lists.
-		
+		// FIXME: expressions have pre/post lists.
+
 	}
-	
-	public DecafNode unroll(){
+
+	public DecafNode unroll() {
 		return Unroller.unroll(this);
 	}
-	
-	public boolean isUnrollable(String var, boolean hasLoopScope){
+
+	public boolean isUnrollable(String var, boolean hasLoopScope) {
 		return Unroller.isUnrollable(this, var, hasLoopScope);
 	}
-	
+
 	@Override
-	public String toString(){
-		String out = "<"+this.getClass().getSimpleName()+" "+getText()+">[";
+	public String toString() {
+		String out = "<" + this.getClass() + " " + getText() + ">[";
 		DecafNode childNode = getFirstChild();
-		while(childNode != null){
-			out += childNode.toString()+",";
+		while (childNode != null) {
+			out += childNode.toString() + ",";
 			childNode = childNode.getNextSibling();
 		}
 		out += "]";
 		return out;
-	}	
+	}
 }

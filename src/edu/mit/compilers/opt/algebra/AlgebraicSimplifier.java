@@ -67,6 +67,10 @@ public class AlgebraicSimplifier {
 
 	private static Map<String, Long> arrayLengths = new HashMap<String, Long>();
 
+	public AlgebraicSimplifier(){
+		assert false : "Fuck you";
+	}
+	
 	public static void visit(CLASSNode node) {
 		for (FIELD_DECLNode declNode : node.getFieldNodes()) {
 			if (declNode.getArrayLength() != -1) {

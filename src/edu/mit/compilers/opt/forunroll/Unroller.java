@@ -40,7 +40,7 @@ public class Unroller {
 		unrollHelper(node);
 		return node;
 	}
-	
+	/*
 	public static void unrollHelper(DecafNode node){
 		DecafNode childNode = node.getFirstChild();
 		DecafNode prevNode = null;
@@ -57,6 +57,28 @@ public class Unroller {
 			prevNode = unrolledChild;
 		}
 	}
+	*/
+	
+	public  static void unrollHelper(DecafNode node) {
+		// By default does nothing and propagates call to children.
+		DecafNode child = node.getFirstChild();
+		
+		if (child != null) {
+			DecafNode nextChild = child.getNextSibling();
+			node.setFirstChild(child.unroll());
+			DecafNode prevChild = node.getFirstChild();
+			prevChild.setNextSibling(nextChild);
+			while (nextChild != null) {
+				DecafNode newNextChild = nextChild.getNextSibling();
+				nextChild = nextChild.unroll();
+				nextChild.setNextSibling(newNextChild);
+				prevChild.setNextSibling(nextChild);
+				prevChild = nextChild;
+				nextChild = newNextChild;
+			}
+		}
+	}
+	
 	/* Unroll completely 
 	for(i=4; 10){
 		print(i)
@@ -121,7 +143,7 @@ public class Unroller {
 		}
 		
 		// Do a full unroll if we are dealing with int literals.
-		if(initExpr instanceof INT_LITERALNode && termExpr instanceof INT_LITERALNode){
+		if(false && initExpr instanceof INT_LITERALNode && termExpr instanceof INT_LITERALNode){
 			long initValue = ((INT_LITERALNode)initExpr).getValue();
 			long termValue = ((INT_LITERALNode)termExpr).getValue();
 			

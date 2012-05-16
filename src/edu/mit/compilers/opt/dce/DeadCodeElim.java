@@ -39,7 +39,7 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 			} else if (node instanceof MidSaveNode) {
 				// a = a
 				MidSaveNode saveNode = (MidSaveNode) node;
-				if(saveNode.getRegNode() instanceof MidLoadNode){
+				if(saveNode.savesRegister() && saveNode.getRegNode() instanceof MidLoadNode){
 					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
 					if(saveNode.getDestinationNode() == loadNode.getMemoryNode()){
 						deleteSaveNodeEtAl(b, saveNode);

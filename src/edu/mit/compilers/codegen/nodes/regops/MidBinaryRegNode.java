@@ -33,7 +33,7 @@ public abstract class MidBinaryRegNode extends MidRegisterNode implements Regist
 	public String toString() {
 		String className = getClass().getName();
 		int mid = className.lastIndexOf('.') + 1;
-		return "<" + className.substring(mid) + ">";
+		return "<" + className.substring(mid) + " -> "+(hasRegister() ? getRegister() : "")+">";
 	}
 
 	@Override

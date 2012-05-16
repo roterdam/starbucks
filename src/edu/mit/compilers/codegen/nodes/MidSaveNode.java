@@ -91,7 +91,7 @@ public class MidSaveNode extends MidNode implements RegisterOpNode,
 	}
 
 	public MidRegisterNode getRegNode() {
-		assert saveType == MidSaveNodeType.REGISTER;
+		assert saveType == MidSaveNodeType.REGISTER : "Save type is "+saveType;
 		return registerNode;
 	}
 

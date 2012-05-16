@@ -1,5 +1,6 @@
 package edu.mit.compilers.codegen.nodes.regops;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.memory.MidConstantNode;
 import edu.mit.compilers.codegen.nodes.memory.MidMemoryNode;
 
@@ -53,6 +54,9 @@ public class Identity {
 		MidMemoryNode leftMemNode = binaryNode.getLeftOperand().getMemoryNode();
 		MidMemoryNode rightMemNode = binaryNode.getRightOperand()
 				.getMemoryNode();
+		
+		LogCenter.debug("MAS", "Left is constant? "+leftMemNode.isConstant());
+		LogCenter.debug("MAS", "Right is constant? "+rightMemNode.isConstant());
 		
 		if(type == IdType.LEFT || type == IdType.BOTH){
 			if(leftMemNode.isConstant() && leftMemNode.getConstant() == inValue){

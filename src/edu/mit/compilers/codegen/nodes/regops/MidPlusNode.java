@@ -33,7 +33,7 @@ public class MidPlusNode extends MidArithmeticNode {
 	public List<Identity> getIdentities() {
 		List<Identity> ids = new ArrayList<Identity>();
 		ids.add(new Identity(0,1, Identity.IdType.BOTH, Identity.OutType.OTHER));
-		ids.add(new Identity(1,0, Identity.IdType.BOTH, Identity.OutType.IN));
+		//ids.add(new Identity(1,0, Identity.IdType.BOTH, Identity.OutType.IN));
 		return ids;
 	}
 
