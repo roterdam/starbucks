@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
@@ -115,14 +114,5 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 	public Reg getAllocatedRegister() {
 		return allocatedRegs.get(Optimizer.getIterID());
 	}
-
-	static int x = 0;
-	@Override
-	public void delete() {
-		super.delete();
-		if (x == 0) {
-			assert false: this + " " + this.getMemoryNode().getNodeClass();
-		}
-		LogCenter.debug("DERP", "I'm being deleted: " + x++ + " " + this);
-	}
+	
 }

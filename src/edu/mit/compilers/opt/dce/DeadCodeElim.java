@@ -38,23 +38,22 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 			} else if (node instanceof MidSaveNode) {
 				// a = a
 				MidSaveNode saveNode = (MidSaveNode) node;
-				if(saveNode.savesRegister() && saveNode.getRegNode() instanceof MidLoadNode){
+				if (saveNode.savesRegister()
+						&& saveNode.getRegNode() instanceof MidLoadNode) {
 					MidLoadNode loadNode = (MidLoadNode) saveNode.getRegNode();
-					if(saveNode.getDestinationNode() == loadNode.getMemoryNode()){
+					if (saveNode.getDestinationNode() == loadNode
+							.getMemoryNode()) {
 						deleteSaveNodeEtAl(b, saveNode);
 					}
 				}
-				
+
 				Set<MidUseNode> uses = localState.getUses(saveNode
 						.getDestinationNode());
 				if (uses == null || uses.isEmpty()) {
 					// Delete dead code, only if dealing with local variables.
-					MidMemoryNode destNode = (saveNode)
-							.getDestinationNode();
+					MidMemoryNode destNode = (saveNode).getDestinationNode();
 					if (destNode instanceof MidLocalMemoryNode
 							|| destNode instanceof MidConstantNode) {
-						LogCenter.debug("DERP", "destNode is " + destNode.getNodeClass());
-						LogCenter.debug("DERP", "localState is " + localState.getUses());
 						deleteSaveNodeEtAl(b, saveNode);
 					}
 				} else {
@@ -83,8 +82,7 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 				assert false : "Could not handle this.";
 			}
 		} else {
-		LogCenter.debug("DCE", "just kidding");
-		
+			LogCenter.debug("DCE", "just kidding");
 		}
 	}
 }

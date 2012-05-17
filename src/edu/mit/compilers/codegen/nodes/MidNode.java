@@ -3,6 +3,7 @@ package edu.mit.compilers.codegen.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.codegen.asm.OpASM;
