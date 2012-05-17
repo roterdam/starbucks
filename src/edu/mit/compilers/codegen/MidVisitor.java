@@ -529,10 +529,18 @@ public class MidVisitor {
 			// Load from memory into register and add to left hand side
 			MidLoadNode loadRightNode = new MidLoadNode(
 					rightOperandList.getMemoryNode());
+			
+			if (leftOperandNode instanceof MidArrayElementNode){
+				LogCenter.debug("SB", "Looking at aray decl");
+				assert leftOperandNode != leftOperandRefNode;
+				assert ((MidArrayElementNode) leftOperandNode).getLoadNode() != ((MidArrayElementNode)leftOperandRefNode).getLoadNode();
+			}
 			MidLoadNode loadLeftNode = new MidLoadNode(leftOperandRefNode);
+			
 			MidBinaryRegNode binaryRegNode = nodeClass
 					.getConstructor(MidLoadNode.class, MidLoadNode.class)
 					.newInstance(loadLeftNode, loadRightNode);
+			
 			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode,
 					leftOperandNode);
 
