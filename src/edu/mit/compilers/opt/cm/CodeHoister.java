@@ -11,6 +11,7 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
+import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
@@ -76,7 +77,6 @@ public class CodeHoister {
 	}
 
 	private void findInvariantSaveNodes() {
-		LogCenter.debug("CM", "Looking for invariant save nodes.");
 		Map<MidUseNode, Set<MidSaveNode>> useDefMap = new HashMap<MidUseNode, Set<MidSaveNode>>();
 		for (Entry<MidSaveNode, Set<MidUseNode>> entry : doctor.getDefUseMap()
 				.entrySet()) {
@@ -101,14 +101,20 @@ public class CodeHoister {
 				if (node instanceof MidSaveNode) {
 
 					MidSaveNode saveNode = (MidSaveNode) node;
-					LogCenter.debug("CM", "LOOKING AT " + saveNode);
 					if (((MidSaveNode) node).savesRegister()) {
 
 						List<MidLoadNode> operands = new ArrayList<MidLoadNode>();
 						MidRegisterNode regNode = saveNode.getRegNode();
 
 						if (regNode instanceof MidLoadNode) {
-							operands.add((MidLoadNode) regNode);
+							MidLoadNode loadNode = (MidLoadNode) regNode;
+							operands.add(loadNode);
+							if (loadNode.usesArrayRegister()) {
+								// Skip hoisting array accesses for now.
+								continue;
+//								MidArrayElementNode elNode = loadNode.getMidArrayElementNode();
+//								operands.add(elNode.getLoadNode());
+							}
 						} else if (regNode instanceof MidArithmeticNode) {
 							MidArithmeticNode arithNode = (MidArithmeticNode) regNode;
 							operands.add(arithNode.getLeftOperand());
@@ -118,7 +124,6 @@ public class CodeHoister {
 							operands.add(negNode.getOperand());
 						}
 
-						LogCenter.debug("CM", "OPERANDS: " + operands);
 						// Check if operands are constants.
 						boolean allConstant = true;
 						for (MidLoadNode operand : operands) {
@@ -148,10 +153,6 @@ public class CodeHoister {
 								operandSaveLoops.addAll(generator
 										.getLoops(operandParent));
 							}
-							LogCenter
-									.debug("CM", "  CHECKING OUT " + operand
-											+ ", loops: "
-											+ operandSaveLoops.toString());
 							if (operandSaveLoops.contains(innerMostLoop)) {
 								isInvariant = false;
 								break;
