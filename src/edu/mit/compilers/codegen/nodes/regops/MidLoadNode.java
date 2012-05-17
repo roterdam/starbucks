@@ -114,5 +114,5 @@ public class MidLoadNode extends MidRegisterNode implements ArrayReferenceNode,
 	public Reg getAllocatedRegister() {
 		return allocatedRegs.get(Optimizer.getIterID());
 	}
-
+	
 }

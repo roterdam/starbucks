@@ -308,7 +308,8 @@ public class MidVisitor {
 
 	public static MidNodeList checkArrayIndexOutOfBoundsError(
 			MidFieldArrayDeclNode arrayNode, MidMemoryNode indexNode,
-			MidSymbolTable symbolTable, boolean checkZeroBound, boolean checkLenBound) {
+			MidSymbolTable symbolTable, boolean checkZeroBound,
+			boolean checkLenBound) {
 		// Check for zero.
 		MidLoadNode loadIndexNode1 = new MidLoadNode(indexNode);
 		MidTempDeclNode zeroNode = new MidTempDeclNode();
@@ -346,10 +347,9 @@ public class MidVisitor {
 
 		MidNodeList instrList = new MidNodeList();
 
-		
 		int count = 0;
-		if (checkZeroBound){
-			count ++;
+		if (checkZeroBound) {
+			count++;
 			instrList.add(loadIndexNode1);
 			instrList.add(zeroNode);
 			instrList.addAll(zeroSaveInstrList);
@@ -357,8 +357,8 @@ public class MidVisitor {
 			instrList.add(zeroCompareNode);
 			instrList.add(zeroJumpNode);
 		}
-		if (checkLenBound){
-			count ++;
+		if (checkLenBound) {
+			count++;
 			instrList.add(loadIndexNode2);
 			instrList.add(lengthNode);
 			instrList.addAll(lengthSaveInstrList);
@@ -366,7 +366,7 @@ public class MidVisitor {
 			instrList.add(lengthCompareNode);
 			instrList.add(lengthJumpNode);
 		}
-		LogCenter.debug("REBC", "SKIPPED "+(2-count)+" bound checks!");
+		LogCenter.debug("REBC", "SKIPPED " + (2 - count) + " bound checks!");
 		if (checkZeroBound || checkLenBound) {
 			instrList.add(skipErrorNode);
 			instrList.add(errorLabelNode);
@@ -526,12 +526,15 @@ public class MidVisitor {
 			// Load from memory into register and add to left hand side
 			MidLoadNode loadRightNode = new MidLoadNode(
 					rightOperandList.getMemoryNode());
+
 			MidLoadNode loadLeftNode = new MidLoadNode(leftOperandNode);
+
 			MidBinaryRegNode binaryRegNode = nodeClass
 					.getConstructor(MidLoadNode.class, MidLoadNode.class)
 					.newInstance(loadLeftNode, loadRightNode);
-			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode,
-					leftOperandNode);
+
+			MidTempDeclNode tempNode = new MidTempDeclNode();
+			MidSaveNode tempSaveNode = new MidSaveNode(binaryRegNode, tempNode);
 
 			// Save from register to memory
 			newOperandList.addAll(rightOperandList);
@@ -539,8 +542,36 @@ public class MidVisitor {
 			newOperandList.add(loadLeftNode);
 			newOperandList.add(loadRightNode);
 			newOperandList.add(binaryRegNode);
+
+			// Save result to temp.
+			newOperandList.add(tempNode);
+			newOperandList.add(tempSaveNode);
+
+			MidMemoryNode finalSaveLoc;
+			if (leftOperandNode instanceof MidArrayElementNode) {
+				MidArrayElementNode originalArrayElemNode = (MidArrayElementNode) leftOperandNode;
+
+				MidLoadNode indexLoadNode = originalArrayElemNode.getLoadNode();
+				// this is where the index is stored.
+				MidMemoryNode indexSaveLoc = indexLoadNode.getMemoryNode();
+
+				MidLoadNode newIndexLoadNode = new MidLoadNode(indexSaveLoc);
+
+				newOperandList.add(newIndexLoadNode);
+
+				finalSaveLoc = new MidArrayElementNode(
+						originalArrayElemNode.getArrayDecl(), newIndexLoadNode);
+			} else {
+				finalSaveLoc = leftOperandNode;
+			}
+
+			MidLoadNode bringBackValNode = new MidLoadNode(tempNode);
+			MidSaveNode saveRegNode = new MidSaveNode(bringBackValNode,
+					finalSaveLoc);
+			newOperandList.add(bringBackValNode);
 			newOperandList.add(saveRegNode);
 			return newOperandList;
+
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
@@ -591,22 +622,14 @@ public class MidVisitor {
 	/*
 	 * 
 	 * public static MidNodeList visit(TRUENode node, MidSymbolTable
-	 * symbolTable) {
-	 * MidNodeList out = new MidNodeList();
-	 * MidTempDeclNode dest = new MidTempDeclNode();
-	 * out.add(dest);
-	 * out.add(new MidSaveNode(true, dest));
-	 * return out;
-	 * }
+	 * symbolTable) { MidNodeList out = new MidNodeList(); MidTempDeclNode dest
+	 * = new MidTempDeclNode(); out.add(dest); out.add(new MidSaveNode(true,
+	 * dest)); return out; }
 	 * 
 	 * public static MidNodeList visit(FALSENode node, MidSymbolTable
-	 * symbolTable) {
-	 * MidNodeList out = new MidNodeList();
-	 * MidTempDeclNode dest = new MidTempDeclNode();
-	 * out.add(dest);
-	 * out.add(new MidSaveNode(false, dest));
-	 * return out;
-	 * }
+	 * symbolTable) { MidNodeList out = new MidNodeList(); MidTempDeclNode dest
+	 * = new MidTempDeclNode(); out.add(dest); out.add(new MidSaveNode(false,
+	 * dest)); return out; }
 	 */
 	public static MidNodeList visit(IDNode node, MidSymbolTable symbolTable) {
 		MidNodeList out = new MidNodeList();
@@ -650,44 +673,48 @@ public class MidVisitor {
 			ValuedMidNodeList exprList = MidShortCircuitVisitor
 					.valuedHelper(node.getExpressionNode(), symbolTable);
 			MidMemoryNode exprNode = exprList.getReturnNode();
-			
-			
-			LogCenter.debug("REBC", "Working with array "+node.getText());
+
+			LogCenter.debug("REBC", "Working with array " + node.getText());
 			boolean mustCheckZeroBound = true;
 			boolean mustCheckLenBound = true;
 			// REBC
 			LogCenter.debug("REBC", "p1");
-			if (node.getExpressionNode() instanceof IDNode){
+			if (node.getExpressionNode() instanceof IDNode) {
 				LogCenter.debug("REBC", "p2");
 				IDNode idNode = (IDNode) node.getExpressionNode();
-				LogCenter.debug("REBC", "Loop variable is "+idNode.getText());
+				LogCenter.debug("REBC", "Loop variable is " + idNode.getText());
 				MidMemoryNode memNode = symbolTable.getVar(idNode.getText());
-				LogCenter.debug("REBC", "Mem node is "+memNode.getClass());
-				if (memNode instanceof MidLocalVarDeclNode){
+				LogCenter.debug("REBC", "Mem node is " + memNode.getClass());
+				if (memNode instanceof MidLocalVarDeclNode) {
 					LogCenter.debug("REBC", "p3");
 					MidLocalVarDeclNode iterDeclNode = (MidLocalVarDeclNode) memNode;
-					if (iterDeclNode.isInLoop()){
+					if (iterDeclNode.isInLoop()) {
 						LogCenter.debug("REBC", "p4");
 						String iterVar = idNode.getText();
 						FORNode forNode = iterDeclNode.getForNode();
-						if (forNode.getBlockNode().isUnrollable(iterVar, true)){
+						if (forNode.getBlockNode().isUnrollable(iterVar, true)) {
 							LogCenter.debug("REBC", "p5");
 							long arraySize = arrayNode.getLength();
-							ExpressionNode initExpr = forNode.getForInitializeNode().getAssignNode().getExpression();
-							ExpressionNode termExpr = forNode.getForTerminateNode().getExpressionNode();
-							if (initExpr instanceof INT_LITERALNode){
+							ExpressionNode initExpr = forNode
+									.getForInitializeNode().getAssignNode()
+									.getExpression();
+							ExpressionNode termExpr = forNode
+									.getForTerminateNode().getExpressionNode();
+							if (initExpr instanceof INT_LITERALNode) {
 								LogCenter.debug("REBC", "p6");
-								long val = ((INT_LITERALNode) initExpr).getValue();
-								if(val >= 0){
+								long val = ((INT_LITERALNode) initExpr)
+										.getValue();
+								if (val >= 0) {
 									LogCenter.debug("REBC", "p7");
 									mustCheckZeroBound = false;
 									mustCheckLenBound = false;
 								}
 							}
-							if (termExpr instanceof INT_LITERALNode){
+							if (termExpr instanceof INT_LITERALNode) {
 								LogCenter.debug("REBC", "p8");
-								long val = ((INT_LITERALNode) termExpr).getValue();
-								if(val < arraySize){
+								long val = ((INT_LITERALNode) termExpr)
+										.getValue();
+								if (val < arraySize) {
 									LogCenter.debug("REBC", "p9");
 									mustCheckZeroBound = false;
 									mustCheckLenBound = false;
@@ -697,18 +724,17 @@ public class MidVisitor {
 					}
 				}
 			}
-			
-			
-			
+
 			// Make sure the index is not out of bounds
 			MidNodeList errorList = checkArrayIndexOutOfBoundsError(arrayNode, exprNode, symbolTable, mustCheckZeroBound, mustCheckLenBound);
 
-			MidLoadNode sizeLoadNode = new MidLoadNode(exprList.getReturnNode());
-			locNode = new MidArrayElementNode(arrayNode, sizeLoadNode);
+			MidLoadNode indexLoadNode = new MidLoadNode(
+					exprList.getReturnNode());
+			locNode = new MidArrayElementNode(arrayNode, indexLoadNode);
 
 			instrList.addAll(exprList.getList());
 			instrList.addAll(errorList);
-			instrList.add(sizeLoadNode);
+			instrList.add(indexLoadNode);
 		} else {
 			locNode = symbolTable.getVar(node.getText());
 		}
@@ -805,10 +831,6 @@ public class MidVisitor {
 				.convertToMidLevel(newSymbolTable);
 		MidMemoryNode iterVarNode = assignList.getMemoryNode();
 
-		
-		
-		
-		
 		MidNodeList limitList = node.getForTerminateNode().getExpressionNode()
 				.convertToMidLevel(newSymbolTable);
 		MidMemoryNode limitNode = limitList.getMemoryNode();
@@ -820,17 +842,13 @@ public class MidVisitor {
 		MidJumpGENode jumpEndNode = new MidJumpGENode(endLabel);
 		MidJumpNode jumpStartNode = new MidJumpNode(startLabel);
 
-		
-		
 		// ADD META DATA FOR FOR LOOP (REBC)
 		String iterVar = node.getAssignNode().getLocation().getText();
-		LogCenter.debug("REBC", "iter variable for for loop is: "+iterVar);
-		MidLocalVarDeclNode iterDeclNode = (MidLocalVarDeclNode) newSymbolTable.getVar(iterVar);
+		LogCenter.debug("REBC", "iter variable for for loop is: " + iterVar);
+		MidLocalVarDeclNode iterDeclNode = (MidLocalVarDeclNode) newSymbolTable
+				.getVar(iterVar);
 		iterDeclNode.setForNode(node);
-		
-		
-		
-		
+
 		MidNodeList statementList = node.getBlockNode()
 				.convertToMidLevelSpecial(newSymbolTable);
 
@@ -858,9 +876,7 @@ public class MidVisitor {
 		outputList.addAll(incrementList);
 		outputList.add(jumpStartNode);
 		outputList.add(endLabel);
-		
-		
-		
+
 		return outputList;
 
 	}

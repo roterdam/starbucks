@@ -5,6 +5,13 @@ import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.Reg;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
+/**
+ * Design flaw. MidArrayElementNodes cannot be reused. If it is reused, it's
+ * loadNoad gets reused, which causes memory allocation issues.
+ * 
+ * @author saif
+ * 
+ */
 public class MidArrayElementNode extends MidMemoryNode {
 	MidFieldArrayDeclNode arrayNode;
 	MidLoadNode loadNode;
@@ -30,12 +37,17 @@ public class MidArrayElementNode extends MidMemoryNode {
 		} else {
 			memoryLocation = constantNode.getFormattedLocationReference();
 		}
-		return String
-				.format("[ %s + %d*%s ]", arrayNode.getRawLocationReference(), MemoryManager.ADDRESS_SIZE, memoryLocation);
+		return String.format("[ %s + %d*%s ]",
+				arrayNode.getRawLocationReference(),
+				MemoryManager.ADDRESS_SIZE, memoryLocation);
 	}
 
 	public MidLoadNode getLoadNode() {
 		return loadNode;
+	}
+
+	public MidFieldArrayDeclNode getArrayDecl() {
+		return arrayNode;
 	}
 
 	public Reg getLoadRegister() {
@@ -46,7 +58,7 @@ public class MidArrayElementNode extends MidMemoryNode {
 		LogCenter.debug("CPJ", "Setting array constant node: " + constantNode);
 		this.constantNode = constantNode;
 	}
-	
+
 	@Override
 	public boolean isConstant() {
 		return constantNode != null;
