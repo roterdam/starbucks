@@ -40,7 +40,7 @@ public class Optimizer {
 
 	private static int iterID = -1;
 
-	private static final int MAX_CSE_CP_DCE_TIMES = 3;
+	private static final int MAX_CSE_CP_DCE_TIMES = 2;
 	private static Optimizer singleton;
 
 	// Statically track whether or not we've made optimizations.
