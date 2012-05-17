@@ -46,8 +46,6 @@ public class CodeHoister {
 			if (saveNode.usesArrayRegister()) {
 				continue;
 			}
-			LogCenter.debug("CM", "Hoisting " + saveNode + " => "
-					+ saveNode.getRegNode());
 			Block ownerBlock = generator.getBlock(saveNode);
 			MidRegisterNode regNode = saveNode.getRegNode();
 			List<MidNode> deleted = null;
