@@ -11,7 +11,6 @@ import java.util.Set;
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.nodes.MidNode;
 import edu.mit.compilers.codegen.nodes.MidSaveNode;
-import edu.mit.compilers.codegen.nodes.memory.MidArrayElementNode;
 import edu.mit.compilers.codegen.nodes.regops.MidArithmeticNode;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 import edu.mit.compilers.codegen.nodes.regops.MidNegNode;
@@ -34,14 +33,20 @@ public class CodeHoister {
 	}
 
 	public void hoist() {
+
 		findInvariantSaveNodes();
+		doActualHoisting();
+		
+	}
+		
+	private void doActualHoisting() {
 		for (Entry<MidSaveNode, Loop> entry : invariantSaves.entrySet()) {
 			MidSaveNode saveNode = entry.getKey();
 			if (saveNode.usesArrayRegister()) {
 				continue;
 			}
-			LogCenter.debug("CM",
-					"Hoisting " + saveNode + " => " + saveNode.getRegNode());
+			LogCenter.debug("CM", "Hoisting " + saveNode + " => "
+					+ saveNode.getRegNode());
 			Block ownerBlock = generator.getBlock(saveNode);
 			MidRegisterNode regNode = saveNode.getRegNode();
 			List<MidNode> deleted = null;
@@ -50,14 +55,14 @@ public class CodeHoister {
 				// if (loadNode.usesArrayRegister()) {
 				// continue;
 				// }
-				deleted = AnalyzerHelpers.completeDeleteAssignment(saveNode,
-						ownerBlock);
+				deleted = AnalyzerHelpers
+						.completeDeleteAssignment(saveNode, ownerBlock);
 			} else if (regNode instanceof MidArithmeticNode) {
-				deleted = AnalyzerHelpers.completeDeleteBinary(saveNode,
-						ownerBlock);
+				deleted = AnalyzerHelpers
+						.completeDeleteBinary(saveNode, ownerBlock);
 			} else if (regNode instanceof MidNegNode) {
-				deleted = AnalyzerHelpers.completeDeleteUnary(saveNode,
-						ownerBlock);
+				deleted = AnalyzerHelpers
+						.completeDeleteUnary(saveNode, ownerBlock);
 			}
 
 			if (deleted != null) {
@@ -71,70 +76,82 @@ public class CodeHoister {
 	}
 
 	private void findInvariantSaveNodes() {
-		Map<MidLoadNode, Set<MidSaveNode>> useDefMap = new HashMap<MidLoadNode, Set<MidSaveNode>>();
+		LogCenter.debug("CM", "Looking for invariant save nodes.");
+		Map<MidUseNode, Set<MidSaveNode>> useDefMap = new HashMap<MidUseNode, Set<MidSaveNode>>();
 		for (Entry<MidSaveNode, Set<MidUseNode>> entry : doctor.getDefUseMap()
 				.entrySet()) {
-			for (MidUseNode useNode : entry.getValue()) {
-				if (useNode instanceof MidLoadNode) {
-					MidLoadNode loadNode = (MidLoadNode) useNode;
-					Set<MidSaveNode> saveSet = useDefMap.get(loadNode);
-					if (saveSet == null) {
-						saveSet = new LinkedHashSet<MidSaveNode>();
-						useDefMap.put(loadNode, saveSet);
-					}
-					saveSet.add(entry.getKey());
+			MidSaveNode saveNode = entry.getKey();
+			Set<MidUseNode> useNodes = entry.getValue();
+
+			for (MidUseNode useNode : useNodes) {
+				Set<MidSaveNode> saveNodes = useDefMap.get(useNode);
+				if (saveNodes == null) {
+					saveNodes = new LinkedHashSet<MidSaveNode>();
+					useDefMap.put(useNode, saveNodes);
 				}
+				saveNodes.add(saveNode);
 			}
 		}
 
 		for (Block block : generator.getAllBlocks()) {
+			Set<Loop> loops = generator.getLoops(block);
+			Loop innerMostLoop = findInnerMostLoop(loops);
+
 			for (MidNode node : block) {
-				if (node instanceof MidSaveNode
-						&& ((MidSaveNode) node).savesRegister()) {
+				if (node instanceof MidSaveNode) {
+
 					MidSaveNode saveNode = (MidSaveNode) node;
+					LogCenter.debug("CM", "LOOKING AT " + saveNode);
+					if (((MidSaveNode) node).savesRegister()) {
 
-					List<MidLoadNode> operands = new ArrayList<MidLoadNode>();
-					MidRegisterNode regNode = saveNode.getRegNode();
+						List<MidLoadNode> operands = new ArrayList<MidLoadNode>();
+						MidRegisterNode regNode = saveNode.getRegNode();
 
-					if (regNode instanceof MidLoadNode) {
-						operands.add((MidLoadNode) regNode);
-					} else if (regNode instanceof MidArithmeticNode) {
-						MidArithmeticNode arithNode = (MidArithmeticNode) regNode;
-						operands.add(arithNode.getLeftOperand());
-						operands.add(arithNode.getRightOperand());
-					} else if (regNode instanceof MidNegNode) {
-						MidNegNode negNode = (MidNegNode) regNode;
-						operands.add(negNode.getOperand());
-					}
-
-					Set<Loop> loops = generator.getLoops(block);
-					Loop innerMostLoop = findInnerMostLoop(loops);
-					// Check if operands are constants.
-					boolean allConstant = true;
-					for (MidLoadNode operand : operands) {
-						if (!operand.getMemoryNode().isConstant()) {
-							allConstant = false;
-							break;
+						if (regNode instanceof MidLoadNode) {
+							operands.add((MidLoadNode) regNode);
+						} else if (regNode instanceof MidArithmeticNode) {
+							MidArithmeticNode arithNode = (MidArithmeticNode) regNode;
+							operands.add(arithNode.getLeftOperand());
+							operands.add(arithNode.getRightOperand());
+						} else if (regNode instanceof MidNegNode) {
+							MidNegNode negNode = (MidNegNode) regNode;
+							operands.add(negNode.getOperand());
 						}
-					}
-					if (allConstant) {
-						invariantSaves.put(saveNode, innerMostLoop);
-						continue;
-					}
 
-					// Check if all reaching defs of x and y are outside the
-					// inner-most loop.
-					boolean isInvariant = true;
-					for (MidLoadNode operand : operands) {
-						Block operandParent = generator.getBlock(operand);
-						Set<Loop> operandLoops = generator
-								.getLoops(operandParent);
-						if (operandLoops.contains(innerMostLoop)) {
-							isInvariant = false;
-							break;
+						LogCenter.debug("CM", "OPERANDS: " + operands);
+						// Check if operands are constants.
+						boolean allConstant = true;
+						for (MidLoadNode operand : operands) {
+							if (!operand.getMemoryNode().isConstant()) {
+								allConstant = false;
+								break;
+							}
 						}
-					}
-					if (isInvariant) {
+						if (allConstant) {
+							invariantSaves.put(saveNode, innerMostLoop);
+							continue;
+						}
+
+						// Check if all reaching defs of x and y are outside the
+						// inner-most loop.
+						boolean isInvariant = true;
+						for (MidLoadNode operand : operands) {
+							Set<Loop> operandSaveLoops = new LinkedHashSet<Loop>();
+							for (MidSaveNode operandSave : useDefMap.get(operand)) {
+								Block operandParent = generator.getBlock(operandSave);
+								operandSaveLoops.addAll(generator.getLoops(operandParent));
+							}
+							LogCenter.debug("CM", "  CHECKING OUT " + operand + ", loops: " + operandSaveLoops.toString());
+							if (operandSaveLoops.contains(innerMostLoop)) {
+								isInvariant = false;
+								break;
+							}
+						}
+						if (isInvariant) {
+							invariantSaves.put(saveNode, innerMostLoop);
+						}
+					} else {
+						// Otherwise it saves a constant so it's invariant.
 						invariantSaves.put(saveNode, innerMostLoop);
 					}
 				}

@@ -15,6 +15,11 @@ import edu.mit.compilers.codegen.asm.ASM;
 import edu.mit.compilers.opt.Analyzer;
 import edu.mit.compilers.opt.BackwardsAnalyzer;
 import edu.mit.compilers.opt.as.MidAlgebraicSimplifier;
+import edu.mit.compilers.opt.cm.CodeHoister;
+import edu.mit.compilers.opt.cm.DomState;
+import edu.mit.compilers.opt.cm.DomTransfer;
+import edu.mit.compilers.opt.cm.DominanceRecord;
+import edu.mit.compilers.opt.cm.LoopGenerator;
 import edu.mit.compilers.opt.cp.CPState;
 import edu.mit.compilers.opt.cp.CPTransfer;
 import edu.mit.compilers.opt.cp.CPTransformer;
@@ -67,7 +72,7 @@ public class Optimizer {
 		// CSE.
 		while (hasAdditionalChanges && x < MAX_CSE_CP_DCE_TIMES) {
 			clearHasAdditionalChanges();
-			
+
 			if (enableCSE) {
 				LogCenter.debug("SB", "STARTING CSE.");
 				Analyzer<CSEGlobalState, CSETransfer> analyzer = new Analyzer<CSEGlobalState, CSETransfer>(
@@ -77,7 +82,6 @@ public class Optimizer {
 				localAnalyzer.analyze(analyzer, symbolTable);
 			}
 
-			
 			if (enableCP) {
 				LogCenter.debug("SB", "STARTING CP.");
 				Analyzer<CPState, CPTransfer> analyzer = new Analyzer<CPState, CPTransfer>(
@@ -86,7 +90,7 @@ public class Optimizer {
 				CPTransformer localAnalyzer = new CPTransformer();
 				localAnalyzer.analyze(analyzer, symbolTable);
 			}
-			
+
 			if (enableDCE) {
 				LogCenter.debug("SB", "STARTING DCE.");
 				LivenessDoctor doctor = new LivenessDoctor();
@@ -98,32 +102,35 @@ public class Optimizer {
 			}
 
 			if (optsOn) {
-				LogCenter.debug("SB", "STARTING AS. naht");
+				LogCenter.debug("SB", "STARTING AS.");
 				MidAlgebraicSimplifier simplifier = new MidAlgebraicSimplifier();
 				simplifier.analyze(symbolTable);
 			}
 
 			x++;
 		}
-		
-//		if (enableCM) {
-//			LogCenter.debug("CM", "I'm being called anyways.");
-//			Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
-//					new DomState(), new DomTransfer());
-//			dominatorAnalyzer.analyze(symbolTable);
-//			DominanceRecord record = new DominanceRecord(dominatorAnalyzer);
-//			// Perform DFS through CFGs to build list of loops (IDed by loop end).
-//			LoopGenerator generator = new LoopGenerator(record);
-//			generator.run();
-//			
-//			LivenessDoctor doctor = new LivenessDoctor();
-//			BackwardsAnalyzer<LivenessState, LivenessDoctor> livenessAnalyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
-//					new LivenessState().getBottomState(), doctor);
-//			livenessAnalyzer.analyze(symbolTable);
-//			
-//			CodeHoister hoister = new CodeHoister(generator, doctor);
-//			hoister.hoist();
-//		}
+
+		if (enableCM) {
+			for (int i = 0; i < 2; i++) {
+				LogCenter.debug("SB", "STARTING CM.");
+				Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
+						new DomState(), new DomTransfer());
+				dominatorAnalyzer.analyze(symbolTable);
+				DominanceRecord record = new DominanceRecord(dominatorAnalyzer);
+				// Perform DFS through CFGs to build list of loops (IDed by loop
+				// end).
+				LoopGenerator generator = new LoopGenerator(record);
+				generator.run();
+
+				LivenessDoctor doctor = new LivenessDoctor();
+				BackwardsAnalyzer<LivenessState, LivenessDoctor> livenessAnalyzer = new BackwardsAnalyzer<LivenessState, LivenessDoctor>(
+						new LivenessState().getBottomState(), doctor);
+				livenessAnalyzer.analyze(symbolTable);
+
+				CodeHoister hoister = new CodeHoister(generator, doctor);
+				hoister.hoist();
+			}
+		}
 
 		LogCenter.debug("OPT", "Ran CSE/CP/DCE optimizations " + (x - 1)
 				+ " times.");
@@ -147,17 +154,16 @@ public class Optimizer {
 				}
 
 				// Try a test file.
-				testFile = new File(testDir, String.format("starbucks%d.s",
-						iterID));
+				testFile = new File(testDir,
+						String.format("starbucks%d.s", iterID));
 				MemoryManager.assignStorage(symbolTable);
 
 				List<ASM> asmList = AsmVisitor.buildASMList(symbolTable);
-				asmList = SaveSaver.pruneList(asmList);
+				 asmList = SaveSaver.pruneList(asmList);
 
-				writeToOutput(testFile.getAbsolutePath(),
-						AsmVisitor.generateText(asmList));
-				LogCenter.debug("META",
-						"Wrote to " + testFile.getAbsolutePath());
+				writeToOutput(testFile.getAbsolutePath(), AsmVisitor.generateText(asmList));
+				LogCenter.debug("META", "Wrote to "
+						+ testFile.getAbsolutePath());
 
 				// try {
 				// long time = TestBench.testFile(testFile);
@@ -180,9 +186,8 @@ public class Optimizer {
 		} else {
 			// If no optimizations, go straight to writing the final file.
 			MemoryManager.assignStorage(symbolTable);
-			writeToOutput(finalFile.getAbsolutePath(),
-					AsmVisitor.generateText(AsmVisitor
-							.buildASMList(symbolTable)));
+			writeToOutput(finalFile.getAbsolutePath(), AsmVisitor.generateText(AsmVisitor
+					.buildASMList(symbolTable)));
 		}
 
 		// Clean up temp files if necessary.
@@ -204,8 +209,8 @@ public class Optimizer {
 			outStream.write(text.getBytes());
 			outStream.close();
 		} catch (Exception e) {
-			System.out.println(String.format(
-					"Could not open file %s for output.", outputFile));
+			System.out.println(String
+					.format("Could not open file %s for output.", outputFile));
 		}
 	}
 

@@ -123,7 +123,6 @@ public class Main {
 						// Do for loop unrolling.
 						LogCenter.debug("SB", "Begin For Loop Unrolling");
 						((CLASSNode) parser.getAST()).unroll();
-						
 						LogCenter.debug("SB", "Finished Loop Unrolling");
 					}
 

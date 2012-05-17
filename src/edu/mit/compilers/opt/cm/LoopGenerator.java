@@ -2,6 +2,7 @@ package edu.mit.compilers.opt.cm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,13 +100,13 @@ public class LoopGenerator {
 	private void process(Block next) {
 		registerNodesWithBlock(next);
 		partiallyVisited.add(next);
-		
+
 		for (Block succ : next.getSuccessors()) {
 			if (partiallyVisited.contains(succ)) {
 				if (!fullyVisited.contains(succ)) {
 					// Discovered a loop.
-					LogCenter.debug("CM", "Found a new loop from " + succ
-							+ " to " + next);
+					LogCenter.debug("CM", "Found a new loop from "
+							+ succ.getHead() + " to " + next.getHead());
 					Loop loop = new Loop(next, succ);
 					loops.add(loop);
 				}
@@ -131,7 +132,11 @@ public class LoopGenerator {
 	}
 
 	public Set<Loop> getLoops(Block block) {
-		return blockToLoopMap.get(block);
+		Set<Loop> loops = blockToLoopMap.get(block);
+		if (loops == null) {
+			loops = new HashSet<Loop>();
+		}
+		return loops;
 	}
 
 	public DominanceRecord getRecord() {
