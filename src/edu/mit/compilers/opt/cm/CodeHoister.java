@@ -43,40 +43,37 @@ public class CodeHoister {
 	private void doActualHoisting() {
 		for (Entry<MidSaveNode, Loop> entry : invariantSaves.entrySet()) {
 			MidSaveNode saveNode = entry.getKey();
-			if (saveNode.usesArrayRegister()) {
-				continue;
-			}
-			List<MidNode> deleted = null;
-			Block ownerBlock = generator.getBlock(saveNode);
-			if (saveNode.savesRegister()) {
-				MidRegisterNode regNode = saveNode.getRegNode();
-				if (regNode instanceof MidLoadNode) {
-					// MidLoadNode loadNode = (MidLoadNode) regNode;
-					// if (loadNode.usesArrayRegister()) {
-					// continue;
-					// }
-					deleted = AnalyzerHelpers
-							.completeDeleteAssignment(saveNode, ownerBlock);
-				} else if (regNode instanceof MidArithmeticNode) {
-					deleted = AnalyzerHelpers
-							.completeDeleteBinary(saveNode, ownerBlock);
-				} else if (regNode instanceof MidNegNode) {
-					deleted = AnalyzerHelpers
-							.completeDeleteUnary(saveNode, ownerBlock);
-				}
-			} else {
-				ownerBlock.delete(saveNode);
-				deleted = new ArrayList<MidNode>();
-				deleted.add(saveNode);
-			}
-
-			if (deleted != null) {
-				Loop loop = entry.getValue();
-				Block preHeader = loop.getPreheaderBlock();
-				for (MidNode node : deleted) {
-					preHeader.add(node);
-				}
-			}
+			LogCenter.debug("CM", "Hoisting " + saveNode);
+//			if (saveNode.usesArrayRegister()) {
+//				continue;
+//			}
+//			List<MidNode> deleted = null;
+//			Block ownerBlock = generator.getBlock(saveNode);
+//			if (saveNode.savesRegister()) {
+//				MidRegisterNode regNode = saveNode.getRegNode();
+//				if (regNode instanceof MidLoadNode) {
+//					deleted = AnalyzerHelpers
+//							.completeDeleteAssignment(saveNode, ownerBlock);
+//				} else if (regNode instanceof MidArithmeticNode) {
+//					deleted = AnalyzerHelpers
+//							.completeDeleteBinary(saveNode, ownerBlock);
+//				} else if (regNode instanceof MidNegNode) {
+//					deleted = AnalyzerHelpers
+//							.completeDeleteUnary(saveNode, ownerBlock);
+//				}
+//			} else {
+//				ownerBlock.delete(saveNode);
+//				deleted = new ArrayList<MidNode>();
+//				deleted.add(saveNode);
+//			}
+//
+//			if (deleted != null) {
+//				Loop loop = entry.getValue();
+//				Block preHeader = loop.getPreheaderBlock();
+//				for (MidNode node : deleted) {
+//					preHeader.add(node);
+//				}
+//			}
 		}
 	}
 

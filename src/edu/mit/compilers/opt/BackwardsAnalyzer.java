@@ -41,6 +41,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 		LogCenter.debug("RA", "analzying shit");
 		
 		Block exit = findTail(worklist.get(0), new ArrayList<Block>());
+		assert exit != null : "Found null tail.";
 		for (Block b : worklist) {
 			if (b != exit) {
 				inStates.put(b, startState.getBottomState());
@@ -79,6 +80,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 	}
 
 	private Block findTail(Block head, List<Block> visitedBlocks) {
+		assert head != null;
 		if (visitedBlocks.contains(head)) {
 			return null;
 		}
@@ -93,7 +95,7 @@ public class BackwardsAnalyzer<S extends State<S>, T extends Transfer<S>>
 				return tail;
 			}
 		}
-		return null;
+		return head;
 	}
 
 	@Override
