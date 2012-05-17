@@ -66,7 +66,7 @@ public class Identity {
 				case COMP:
 					return new MidLoadNode(new MidConstantNode(compValue));
 				case OTHER:
-					return binaryNode.getRightOperand();
+					return new MidLoadNode(binaryNode.getRightOperand().getMemoryNode());
 				}
 			}
 		}
@@ -78,7 +78,7 @@ public class Identity {
 				case COMP:
 					return new MidLoadNode(new MidConstantNode(compValue));
 				case OTHER:
-					return binaryNode.getLeftOperand();
+					return new MidLoadNode(binaryNode.getLeftOperand().getMemoryNode());
 				}
 			}
 		}
