@@ -159,7 +159,7 @@ public class Optimizer {
 				MemoryManager.assignStorage(symbolTable);
 
 				List<ASM> asmList = AsmVisitor.buildASMList(symbolTable);
-//				asmList = SaveSaver.pruneList(asmList);
+				asmList = SaveSaver.pruneList(asmList);
 
 				writeToOutput(testFile.getAbsolutePath(), AsmVisitor.generateText(asmList));
 				LogCenter.debug("META", "Wrote to "
