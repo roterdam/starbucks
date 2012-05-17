@@ -25,6 +25,7 @@ fi
   golden="${orig_pwd}/output/golden.ppm"
   binary="${workingdir}/${progname}"
   asm="${workingdir}/${progname}.s"
+  asmo="${workingdir}/${progname}.o"
   output="${workingdir}/output.ppm"
   timing_gcc="${workingdir}/${progname}_gcc_opt.timing"
   timing_dcf_unopt="${workingdir}/${progname}_dcf_unopt.timing"
@@ -34,7 +35,7 @@ fi
   cp $orig_input $input;
   msg=""
   if runcompiler -o $asm $file; then
-    if gcc -o $binary -L./lib $asm -l6035 -lpthread; then
+    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L `dirname $0`/lib -l6035 $asmo; then
       cd $workingdir
       if $binary > $timing_dcf_unopt; then
         if ! diff -q $output $golden > /dev/null; then
@@ -56,7 +57,7 @@ fi
   cp $orig_input $input;
   msg=""
   if runcompiler -o $asm -opt all $file; then
-    if gcc -o $binary -L./lib $asm -l6035 -lpthread; then
+    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L `dirname $0`/lib -l6035 $asmo; then
       cd $workingdir
       if $binary > $timing_dcf_fullopt; then
         if ! diff -q $output $golden > /dev/null; then
