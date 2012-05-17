@@ -35,7 +35,8 @@ fi
   cp $orig_input $input;
   msg=""
   if runcompiler -o $asm $file; then
-    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L `dirname $0`/lib -l6035 $asmo; then
+    echo $asmo
+    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L./lib -l6035 -lpthread $asmo; then
       cd $workingdir
       if $binary > $timing_dcf_unopt; then
         if ! diff -q $output $golden > /dev/null; then
@@ -57,7 +58,7 @@ fi
   cp $orig_input $input;
   msg=""
   if runcompiler -o $asm -opt all $file; then
-    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L `dirname $0`/lib -l6035 $asmo; then
+    if nasm -felf64 -o $asmo $asm; gcc -o $binary -L./lib -l6035 -lpthread $asmo; then
       cd $workingdir
       if $binary > $timing_dcf_fullopt; then
         if ! diff -q $output $golden > /dev/null; then
