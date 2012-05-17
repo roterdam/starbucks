@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MemoryManager;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.Reg;
