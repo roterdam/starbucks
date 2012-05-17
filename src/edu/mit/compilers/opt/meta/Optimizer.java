@@ -40,7 +40,7 @@ public class Optimizer {
 
 	private static int iterID = -1;
 
-	private static final int MAX_CSE_CP_DCE_TIMES = 1;
+	private static final int MAX_CSE_CP_DCE_TIMES = 3;
 	private static Optimizer singleton;
 
 	// Statically track whether or not we've made optimizations.
@@ -111,7 +111,7 @@ public class Optimizer {
 		}
 
 		if (enableCM) {
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 2; i++) {
 				LogCenter.debug("SB", "STARTING CM.");
 				Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
 						new DomState(), new DomTransfer());
