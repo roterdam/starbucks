@@ -36,9 +36,9 @@ public class CodeHoister {
 
 		findInvariantSaveNodes();
 		doActualHoisting();
-		
+
 	}
-		
+
 	private void doActualHoisting() {
 		for (Entry<MidSaveNode, Loop> entry : invariantSaves.entrySet()) {
 			MidSaveNode saveNode = entry.getKey();
@@ -137,11 +137,21 @@ public class CodeHoister {
 						boolean isInvariant = true;
 						for (MidLoadNode operand : operands) {
 							Set<Loop> operandSaveLoops = new LinkedHashSet<Loop>();
-							for (MidSaveNode operandSave : useDefMap.get(operand)) {
-								Block operandParent = generator.getBlock(operandSave);
-								operandSaveLoops.addAll(generator.getLoops(operandParent));
+							Set<MidSaveNode> saveNodes = useDefMap.get(operand);
+							if (saveNodes == null) {
+								// No other save nodes, so it must be invariant.
+								continue;
 							}
-							LogCenter.debug("CM", "  CHECKING OUT " + operand + ", loops: " + operandSaveLoops.toString());
+							for (MidSaveNode operandSave : saveNodes) {
+								Block operandParent = generator
+										.getBlock(operandSave);
+								operandSaveLoops.addAll(generator
+										.getLoops(operandParent));
+							}
+							LogCenter
+									.debug("CM", "  CHECKING OUT " + operand
+											+ ", loops: "
+											+ operandSaveLoops.toString());
 							if (operandSaveLoops.contains(innerMostLoop)) {
 								isInvariant = false;
 								break;
