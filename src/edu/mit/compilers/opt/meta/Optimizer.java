@@ -111,7 +111,7 @@ public class Optimizer {
 		}
 
 		if (enableCM) {
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 4; i++) {
 				LogCenter.debug("SB", "STARTING CM.");
 				Analyzer<DomState, DomTransfer> dominatorAnalyzer = new Analyzer<DomState, DomTransfer>(
 						new DomState(), new DomTransfer());
