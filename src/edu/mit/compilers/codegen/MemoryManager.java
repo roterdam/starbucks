@@ -101,8 +101,6 @@ public class MemoryManager {
 				}
 				if (m instanceof ArrayReferenceNode) {
 					ArrayReferenceNode arrayNode = (ArrayReferenceNode) m;
-					LogCenter.debug("MEM", "Deallocate array ref " + arrayNode
-							+ "?");
 					if (arrayNode.usesArrayRegister()) {
 						LogCenter.debug("MEM",
 								"deallocating array register of " + m);
@@ -123,7 +121,8 @@ public class MemoryManager {
 				if (!(m instanceof MidCallNode)
 						|| !((MidCallNode) m).saveValueDisabled()) {
 					if (m instanceof MidCallNode) {
-					LogCenter.debug("MEM", "Allocating reg for " + ((MidCallNode) m).getName());
+						LogCenter.debug("MEM", "Allocating reg for "
+								+ ((MidCallNode) m).getName());
 					}
 					((MidRegisterNode) m).setRegister(allocTempRegister());
 				}

@@ -2,9 +2,7 @@ package edu.mit.compilers.codegen.nodes.memory;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MemoryManager;
-import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.Reg;
-import edu.mit.compilers.codegen.ValuedMidNodeList;
 import edu.mit.compilers.codegen.nodes.regops.MidLoadNode;
 
 /**
@@ -26,15 +24,6 @@ public class MidArrayElementNode extends MidMemoryNode {
 		this.loadNode = loadNode;
 	}
 
-	
-	@Override
-	public ValuedMidNodeList generateReference(){
-		MidNodeList nodeList = new MidNodeList();
-		MidLoadNode loadNode = new MidLoadNode(this.loadNode.getMemoryNode());
-		MidArrayElementNode elementNode = new MidArrayElementNode(arrayNode, loadNode);
-		nodeList.add(loadNode);
-		return new ValuedMidNodeList(nodeList, elementNode);
-	}
 	
 	@Override
 	public void setRawLocationReference(String rawLocationReference) {

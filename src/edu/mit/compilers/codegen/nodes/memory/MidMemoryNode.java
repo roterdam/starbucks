@@ -1,8 +1,6 @@
 package edu.mit.compilers.codegen.nodes.memory;
 
 import edu.mit.compilers.LogCenter;
-import edu.mit.compilers.codegen.MidNodeList;
-import edu.mit.compilers.codegen.ValuedMidNodeList;
 import edu.mit.compilers.codegen.nodes.MidNode;
 
 abstract public class MidMemoryNode extends MidNode {
@@ -94,11 +92,6 @@ abstract public class MidMemoryNode extends MidNode {
 
 	public boolean hasRawLocationReference() {
 		return rawLocationReference != null;
-	}
-
-	public ValuedMidNodeList generateReference() {
-		MidNodeList nodeList = new MidNodeList();
-		return new ValuedMidNodeList(nodeList, this);
 	}
 
 }
