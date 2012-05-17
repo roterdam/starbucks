@@ -46,22 +46,28 @@ public class CodeHoister {
 			if (saveNode.usesArrayRegister()) {
 				continue;
 			}
-			Block ownerBlock = generator.getBlock(saveNode);
-			MidRegisterNode regNode = saveNode.getRegNode();
 			List<MidNode> deleted = null;
-			if (regNode instanceof MidLoadNode) {
-				// MidLoadNode loadNode = (MidLoadNode) regNode;
-				// if (loadNode.usesArrayRegister()) {
-				// continue;
-				// }
-				deleted = AnalyzerHelpers
-						.completeDeleteAssignment(saveNode, ownerBlock);
-			} else if (regNode instanceof MidArithmeticNode) {
-				deleted = AnalyzerHelpers
-						.completeDeleteBinary(saveNode, ownerBlock);
-			} else if (regNode instanceof MidNegNode) {
-				deleted = AnalyzerHelpers
-						.completeDeleteUnary(saveNode, ownerBlock);
+			Block ownerBlock = generator.getBlock(saveNode);
+			if (saveNode.savesRegister()) {
+				MidRegisterNode regNode = saveNode.getRegNode();
+				if (regNode instanceof MidLoadNode) {
+					// MidLoadNode loadNode = (MidLoadNode) regNode;
+					// if (loadNode.usesArrayRegister()) {
+					// continue;
+					// }
+					deleted = AnalyzerHelpers
+							.completeDeleteAssignment(saveNode, ownerBlock);
+				} else if (regNode instanceof MidArithmeticNode) {
+					deleted = AnalyzerHelpers
+							.completeDeleteBinary(saveNode, ownerBlock);
+				} else if (regNode instanceof MidNegNode) {
+					deleted = AnalyzerHelpers
+							.completeDeleteUnary(saveNode, ownerBlock);
+				}
+			} else {
+				ownerBlock.delete(saveNode);
+				deleted = new ArrayList<MidNode>();
+				deleted.add(saveNode);
 			}
 
 			if (deleted != null) {
@@ -110,8 +116,9 @@ public class CodeHoister {
 							if (loadNode.usesArrayRegister()) {
 								// Skip hoisting array accesses for now.
 								continue;
-//								MidArrayElementNode elNode = loadNode.getMidArrayElementNode();
-//								operands.add(elNode.getLoadNode());
+								// MidArrayElementNode elNode =
+								// loadNode.getMidArrayElementNode();
+								// operands.add(elNode.getLoadNode());
 							}
 						} else if (regNode instanceof MidArithmeticNode) {
 							MidArithmeticNode arithNode = (MidArithmeticNode) regNode;
