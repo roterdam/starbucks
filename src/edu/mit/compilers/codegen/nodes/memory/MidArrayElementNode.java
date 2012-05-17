@@ -24,7 +24,6 @@ public class MidArrayElementNode extends MidMemoryNode {
 		this.loadNode = loadNode;
 	}
 
-	
 	@Override
 	public void setRawLocationReference(String rawLocationReference) {
 		assert false : "Array elements do not get a location. The array does.";
@@ -45,6 +44,10 @@ public class MidArrayElementNode extends MidMemoryNode {
 
 	public MidLoadNode getLoadNode() {
 		return loadNode;
+	}
+
+	public MidFieldArrayDeclNode getArrayDecl() {
+		return arrayNode;
 	}
 
 	public Reg getLoadRegister() {

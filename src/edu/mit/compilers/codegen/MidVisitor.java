@@ -538,25 +538,36 @@ public class MidVisitor {
 					MidLoadNode.class, MidLoadNode.class).newInstance(
 					loadLeftNode, loadRightNode);
 
-			MidMemoryNode finalSaveLoc;
-			if (leftOperandNode instanceof MidArrayElementNode) {
-				MidLoadNode indexLoadNode = ((MidArrayElementNode) leftOperandNode).getLoadNode();
-				finalSaveLoc = indexLoadNode.getMemoryNode();
-			} else {
-				finalSaveLoc = leftOperandNode;
-			}
-
-			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode,
-					finalSaveLoc);
-
 			// Save from register to memory
 			newOperandList.addAll(rightOperandList);
 			newOperandList.addAll(leftEvalList.getList());
 			newOperandList.add(loadLeftNode);
 			newOperandList.add(loadRightNode);
 			newOperandList.add(binaryRegNode);
+
+			MidMemoryNode finalSaveLoc;
+			if (leftOperandNode instanceof MidArrayElementNode) {
+				MidArrayElementNode originalArrayElemNode = (MidArrayElementNode) leftOperandNode;
+
+				MidLoadNode indexLoadNode = originalArrayElemNode.getLoadNode();
+				// this is where the index is stored.
+				MidMemoryNode indexSaveLoc = indexLoadNode.getMemoryNode();
+
+				MidLoadNode newIndexLoadNode = new MidLoadNode(indexSaveLoc);
+
+				newOperandList.add(newIndexLoadNode);
+
+				finalSaveLoc = new MidArrayElementNode(
+						originalArrayElemNode.getArrayDecl(), newIndexLoadNode);
+			} else {
+				finalSaveLoc = leftOperandNode;
+			}
+
+			MidSaveNode saveRegNode = new MidSaveNode(binaryRegNode,
+					finalSaveLoc);
 			newOperandList.add(saveRegNode);
 			return newOperandList;
+
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {

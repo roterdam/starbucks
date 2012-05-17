@@ -43,10 +43,10 @@ public class Optimizer {
 	private int x;
 
 	private final boolean optsOn;
-	private final boolean enableCSE;
+	private boolean enableCSE;
 	private final boolean enableCP;
 	private final boolean enableDCE;
-	private final boolean enableCM;
+	private boolean enableCM;
 	private final boolean enableRA;
 
 	private Optimizer(int options) {

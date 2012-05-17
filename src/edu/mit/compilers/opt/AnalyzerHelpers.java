@@ -3,7 +3,6 @@ package edu.mit.compilers.opt;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidNodeList;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidNode;
@@ -25,7 +24,6 @@ public class AnalyzerHelpers {
 		block.delete(saveNode);
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", " --> DELETING binary" + arithNode);
 		block.delete(arithNode);
 		block.delete(arithNode.getLeftOperand());
 		block.delete(arithNode.getRightOperand());
@@ -47,7 +45,6 @@ public class AnalyzerHelpers {
 		block.delete(saveNode);
 		assert saveNode.getRegNode() instanceof MidNegNode;
 		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", " --> DELETING unary " + negNode);
 		block.delete(negNode);
 		block.delete(negNode.getOperand());
 
@@ -70,7 +67,6 @@ public class AnalyzerHelpers {
 					.getLoadNode());
 		}
 
-		LogCenter.debug("DCE", "DELETING ASSIGN " + saveNode.getRegNode());
 		block.delete(saveNode.getRegNode());
 		block.delete(saveNode);
 		deleted.add(saveNode.getRegNode());
@@ -82,10 +78,8 @@ public class AnalyzerHelpers {
 			Block block) {
 		List<MidNode> deleted = new ArrayList<MidNode>();
 		assert saveNode.getRegNode() instanceof MidCallNode;
-		LogCenter.debug("DCE", "DELETEING SAVE NODE " + saveNode);
 		block.delete(saveNode);
 		MidCallNode callNode = (MidCallNode) saveNode.getRegNode();
-		LogCenter.debug("DCE", "DISABLING " + callNode);
 		callNode.disableSaveValue();
 		deleted.add(callNode);
 		deleted.add(saveNode);
@@ -99,7 +93,6 @@ public class AnalyzerHelpers {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidArithmeticNode;
 		MidArithmeticNode arithNode = (MidArithmeticNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", "DELETING " + arithNode);
 		arithNode.delete();
 		arithNode.getLeftOperand().delete();
 		arithNode.getRightOperand().delete();
@@ -115,7 +108,6 @@ public class AnalyzerHelpers {
 		saveNode.delete();
 		assert saveNode.getRegNode() instanceof MidNegNode;
 		MidNegNode negNode = (MidNegNode) saveNode.getRegNode();
-		LogCenter.debug("OPT", "DELETING " + negNode);
 		negNode.delete();
 		negNode.getOperand().delete();
 

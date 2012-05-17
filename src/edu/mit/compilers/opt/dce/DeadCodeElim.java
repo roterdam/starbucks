@@ -32,7 +32,6 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 		}
 
 		for (MidNode node : b.reverse()) {
-			LogCenter.debug("DCE", "Checking out " + node);
 			if (node instanceof MidUseNode) {
 				// Use.
 				localState.processUse((MidUseNode) node);
@@ -54,6 +53,8 @@ public class DeadCodeElim extends Transformer<LivenessState> {
 							.getDestinationNode();
 					if (destNode instanceof MidLocalMemoryNode
 							|| destNode instanceof MidConstantNode) {
+						LogCenter.debug("DERP", "destNode is " + destNode.getNodeClass());
+						LogCenter.debug("DERP", "localState is " + localState.getUses());
 						deleteSaveNodeEtAl(b, saveNode);
 					}
 				} else {
