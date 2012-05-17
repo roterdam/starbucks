@@ -26,6 +26,7 @@ public class MidArrayElementNode extends MidMemoryNode {
 		this.loadNode = loadNode;
 	}
 
+	/*
 	@Override
 	public ValuedMidNodeList generateReference(){
 		MidNodeList nodeList = new MidNodeList();
@@ -33,7 +34,7 @@ public class MidArrayElementNode extends MidMemoryNode {
 		MidArrayElementNode elementNode = new MidArrayElementNode(arrayNode, loadNode);
 		nodeList.add(loadNode);
 		return new ValuedMidNodeList(nodeList, elementNode);
-	}
+	}*/
 	
 	@Override
 	public void setRawLocationReference(String rawLocationReference) {
