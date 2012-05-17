@@ -6,7 +6,6 @@ import java.util.List;
 
 import edu.mit.compilers.LogCenter;
 import edu.mit.compilers.codegen.MidLabelManager.LabelType;
-import edu.mit.compilers.codegen.nodes.FillerMidNode;
 import edu.mit.compilers.codegen.nodes.MidCallNode;
 import edu.mit.compilers.codegen.nodes.MidCalloutNode;
 import edu.mit.compilers.codegen.nodes.MidExitNode;
@@ -555,9 +554,7 @@ public class MidVisitor {
 			newOperandList.addAll(leftEvalList.getList());
 			newOperandList.add(loadLeftNode);
 			newOperandList.add(loadRightNode);
-			newOperandList.add(new FillerMidNode("DERP1"));
 			newOperandList.add(binaryRegNode);
-			newOperandList.add(new FillerMidNode("DERP2"));
 			newOperandList.add(saveRegNode);
 			return newOperandList;
 		} catch (IllegalArgumentException e) {
