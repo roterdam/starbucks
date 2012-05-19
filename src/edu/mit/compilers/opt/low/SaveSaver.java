@@ -35,6 +35,10 @@ public class SaveSaver {
 			assert args.length == 2;
 			String dest = args[0];
 			String from = args[1];
+			if (dest.equals(from)) {
+				// Skip useless MOV
+				continue;
+			}
 			// If we're moving into a temp register...
 			if (isRegister(dest) && isTempReg(dest) && i < asmList.size() - 1) {
 				ASM nextItem = asmList.get(i + 1);
